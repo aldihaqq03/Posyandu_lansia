@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class lansia extends Model
+class Lansia extends Model
 {
     use HasFactory;
 
     protected $table = 'lansia';
-    protected $primaryKey = 'id_lansia';
 }

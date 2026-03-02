@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home');
 
-route::view('/admin', 'admin')->name('admin');
+Route::view('/admin', 'admin')->name('admin');
+
+Route::resource('lansia', LansiaController::class);
