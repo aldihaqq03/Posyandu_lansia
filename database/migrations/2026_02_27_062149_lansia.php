@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('tempat_lahir', 50)->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->text('alamat')->nullable();
-            $table->string('no_hp', 15)->nullable();
+            $table->string('no_hp', 13)->nullable();
             $table->string('status_perkawinan', 20)->nullable();
             $table->text('riwayat_penyakit')->nullable();
             $table->date('tanggal_daftar')->nullable();

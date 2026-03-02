@@ -18,7 +18,7 @@ class lansiaFactory extends Factory
             'tempat_lahir' => $this->faker->city(),
             'tanggal_lahir' => $this->faker->date('Y-m-d', '1965-12-31'),
             'alamat' => $this->faker->address(),
-            'no_hp' => $this->faker->phoneNumber(),
+            'no_hp' =>'08' . $this->faker->numerify('##########'),
             'status_perkawinan' => $this->faker->randomElement(['Menikah', 'Belum Menikah', 'Cerai']),
             'riwayat_penyakit' => $this->faker->randomElement([
                 'Hipertensi',
