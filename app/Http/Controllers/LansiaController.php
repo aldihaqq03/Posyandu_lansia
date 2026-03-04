@@ -7,27 +7,19 @@ use Illuminate\Http\Request;
 
 class LansiaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+  
     public function index()
     {
         $lansias = lansia::latest()->paginate(10);
         return view('lansia.index', compact('lansias'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('lansia.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+      public function store(Request $request)
     {
         $validated = $request->validate([
             'nik' => 'required|numeric|digits:16|unique:lansia,nik',
