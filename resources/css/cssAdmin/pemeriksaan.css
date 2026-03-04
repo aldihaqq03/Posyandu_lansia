@@ -1,0 +1,214 @@
+/* Layout Wrapper */
+.pemeriksaan-wrapper {
+    color: #1e293b;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.page-header p {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.search-box {
+    display: flex;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 300px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+/* Global Card Styling */
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 30px;
+}
+
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.badge-info {
+    background: #e0f2fe;
+    color: #0ea5e9;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Table Styling */
+.pemeriksaan-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pemeriksaan-table th {
+    text-align: left;
+    font-size: 11px;
+    color: #94a3b8;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.pemeriksaan-table td {
+    padding: 15px;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.row-active {
+    background-color: #f8fafc;
+}
+
+/* Gender Badges */
+.gender {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.gender.female {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.gender.male {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+/* Buttons */
+.btn-pilih {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-terpilih {
+    background: white;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+}
+
+.inner-card h3 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    font-size: 14px;
+}
+
+/* Info Box */
+.info-box {
+    background: #f0f9ff;
+    border-left: 4px solid #0ea5e9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.info-box p {
+    font-size: 12px;
+    color: #0369a1;
+    line-height: 1.5;
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-clear {
+    background: #f1f5f9;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    color: #64748b;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-save {
+    background: #3b82f6;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}

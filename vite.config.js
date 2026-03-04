@@ -7,7 +7,11 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css', 'resources/js/app.js',
-                'resources/css/style.css'
+                'resources/css/style.css',
+                'resources/css/berhasil.css',
+                'resources/css/berhasil2.css',
+                'resources/css/cssAdmin/dashboard.css',
+                'resources/css/cssAdmin/pemeriksaan.css',
             ],
             refresh: true,
         }),

@@ -1,0 +1,123 @@
+/* resources/css/berhasil.css */
+
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: #e8f5e9;
+    /* Latar belakang hijau muda sesuai style Anda */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-sizing: border-box;
+}
+
+/* Lingkaran luar yang sangat muda */
+.icon-container {
+    width: 85px;
+    height: 85px;
+    background-color: #dcf2ed;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 25px auto;
+}
+
+/* Lingkaran hijau solid dengan centang */
+.checkmark {
+    width: 50px;
+    height: 50px;
+    background-color: #129481;
+    /* Hijau toska sesuai gambar */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+h2 {
+    color: #1a202c;
+    font-size: 24px;
+    margin: 0 0 15px 0;
+    font-weight: 700;
+}
+
+p {
+    color: #718096;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 25px 0;
+}
+
+/* Box info "1x24 jam" */
+.info-box {
+    background-color: #f7fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 10px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.info-box span {
+    font-size: 13px;
+    color: #4a5568;
+}
+
+.info-icon {
+    color: #129481;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1.5px solid #129481;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Tombol Login Utama */
+.btn-login {
+    background-color: #129481;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.3s ease;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.btn-login:hover {
+    background-color: #0e7a6a;
+}
+
+.btn-login svg {
+    width: 18px;
+    height: 18px;
+}
