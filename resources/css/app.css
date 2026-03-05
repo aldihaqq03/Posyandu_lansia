@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif !important;
+    /* Menyamakan semua teks */
+}
+
+input,
+textarea,
+select,
+table,
+button {
+    font-family: inherit;
+    font-size: inherit;
+    color: #1e293b;
+}

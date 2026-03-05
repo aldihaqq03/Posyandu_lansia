@@ -88,17 +88,41 @@
     font-weight: 600;
 }
 
-/* Progress Bar */
-.progress-bar {
-    height: 6px;
-    background: #f1f5f9;
+/* Pastikan kontainer progress bar punya tinggi */
+.progress-bar,
+.progress-bar-thin {
+    width: 100%;
+    background-color: #f1f5f9;
+    /* Warna abu-abu dasar */
     border-radius: 10px;
     overflow: hidden;
+    height: 8px;
+    /* Tinggi bar utama */
+    margin-top: 10px;
+    position: relative;
 }
 
+/* Ini adalah isi diagramnya */
+.fill,
 .progress-fill {
     height: 100%;
     border-radius: 10px;
+    /* Kita set width 0 dulu agar bisa dianimasikan oleh JS */
+    width: 0;
+    transition: width 1.5s cubic-bezier(0.1, 0.5, 0.5, 1);
+}
+
+/* Detail per item diagram penyakit */
+.chart-item {
+    margin-bottom: 20px;
+}
+
+.chart-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 5px;
+    color: #475569;
 }
 
 /* Table Section */

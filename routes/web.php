@@ -15,6 +15,7 @@ Route::resource('lansia', LansiaController::class);
 //route hanya untuk tes
 //route tes sidebar fungsinya
 route::view('/tes', 'admin.dashboard');
-//route halaman yang di tuju sidebar sementara
-route::view('/dashboard', 'admin.dashboard');
-route::view('/pemeriksaan', 'admin.pemeriksaan');
+//route halaman yang di tuju sidebar 
+route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
+route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');

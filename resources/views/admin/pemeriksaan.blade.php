@@ -1,9 +1,16 @@
 @extends('layout.sidebar')
 
 @push('styles')
+    @vite('resources/css/app.css')
+@endpush
+
+@push('styles')
     @vite('resources/css/cssAdmin/pemeriksaan.css')
 @endpush
 
+@push('styles')
+    @vite('resources/js/jsAdmin/pemeriksaan.js')
+@endpush
 @section('content')
     <div class="pemeriksaan-wrapper">
         <header class="page-header">

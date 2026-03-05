@@ -12,6 +12,12 @@ export default defineConfig({
                 'resources/css/berhasil2.css',
                 'resources/css/cssAdmin/dashboard.css',
                 'resources/css/cssAdmin/pemeriksaan.css',
+                'resources/css/cssAdmin/data_lansia.css',
+                //resources js
+                'resources/js/jsAdmin/dashboard.js',
+                'resources/js/jsAdmin/pemeriksaan.js',
+                'resources/js/jsAdmin/data_lansia.js',
+
             ],
             refresh: true,
         }),

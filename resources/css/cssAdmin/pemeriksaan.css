@@ -1,5 +1,7 @@
 /* Layout Wrapper */
-.pemeriksaan-wrapper {
+.pemeriksaan-wrapperinput,
+
+button {
     color: #1e293b;
     font-family: 'Inter', sans-serif;
 }
@@ -107,22 +109,48 @@
 }
 
 /* Buttons */
-.btn-pilih {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 6px 16px;
-    border-radius: 8px;
+/* Style Dasar untuk semua tombol aksi (agar selalu melengkung) */
+.btn-pilih,
+.btn-terpilih {
+    padding: 8px 20px;
+    border-radius: 10px;
+    /* Nilai ini yang membuat melengkung */
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
 }
 
+/* Warna saat status "Pilih" */
+.btn-pilih {
+    background-color: #3b82f6;
+    /* Biru */
+    color: white;
+    border: none;
+}
+
+.btn-pilih:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+    /* Efek melayang sedikit */
+}
+
+/* Warna saat status "Terpilih" */
 .btn-terpilih {
-    background: white;
+    background-color: #eff6ff;
+    /* Biru sangat muda */
     color: #3b82f6;
     border: 2px solid #3b82f6;
-    padding: 6px 16px;
-    border-radius: 8px;
-    font-weight: 700;
+    /* Border biru */
+}
+
+/* Animasi baris tabel saat terpilih */
+.row-active {
+    background-color: #f0f9ff !important;
+    /* Biru sangat muda */
+    transition: background-color 0.4s ease;
 }
 
 /* Form Grid */
