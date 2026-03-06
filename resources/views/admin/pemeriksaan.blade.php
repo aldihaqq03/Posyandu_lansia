@@ -19,8 +19,11 @@
                 <p>Sistem Informasi Peduli Lansia (SIMPEL)</p>
             </div>
             <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 <input type="text" placeholder="Cari lansia..." id="search-lansia">
-                <button class="btn-search">🔍</button>
+                <button class="btn-clear-search" id="btn-clear-search" style="display: none;" title="Hapus pencarian">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
         </header>
 

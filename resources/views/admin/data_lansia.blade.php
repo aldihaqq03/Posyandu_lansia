@@ -22,7 +22,7 @@
                     <h1 class="page-title">Data Lansia</h1>
                     <p class="page-subtitle">Kelola informasi kesehatan lansia untuk pelayanan Posyandu yang lebih baik.</p>
                 </div>
-                <button class="btn-primary" type="button">
+                <button class="btn-primary" type="button" id="btn-tambah-lansia">
                     <img src="img/icon-10.svg" alt="" />
                     <span>Tambah Lansia</span>
                 </button>
@@ -65,8 +65,8 @@
                         <img src="img/icon-7.svg" alt="" />
                         <input type="search" placeholder="Cari nama, NIK, atau alamat..." id="main-search" />
                     </div>
-                    <button class="btn-outline">
-                        <img src="img/icon-14.svg" alt="" />
+                    <button class="btn-outline" id="btn-filter-lansia">
+                        <i class="fa-solid fa-filter"></i>
                         <span>Filter</span>
                     </button>
                 </div>
@@ -93,19 +93,45 @@
                                     </div>
                                 </div>
                             </td>
+
                             <td>
                                 <span class="main-text">78 Tahun</span>
                                 <span class="sub-text">12/05/1945</span>
                             </td>
+
                             <td>
-                                <address>Jl. Merdeka No. 10, RT 0…</address>
+                                <address>Jl. Merdeka No. 10, RT 04/02</address>
                             </td>
-                            <td><span class="badge-pill">Hipertensi</span></td>
-                            <td><span class="badge-status danger">RESIKO TINGGI</span></td>
+
                             <td>
-                                <button class="btn-icon"><img src="img/data.svg" alt="View" /></button>
+                                <span class="badge-pill">Hipertensi</span>
+                            </td>
+
+                            <td>
+                                <span class="badge-status danger">RESIKO TINGGI</span>
+                            </td>
+
+                            <td class="aksi">
+
+                                <!-- tombol detail -->
+                                <button class="btn-icon view-btn" title="Detail">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+
+                                <!-- tombol edit -->
+                                <button class="btn-icon edit-btn" title="Edit">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                <!-- tombol hapus -->
+                                <button class="btn-icon delete-btn" title="Hapus">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+
                             </td>
                         </tr>
+
+
                         <tr class="table-row selectable-row" data-id="2">
                             <td>
                                 <div class="user-cell">
@@ -116,17 +142,36 @@
                                     </div>
                                 </div>
                             </td>
+
                             <td>
                                 <span class="main-text">73 Tahun</span>
                                 <span class="sub-text">23/08/1950</span>
                             </td>
+
                             <td>
                                 <address>Jl. Mawar No. 5, RT 01/01</address>
                             </td>
-                            <td><span class="badge-pill">Diabetes</span></td>
-                            <td><span class="badge-status muted">NORMAL</span></td>
+
                             <td>
-                                <button class="btn-icon"><img src="img/data-2.svg" alt="View" /></button>
+                                <span class="badge-pill">Diabetes</span>
+                            </td>
+
+                            <td>
+                                <span class="badge-status muted">NORMAL</span>
+                            </td>
+
+                            <td class="aksi">
+
+                                <!-- tombol detail -->
+                                <button class="btn-icon view-btn" title="Detail">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+
+                                <!-- tombol edit -->
+                                <button class="btn-icon edit-btn" title="Edit">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
                             </td>
                         </tr>
                     </tbody>
@@ -197,9 +242,16 @@
                 </div>
             </section>
         </div>
+      
+       
+       
+@include('modal.M_tambahlansia')
+@include('modal.M_editlansia')
+@include('modal.M_hapus')
+@include('modal.M_filter')
     </main>
 @endsection
 
 @push('scripts')
-    @vite('resources/js/jsAdmin/dataLansia.js')
+    @vite('resources/js/jsAdmin/data_lansia.js')
 @endpush

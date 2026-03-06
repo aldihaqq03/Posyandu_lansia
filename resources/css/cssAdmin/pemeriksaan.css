@@ -32,6 +32,13 @@ button {
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     width: 300px;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-icon {
+    color: #94a3b8;
+    font-size: 14px;
 }
 
 .search-box input {
@@ -39,6 +46,25 @@ button {
     outline: none;
     width: 100%;
     font-size: 14px;
+    background: transparent;
+}
+
+.btn-clear-search {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    transition: color 0.2s;
+}
+
+.btn-clear-search:hover {
+    color: #ef4444;
+    /* Merah saat dihover */
 }
 
 /* Global Card Styling */

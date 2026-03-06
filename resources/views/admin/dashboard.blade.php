@@ -3,8 +3,8 @@
 @push('styles')
     @vite('resources/css/app.css')
 @endpush
-@push('styles')
-    @vite('resources/js/jsAdmin/pemeriksaan.js')
+@push('scripts')
+    @vite('resources/js/jsAdmin/dashboard.js')
 @endpush
 
 {{-- Kirim CSS ke head di sidebar.blade.php --}}
@@ -63,8 +63,10 @@
             <div class="content-card">
                 <div class="card-header">
                     <h3>Penyakit Terbanyak</h3>
-                    <a href="#" class="btn-detail">DETAIL</a>
+                    <a href="/data_lansia" class="btn-detail">DETAIL</a>
                 </div>
+
+
 
 
                 <div class="chart-list">
@@ -92,7 +94,9 @@
             <div class="content-card">
                 <div class="card-header">
                     <h3>Catatan Terakhir</h3>
-                    <button class="btn-filter">⚙️</button>
+                    <button class="btn-filter">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
                 </div>
                 <table class="data-table">
                     <thead>
@@ -115,7 +119,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <a href="#" class="btn-view-all">TAMPILKAN SEMUA DATA</a>
+                <a href="data_lansia" class="btn-view-all">TAMPILKAN SEMUA DATA</a>
             </div>
         </div>
     </div>
