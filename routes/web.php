@@ -29,3 +29,4 @@ route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
 
 route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
+
