@@ -10,8 +10,8 @@
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 @vite([
-    'resources/css/register.css',
-    'resources/js/register.js'
+'resources/css/register.css',
+'resources/js/register.js'
 ])
 
 </head>
@@ -28,13 +28,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <h2 class="title-main">Daftar Akun SIMPEL</h2>
 <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h4>
 
-<form id="registerForm">
+<form id="registerForm" action="/register" method="POST">
+@csrf
 
 <div class="form-group">
 <label>Nama Lengkap</label>
 <div class="input-wrapper">
 <i class="fa fa-user"></i>
-<input type="text" id="nama">
+<input type="text" id="nama" name="nama" required>
 </div>
 </div>
 
@@ -42,7 +43,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Email</label>
 <div class="input-wrapper">
 <i class="fa fa-envelope"></i>
-<input type="email" id="email">
+<input type="email" id="email" name="email" required>
 </div>
 <span class="error" id="emailError"></span>
 </div>
@@ -51,7 +52,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>NIK</label>
 <div class="input-wrapper">
 <i class="fa fa-id-card"></i>
-<input type="text" id="nik" maxlength="16">
+<input type="text" id="nik" name="nik" maxlength="16" required>
 </div>
 <span class="error" id="nikError"></span>
 </div>
@@ -60,7 +61,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Nomor WhatsApp</label>
 <div class="input-wrapper">
 <i class="fa fa-phone"></i>
-<input type="text">
+<input type="text" name="whatsapp" required>
 </div>
 </div>
 
@@ -68,12 +69,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Jabatan</label>
 <div class="input-wrapper">
 <i class="fa fa-user-tie"></i>
-<select>
-<option>Pilih Jabatan</option>
-<option>Kader</option>
-<option>Petugas</option>
-<option>Admin</option>
+
+<select name="jabatan" required>
+<option value="">Pilih Jabatan</option>
+<option value="kader">Kader</option>
+<option value="petugas">Petugas</option>
+<option value="admin">Admin</option>
 </select>
+
 </div>
 </div>
 
@@ -81,13 +84,15 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Wilayah Kerja</label>
 <div class="input-wrapper">
 <i class="fa fa-map-marker-alt"></i>
-<select id="wilayah">
+
+<select id="wilayah" name="wilayah_kerja" required>
 <option value="">Pilih Wilayah Kerja</option>
-<option>Posyandu Mawar</option>
-<option>Posyandu Melati</option>
-<option>Posyandu Anggrek</option>
-<option>Posyandu Dahlia</option>
+<option value="Posyandu Mawar">Posyandu Mawar</option>
+<option value="Posyandu Melati">Posyandu Melati</option>
+<option value="Posyandu Anggrek">Posyandu Anggrek</option>
+<option value="Posyandu Dahlia">Posyandu Dahlia</option>
 </select>
+
 </div>
 </div>
 
@@ -95,7 +100,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Password</label>
 <div class="input-wrapper">
 <i class="fa fa-lock icon-left"></i>
-<input type="password" id="password">
+<input type="password" id="password" name="password" required>
 <i class="fa fa-eye password-toggle" onclick="togglePassword('password', this)"></i>
 </div>
 <span class="error" id="passError"></span>
@@ -105,13 +110,15 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Konfirmasi Password</label>
 <div class="input-wrapper">
 <i class="fa fa-lock icon-left"></i>
-<input type="password" id="confirmPassword">
+<input type="password" id="confirmPassword" name="password_confirmation" required>
 <i class="fa fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
 </div>
 <span class="error" id="confirmError"></span>
 </div>
 
-<button class="btn-primary">Daftar Sekarang</button>
+<button type="submit" class="btn-primary">
+Daftar Sekarang
+</button>
 
 <div class="login-link">
 Sudah punya akun?
@@ -122,3 +129,6 @@ Sudah punya akun?
 
 </div>
 </div>
+
+</body>
+</html>

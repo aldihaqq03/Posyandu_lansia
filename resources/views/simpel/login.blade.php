@@ -5,13 +5,13 @@
 <meta charset="UTF-8">
 <title>Login SIMPEL</title>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 @vite([
 'resources/css/login.css',
 'resources/js/login.js'
 ])
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
 
@@ -22,13 +22,19 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="login-card">
 
 <div class="logo">
-<img src="{{ asset('images/logo_posyandu.png') }}" alt="logo">
+<img src="{{ asset('images/logo_posyandu.png') }}" alt="Logo Posyandu">
 </div>
 
 <h2 class="title-main">SIMPEL</h2>
 <p class="subtitle">Sistem Informasi Peduli Lansia</p>
 
-<form method="POST" action="{{ route('login') }}" id="loginForm">
+@if(session('error'))
+<p style="color:red;text-align:center;">
+{{ session('error') }}
+</p>
+@endif
+
+<form method="POST" action="{{ route('login') }}">
 @csrf
 
 <!-- EMAIL -->

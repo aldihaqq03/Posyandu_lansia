@@ -12,12 +12,14 @@ body {
     height: 100vh;
 }
 
+/* Wrapper */
 .login-wrapper {
     width: 100%;
     max-width: 380px;
     padding: 20px;
 }
 
+/* Card Login */
 .login-card {
     background: white;
     padding: 35px;
@@ -26,11 +28,13 @@ body {
     text-align: center;
 }
 
+/* Logo */
 .logo img {
     width: 70px;
     margin-bottom: 10px;
 }
 
+/* Title */
 .title-main {
     margin: 5px 0;
 }
@@ -41,8 +45,24 @@ body {
     margin-bottom: 25px;
 }
 
+/* Form Group */
+.form-group {
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+/* Input */
 .input-group {
     position: relative;
+    width: 100%;
     margin-bottom: 18px;
 }
 
@@ -52,7 +72,6 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
-    transition: 0.3s;
 }
 
 .input-group input:focus {
@@ -61,23 +80,26 @@ body {
     box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
-.input-group i {
+/* Icon kiri */
+.input-group i:not(.toggle-password) {
     position: absolute;
     top: 50%;
+    left: 12px;
     transform: translateY(-50%);
     color: #888;
 }
 
-.input-group .fa-envelope,
-.input-group .fa-lock {
-    left: 12px;
-}
-
+/* Toggle password */
 .toggle-password {
+    position: absolute;
     right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
+    color: #888;
 }
 
+/* Button */
 .btn-login {
     width: 100%;
     padding: 12px;
@@ -94,6 +116,7 @@ body {
     background: #0f766e;
 }
 
+/* Link */
 .auth-link {
     margin-top: 18px;
     font-size: 14px;
