@@ -7,6 +7,8 @@ Route::view('/', 'simpel.register')->name('register');
 
 Route::view('/login', 'simpel.login')->name('login');
 
+Route::view('/berhasil', 'simpel.berhasil')->name('berhasil');
+
 Route::view('/admin', 'admin')->name('admin');
 
 Route::resource('lansia', LansiaController::class);
