@@ -29,7 +29,3 @@ route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
 
 route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
-
-Route::get('/register',[AuthController::class,'register'])->name('register');
-
-Route::post('/register',[AuthController::class,'proses_register']);
