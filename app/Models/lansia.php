@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class lansia extends Model
+class Lansia extends Model
 {
     use HasFactory;
 
@@ -19,8 +19,8 @@ class lansia extends Model
         'email',
         'password',
         'alamat',
-        'duno_hp',
+        'no_hp',
         'pekerjaan',
-      
+
     ];
 }

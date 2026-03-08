@@ -1,4 +1,8 @@
 <!-- Modal Tambah Lansia -->
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="route-store-lansia" content="{{ route('lansia.store') }}">
+
 <div id="modal-tambah-lansia" class="modal-overlay">
     <div class="modal-content">
 
@@ -17,7 +21,8 @@
 
                 <div class="form-group">
                     <label for="nama_lengkap">Nama Lengkap</label>
-                    <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Masukkan Nama Lengkap" required>
+                    <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Masukkan Nama Lengkap"
+                        required>
                 </div>
 
                 <div class="form-group">
@@ -36,21 +41,10 @@
 
                 <div class="form-group">
                     <label for="alamat">Alamat</label>
-                    <textarea id="alamat" name="alamat" rows="3" placeholder="Masukkan Alamat Lengkap" required></textarea>
+                    <textarea id="alamat" name="alamat" rows="3" placeholder="Masukkan Alamat Lengkap"
+                        required></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="penyakit">Penyakit</label>
-                    <input type="text" id="penyakit" name="penyakit" placeholder="Contoh: Hipertensi, Asam Urat" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="status_risiko">Status Risiko</label>
-                    <select id="status_risiko" name="status_risiko">
-                        <option value="NORMAL">NORMAL</option>
-                        <option value="RESIKO TINGGI">RESIKO TINGGI</option>
-                    </select>
-                </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -64,7 +58,8 @@
 
                 <div class="form-group">
                     <label for="password_confirmation">Konfirmasi Password</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Konfiramsi Password" required>
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                        placeholder="Konfiramsi Password" required>
                 </div>
 
                 <div class="modal-footer">

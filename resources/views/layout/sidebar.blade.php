@@ -43,7 +43,7 @@
             <a href="/pemeriksaan" class="nav-item {{ Request::is('pemeriksaan') ? 'active' : '' }}">
                 <i class="icon-dash">📋</i> Pemeriksaan
             </a>
-            <a href="/data_lansia" class="nav-item {{ Request::is('lansia') ? 'active' : '' }}">
+            <a href="/lansia" class="nav-item {{ Request::is('lansia*') ? 'active' : '' }}">
                 <i class="icon-dash">👥</i> Data Lansia
             </a>
         </nav>

@@ -6,10 +6,19 @@
             <button class="btn-close-modal" id="btn-close-edit-modal">&times;</button>
         </div>
         <div class="modal-body">
-            <form action="#" method="POST">
+            <form action="" method="POST" id="form-edit-lansia">
+                @csrf
+                @method('PUT')
                 <div class="form-group">
                     <label for="edit_nik">NIK</label>
                     <input type="text" id="edit_nik" name="nik" placeholder="Masukkan 16 digit NIK" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_jenis_kelamin">Jenis Kelamin</label>
+                    <select id="edit_jenis_kelamin" name="jenis_kelamin" required>
+                        <option value="laki-laki">Laki-laki</option>
+                        <option value="perempuan">Perempuan</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="edit_nama_lengkap">Nama Lengkap</label>
