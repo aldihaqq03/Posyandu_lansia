@@ -30,8 +30,15 @@
 
                     <form>
 
+<<<<<<< Updated upstream
                         <label>Nama Lengkap</label>
                         <input type="text" placeholder="Masukkan nama lengkap">
+=======
+<button type="submit" class="btn-login">
+Masuk
+<a href="{{ route('dashboard') }}"></a>
+</button>
+>>>>>>> Stashed changes
 
                         <label>Kata Sandi</label>
                         <input type="password" placeholder="********">

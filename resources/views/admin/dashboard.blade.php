@@ -117,6 +117,7 @@
                             <td><span class="badge-risk normal">NORMAL</span></td>
                             <td>23 Okt 2023</td>
                         </tr>
+                        
                     </tbody>
                 </table>
                 <a href="data_lansia" class="btn-view-all">TAMPILKAN SEMUA DATA</a>
