@@ -12,19 +12,17 @@ body {
     height: 100vh;
 }
 
-/* Wrapper */
 .login-wrapper {
     width: 100%;
     max-width: 380px;
     padding: 20px;
 }
 
-/* Card Login */
 .login-card {
     background: white;
-    padding: 35px;
+    padding: 35px 30px;
     border-radius: 14px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
     text-align: center;
 }
 
@@ -37,6 +35,7 @@ body {
 /* Title */
 .title-main {
     margin: 5px 0;
+    font-weight: 600;
 }
 
 .subtitle {
@@ -45,56 +44,44 @@ body {
     margin-bottom: 25px;
 }
 
-/* Form Group */
-.form-group {
-    text-align: left;
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    font-size: 14px;
-    font-weight: 500;
-    display: block;
-    margin-bottom: 6px;
-    color: #333;
-}
-
-/* Input */
 .input-group {
     position: relative;
     width: 100%;
     margin-bottom: 18px;
 }
 
+/* Input */
 .input-group input {
     width: 100%;
-    padding: 12px 40px;
+    padding: 12px 45px 12px 45px;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
 }
 
+/* Focus */
 .input-group input:focus {
     outline: none;
     border-color: #0D9488;
     box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
-/* Icon kiri */
-.input-group i:not(.toggle-password) {
+.input-group i {
     position: absolute;
+    left: 18px;
     top: 50%;
     left: 12px;
     transform: translateY(-50%);
     color: #888;
 }
 
-/* Toggle password */
+.input-group .fa-envelope,
+.input-group .fa-lock {
+    left: 12px;
+}
+
 .toggle-password {
-    position: absolute;
     right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
     cursor: pointer;
     color: #888;
 }
@@ -108,6 +95,7 @@ body {
     border-radius: 8px;
     color: white;
     font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -126,4 +114,17 @@ body {
     color: #0D9488;
     text-decoration: none;
     font-weight: 500;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+
+    .login-card {
+        padding: 25px;
+    }
+
 }

@@ -21,6 +21,7 @@ Route::resource('lansia', LansiaController::class);
 
 
 //route hanya untuk tes
+route::view('/scan', view: 'skrining.skrining_utama');
 //route tes sidebar fungsinya
 route::view('/tes', 'admin.dashboard');
 //route halaman yang di tuju sidebar 

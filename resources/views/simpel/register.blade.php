@@ -69,12 +69,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Jabatan</label>
 <div class="input-wrapper">
 <i class="fa fa-user-tie"></i>
-
-<select name="jabatan" required>
-<option value="">Pilih Jabatan</option>
-<option value="kader">Kader</option>
-<option value="petugas">Petugas</option>
-<option value="admin">Admin</option>
+                        
+                            <select name="jabatan" required>
+                            <option value="">Pilih Jabatan</option>
+                            <option value="Kader">Kader</option>
+                            <option value="Petugas">Petugas</option>
+                        <option value="Admin">Admin</option>
 </select>
 
 </div>
