@@ -2,10 +2,15 @@
 
 use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
-Route::view('/', 'simpel.register')->name('register');
+Route::get('/', [AuthController::class,'login'])->name('login');
 
-Route::view('/login', 'simpel.login')->name('login');
+Route::post('/', [AuthController::class,'proses_login']);
+
+Route::get('/register',[AuthController::class,'register'])->name('register');
+
+Route::post('/register',[AuthController::class,'proses_register']);
 
 Route::view('/berhasil', 'simpel.berhasil')->name('berhasil');
 
