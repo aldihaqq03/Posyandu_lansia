@@ -15,47 +15,51 @@
 </head>
 
 <body>
-    
-<div class="login-wrapper">
-        
-<div class="login-card">
-            
-                <div class="logo">
-            <img src="{{ asset('images/logo_posyandu.png') }}" alt="logo">
-</div>
 
-            <!-- JUDUL DI DALAM CARD -->
+    <div class="login-wrapper">
+
+        <div class="login-card">
+
+            <div class="logo">
+                <img src="{{ asset('images/logo_posyandu.png') }}" alt="logo">
+            </div>
+
             <h2 class="title-main">SIMPEL</h2>
-                <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h3>
+            <p class="subtitle">Sistem Informasi Peduli Lansia</p>
 
+            <form method="POST" action="{{ route('login') }}" id="loginForm">
+                @csrf
 
-                    <form>
+                <!-- EMAIL -->
+                <div class="input-group">
+                    <i class="fa fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
 
-                    <label>Nama Lengkap</label>
-                        <input type="text" placeholder="Masukkan nama lengkap">
+                <!-- PASSWORD -->
+                <div class="input-group">
+                    <i class="fa fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
 
-                    <label>Kata Sandi</label>
-                        <input type="password" placeholder="********">
-                    
- <i class="fa fa-eye toggle-password"
-        onclick="togglePassword('password',this)"></i>
-</div>
-        
-            <button type="submit" class="btn-login">
-        Masuk
-</button>
-        
-            <div class="auth-link">
-            Belum punya akun?
-        <a href="{{ route('register') }}">Daftar</a>
-</div>
-        
-</form>
-    
-</div>
-    
-</div>
+                    <i class="fa fa-eye toggle-password" onclick="togglePassword('password',this)"></i>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Masuk
+                </button>
+
+                <div class="auth-link">
+                    Belum punya akun?
+                    <a href="{{ route('register') }}">Daftar</a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
 </body>
+
 </html>
