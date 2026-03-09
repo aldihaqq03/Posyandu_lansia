@@ -3,29 +3,36 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>SIMPEL</title>
+    <title>Login SIMPEL</title>
 
-    @vite('resources/css/style.css')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    @vite([
+        'resources/css/login.css',
+        'resources/js/login.js'
+    ])
+
 </head>
 
 <body>
-
-    <div class="wrapper">
-
-
-        <!-- FORM CARD -->
-        <div class="container">
-            <div class="card">
-
-
-                <!-- LOGO DI DALAM CARD -->
+    
+<div class="login-wrapper">
+        
+<div class="login-card">
+            
                 <div class="logo">
-                    <img src="{{ asset('images/logo_posyandu.png') }}" alt="Logo Posyandu">
-                </div>
+            <img src="{{ asset('images/logo_posyandu.png') }}" alt="logo">
+</div>
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
                 <!-- JUDUL DI DALAM CARD -->
                 <h2 class="title-main">SIMPEL</h2>
+=======
+<<<<<<< HEAD
+            <!-- JUDUL DI DALAM CARD -->
+            <h2 class="title-main">SIMPEL</h2>
+>>>>>>> main
                 <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h3>
 =======
 @if(session('error'))
@@ -44,31 +51,64 @@
 
                     <form>
 
-<<<<<<< Updated upstream
-                        <label>Nama Lengkap</label>
+                    <label>Nama Lengkap</label>
                         <input type="text" placeholder="Masukkan nama lengkap">
+
+                    <label>Kata Sandi</label>
+                        <input type="password" placeholder="********">
+                    
+ <i class="fa fa-eye toggle-password"
+        onclick="togglePassword('password',this)"></i>
+</div>
+        
+            <button type="submit" class="btn-login">
+        Masuk
+</button>
+        
+            <div class="auth-link">
+            Belum punya akun?
+        <a href="{{ route('register') }}">Daftar</a>
+</div>
+        
+</form>
+    
+</div>
+    
 =======
+<h2 class="title-main">SIMPEL</h2>
+<p class="subtitle">SISTEM INFORMASI PEDULI LANSIA</p>
+
+<form method="POST" action="{{ route('login') }}">
+@csrf
+
+<label>Email</label>
+<div class="input-group">
+<i class="fa fa-envelope"></i>
+<input type="email" name="email" placeholder="Masukkan email" required>
+</div>
+
+<label>Kata Sandi</label>
+<div class="input-group">
+<i class="fa fa-lock"></i>
+<input type="password" id="password" name="password" placeholder="********" required>
+<i class="fa fa-eye toggle-password"
+onclick="togglePassword('password',this)"></i>
+</div>
+
 <button type="submit" class="btn-login">
 Masuk
-<a href="{{ route('dashboard') }}"></a>
 </button>
->>>>>>> Stashed changes
 
-                        <label>Kata Sandi</label>
-                        <input type="password" placeholder="********">
+</form>
 
-                        <button type="login" class="btn-primary">
-                            login
-                        </button>
+<div class="auth-link">
+Belum punya akun?
+<a href="{{ route('register') }}">Daftar</a>
+</div>
 
-                        <label>Sudah punya akun?</label>
-                        <a href="{{ route('register') }}" class="btn-secondary">
-                            Masuk
+>>>>>>> Rifki
+</div>
 
-
-
-
-                    </form>
-            </div>
 
 </body>
+</html>

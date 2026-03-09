@@ -1,0 +1,138 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #e0f7f5, #e8f5e9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Label */
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-align: left;
+}
+
+/* Wrapper */
+.login-wrapper {
+    width: 100%;
+    max-width: 380px;
+    padding: 20px;
+}
+
+/* Card */
+.login-card {
+    background: white;
+    padding: 35px 30px;
+    border-radius: 14px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+/* Logo */
+.logo img {
+    width: 70px;
+    margin-bottom: 10px;
+}
+
+/* Title */
+.title-main {
+    margin: 5px 0;
+    font-weight: 600;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+/* Input Group */
+.input-group {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+/* Input */
+.input-group input {
+    width: 100%;
+    padding: 12px 45px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* Focus */
+.input-group input:focus {
+    outline: none;
+    border-color: #0D9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+/* Icon kiri (email & lock) */
+.input-group i:first-child {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+/* Icon mata */
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+}
+
+/* Button */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: #0D9488;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background: #0f766e;
+}
+
+/* Link */
+.auth-link {
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.auth-link a {
+    color: #0D9488;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width:480px) {
+    .login-card {
+        padding: 25px;
+    }
+}
