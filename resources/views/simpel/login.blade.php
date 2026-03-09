@@ -31,10 +31,16 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <form method="POST" action="{{ route('login') }}">
 @csrf
 
+@if(session('error'))
+<div style="color: #e74c3c; background-color: #fde2e2; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px;">
+    {{ session('error') }}
+</div>
+@endif
+
 <label>Email</label>
 <div class="input-group">
 <i class="fa fa-envelope"></i>
-<input type="email" name="email" placeholder="Masukkan email" required>
+<input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
 </div>
 
 <label>Kata Sandi</label>

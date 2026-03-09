@@ -4,13 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-   
-       public function up(): void
+
+    public function up(): void
     {
         Schema::create('lansia', function (Blueprint $table) {
             $table->id('id_lansia');
@@ -25,6 +24,7 @@ return new class extends Migration
             $table->text('riwayat_penyakit')->nullable();
             $table->date('tanggal_daftar')->nullable();
             $table->text('keterangan')->nullable();
+            $table->string('email', 30)->nullable();
             $table->timestamps(); // created_at & updated_at
         });
     }

@@ -13,6 +13,8 @@ export default defineConfig({
                 'resources/css/cssAdmin/dashboard.css',
                 'resources/css/cssAdmin/pemeriksaan.css',
                 'resources/css/cssAdmin/data_lansia.css',
+                'resources/css/cssAdmin/data_petugas.css',
+                'resources/css/cssAdmin/tambah_data_petugas.css',
                 //resources js
                 'resources/js/jsAdmin/dashboard.js',
                 'resources/js/jsAdmin/pemeriksaan.js',

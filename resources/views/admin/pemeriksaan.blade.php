@@ -8,7 +8,7 @@
     @vite('resources/css/cssAdmin/pemeriksaan.css')
 @endpush
 
-@push('styles')
+@push('scripts')
     @vite('resources/js/jsAdmin/pemeriksaan.js')
 @endpush
 @section('content')

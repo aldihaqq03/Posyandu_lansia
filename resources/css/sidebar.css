@@ -1,137 +1,139 @@
-/* resources/css/sidebar.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
 
-:root {
-    --sidebar-bg: #ffffff;
-    --sidebar-width: 260px;
-    --primary-color: #129481;
-    --text-muted: #94a3b8;
-    --text-main: #475569;
-    --nav-hover: #e4e4e4;
-    --nav-active-bg: #e4e4e4;
+body {
+    display: flex;
+    background: #f8fafc;
 }
 
 .sidebar {
-    width: var(--sidebar-width);
+    width: 260px;
     height: 100vh;
-    background: var(--sidebar-bg);
-    border-right: 1px solid #e2e8f0;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
-    padding: 30px 20px;
-    position: fixed;
-    left: 0;
-    top: 0;
-    box-sizing: border-box;
 }
 
-/* Logo Styling */
+/* LOGO */
+
 .logo-section {
     display: flex;
     align-items: center;
+    padding: 25px;
     gap: 12px;
-    margin-bottom: 45px;
-    padding-left: 10px;
 }
 
 .logo-icon {
-    background-color: var(--primary-color);
-    width: 35px;
-    height: 35px;
-    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 .brand-name {
-    display: block;
-    font-size: 18px;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: 1px;
+    font-weight: 700;
+    font-size: 16px;
 }
 
 .brand-tagline {
-    font-size: 10px;
-    color: var(--text-muted);
-    font-weight: 500;
+    font-size: 11px;
+    color: #9ca3af;
 }
 
-/* Nav Link Styling */
+/* NAV */
+
 .sidebar-nav {
-    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 12px 15px;
+    gap: 12px;
+    padding: 14px 25px;
     text-decoration: none;
-    color: var(--text-main);
+    color: #374151;
     font-size: 14px;
-    font-weight: 500;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
 }
 
 .nav-item i {
-    font-style: normal;
-    font-size: 18px;
+    width: 18px;
 }
 
 .nav-item:hover {
-    background-color: var(--nav-hover);
-    color: var(--primary-color);
+    background: #f3f4f6;
 }
 
 .nav-item.active {
-    background-color: var(--nav-active-bg);
-    color: var(--primary-color);
-    font-weight: 600;
+    background: #eff6ff;
+    color: #2563eb;
+    border-left: 4px solid #2563eb;
 }
 
-/* Footer Profile Section */
+/* SETTING */
+
+.sidebar-setting {
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+}
+
+/* FOOTER */
+
 .sidebar-footer {
-    border-top: 1px solid #f1f5f9;
-    padding-top: 20px;
+    margin-top: auto;
+    padding: 20px;
+    border-top: 1px solid #eee;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    object-fit: cover;
+}
+
+.user-info {
+    flex: 1;
 }
 
 .user-name {
     display: block;
-    font-size: 13px;
-    font-weight: 700;
-    color: #1e293b;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .user-role {
-    font-size: 11px;
-    color: var(--text-muted);
+    font-size: 12px;
+    color: #9ca3af;
 }
 
 .logout-btn {
-    width: 100%;
-    padding: 8px;
-    background-color: #e74c3c;
-    color: white;
+    background: none;
     border: none;
-    border-radius: 5px;
+    color: #ef4444;
     cursor: pointer;
-    font-weight: bold;
-    margin-top: 5px;
+    font-size: 16px;
 }
 
-.logout-btn:hover {
-    background-color: #c0392b;
+/* MAIN CONTENT AREA */
+.main-content {
+    flex: 1;
+    /* margin-left: 260px; (kalau sidebar position absolute, di sini flexbox jadi sudah otomatis) */
+    padding: 20px;
+    background: #f8fafc;
+    min-height: 100vh;
+    max-width: calc(100vw - 260px);
+    overflow-x: hidden;
 }

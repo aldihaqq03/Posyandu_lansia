@@ -3,6 +3,7 @@
 use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PetugasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,11 +35,17 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:kader')->group(function () {
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
         Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
-        Route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
+        Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
+        Route::view('/data_petugas', 'admin.petugas.index')->name('data_petugas');
+        Route::get('/petugas', [PetugasController::class,'index']);
+        Route::get('/petugas/tambah', [PetugasController::class,'tambah']);
+        Route::post('/petugas/store', [PetugasController::class,'store']);
     });
 
     // Resource Lansia bisa diakses oleh yang punya hak
-    Route::resource('lansia', LansiaController::class);
+    Route::resource('lansia', LansiaController::class)->parameters([
+        'lansia' => 'lansia'
+    ]);
 
     // Route testing
     Route::view('/scan', 'skrining.skrining_utama');
