@@ -68,11 +68,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Jabatan</label>
 <div class="input-wrapper">
 <i class="fa fa-user-tie"></i>
-<select>
-<option>Pilih Jabatan</option>
-<option>Kader</option>
-<option>Petugas</option>
-<option>Admin</option>
+                        
+                            <select name="jabatan" required>
+                            <option value="">Pilih Jabatan</option>
+                            <option value="Kader">Kader</option>
+                        <option value="Admin">Admin</option>
 </select>
 
 </div>
@@ -97,7 +97,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="form-group">
 <label>Password</label>
 <div class="input-wrapper">
-<i class="fa fa-lock icon-left"></i>
+<i class="fa fa-lock"></i>
 <input type="password" id="password" name="password" required>
 <i class="fa fa-eye password-toggle" onclick="togglePassword('password', this)"></i>
 </div>
@@ -107,7 +107,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="form-group">
 <label>Konfirmasi Password</label>
 <div class="input-wrapper">
-<i class="fa fa-lock icon-left"></i>
+<i class="fa fa-lock"></i>
 <input type="password" id="confirmPassword" name="password_confirmation" required>
 <i class="fa fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
 </div>

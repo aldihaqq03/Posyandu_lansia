@@ -59,18 +59,19 @@
 <h2 class="title-main">SIMPEL</h2>
 <p class="subtitle">SISTEM INFORMASI PEDULI LANSIA</p>
 
-<form>
+<form method="POST" action="{{ route('login') }}">
+@csrf
 
-<label>Nama Lengkap</label>
+<label>Email</label>
 <div class="input-group">
-<i class="fa fa-user"></i>
-<input type="text" placeholder="Masukkan nama lengkap">
+<i class="fa fa-envelope"></i>
+<input type="email" name="email" placeholder="Masukkan email" required>
 </div>
 
 <label>Kata Sandi</label>
 <div class="input-group">
 <i class="fa fa-lock"></i>
-<input type="password" id="password" placeholder="********">
+<input type="password" id="password" name="password" placeholder="********" required>
 <i class="fa fa-eye toggle-password"
 onclick="togglePassword('password',this)"></i>
 </div>
