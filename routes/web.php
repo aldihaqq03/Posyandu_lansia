@@ -4,15 +4,6 @@ use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
-<<<<<<< HEAD
-Route::get('/', [AuthController::class,'login'])->name('login');
-
-Route::post('/', [AuthController::class,'proses_login']);
-
-Route::get('/register',[AuthController::class,'register'])->name('register');
-
-Route::post('/register',[AuthController::class,'proses_register']);
-=======
 /*
 |--------------------------------------------------------------------------
 | Public Routes (Guest)
@@ -25,7 +16,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [AuthController::class, 'login'])->name('login');
     Route::post('/', [AuthController::class, 'proses_login'])->name('proses_login');
 });
->>>>>>> Rifki
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
     // Admin routes
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role:KepalaKader')->group(function () {
         Route::view('/admin', 'admin')->name('admin');
         Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
         Route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
