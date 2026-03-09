@@ -24,7 +24,7 @@ class AuthController extends Controller
             'whatsapp' => $request->whatsapp,
             'jabatan' => $request->jabatan,
             'wilayah_kerja' => $request->wilayah_kerja,
-            'password' => Hash::make($request->password)
+            'password' => $request->password
         ]);
 
         return redirect('/berhasil');
@@ -54,4 +54,12 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
+<<<<<<< Updated upstream
+=======
+
+
+
+
+
+>>>>>>> Stashed changes
 }

@@ -14,8 +14,22 @@ Route::post('/register',[AuthController::class,'proses_register']);
 
 Route::view('/admin', 'admin')->name('admin');
 
+<<<<<<< Updated upstream
 Route::resource('lansia', LansiaController::class);
 
+=======
+    // Admin routes
+    Route::middleware('role:kader')->group(function () {
+        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+        Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
+        Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
+    });
+
+    // Resource Lansia bisa diakses oleh yang punya hak
+    Route::resource('lansia', LansiaController::class)->parameters([
+        'lansia' => 'lansia'
+    ]);
+>>>>>>> Stashed changes
 
 //route hanya untuk tes
 //route tes sidebar fungsinya

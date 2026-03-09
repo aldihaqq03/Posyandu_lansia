@@ -23,9 +23,23 @@
                     <img src="{{ asset('images/logo_posyandu.png') }}" alt="Logo Posyandu">
                 </div>
 
+<<<<<<< Updated upstream
                 <!-- JUDUL DI DALAM CARD -->
                 <h2 class="title-main">SIMPEL</h2>
                 <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h3>
+=======
+@if(session('error'))
+<div style="color: #e74c3c; background-color: #fde2e2; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px;">
+    {{ session('error') }}
+</div>
+@endif
+
+<label>Email</label>
+<div class="input-group">
+<i class="fa fa-envelope"></i>
+<input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
+</div>
+>>>>>>> Stashed changes
 
 
                     <form>

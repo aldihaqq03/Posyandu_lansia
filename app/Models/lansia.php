@@ -11,6 +11,7 @@ class lansia extends Model
 
     protected $table = 'lansia';
     protected $primaryKey = 'id_lansia';
+<<<<<<< Updated upstream
     protected $fillable = [
         'nama',
         'nik',
@@ -22,5 +23,21 @@ class lansia extends Model
         'duno_hp',
         'pekerjaan',
       
+=======
+
+    protected $fillable = [
+        'nik',
+        'nama_lansia',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'alamat',
+        'no_hp',
+        'status_perkawinan',
+        'riwayat_penyakit',
+        'tanggal_daftar',
+        'keterangan',
+        'email',
+>>>>>>> Stashed changes
     ];
 }
