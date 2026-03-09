@@ -47,13 +47,13 @@ class AuthController extends Controller
             // Redirect sesuai jabatan
             $jabatan = Auth::user()->jabatan;
 
-            if ($jabatan == 'admin') {
-                return redirect('/admin/dashboard');
+            if ($jabatan == 'kader') {
+                return redirect('/dashboard');
 
             }
 
             //els ini nyalain kalo front end kepala kader udah ada
-            //  elseif ($jabatan == 'kader') {
+            //  elseif ($jabatan == 'admin') {
             //     return redirect('/admin/dashboard');
 
             // } 

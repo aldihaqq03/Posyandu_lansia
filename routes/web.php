@@ -28,11 +28,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Dashboard umum
-    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+   // Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
     // Admin routes
-    Route::middleware('role:admin')->group(function () {
-        Route::view('/admin', 'admin')->name('admin');
+    Route::middleware('role:kader')->group(function () {
+        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
         Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
         Route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
     });
