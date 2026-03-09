@@ -15,6 +15,14 @@ class AuthController extends Controller
         return view('simpel.register');
     }
 
+<<<<<<< HEAD
+=======
+    public function login()
+    {
+        return view('simpel.login'); // pastikan ada file resources/views/simpel/login.blade.php
+    }
+
+>>>>>>> Rifki
     public function proses_register(Request $request)
     {
         User::create([
@@ -27,6 +35,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
+<<<<<<< HEAD
         return redirect('/berhasil');
     }
 
@@ -55,3 +64,70 @@ class AuthController extends Controller
     }
 
 }
+=======
+        return redirect('/login');
+    }
+
+
+    public function proses_login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+
+            $request->session()->regenerate(); // penting untuk keamanan
+
+            // Redirect sesuai jabatan
+            $jabatan = Auth::user()->jabatan;
+
+            if ($jabatan == 'admin') {
+                return redirect('/admin/dashboard');
+
+            }
+
+            //els ini nyalain kalo front end kepala kader udah ada
+            //  elseif ($jabatan == 'kader') {
+            //     return redirect('/admin/dashboard');
+
+            // } 
+
+            // default jika jabatan tidak terdeteksi
+            return redirect('/dashboard');
+        }
+
+        return back()->with('error', 'Email atau Password salah');
+    }
+    public function logout(Request $request)
+    {
+        // Logout user
+        Auth::logout();
+
+        // Hapus session Laravel
+        $request->session()->invalidate();
+
+        // Buat token CSRF baru
+        $request->session()->regenerateToken();
+
+        // Hapus cookie laravel_session (opsional)
+        return redirect('/login')->withCookie(cookie()->forget('laravel_session'));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+>>>>>>> Rifki

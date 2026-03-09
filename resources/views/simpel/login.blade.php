@@ -24,6 +24,7 @@
             <img src="{{ asset('images/logo_posyandu.png') }}" alt="logo">
 </div>
 
+<<<<<<< HEAD
             <!-- JUDUL DI DALAM CARD -->
             <h2 class="title-main">SIMPEL</h2>
                 <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h3>
@@ -54,6 +55,38 @@
     
 </div>
     
+=======
+<h2 class="title-main">SIMPEL</h2>
+<p class="subtitle">SISTEM INFORMASI PEDULI LANSIA</p>
+
+<form>
+
+<label>Nama Lengkap</label>
+<div class="input-group">
+<i class="fa fa-user"></i>
+<input type="text" placeholder="Masukkan nama lengkap">
+</div>
+
+<label>Kata Sandi</label>
+<div class="input-group">
+<i class="fa fa-lock"></i>
+<input type="password" id="password" placeholder="********">
+<i class="fa fa-eye toggle-password"
+onclick="togglePassword('password',this)"></i>
+</div>
+
+<button type="submit" class="btn-login">
+Masuk
+</button>
+
+</form>
+
+<div class="auth-link">
+Belum punya akun?
+<a href="{{ route('register') }}">Daftar</a>
+</div>
+
+>>>>>>> Rifki
 </div>
 
 

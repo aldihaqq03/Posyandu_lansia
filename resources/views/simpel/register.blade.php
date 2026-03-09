@@ -10,12 +10,8 @@
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 @vite([
-    'resources/css/style.css',
+    'resources/css/register.css',
     'resources/js/register.js'
-=======
-'resources/css/register.css',
-'resources/js/register.js'
->>>>>>> Stashed changes
 ])
 
 </head>
@@ -32,8 +28,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <h2 class="title-main">Daftar Akun SIMPEL</h2>
 <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h4>
 
-<form id="registerForm" action="{{ route('register') }}" method="POST">
-@csrf
+<form id="registerForm">
 
 <div class="form-group">
 <label>Nama Lengkap</label>
@@ -73,12 +68,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Jabatan</label>
 <div class="input-wrapper">
 <i class="fa fa-user-tie"></i>
-
-<select name="jabatan" required>
-<option value="">Pilih Jabatan</option>
-<option value="Kader">Kader</option>
-<option value="Petugas">Petugas</option>
-<option value="Admin">Admin</option>
+<select>
+<option>Pilih Jabatan</option>
+<option>Kader</option>
+<option>Petugas</option>
+<option>Admin</option>
 </select>
 
 </div>
