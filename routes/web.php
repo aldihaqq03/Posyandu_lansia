@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\jadwalPosyanduController;
 
 Route::view('/', 'simpel.register')->name('register');
 
@@ -19,3 +21,4 @@ route::view('/tes', 'admin.dashboard');
 route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
 route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
+Route::resource('jadwal_posyandu', jadwalPosyanduController::class);

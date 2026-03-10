@@ -5,6 +5,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
     
     <!-- Google Fonts: Inter -->
@@ -44,6 +45,9 @@
             </a>
             <a href="/data_lansia" class="nav-item {{ Request::is('lansia') ? 'active' : '' }}">
                 <i class="icon-dash">👥</i> Data Lansia
+            </a>
+            <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}">
+                <i class="icon-dash">�</i> Jadwal
             </a>
         </nav>
 
