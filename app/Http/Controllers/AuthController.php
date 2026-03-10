@@ -17,7 +17,7 @@ class AuthController extends Controller
 
     public function login()
     {
-        return view('simpel.login'); // pastikan ada file resources/views/simpel/login.blade.php
+        return view('simpel.login');
     }
 
     public function proses_register(Request $request)

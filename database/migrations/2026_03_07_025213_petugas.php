@@ -9,18 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {                       
-         Schema::create('petugas', function (Blueprint $table) {
-            $table->id('id_petugas');
-            $table->string('nama', 100); 
-            $table->string('email', 150)->unique(); 
-            $table->string('password', 100); 
-            $table->string('no_hp', 15)->nullable();
-            $table->enum('role', ['admin', 'petugas']);
-            $table->timestamps();
-        });
-    }
+   public function up(): void
+{
+    Schema::create('petugas', function (Blueprint $table) {
+        $table->id('id_petugas');
+        $table->string('nama');
+        $table->string('nik',16)->unique();
+        $table->enum('jabatan', ['kepala_kader', 'kader']);
+        $table->string('wilayah');
+        $table->string('no_hp');
+        $table->string('email')->unique();
+        $table->string('password');
+        $table->string('foto')->nullable();
+        $table->string('status')->default('pending');
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

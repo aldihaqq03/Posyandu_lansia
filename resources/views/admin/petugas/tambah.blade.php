@@ -27,74 +27,66 @@
 
 <div class="form-card">
 
-<form action="/petugas/store" method="POST" enctype="multipart/form-data">
+<form action="{{ route('petugas.store') }}" method="POST" enctype="multipart/form-data">
 @csrf
 
 <div class="photo-upload">
 
 <div class="upload-box">
 <i class="fa fa-user"></i>
-<input type="file" name="foto">
-</div>
-
-<div class="upload-info">
-<h4>Foto Profil</h4>
-<p>Unggah foto profil petugas. Gunakan format JPG atau PNG dengan ukuran maksimal 2MB.</p>
+<input type="file" name="foto" accept="image/*">
 </div>
 
 </div>
-
 
 <div class="form-grid">
 
 <div class="form-group">
 <label>Nama Lengkap</label>
-<input type="text" name="nama" placeholder="Masukkan nama lengkap">
+<input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
 </div>
 
 <div class="form-group">
 <label>NIK</label>
-<input type="text" name="nik" placeholder="16 digit NIK">
+<input type="text" name="nik" placeholder="16 digit NIK" required>
 </div>
 
 <div class="form-group">
 <label>Jabatan</label>
-<select name="jabatan">
-<option>Pilih Jabatan</option>
-<option>Kader</option>
-<option>Ketua Kader</option>
-<option>Tenaga Kesehatan</option>
+<select name="jabatan" required>
+<option value="">Pilih Jabatan</option>
+<option value="kader">kader</option>
+<option value="kepala_kader">kepala_kader</option>
 </select>
 </div>
 
 <div class="form-group">
 <label>Wilayah Posyandu</label>
-<input type="text" name="wilayah" placeholder="Contoh: Posyandu Mawar 01">
+<input type="text" name="wilayah" placeholder="Contoh: Posyandu Mawar 01" required>
 </div>
 
 <div class="form-group">
 <label>Nomor WhatsApp</label>
-<input type="text" name="whatsapp" placeholder="+62">
+<input type="text" name="no_hp" placeholder="+62" required>
 </div>
 
 <div class="form-group">
 <label>Email</label>
-<input type="email" name="email" placeholder="nama@gmail.com">
+<input type="email" name="email" placeholder="nama@gmail.com" required>
 </div>
 
 <div class="form-group full">
 <label>Kata Sandi</label>
-<input type="password" name="password" placeholder="Minimal 8 karakter">
+<input type="password" name="password" placeholder="Minimal 8 karakter" required>
 </div>
 
 </div>
-
 
 <div class="form-action">
 
-<a href="/petugas" class="btn-cancel">Batal</a>
+<a href="{{ route('petugas.index') }}" class="btn-cancel">Batal</a>
 
-<button class="btn-save">
+<button type="submit" class="btn-save">
 <i class="fa fa-save"></i> Simpan Petugas
 </button>
 
