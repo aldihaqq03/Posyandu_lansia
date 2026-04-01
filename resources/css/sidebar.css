@@ -8,11 +8,14 @@
 body {
     display: flex;
     background: #f8fafc;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .sidebar {
     width: 260px;
     height: 100vh;
+    flex-shrink: 0;
     background: #ffffff;
     border-right: 1px solid #e5e7eb;
     display: flex;
@@ -54,6 +57,17 @@ body {
 .sidebar-nav {
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    /* Allow nav to scroll if there are too many items */
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
 }
 
 .nav-item {
@@ -130,10 +144,175 @@ body {
 /* MAIN CONTENT AREA */
 .main-content {
     flex: 1;
-    /* margin-left: 260px; (kalau sidebar position absolute, di sini flexbox jadi sudah otomatis) */
     padding: 20px;
     background: #f8fafc;
-    min-height: 100vh;
-    max-width: calc(100vw - 260px);
+    height: 100vh;
+    overflow-y: auto;
     overflow-x: hidden;
+}
+
+.nav-dropdown {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-toggle .dropdown-icon {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+.nav-dropdown.open .dropdown-toggle .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    display: flex;
+    flex-direction: column;
+    padding-left: 36px;
+    padding-right: 15px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.nav-dropdown.open .dropdown-menu {
+    max-height: 500px;
+    padding: 10px;
+    margin-top: 5px;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* LOGOUT MODAL */
+.logout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.logout-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.logout-modal-card {
+    background: #ffffff;
+    width: 90%;
+    max-width: 380px;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logout-modal-overlay.active .logout-modal-card {
+    transform: translateY(0);
+}
+
+.logout-modal-icon {
+    width: 60px;
+    height: 60px;
+    background: #fef2f2;
+    color: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 20px;
+}
+
+.logout-modal-card h3 {
+    margin: 0 0 10px 0;
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.logout-modal-card p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 25px 0;
+    line-height: 1.5;
+}
+
+.logout-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.logout-modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.logout-modal-actions .btn-cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.logout-modal-actions .btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.logout-modal-actions .btn-confirm {
+    background: #ef4444;
+    color: white;
+}
+
+.logout-modal-actions .btn-confirm:hover {
+    background: #dc2626;
+}
+
+.dropdown-menu a {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #6b7280;
+    /* Samakan dengan warna font sidebar */
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    display: block;
+}
+
+.dropdown-menu a:hover {
+    color: #374151;
+    /* Warna lebih gelap saat disentuh */
+    background: #f3f4f6;
+    transform: translateX(4px);
+    /* Sedikit animasi bergeser */
+}
+
+.dropdown-menu a.active {
+    color: #2563eb;
+    font-weight: 600;
+    background: #eff6ff;
 }

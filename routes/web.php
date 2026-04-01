@@ -4,6 +4,7 @@ use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PetugasController;
+use App\Http\Controllers\JadwalPosyanduController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,8 +44,23 @@ Route::middleware('auth')->group(function () {
 
         Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
 
+        Route::get('/skrining_utama', function() {
+            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
+            return view('modal.M_skriningUtama', compact('lansias'));
+        })->name('skrining_utama');
+
+        Route::get('/pemeriksaan/create', function() {
+            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
+            return view('modal.M_skriningPPOK', compact('lansias'));
+        })->name('pemeriksaan.create');
+
         Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
 
+        Route::get('/jadwal_posyandu', [JadwalPosyanduController::class, 'index'])->name('jadwal_posyandu');
+
+        Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
+        Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
+        Route::post('/pengaturan/password', [\App\Http\Controllers\PengaturanController::class, 'updatePassword'])->name('pengaturan.password');
     });
 
 

@@ -1,8 +1,9 @@
-@import "sidebar.css";
-@import "dashboard.css";
-@import "pemeriksaan.css";
-@import "data_lansia.css";
-@import "data_petugas.css";
+@import "./sidebar.css";
+@import "./cssAdmin/dashboard.css";
+@import "./cssAdmin/pemeriksaan.css";
+@import "./cssAdmin/data_lansia.css";
+@import "./cssAdmin/data_petugas.css";
+
 
 * {
     margin: 0;

@@ -57,16 +57,38 @@
             Data Lansia
         </a>
 
-        <a href="/pemeriksaan"
-            class="nav-item {{ Request::is('pemeriksaan') ? 'active' : '' }}">
-            <i class="fa-solid fa-notes-medical"></i>
-            Pemeriksaan
+       <div class="nav-dropdown">
+
+    <div class="nav-item dropdown-toggle">
+        <i class="fa-solid fa-notes-medical"></i>
+        Pemeriksaan
+        <i class="fa-solid fa-chevron-down dropdown-icon"></i>
+    </div>
+
+    <div class="dropdown-menu">
+        <a href="/skrining_utama"
+            class="{{ Request::is('skrining_utama') ? 'active' : '' }}">
+            skrining utama
         </a>
+
+        <a href="/pemeriksaan/create"
+            class="{{ Request::is('pemeriksaan/create') ? 'active' : '' }}">
+           skrining ppok
+        </a>
+    </div>
+
+</div>
 
         <a href="/laporan"
             class="nav-item {{ Request::is('laporan') ? 'active' : '' }}">
             <i class="fa-solid fa-file"></i>
             Laporan
+        </a>
+
+        <a href="/jadwal_posyandu"
+            class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}">
+            <i class="fa-solid fa-calendar"></i>
+            Jadwal Posyandu
         </a>
 
     </nav>
@@ -83,17 +105,19 @@
     <!-- FOOTER USER -->
     <div class="sidebar-footer">
 
-        <img src="https://ui-avatars.com/api/?name=Siti+Aminah&background=129481&color=fff"
+        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama ?? 'User') }}&background=3b82f6&color=fff"
             class="user-avatar">
 
         <div class="user-info">
-            <span class="user-name">Siti Aminah</span>
-            <span class="user-role">Ketua Kader</span>
+            <a href="/pengaturan" class="user-name" style="text-decoration: none; color: inherit; cursor: pointer;" title="Pergi ke Pengaturan">
+                {{ Auth::user()->nama ?? 'Pengguna' }}
+            </a>
+            <span class="user-role" style="text-transform: capitalize;">{{ Auth::user()->jabatan ?? 'Kader' }}</span>
         </div>
 
-        <form action="/logout" method="POST">
+        <form action="/logout" method="POST" id="formLogoutSidebar">
             @csrf
-            <button type="submit" class="logout-btn">
+            <button type="button" class="logout-btn" title="Keluar" onclick="openLogoutModal()">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </button>
         </form>
@@ -107,6 +131,40 @@
     @yield('content')
 </main>
 
+<!-- LOGOUT MODAL -->
+<div class="logout-modal-overlay" id="logoutModal">
+    <div class="logout-modal-card">
+        <div class="logout-modal-icon">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+        <h3>Konfirmasi Keluar</h3>
+        <p>Apakah Anda yakin ingin mengakhiri sesi dan keluar dari aplikasi POSYANDU LANSIA?</p>
+        <div class="logout-modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeLogoutModal()">Batal</button>
+            <button type="button" class="btn-confirm" onclick="submitLogout()">Ya, Keluar</button>
+        </div>
+    </div>
+</div>
+
 @stack('scripts')
+<script>
+    document.querySelectorAll('.dropdown-toggle').forEach(item => {
+        item.addEventListener('click', () => {
+            item.parentElement.classList.toggle('open');
+        });
+    });
+
+    function openLogoutModal() {
+        document.getElementById('logoutModal').classList.add('active');
+    }
+    
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').classList.remove('active');
+    }
+    
+    function submitLogout() {
+        document.getElementById('formLogoutSidebar').submit();
+    }
+</script>
 </body>
 </html>
