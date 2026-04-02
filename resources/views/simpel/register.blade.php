@@ -72,8 +72,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                         
 <select name="jabatan" required>
 <option value="">Pilih Jabatan</option>
-<option value="Kader">Kader</option>
-<option value="Admin">Admin</option>
+<option value="kader">Kader</option>
+<option value="kepala_kader">Kepala Kader</option>
 </select>
 
 </div>

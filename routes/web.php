@@ -38,18 +38,18 @@ Route::middleware('auth')->group(function () {
     | Admin / Kader Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:kader')->group(function () {
+    Route::middleware('role:kader,kepala_kader')->group(function () {
 
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
         Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
 
-        Route::get('/skrining_utama', function() {
+        Route::get('/skrining_utama', function () {
             $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
             return view('modal.M_skriningUtama', compact('lansias'));
         })->name('skrining_utama');
 
-        Route::get('/pemeriksaan/create', function() {
+        Route::get('/pemeriksaan/create', function () {
             $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
             return view('modal.M_skriningPPOK', compact('lansias'));
         })->name('pemeriksaan.create');
@@ -70,17 +70,22 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/data_petugas', [PetugasController::class, 'index'])->name('petugas.index');
+    Route::middleware('role:kepala_kader')->group(function () {
+        Route::get('/data_petugas', [PetugasController::class, 'index'])->name('petugas.index');
 
-    Route::get('/petugas/tambah', [PetugasController::class, 'tambah'])->name('petugas.tambah');
+        Route::get('/petugas/tambah', [PetugasController::class, 'tambah'])->name('petugas.tambah');
 
-    Route::post('/petugas/store', [PetugasController::class, 'store'])->name('petugas.store');
+        Route::post('/petugas/store', [PetugasController::class, 'store'])->name('petugas.store');
 
-    Route::get('/petugas/edit/{id}', [PetugasController::class, 'edit'])->name('petugas.edit');
+        Route::get('/petugas/edit/{id}', [PetugasController::class, 'edit'])->name('petugas.edit');
 
-    Route::put('/petugas/update/{id}', [PetugasController::class, 'update'])->name('petugas.update');
+        Route::put('/petugas/update/{id}', [PetugasController::class, 'update'])->name('petugas.update');
 
-    Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])->name('petugas.destroy');
+        Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])->name('petugas.destroy');
+
+        // Rute Laporan (Hanya Admin)
+        Route::view('/laporan', 'admin.laporan')->name('laporan');
+    });
 
 
     /*
@@ -101,7 +106,6 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::view('/scan', 'skrining.skrining_utama');
-
     Route::view('/tes', 'admin.dashboard');
 
 });

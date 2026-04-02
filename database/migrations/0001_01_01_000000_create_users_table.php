@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('nik');
             $table->string('whatsapp');
-            $table->string('jabatan');
-            $table->string('wilayah_kerja');
+            $table->enum('jabatan', ['kader', 'kepala_kader']);
+            $table->enum('wilayah_kerja', ['Posyandu Mawar', 'Posyandu Melati', 'Posyandu Anggrek', 'Posyandu Dahlia']);
             $table->string('password');
             $table->timestamps();
         });

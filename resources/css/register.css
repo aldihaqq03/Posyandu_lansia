@@ -94,8 +94,9 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
-.password-toggle {
+.input-wrapper .password-toggle {
     position: absolute;
+    left: auto;
     right: 14px;
     top: 50%;
     transform: translateY(-50%);

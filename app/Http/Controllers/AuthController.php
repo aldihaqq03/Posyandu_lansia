@@ -32,7 +32,7 @@ class AuthController extends Controller
             'password' => $request->password
         ]);
 
-        return redirect('/login');
+        return redirect('/');
     }
 
 
@@ -53,10 +53,10 @@ class AuthController extends Controller
             }
 
             //els ini nyalain kalo front end kepala kader udah ada
-            //  elseif ($jabatan == 'admin') {
-            //     return redirect('/admin/dashboard');
+            elseif ($jabatan == 'kepala_kader') {
+                return redirect('/dashboard');
 
-            // } 
+            }
 
             // default jika jabatan tidak terdeteksi
             return redirect('/dashboard');
@@ -76,7 +76,7 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         // Hapus cookie laravel_session (opsional)
-        return redirect('/login')->withCookie(cookie()->forget('laravel_session'));
+        return redirect('/')->withCookie(cookie()->forget('laravel_session'));
     }
 
 
