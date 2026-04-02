@@ -16,8 +16,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/register', [AuthController::class, 'proses_register'])->name('proses_register');
 
-    Route::get('/', [AuthController::class, 'login'])->name('login');
-    Route::post('/', [AuthController::class, 'proses_login'])->name('proses_login');
+    Route::view('/', 'welcome')->name('welcome');
+
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'proses_login'])->name('proses_login');
 
 });
 

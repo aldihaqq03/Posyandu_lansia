@@ -32,7 +32,7 @@ class AuthController extends Controller
             'password' => $request->password
         ]);
 
-        return redirect('/');
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');
     }
 
 

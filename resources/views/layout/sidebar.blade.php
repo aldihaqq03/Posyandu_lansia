@@ -20,45 +20,47 @@
 
 <body>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
         <!-- LOGO -->
         <div class="logo-section">
             <div class="logo-icon">
                 <i class="fa-solid fa-shield-heart"></i>
             </div>
-
             <div class="logo-text">
                 <span class="brand-name">SIMPEL</span>
                 <span class="brand-tagline">PEDULI LANSIA</span>
             </div>
+            <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Lebarkan/Sempitkan">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
 
         <!-- MENU -->
         <nav class="sidebar-nav">
 
-            <a href="/dashboard" class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}">
+            <a href="/dashboard" class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}" title="Dashboard">
                 <i class="fa-solid fa-chart-line"></i>
-                Dashboard
+                <span class="nav-text">Dashboard</span>
             </a>
 
             @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
-                <a href="/data_petugas" class="nav-item {{ Request::is('data_petugas') ? 'active' : '' }}">
+                <a href="/data_petugas" class="nav-item {{ Request::is('data_petugas') ? 'active' : '' }}" title="Data Petugas">
                     <i class="fa-solid fa-user-nurse"></i>
-                    Data Petugas
+                    <span class="nav-text">Data Petugas</span>
                 </a>
             @endif
 
-            <a href="/data_lansia" class="nav-item {{ Request::is('data_lansia') ? 'active' : '' }}">
+            <a href="/data_lansia" class="nav-item {{ Request::is('data_lansia') ? 'active' : '' }}" title="Data Lansia">
                 <i class="fa-solid fa-users"></i>
-                Data Lansia
+                <span class="nav-text">Data Lansia</span>
             </a>
 
             <div class="nav-dropdown">
 
-                <div class="nav-item dropdown-toggle">
+                <div class="nav-item dropdown-toggle" title="Pemeriksaan">
                     <i class="fa-solid fa-notes-medical"></i>
-                    Pemeriksaan
+                    <span class="nav-text">Pemeriksaan</span>
                     <i class="fa-solid fa-chevron-down dropdown-icon"></i>
                 </div>
 
@@ -75,24 +77,24 @@
             </div>
 
             @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
-                <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}">
+                <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}" title="Laporan">
                     <i class="fa-solid fa-file"></i>
-                    Laporan
+                    <span class="nav-text">Laporan</span>
                 </a>
             @endif
 
-            <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}">
+            <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}" title="Jadwal Posyandu">
                 <i class="fa-solid fa-calendar"></i>
-                Jadwal Posyandu
+                <span class="nav-text">Jadwal Posyandu</span>
             </a>
 
         </nav>
 
         <!-- PENGATURAN -->
         <div class="sidebar-setting">
-            <a href="/pengaturan" class="nav-item {{ Request::is('pengaturan') ? 'active' : '' }}">
+            <a href="/pengaturan" class="nav-item {{ Request::is('pengaturan') ? 'active' : '' }}" title="Pengaturan">
                 <i class="fa-solid fa-gear"></i>
-                Pengaturan
+                <span class="nav-text">Pengaturan</span>
             </a>
         </div>
 
@@ -144,6 +146,23 @@
 
     @stack('scripts')
     <script>
+        // INIT SIDEBAR STATE BEFORE MOUNT TO PREVENT FLICKER
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarBtn = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            // Set state based on local storage
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+
+            sidebarBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                // Save state
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+        });
+
         document.querySelectorAll('.dropdown-toggle').forEach(item => {
             item.addEventListener('click', () => {
                 item.parentElement.classList.toggle('open');

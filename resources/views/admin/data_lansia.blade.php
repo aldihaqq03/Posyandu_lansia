@@ -176,7 +176,7 @@
                             <p>Informasi terkini untuk <strong id="dynamic-name">Siti Aminah</strong></p>
                         </div>
                     </div>
-                    <a href="#" class="btn-outline-blue">Profil Lengkap ➔</a>
+                    <a href="#" id="btn-profil-lengkap" class="btn-outline-blue">Profil Lengkap <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="detail-content-grid">

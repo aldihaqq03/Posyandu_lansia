@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             const row = this.closest('tr');
             if (row) {
+                const id = row.getAttribute('data-id');
                 const name = row.getAttribute('data-nama') || 'Detail Lansia';
                 const nik = row.getAttribute('data-nik') || '-';
                 const umur = row.getAttribute('data-umur') || '-';
@@ -59,9 +60,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         const dynamicName = document.getElementById('dynamic-name');
                         const nameDisplay = document.getElementById('name-display');
+                        const btnProfil = document.getElementById('btn-profil-lengkap');
 
                         if (dynamicName) dynamicName.innerText = name;
                         if (nameDisplay) nameDisplay.innerText = name;
+                        if (btnProfil && id) {
+                            btnProfil.href = `/lansia/${id}`;
+                        }
 
                         // Tambahan data dinamis untuk detail
                         const ageText = detailSection.querySelector('.age-text');

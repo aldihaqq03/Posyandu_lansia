@@ -7,6 +7,7 @@
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 @vite([
 'resources/css/login.css',
@@ -34,6 +35,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 @if(session('error'))
 <div style="color: #e74c3c; background-color: #fde2e2; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px;">
     {{ session('error') }}
+</div>
+@endif
+
+@if(session('success'))
+<div style="color: #2ecc71; background-color: #eafaf1; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px;">
+    {{ session('success') }}
 </div>
 @endif
 
