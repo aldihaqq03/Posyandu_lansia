@@ -34,25 +34,29 @@ class PetugasController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'nama' => 'required',
             'nik' => 'required|unique:petugas',
             'jabatan' => 'required',
             'wilayah' => 'required',
             'no_hp' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6'
         ]);
 
+        $user = \App\Models\User::create([
+            'email' => $request->email,
+            'whatsapp' => $request->no_hp,
+            'password' => $request->password
+        ]);
+
         Petugas::create([
+            'id_user' => $user->id,
             'nama' => $request->nama,
             'nik' => $request->nik,
             'jabatan' => $request->jabatan,
             'wilayah' => $request->wilayah,
-            'no_hp' => $request->no_hp,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'status' => 'aktif'
         ]);
 
         return redirect('/data_petugas')->with('success','Data petugas berhasil ditambahkan');
@@ -73,10 +77,15 @@ class PetugasController extends Controller
         $petugas->update([
             'nama'=>$request->nama,
             'jabatan'=>$request->jabatan,
-            'wilayah'=>$request->wilayah,
-            'no_hp'=>$request->no_hp,
-            'email'=>$request->email
+            'wilayah'=>$request->wilayah
         ]);
+
+        if($petugas->user) {
+            $petugas->user->update([
+                'email' => $request->email,
+                'whatsapp' => $request->no_hp
+            ]);
+        }
 
         return redirect('/data_petugas');
     }
@@ -85,7 +94,12 @@ class PetugasController extends Controller
     public function destroy($id)
     {
         $petugas = Petugas::findOrFail($id);
-        $petugas->delete();
+        
+        if($petugas->user) {
+            $petugas->user->delete();
+        } else {
+            $petugas->delete();
+        }
 
         return redirect('/data_petugas');
     }

@@ -23,7 +23,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="card">
 
 <div class="logo">
-<img src="{{ asset('images/logo_posyandu.png') }}">
+<x-logo style="width: 80px; height: 80px; color: #0ea5e9; margin: 0 auto; display: block;" />
 </div>
 
 <h2 class="title-main">Daftar Akun SIMPEL</h2>

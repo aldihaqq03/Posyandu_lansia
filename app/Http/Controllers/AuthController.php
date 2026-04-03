@@ -22,14 +22,19 @@ class AuthController extends Controller
 
     public function proses_register(Request $request)
     {
-        User::create([
-            'nama' => $request->nama,
+        $user = User::create([
             'email' => $request->email,
-            'nik' => $request->nik,
             'whatsapp' => $request->whatsapp,
-            'jabatan' => $request->jabatan,
-            'wilayah_kerja' => $request->wilayah_kerja,
             'password' => $request->password
+        ]);
+
+        \App\Models\Petugas::create([
+            'id_user' => $user->id,
+            'nama' => $request->nama,
+            'nik' => $request->nik,
+            'jabatan' => $request->jabatan,
+            'wilayah' => $request->wilayah_kerja,
+            'status' => 'pending'
         ]);
 
         return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');

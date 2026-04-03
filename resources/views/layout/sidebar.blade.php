@@ -24,8 +24,8 @@
 
         <!-- LOGO -->
         <div class="logo-section">
-            <div class="logo-icon">
-                <i class="fa-solid fa-shield-heart"></i>
+            <div class="logo-icon" style="background: transparent; color: #2563eb;">
+                <x-logo style="width: 100%; height: 100%;" />
             </div>
             <div class="logo-text">
                 <span class="brand-name">SIMPEL</span>
