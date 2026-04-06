@@ -130,5 +130,34 @@ Sudah punya akun?
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Pendaftaran Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Pendaftaran Gagal',
+            text: '{{ $errors->first() }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+</script>
 </body>
 </html>

@@ -44,7 +44,10 @@ Route::middleware('auth')->group(function () {
 
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
-        Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
+        Route::get('/pemeriksaan', function () {
+            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->get();
+            return view('admin.pemeriksaan', compact('lansias'));
+        })->name('pemeriksaan');
 
         Route::get('/skrining_utama', function () {
             $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
@@ -86,7 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])->name('petugas.destroy');
 
         // Rute Laporan (Hanya Admin)
-        Route::view('/laporan', 'admin.laporan')->name('laporan');
+        Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
     });
 
 

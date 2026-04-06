@@ -29,7 +29,7 @@
             </div>
             <div class="logo-text">
                 <span class="brand-name">SIMPEL</span>
-                <span class="brand-tagline">PEDULI LANSIA</span>
+                <!-- <span class="brand-tagline">PEDULI LANSIA</span> -->
             </div>
             <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Lebarkan/Sempitkan">
                 <i class="fa-solid fa-bars"></i>
@@ -45,13 +45,15 @@
             </a>
 
             @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
-                <a href="/data_petugas" class="nav-item {{ Request::is('data_petugas') ? 'active' : '' }}" title="Data Petugas">
+                <a href="/data_petugas" class="nav-item {{ Request::is('data_petugas') ? 'active' : '' }}"
+                    title="Data Petugas">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span class="nav-text">Data Petugas</span>
                 </a>
             @endif
 
-            <a href="/data_lansia" class="nav-item {{ Request::is('data_lansia') ? 'active' : '' }}" title="Data Lansia">
+            <a href="/data_lansia" class="nav-item {{ Request::is('data_lansia') ? 'active' : '' }}"
+                title="Data Lansia">
                 <i class="fa-solid fa-users"></i>
                 <span class="nav-text">Data Lansia</span>
             </a>
@@ -83,7 +85,8 @@
                 </a>
             @endif
 
-            <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}" title="Jadwal Posyandu">
+            <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}"
+                title="Jadwal Posyandu">
                 <i class="fa-solid fa-calendar"></i>
                 <span class="nav-text">Jadwal Posyandu</span>
             </a>

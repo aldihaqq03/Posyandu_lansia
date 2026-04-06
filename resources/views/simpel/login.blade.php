@@ -32,17 +32,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <form method="POST" action="{{ route('login') }}">
 @csrf
 
-@if(session('error'))
-<div style="color: #e74c3c; background-color: #fde2e2; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px;">
-    {{ session('error') }}
-</div>
-@endif
 
-@if(session('success'))
-<div style="color: #2ecc71; background-color: #eafaf1; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px;">
-    {{ session('success') }}
-</div>
-@endif
 
 <label>Email</label>
 <div class="input-group">
@@ -73,5 +63,34 @@ Belum punya akun?
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Gagal',
+            text: '{{ $errors->first() }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+</script>
 </body>
 </html>

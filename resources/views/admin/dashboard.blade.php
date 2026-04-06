@@ -21,7 +21,7 @@
 
         <!-- STATS GRID -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="window.location.href='/data_lansia'" style="cursor: pointer;" title="Lihat Data Lansia">
                 <div class="stat-top">
                     <div class="stat-icon icon-blue"><i class="fa-solid fa-users"></i></div>
                     <span class="trend-badge positive">+3.2% Bulan Ini</span>

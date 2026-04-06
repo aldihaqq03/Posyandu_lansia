@@ -30,44 +30,38 @@
         <section class="card table-section">
             <div class="card-header-flex">
                 <h2>Pilih Lansia</h2>
-                <span class="badge-info">48 Lansia Terdaftar</span>
+                <span class="badge-info">{{ count($lansias) }} Lansia Terdaftar</span>
             </div>
             <table class="pemeriksaan-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>NAMA</th>
-                        <th>USIA</th>
+                        <th>NIK</th>
                         <th>GENDER</th>
-                        <th>KUNJUNGAN TERAKHIR</th>
+                        <th>USIA</th>
                         <th>AKSI</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>#001</td>
-                        <td><strong>Siti Aminah</strong></td>
-                        <td>72 Thn</td>
-                        <td><span class="gender female">Perempuan</span></td>
-                        <td>15 Okt 2023</td>
-                        <td><button class="btn-pilih">Pilih</button></td>
-                    </tr>
-                    <tr class="row-active">
-                        <td>#002</td>
-                        <td><strong>Budi Santoso</strong></td>
-                        <td>68 Thn</td>
-                        <td><span class="gender male">Laki-laki</span></td>
-                        <td>12 Okt 2023</td>
-                        <td><button class="btn-terpilih">Terpilih</button></td>
-                    </tr>
-                    <tr>
-                        <td>#003</td>
-                        <td><strong>Ratna Sari</strong></td>
-                        <td>75 Thn</td>
-                        <td><span class="gender female">Perempuan</span></td>
-                        <td>30 Sep 2023</td>
-                        <td><button class="btn-pilih">Pilih</button></td>
-                    </tr>
+                <tbody id="lansia-table-body">
+                    @forelse($lansias as $l)
+                        <tr>
+                            <td><strong>{{ htmlspecialchars($l->nama_lansia) }}</strong></td>
+                            <td>{{ $l->nik }}</td>
+                            <td>
+                                @if(strtolower($l->jenis_kelamin) == 'perempuan' || strtolower($l->jenis_kelamin) == 'p')
+                                    <span class="gender female">Perempuan</span>
+                                @else
+                                    <span class="gender male">Laki-laki</span>
+                                @endif
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($l->tanggal_lahir)->age ?? '-' }} Thn</td>
+                            <td><button type="button" class="btn-pilih" onclick="pilihLansia({{ $l->id_lansia }}, '{{ addslashes($l->nama_lansia) }}', this)">Pilih</button></td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">Belum ada data lansia.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </section>
@@ -75,10 +69,11 @@
         <section class="form-section">
             <div class="form-title">
                 <h2>Hasil Pemeriksaan</h2>
-                <p>Input data kesehatan untuk: <strong>Budi Santoso</strong></p>
+                <p>Input data kesehatan untuk: <strong id="selected-lansia-name">Belum dipilih (Pilih pada tabel di atas)</strong></p>
             </div>
 
             <form action="#" method="POST">
+                <input type="hidden" name="id_lansia" id="selected-id-lansia" required>
                 <div class="form-grid">
                     <div class="form-left">
                         <div class="card inner-card">
@@ -141,3 +136,68 @@
         </section>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById('search-lansia');
+        const clearSearchBtn = document.getElementById('btn-clear-search');
+        const tableBody = document.getElementById('lansia-table-body');
+        
+        if(searchInput && tableBody) {
+            const rows = tableBody.getElementsByTagName('tr');
+            
+            searchInput.addEventListener('keyup', function() {
+                const term = this.value.toLowerCase();
+                
+                if (term.length > 0) {
+                    clearSearchBtn.style.display = 'block';
+                } else {
+                    clearSearchBtn.style.display = 'none';
+                }
+
+                Array.from(rows).forEach(row => {
+                    const nameCell = row.cells[0];
+                    const nikCell = row.cells[1];
+                    if (nameCell && nikCell) {
+                        const name = nameCell.textContent.toLowerCase();
+                        const nik = nikCell.textContent.toLowerCase();
+                        if (name.includes(term) || nik.includes(term)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('keyup'));
+            });
+        }
+    });
+
+    function pilihLansia(id, nama, btnElement) {
+        document.getElementById('selected-id-lansia').value = id;
+        document.getElementById('selected-lansia-name').textContent = nama;
+        
+        // Kembalikan semua tombol menjadi Pilih
+        document.querySelectorAll('.btn-terpilih').forEach(btn => {
+            btn.className = 'btn-pilih';
+            btn.innerHTML = 'Pilih';
+            const row = btn.closest('tr');
+            if(row) row.classList.remove('row-active');
+        });
+
+        // Set tombol yang diklik menjadi Terpilih
+        btnElement.className = 'btn-terpilih';
+        btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Terpilih';
+        const currentRow = btnElement.closest('tr');
+        if(currentRow) currentRow.classList.add('row-active');
+        
+        // Scroll form agar nyaman
+        document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+@endpush
