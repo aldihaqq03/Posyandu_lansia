@@ -95,6 +95,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // 3b. Cegah klik "Profil Lengkap" jika belum ada lansia yang dipilih
+    const btnProfilLengkap = document.getElementById('btn-profil-lengkap');
+    if (btnProfilLengkap) {
+        btnProfilLengkap.addEventListener('click', function (e) {
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault();
+                alert('Silakan pilih lansia terlebih dahulu dari tabel.');
+            }
+        });
+    }
+
     // --- MODAL UTILITIES --- //
 
     // 4. Modal Tambah Lansia
@@ -149,6 +160,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         const tglLahir = row.getAttribute('data-tanggal-lahir');
                         const alamat = row.getAttribute('data-alamat');
                         const jk = row.getAttribute('data-jenis-kelamin');
+                        const hp = row.getAttribute('data-no-hp');
+                        const tempatLahir = row.getAttribute('data-tempat-lahir');
+                        const statusKawin = row.getAttribute('data-status-perkawinan');
+                        const riwayat = row.getAttribute('data-riwayat-penyakit');
+                        const tglDaftar = row.getAttribute('data-tanggal-daftar');
+                        const ket = row.getAttribute('data-keterangan');
+                        const email = row.getAttribute('data-email');
 
                         // Set the dynamic action URL
                         if (formEdit) {
@@ -161,12 +179,28 @@ document.addEventListener('DOMContentLoaded', function () {
                         const editAddr = document.getElementById('edit_alamat');
                         const editTglLahir = document.getElementById('edit_tanggal_lahir');
                         const editJk = document.getElementById('edit_jenis_kelamin');
+                        
+                        const editHp = document.getElementById('edit_no_hp');
+                        const editTempatLahir = document.getElementById('edit_tempat_lahir');
+                        const editStatusKawin = document.getElementById('edit_status_perkawinan');
+                        const editRiwayat = document.getElementById('edit_riwayat_penyakit');
+                        const editTglDaftar = document.getElementById('edit_tanggal_daftar');
+                        const editKet = document.getElementById('edit_keterangan');
+                        const editEmail = document.getElementById('edit_email');
 
                         if (editName) editName.value = name;
                         if (editNik) editNik.value = nik;
                         if (editAddr) editAddr.value = alamat;
                         if (editTglLahir) editTglLahir.value = tglLahir;
                         if (editJk) editJk.value = jk || 'L';
+                        
+                        if (editHp) editHp.value = hp || '';
+                        if (editTempatLahir) editTempatLahir.value = tempatLahir || '';
+                        if (editStatusKawin) editStatusKawin.value = statusKawin || '';
+                        if (editRiwayat) editRiwayat.value = riwayat || '';
+                        if (editTglDaftar) editTglDaftar.value = tglDaftar || '';
+                        if (editKet) editKet.value = ket || '';
+                        if (editEmail) editEmail.value = email || '';
                     }
                     modalEdit.classList.add('active');
                 });

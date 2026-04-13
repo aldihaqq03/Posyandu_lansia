@@ -80,21 +80,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 </div>
 </div>
 
-<div class="form-group">
-<label>Wilayah Kerja</label>
-<div class="input-wrapper">
-<i class="fa fa-map-marker-alt"></i>
 
-<select id="wilayah" name="wilayah_kerja" required>
-<option value="">Pilih Wilayah Kerja</option>
-<option value="Posyandu Mawar">Posyandu Mawar</option>
-<option value="Posyandu Melati">Posyandu Melati</option>
-<option value="Posyandu Anggrek">Posyandu Anggrek</option>
-<option value="Posyandu Dahlia">Posyandu Dahlia</option>
-</select>
-
-</div>
-</div>
 
 <div class="form-group">
 <label>Password</label>

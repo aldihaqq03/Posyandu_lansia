@@ -10,14 +10,8 @@ class LansiaController extends Controller
 
     public function index()
     {
-        if (auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
-            $wilayah = auth()->user()->petugas->wilayah;
-            $lansias = Lansia::where('wilayah', $wilayah)->latest()->paginate(10);
-            $total_lansia = Lansia::where('wilayah', $wilayah)->count();
-        } else {
-            $lansias = Lansia::latest()->paginate(10);
-            $total_lansia = Lansia::count();
-        }
+        $lansias = Lansia::latest()->paginate(10);
+        $total_lansia = Lansia::count();
 
         $resiko_tinggi = 0;
         $status_sehat = 0;
@@ -54,9 +48,7 @@ class LansiaController extends Controller
             'email' => 'nullable|email|max:30'
         ]);
 
-        if (auth()->check() && auth()->user()->petugas) {
-            $validated['wilayah'] = auth()->user()->petugas->wilayah;
-        }
+
 
         Lansia::create($validated);
 
@@ -66,7 +58,25 @@ class LansiaController extends Controller
 
     public function show(Lansia $lansia)
     {
-        return view('lansia.show', compact('lansia'));
+        $skriningUtama = \Illuminate\Support\Facades\DB::table('skrining_utama')
+            ->join('skrining', 'skrining_utama.id_skrining', '=', 'skrining.id_skrining')
+            ->where('skrining_utama.id_lansia', $lansia->id_lansia)
+            ->orderBy('skrining.tanggal_skrining', 'desc')
+            ->get();
+
+        $skriningPPOK = \Illuminate\Support\Facades\DB::table('skrining_ppok')
+            ->join('skrining', 'skrining_ppok.id_skrining', '=', 'skrining.id_skrining')
+            ->where('skrining.id_lansia', $lansia->id_lansia)
+            ->orderBy('skrining.tanggal_skrining', 'desc')
+            ->get();
+
+        $jadwalMingguan = \Illuminate\Support\Facades\DB::table('item_jadwal_lansia')
+            ->join('skrining', 'item_jadwal_lansia.id_skrining', '=', 'skrining.id_skrining')
+            ->where('skrining.id_lansia', $lansia->id_lansia)
+            ->orderBy('item_jadwal_lansia.hari', 'asc')
+            ->get();
+
+        return view('lansia.show', compact('lansia', 'skriningUtama', 'skriningPPOK', 'jadwalMingguan'));
     }
 
     public function edit(Lansia $lansia)

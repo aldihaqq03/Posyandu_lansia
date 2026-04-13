@@ -67,6 +67,10 @@
                 </div>
 
                 <div class="dropdown-menu">
+                    <a href="/pemeriksaan" class="{{ Request::is('pemeriksaan') ? 'active' : '' }}">
+                        pemeriksaan mingguan
+                    </a>
+
                     <a href="/skrining_utama" class="{{ Request::is('skrining_utama') ? 'active' : '' }}">
                         skrining utama
                     </a>

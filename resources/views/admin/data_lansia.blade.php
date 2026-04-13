@@ -108,6 +108,12 @@
                             data-alamat="{{ $lansia->alamat }}"
                             data-jenis-kelamin="{{ $lansia->jenis_kelamin }}"
                             data-no-hp="{{ $lansia->no_hp }}"
+                            data-tempat-lahir="{{ $lansia->tempat_lahir }}"
+                            data-status-perkawinan="{{ $lansia->status_perkawinan }}"
+                            data-riwayat-penyakit="{{ $lansia->riwayat_penyakit }}"
+                            data-tanggal-daftar="{{ $lansia->tanggal_daftar }}"
+                            data-keterangan="{{ $lansia->keterangan }}"
+                            data-email="{{ $lansia->email }}"
                             data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
                             data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
                         >
@@ -173,7 +179,7 @@
                         <div class="icon-box"><img src="img/icon.svg" alt=""></div>
                         <div>
                             <h3>Ringkasan Detail Lansia</h3>
-                            <p>Informasi terkini untuk <strong id="dynamic-name">Siti Aminah</strong></p>
+                            <p>Informasi terkini untuk <strong id="dynamic-name">-</strong></p>
                         </div>
                     </div>
                     <a href="#" id="btn-profil-lengkap" class="btn-outline-blue">Profil Lengkap <i class="fa-solid fa-arrow-right"></i></a>
@@ -184,10 +190,10 @@
                         <div class="profile-photo">
                             <img src="img/icon-9.svg" alt="User">
                         </div>
-                        <span class="badge-risk high">RESIKO TINGGI</span>
-                        <h2 id="name-display">Siti Aminah</h2>
-                        <p class="age-text">78 Tahun</p>
-                        <div class="status-pill live">● Hidup</div>
+                        <span class="badge-risk high">-</span>
+                        <h2 id="name-display">-</h2>
+                        <p class="age-text">-</p>
+                        <div class="status-pill live">-</div>
                     </div>
 
                     <div class="info-side-grid">
@@ -195,15 +201,15 @@
                             <h4>👤 INFORMASI PRIBADI</h4>
                             <div class="data-item">
                                 <label>NIK</label>
-                                <p>3275012345678901</p>
+                                <p>-</p>
                             </div>
                             <div class="data-item">
                                 <label>NOMOR HANDPHONE</label>
-                                <p>0812-3456-7890</p>
+                                <p>-</p>
                             </div>
                             <div class="data-item">
                                 <label>ALAMAT LENGKAP</label>
-                                <p>Jl. Merdeka No. 10, RT 04/02, Kel. Melati...</p>
+                                <p>-</p>
                             </div>
                         </div>
 
@@ -212,19 +218,18 @@
                             <div class="health-cards">
                                 <div class="h-card red">
                                     <span>TENSI</span>
-                                    <strong>160/95</strong>
-                                    <small>MMHG</small>
+                                    <strong>-</strong>
+                                    <small></small>
                                 </div>
                                 <div class="h-card blue">
                                     <span>GULA DARAH</span>
-                                    <strong>145</strong>
-                                    <small>MG/DL</small>
+                                    <strong>-</strong>
+                                    <small></small>
                                 </div>
                             </div>
                             <div class="medical-note">
                                 <label>CATATAN MEDIS</label>
-                                <blockquote>"Pasien mengeluh pusing di pagi hari. Disarankan pembatasan konsumsi garam."
-                                </blockquote>
+                                <blockquote>"-"</blockquote>
                             </div>
                         </div>
                     </div>

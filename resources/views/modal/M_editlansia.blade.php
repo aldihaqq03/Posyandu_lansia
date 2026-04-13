@@ -32,9 +32,47 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label for="edit_tempat_lahir">Tempat Lahir</label>
+                        <input type="text" id="edit_tempat_lahir" name="tempat_lahir" placeholder="Contoh: Jakarta">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="edit_no_hp">No Handphone</label>
+                        <input type="text" id="edit_no_hp" name="no_hp" placeholder="Contoh: 081234567890">
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label for="edit_status_perkawinan">Status Perkawinan</label>
+                        <select id="edit_status_perkawinan" name="status_perkawinan">
+                            <option value="">Pilih Status</option>
+                            <option value="Belum Kawin">Belum Kawin</option>
+                            <option value="Kawin">Kawin</option>
+                            <option value="Cerai Hidup">Cerai Hidup</option>
+                            <option value="Cerai Mati">Cerai Mati</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="edit_tanggal_daftar">Tanggal Daftar</label>
+                        <input type="date" id="edit_tanggal_daftar" name="tanggal_daftar">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit_riwayat_penyakit">Riwayat Penyakit</label>
+                    <input type="text" id="edit_riwayat_penyakit" name="riwayat_penyakit" placeholder="Contoh: Hipertensi, Diabetes">
+                </div>
                 <div class="form-group">
                     <label for="edit_alamat">Alamat</label>
                     <textarea id="edit_alamat" name="alamat" rows="2" placeholder="Masukkan Alamat Lengkap" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit_keterangan">Keterangan</label>
+                    <textarea id="edit_keterangan" name="keterangan" rows="2" placeholder="Informasi Tambahan"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit_email">Email (Opsional)</label>
+                    <input type="email" id="edit_email" name="email" placeholder="Contoh: kakek@email.com">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="btn-cancel-edit-modal">Batal</button>

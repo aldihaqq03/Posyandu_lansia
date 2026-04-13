@@ -1,203 +1,181 @@
 @extends('layout.sidebar')
 
-@push('styles')
-    @vite('resources/css/app.css')
-@endpush
+@section('title', 'Pemeriksaan Mingguan')
 
 @push('styles')
-    @vite('resources/css/cssAdmin/pemeriksaan.css')
+    @vite('resources/css/cssAdmin/skrining_utama.css')
 @endpush
 
-@push('scripts')
-    @vite('resources/js/jsAdmin/pemeriksaan.js')
-@endpush
 @section('content')
-    <div class="pemeriksaan-wrapper">
-        <header class="page-header">
-            <div class="header-left">
-                <h1>Pemeriksaan Kesehatan</h1>
-                <p>Sistem Informasi Peduli Lansia (SIMPEL)</p>
-            </div>
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" placeholder="Cari lansia..." id="search-lansia">
-                <button class="btn-clear-search" id="btn-clear-search" style="display: none;" title="Hapus pencarian">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-        </header>
+    <div class="skrining-wrapper">
+        <div class="skrining-header">
+            <h1>Pemeriksaan Mingguan</h1>
+            <p>Sistem Informasi Peduli Lansia (SIMPEL)</p>
+        </div>
 
-        <section class="card table-section">
-            <div class="card-header-flex">
-                <h2>Pilih Lansia</h2>
-                <span class="badge-info">{{ count($lansias) }} Lansia Terdaftar</span>
-            </div>
-            <table class="pemeriksaan-table">
-                <thead>
-                    <tr>
-                        <th>NAMA</th>
-                        <th>NIK</th>
-                        <th>GENDER</th>
-                        <th>USIA</th>
-                        <th>AKSI</th>
-                    </tr>
-                </thead>
-                <tbody id="lansia-table-body">
-                    @forelse($lansias as $l)
-                        <tr>
-                            <td><strong>{{ htmlspecialchars($l->nama_lansia) }}</strong></td>
-                            <td>{{ $l->nik }}</td>
-                            <td>
-                                @if(strtolower($l->jenis_kelamin) == 'perempuan' || strtolower($l->jenis_kelamin) == 'p')
-                                    <span class="gender female">Perempuan</span>
-                                @else
-                                    <span class="gender male">Laki-laki</span>
-                                @endif
-                            </td>
-                            <td>{{ \Carbon\Carbon::parse($l->tanggal_lahir)->age ?? '-' }} Thn</td>
-                            <td><button type="button" class="btn-pilih" onclick="pilihLansia({{ $l->id_lansia }}, '{{ addslashes($l->nama_lansia) }}', this)">Pilih</button></td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 20px;">Belum ada data lansia.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </section>
+        <form action="#" method="POST">
+            @csrf
 
-        <section class="form-section">
-            <div class="form-title">
-                <h2>Hasil Pemeriksaan</h2>
-                <p>Input data kesehatan untuk: <strong id="selected-lansia-name">Belum dipilih (Pilih pada tabel di atas)</strong></p>
-            </div>
-
-            <form action="#" method="POST">
-                <input type="hidden" name="id_lansia" id="selected-id-lansia" required>
-                <div class="form-grid">
-                    <div class="form-left">
-                        <div class="card inner-card">
-                            <h3><i class="icon-vital">📈</i> Tanda Vital & Fisik</h3>
-                            <div class="input-grid">
-                                <div class="input-group">
-                                    <label>Berat Badan (kg)</label>
-                                    <input type="text" placeholder="contoh: 65.5">
-                                </div>
-                                <div class="input-group">
-                                    <label>Tinggi Badan (cm)</label>
-                                    <input type="text" placeholder="contoh: 170">
-                                </div>
-                                <div class="input-group">
-                                    <label>Tekanan Darah (mmHg)</label>
-                                    <input type="text" placeholder="contoh: 120/80">
-                                </div>
-                                <div class="input-group">
-                                    <label>Gula Darah (mg/dL)</label>
-                                    <input type="text" placeholder="contoh: 110">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card inner-card">
-                            <h3><i class="icon-obs">📄</i> Catatan Observasi</h3>
-                            <div class="input-group">
-                                <label>Keluhan Fisik</label>
-                                <textarea placeholder="Deskripsikan rasa sakit atau gejala yang dilaporkan lansia..."
-                                    rows="4"></textarea>
-                            </div>
-                        </div>
+            <div class="search-lansia-wrapper">
+                <h3><i class="fa-solid fa-user-magnifying-glass"></i>Pilih Lansia</h3>
+                <div id="searchContainer">
+                    <div class="search-input-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="inputCariLansia" placeholder="Ketik nama atau NIK Lansia..."
+                            autocomplete="off">
                     </div>
-
-                    <div class="form-right">
-                        <div class="card inner-card sticky-card">
-                            <h3><i class="icon-saran">💡</i> Saran/Catatan</h3>
-                            <div class="input-group">
-                                <label>Saran Nutrisi</label>
-                                <select>
-                                    <option>Pilih rekomendasi standar</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label>Rekomendasi Spesifik</label>
-                                <textarea placeholder="Instruksi tambahan untuk lansia..." rows="6"></textarea>
-                            </div>
-                            <div class="info-box">
-                                <p>ℹ️ Saran akan dicetak pada kartu kesehatan bulanan lansia.</p>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="dropdown-results" id="dropdownLansia"></div>
                 </div>
 
-                <div class="form-actions">
-                    <button type="reset" class="btn-clear">Bersihkan Form</button>
-                    <button type="submit" class="btn-save">💾 Simpan Pemeriksaan</button>
+                <div class="selected-lansia-card" id="selectedLansiaCard">
+                    <div class="selected-info">
+                        <span class="lbl">Lansia Terpilih:</span>
+                        <span class="val" id="selLansiaName">-</span>
+                        <span class="lansia-nik" id="selLansiaNik">-</span>
+                    </div>
+                    <button type="button" class="btn-change-lansia" id="btnGantiLansia">Ganti Lansia</button>
                 </div>
-            </form>
-        </section>
+                <input type="hidden" name="id_lansia" id="idLansiaInput" required>
+            </div>
+
+            <div class="section-title"><i class="fa-solid fa-heart-pulse"></i> Hasil Pemeriksaan</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tinggi Badan (cm)</label>
+                    <input type="number" step="0.1" name="tinggi_badan" class="form-control" placeholder="Contoh: 160.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Berat Badan (kg)</label>
+                    <input type="number" step="0.1" name="berat_badan" class="form-control" placeholder="Contoh: 65.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Lingkar Perut (cm)</label>
+                    <input type="number" step="0.1" name="lingkar_perut" class="form-control" placeholder="Contoh: 80.5" required>
+                </div>
+                <div class="form-group">
+                    <label>TD Sistolik (mmHg)</label>
+                    <input type="number" name="td_sistolik" class="form-control" placeholder="Contoh: 120" required>
+                </div>
+                <div class="form-group">
+                    <label>TD Diastolik (mmHg)</label>
+                    <input type="number" name="td_diastolik" class="form-control" placeholder="Contoh: 80" required>
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fa-solid fa-notes-medical"></i> Tindakan & Edukasi</div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Edukasi Penyakit</label>
+                <textarea name="edukasi_penyakit" class="form-control" placeholder="Catat edukasi yang diberikan pada lansia..." rows="4" required style="resize: vertical;"></textarea>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Resep Obat (Opsional)</label>
+                <textarea name="resep_obat" class="form-control" placeholder="Tuliskan resep obat jika ada..." rows="4" style="resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Pemeriksaan
+            </button>
+
+        </form>
     </div>
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const searchInput = document.getElementById('search-lansia');
-        const clearSearchBtn = document.getElementById('btn-clear-search');
-        const tableBody = document.getElementById('lansia-table-body');
-        
-        if(searchInput && tableBody) {
-            const rows = tableBody.getElementsByTagName('tr');
-            
-            searchInput.addEventListener('keyup', function() {
-                const term = this.value.toLowerCase();
-                
-                if (term.length > 0) {
-                    clearSearchBtn.style.display = 'block';
-                } else {
-                    clearSearchBtn.style.display = 'none';
-                }
+    document.addEventListener('DOMContentLoaded', function () {
+        const lansiaData = @json($lansias);
 
-                Array.from(rows).forEach(row => {
-                    const nameCell = row.cells[0];
-                    const nikCell = row.cells[1];
-                    if (nameCell && nikCell) {
-                        const name = nameCell.textContent.toLowerCase();
-                        const nik = nikCell.textContent.toLowerCase();
-                        if (name.includes(term) || nik.includes(term)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    }
+        const inputCari = document.getElementById('inputCariLansia');
+        const dropdown = document.getElementById('dropdownLansia');
+        const searchContainer = document.getElementById('searchContainer');
+        const selectedCard = document.getElementById('selectedLansiaCard');
+        const idInput = document.getElementById('idLansiaInput');
+        const selName = document.getElementById('selLansiaName');
+        const selNik = document.getElementById('selLansiaNik');
+        const btnGanti = document.getElementById('btnGantiLansia');
+
+        function renderDropdown(data) {
+            dropdown.innerHTML = '';
+            if (data.length === 0) {
+                dropdown.innerHTML = '<div class="lansia-result-item"><span class="lansia-name text-gray-500">Tidak ditemukan</span></div>';
+            } else {
+                data.slice(0, 10).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'lansia-result-item';
+                    div.innerHTML = `
+                        <span class="lansia-name">${item.nama_lansia}</span>
+                        <span class="lansia-nik">NIK: ${item.nik}</span>
+                    `;
+                    div.addEventListener('click', () => {
+                        selectLansia(item);
+                    });
+                    dropdown.appendChild(div);
                 });
-            });
-
-            clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('keyup'));
-            });
+            }
+            dropdown.classList.add('active');
         }
-    });
 
-    function pilihLansia(id, nama, btnElement) {
-        document.getElementById('selected-id-lansia').value = id;
-        document.getElementById('selected-lansia-name').textContent = nama;
-        
-        // Kembalikan semua tombol menjadi Pilih
-        document.querySelectorAll('.btn-terpilih').forEach(btn => {
-            btn.className = 'btn-pilih';
-            btn.innerHTML = 'Pilih';
-            const row = btn.closest('tr');
-            if(row) row.classList.remove('row-active');
+        function selectLansia(item) {
+            idInput.value = item.id_lansia;
+            selName.textContent = item.nama_lansia;
+            selNik.textContent = 'NIK: ' + item.nik;
+
+            searchContainer.style.display = 'none';
+            selectedCard.classList.add('active');
+            dropdown.classList.remove('active');
+            inputCari.value = '';
+        }
+
+        inputCari.addEventListener('input', function () {
+            const val = this.value.toLowerCase().trim();
+            if (!val) {
+                dropdown.classList.remove('active');
+                return;
+            }
+            const filtered = lansiaData.filter(l =>
+                (l.nama_lansia && l.nama_lansia.toLowerCase().includes(val)) ||
+                (l.nik && l.nik.includes(val))
+            );
+            renderDropdown(filtered);
         });
 
-        // Set tombol yang diklik menjadi Terpilih
-        btnElement.className = 'btn-terpilih';
-        btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Terpilih';
-        const currentRow = btnElement.closest('tr');
-        if(currentRow) currentRow.classList.add('row-active');
-        
-        // Scroll form agar nyaman
-        document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-    }
+        // Handle enter key
+        inputCari.addEventListener('keydown', function(e) {
+            if(e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission
+                const val = this.value.toLowerCase().trim();
+                if(val.length > 0) {
+                    const filtered = lansiaData.filter(l => 
+                        (l.nama_lansia && l.nama_lansia.toLowerCase().includes(val)) || 
+                        (l.nik && l.nik.includes(val))
+                    );
+                    if(filtered.length > 0) {
+                        selectLansia(filtered[0]);
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!searchContainer.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        inputCari.addEventListener('focus', function () {
+            if (this.value.trim() !== '') {
+                const event = new Event('input');
+                this.dispatchEvent(event);
+            }
+        });
+
+        btnGanti.addEventListener('click', function () {
+            idInput.value = '';
+            selectedCard.classList.remove('active');
+            searchContainer.style.display = 'block';
+            inputCari.focus();
+        });
+    });
 </script>
 @endpush

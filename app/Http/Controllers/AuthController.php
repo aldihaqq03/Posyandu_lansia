@@ -33,7 +33,6 @@ class AuthController extends Controller
             'nama' => $request->nama,
             'nik' => $request->nik,
             'jabatan' => $request->jabatan,
-            'wilayah' => $request->wilayah_kerja,
             'status' => 'pending'
         ]);
 

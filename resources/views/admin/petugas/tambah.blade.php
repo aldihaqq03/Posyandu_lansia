@@ -60,10 +60,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Wilayah Posyandu</label>
-                        <input type="text" name="wilayah" placeholder="Contoh: Posyandu Mawar 01" required>
-                    </div>
+
 
                     <div class="form-group">
                         <label>Nomor WhatsApp</label>

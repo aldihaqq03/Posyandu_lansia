@@ -38,7 +38,7 @@ class PetugasController extends Controller
             'nama' => 'required',
             'nik' => 'required|unique:petugas',
             'jabatan' => 'required',
-            'wilayah' => 'required',
+
             'no_hp' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6'
@@ -55,7 +55,7 @@ class PetugasController extends Controller
             'nama' => $request->nama,
             'nik' => $request->nik,
             'jabatan' => $request->jabatan,
-            'wilayah' => $request->wilayah,
+
             'status' => 'aktif'
         ]);
 
@@ -76,8 +76,7 @@ class PetugasController extends Controller
 
         $petugas->update([
             'nama'=>$request->nama,
-            'jabatan'=>$request->jabatan,
-            'wilayah'=>$request->wilayah
+            'jabatan'=>$request->jabatan
         ]);
 
         if($petugas->user) {

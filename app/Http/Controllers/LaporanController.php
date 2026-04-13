@@ -15,10 +15,7 @@ class LaporanController extends Controller
         $harianData = [];
         
         $kunjunganQuery = DB::table('kunjungan');
-        if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
-            $kunjunganQuery->join('lansia', 'kunjungan.id_lansia', '=', 'lansia.id_lansia')
-                           ->where('lansia.wilayah', auth()->user()->petugas->wilayah);
-        }
+
 
         for ($i = 6; $i >= 0; $i--) {
             // Mengambil tanggal dari 6 hari lalu sampai hari ini

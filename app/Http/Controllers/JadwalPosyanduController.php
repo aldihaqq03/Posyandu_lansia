@@ -15,15 +15,7 @@ class JadwalPosyanduController extends Controller
         $query = DB::table('jadwal_posyandu');
         $statsQuery = DB::table('jadwal_posyandu');
 
-        if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
-            $wilayah = auth()->user()->petugas->wilayah;
-            $query->join('petugas', 'jadwal_posyandu.id_petugas', '=', 'petugas.id_petugas')
-                  ->where('petugas.wilayah', $wilayah)
-                  ->select('jadwal_posyandu.*');
-            
-            $statsQuery->join('petugas', 'jadwal_posyandu.id_petugas', '=', 'petugas.id_petugas')
-                       ->where('petugas.wilayah', $wilayah);
-        }
+
 
         $jadwalPosyandu = $query->orderBy('jadwal_posyandu.tanggal_pelaksanaan', 'desc')->get();
 
