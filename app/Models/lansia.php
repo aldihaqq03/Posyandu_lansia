@@ -25,5 +25,6 @@ class lansia extends Model
         'tanggal_daftar',
         'keterangan',
         'email',
+        'wilayah',
     ];
 }

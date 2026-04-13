@@ -14,14 +14,20 @@ class LaporanController extends Controller
         $harianLabels = [];
         $harianData = [];
         
+        $kunjunganQuery = DB::table('kunjungan');
+        if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
+            $kunjunganQuery->join('lansia', 'kunjungan.id_lansia', '=', 'lansia.id_lansia')
+                           ->where('lansia.wilayah', auth()->user()->petugas->wilayah);
+        }
+
         for ($i = 6; $i >= 0; $i--) {
             // Mengambil tanggal dari 6 hari lalu sampai hari ini
             $date = Carbon::now()->subDays($i);
             $harianLabels[] = $date->translatedFormat('l'); // Nama hari dalam bahasa lokal
             
             // Query total kehadiran per hari tersebut
-            $count = DB::table('kunjungan')
-                ->whereDate('tanggal_kunjungan', $date->toDateString())
+            $count = (clone $kunjunganQuery)
+                ->whereDate('kunjungan.tanggal_kunjungan', $date->toDateString())
                 ->count();
             $harianData[] = $count;
         }
@@ -38,9 +44,10 @@ class LaporanController extends Controller
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         
-        $kunjunganBulanIni = DB::table('kunjungan')
-            ->whereMonth('tanggal_kunjungan', $currentMonth)
-            ->whereYear('tanggal_kunjungan', $currentYear)
+        $kunjunganBulanIni = (clone $kunjunganQuery)
+            ->whereMonth('kunjungan.tanggal_kunjungan', $currentMonth)
+            ->whereYear('kunjungan.tanggal_kunjungan', $currentYear)
+            ->select('kunjungan.*')
             ->get();
             
         foreach ($kunjunganBulanIni as $kunjungan) {
@@ -65,9 +72,9 @@ class LaporanController extends Controller
         $tahunanLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         $tahunanData = array_fill(0, 12, 0); // isi 0 untuk 12 index array
         
-        $kunjunganTahunIni = DB::table('kunjungan')
-            ->select(DB::raw('MONTH(tanggal_kunjungan) as bulan'), DB::raw('count(*) as total'))
-            ->whereYear('tanggal_kunjungan', $currentYear)
+        $kunjunganTahunIni = (clone $kunjunganQuery)
+            ->select(DB::raw('MONTH(kunjungan.tanggal_kunjungan) as bulan'), DB::raw('count(*) as total'))
+            ->whereYear('kunjungan.tanggal_kunjungan', $currentYear)
             ->groupBy('bulan')
             ->get();
             
@@ -81,11 +88,11 @@ class LaporanController extends Controller
         ];
 
         // 4. Summary Atas
-        $hari_ini = DB::table('kunjungan')->whereDate('tanggal_kunjungan', Carbon::today())->count();
-        $minggu_ini = DB::table('kunjungan')
-            ->whereBetween('tanggal_kunjungan', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+        $hari_ini = (clone $kunjunganQuery)->whereDate('kunjungan.tanggal_kunjungan', Carbon::today())->count();
+        $minggu_ini = (clone $kunjunganQuery)
+            ->whereBetween('kunjungan.tanggal_kunjungan', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->count();
-        $tahun_ini = DB::table('kunjungan')->whereYear('tanggal_kunjungan', Carbon::now()->year)->count();
+        $tahun_ini = (clone $kunjunganQuery)->whereYear('kunjungan.tanggal_kunjungan', Carbon::now()->year)->count();
 
         $summary = [
             'hari_ini' => $hari_ini,

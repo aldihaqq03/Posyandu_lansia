@@ -45,17 +45,29 @@ Route::middleware('auth')->group(function () {
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
         Route::get('/pemeriksaan', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->get();
+            $query = \Illuminate\Support\Facades\DB::table('lansia');
+            if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
+                $query->where('wilayah', auth()->user()->petugas->wilayah);
+            }
+            $lansias = $query->get();
             return view('admin.pemeriksaan', compact('lansias'));
         })->name('pemeriksaan');
 
         Route::get('/skrining_utama', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
+            $query = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik');
+            if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
+                $query->where('wilayah', auth()->user()->petugas->wilayah);
+            }
+            $lansias = $query->get();
             return view('modal.M_skriningUtama', compact('lansias'));
         })->name('skrining_utama');
 
         Route::get('/pemeriksaan/create', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
+            $query = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik');
+            if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
+                $query->where('wilayah', auth()->user()->petugas->wilayah);
+            }
+            $lansias = $query->get();
             return view('modal.M_skriningPPOK', compact('lansias'));
         })->name('pemeriksaan.create');
 

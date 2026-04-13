@@ -10,9 +10,15 @@ class LansiaController extends Controller
 
     public function index()
     {
-        $lansias = Lansia::latest()->paginate(10);
+        if (auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
+            $wilayah = auth()->user()->petugas->wilayah;
+            $lansias = Lansia::where('wilayah', $wilayah)->latest()->paginate(10);
+            $total_lansia = Lansia::where('wilayah', $wilayah)->count();
+        } else {
+            $lansias = Lansia::latest()->paginate(10);
+            $total_lansia = Lansia::count();
+        }
 
-        $total_lansia = Lansia::count();
         $resiko_tinggi = 0;
         $status_sehat = 0;
         $jadwal_periksa = 0;
@@ -47,6 +53,10 @@ class LansiaController extends Controller
             'keterangan' => 'nullable|string',
             'email' => 'nullable|email|max:30'
         ]);
+
+        if (auth()->check() && auth()->user()->petugas) {
+            $validated['wilayah'] = auth()->user()->petugas->wilayah;
+        }
 
         Lansia::create($validated);
 

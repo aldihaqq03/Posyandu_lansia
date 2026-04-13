@@ -12,17 +12,27 @@ class JadwalPosyanduController extends Controller
      */
     public function index()
     {
-        $jadwalPosyandu = DB::table('jadwal_posyandu')
-            ->orderBy('tanggal_pelaksanaan', 'desc')
-            ->get();
+        $query = DB::table('jadwal_posyandu');
+        $statsQuery = DB::table('jadwal_posyandu');
 
+        if (auth()->check() && auth()->user()->petugas && auth()->user()->petugas->jabatan == 'kader') {
+            $wilayah = auth()->user()->petugas->wilayah;
+            $query->join('petugas', 'jadwal_posyandu.id_petugas', '=', 'petugas.id_petugas')
+                  ->where('petugas.wilayah', $wilayah)
+                  ->select('jadwal_posyandu.*');
+            
+            $statsQuery->join('petugas', 'jadwal_posyandu.id_petugas', '=', 'petugas.id_petugas')
+                       ->where('petugas.wilayah', $wilayah);
+        }
 
-            $stats = [
-                'total' => DB::table('jadwal_posyandu')->count(),
-                'terjadwal' => DB::table('jadwal_posyandu')->where('status', '0')->count(),
-                'berlangsung' => DB::table('jadwal_posyandu')->where('status', '1')->count(),
-                'selesai' => DB::table('jadwal_posyandu')->where('status', '2')->count(),
-            ];
+        $jadwalPosyandu = $query->orderBy('jadwal_posyandu.tanggal_pelaksanaan', 'desc')->get();
+
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'terjadwal' => (clone $statsQuery)->where('jadwal_posyandu.status', '0')->count(),
+            'berlangsung' => (clone $statsQuery)->where('jadwal_posyandu.status', '1')->count(),
+            'selesai' => (clone $statsQuery)->where('jadwal_posyandu.status', '2')->count(),
+        ];
 
        return view('admin.petugas.jadwal_posyandu', compact('jadwalPosyandu', 'stats'));
     }
@@ -54,8 +64,10 @@ class JadwalPosyanduController extends Controller
             ? json_encode($request->kegiatan)
             : null;
 
+        $id_petugas = auth()->check() && auth()->user()->petugas ? auth()->user()->petugas->id_petugas : 1;
+
         DB::table('jadwal_posyandu')->insert([
-            'id_petugas'          => 1,
+            'id_petugas'          => $id_petugas,
             'tanggal_pelaksanaan' => $request->tanggal_pelaksanaan,
             'tema'                => $request->tema,
             'lokasi'              => $request->lokasi,

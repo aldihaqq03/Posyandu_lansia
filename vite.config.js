@@ -6,8 +6,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 'resources/js/app.js',
-                'resources/css/style.css',
+                'resources/css/app.css',
                 'resources/css/berhasil.css',
                 'resources/css/sidebar.css',
                 'resources/css/cssAdmin/dashboard.css',
@@ -17,6 +16,7 @@ export default defineConfig({
                 'resources/css/cssAdmin/tambah_data_petugas.css',
                 'resources/css/cssAdmin/skrining_utama.css',
                 'resources/css/cssAdmin/pengaturan.css',
+                'resources/css/welcome.css',
                 //resources js
                 'resources/js/jsAdmin/dashboard.js',
                 'resources/js/jsAdmin/pemeriksaan.js',
