@@ -121,17 +121,24 @@
             ];
         @endphp
 
+        {{-- ======================================================== --}}
+        {{-- FITUR: Client-Side Filter & Search                       --}}
+        {{-- Keterangan: Menambahkan data-* attribute untuk menyimpan --}}
+        {{-- informasi jadwal agar bisa difilter oleh JavaScript      --}}
+        {{-- tanpa perlu request ke server (AJAX).                    --}}
+        {{-- ======================================================== --}}
         @forelse($jadwalPosyandu as $item)
             @php
                 $tgl      = \Carbon\Carbon::parse($item->tanggal_pelaksanaan);
                 $bulanIni = $tgl->translatedFormat('F Y');
                 $color    = $colorMap[$item->status] ?? 'gray';
-                $kegiatan = $item->kegiatan ? json_decode($item->kegiatan) : [];
+                $kegiatan = $item->kegiatan ? json_decode($item->kegiatan, true) : [];
             @endphp
 
             {{-- DIVIDER BULAN --}}
             @if($bulanIni !== $bulanSekarang)
-                <div class="month-divider">
+                {{-- data-bulan: menyimpan nomor bulan (1-12) untuk filter --}}
+                <div class="month-divider" data-bulan="{{ $tgl->month }}">
                     <span class="month-divider-text">{{ $bulanIni }}</span>
                     <span class="month-divider-line"></span>
                 </div>
@@ -139,7 +146,13 @@
             @endif
 
             {{-- CARD --}}
-            <div class="jadwal-card {{ $item->status == 3 || $item->status == 4 ? 'card-done' : '' }}">
+            {{-- data-tema, data-lokasi, data-status, data-tanggal: untuk client-side filter --}}
+            <div class="jadwal-card {{ $item->status == 3 || $item->status == 4 ? 'card-done' : '' }}"
+                 data-tema="{{ strtolower($item->tema) }}"
+                 data-lokasi="{{ strtolower($item->lokasi) }}"
+                 data-status="{{ $item->status }}"
+                 data-tanggal="{{ $item->tanggal_pelaksanaan }}"
+                 data-bulan="{{ $tgl->month }}">
 
                 {{-- TANGGAL --}}
                 <div class="jadwal-date {{ $color }}">
@@ -161,8 +174,9 @@
                     </div>
                     <div class="jadwal-tags">
                         @foreach($kegiatan as $k)
+                            {{-- FIX: Handle both array and object format dari json_decode --}}
                             <span class="tag">
-                                {{ $k->nama }}{{ !empty($k->jam) ? ' ' . $k->jam : '' }}
+                                {{ is_array($k) ? ($k['nama'] ?? '') : ($k->nama ?? '') }}{{ !empty(is_array($k) ? ($k['jam'] ?? '') : ($k->jam ?? '')) ? ' ' . (is_array($k) ? ($k['jam'] ?? '') : ($k->jam ?? '')) : '' }}
                             </span>
                         @endforeach
                         @if(empty($kegiatan))
