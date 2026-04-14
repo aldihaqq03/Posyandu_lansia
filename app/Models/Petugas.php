@@ -32,4 +32,29 @@ class Petugas extends Model
     {
         return $this->user ? $this->user->whatsapp : '-';
     }
+
+    public function jadwalDipimpin()
+    {
+        return $this->hasMany(jadwalPosyandu::class, 'id_petugas');
+    }
+
+    public function jadwalTerlibat()
+    {
+        return $this->belongsToMany(jadwalPosyandu::class, 'jadwal_petugas', 'id_petugas', 'id_jadwal_posyandu');
+    }
+
+    public function skrining()
+    {
+        return $this->hasMany(Skrining::class, 'id_petugas');
+    }
+
+    public function saran()
+    {
+        return $this->hasMany(Saran::class, 'id_petugas');
+    }
+
+    public function resep()
+    {
+        return $this->hasMany(Resep::class, 'id_petugas');
+    }
 }
