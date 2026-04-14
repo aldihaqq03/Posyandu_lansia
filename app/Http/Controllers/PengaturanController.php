@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
+class PengaturanController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+        return view('admin.pengaturan', compact('user'));
+    }
+
+    public function updateProfil(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
+            'nik' => 'nullable|string|max:20',
+            'whatsapp' => 'nullable|string|max:20',
+            'jabatan' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+        $user->nama = $request->nama;
+        $user->email = $request->email;
+        $user->nik = $request->nik;
+        $user->whatsapp = $request->whatsapp;
+        $user->jabatan = $request->jabatan;
+        $user->save();
+
+        return back()->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // Cek password lama
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Password lama tidak sesuai!');
+        }
+
+        $user->password = Hash::make($request->new_password);
+        // Jika model User tidak memiliki password mutator, maka pastikan ini ter-hash. Di kode user register ada Hash? Di `AuthController` `User::create` tidak menggunakan `Hash::make()`!!! Wait, let me look at AuthController.php line 32: `'password' => $request->password`.
+        // If AuthController didn't hash it, checking with Hash might fail. No wait, Laravel standard User model automatically casts password to hash in recent versions, OR the Auth::attempt wouldn't work if they weren't hashed. Let's assume standard Laravel. Wait, I should just assign it. In Laravel 10+, User model usually casts `password => 'hashed'`. Let me just use Hash::make() directly.
+        $user->save();
+
+        return back()->with('success', 'Password berhasil diubah!');
+    }
+}

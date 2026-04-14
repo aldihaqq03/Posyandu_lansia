@@ -8,9 +8,10 @@
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 @vite([
-    'resources/css/style.css',
+    'resources/css/register.css',
     'resources/js/register.js'
 ])
 
@@ -22,7 +23,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="card">
 
 <div class="logo">
-<img src="{{ asset('images/logo_posyandu.png') }}">
+<x-logo style="width: 80px; height: 80px; color: #0ea5e9; margin: 0 auto; display: block;" />
 </div>
 
 <h2 class="title-main">Daftar Akun SIMPEL</h2>
@@ -34,7 +35,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Nama Lengkap</label>
 <div class="input-wrapper">
 <i class="fa fa-user"></i>
-<input type="text" id="nama">
+<input type="text" id="nama" name="nama" required>
 </div>
 </div>
 
@@ -42,7 +43,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Email</label>
 <div class="input-wrapper">
 <i class="fa fa-envelope"></i>
-<input type="email" id="email">
+<input type="email" id="email" name="email" required>
 </div>
 <span class="error" id="emailError"></span>
 </div>
@@ -51,7 +52,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>NIK</label>
 <div class="input-wrapper">
 <i class="fa fa-id-card"></i>
-<input type="text" id="nik" maxlength="16">
+<input type="text" id="nik" name="nik" maxlength="16" required>
 </div>
 <span class="error" id="nikError"></span>
 </div>
@@ -60,7 +61,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Nomor WhatsApp</label>
 <div class="input-wrapper">
 <i class="fa fa-phone"></i>
-<input type="text">
+<input type="text" name="whatsapp" required>
 </div>
 </div>
 
@@ -68,34 +69,23 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <label>Jabatan</label>
 <div class="input-wrapper">
 <i class="fa fa-user-tie"></i>
-<select>
-<option>Pilih Jabatan</option>
-<option>Kader</option>
-<option>Petugas</option>
-<option>Admin</option>
+                        
+<select name="jabatan" required>
+<option value="">Pilih Jabatan</option>
+<option value="kader">Kader</option>
+<option value="kepala_kader">Kepala Kader</option>
 </select>
+
 </div>
 </div>
 
-<div class="form-group">
-<label>Wilayah Kerja</label>
-<div class="input-wrapper">
-<i class="fa fa-map-marker-alt"></i>
-<select id="wilayah">
-<option value="">Pilih Wilayah Kerja</option>
-<option>Posyandu Mawar</option>
-<option>Posyandu Melati</option>
-<option>Posyandu Anggrek</option>
-<option>Posyandu Dahlia</option>
-</select>
-</div>
-</div>
+
 
 <div class="form-group">
 <label>Password</label>
 <div class="input-wrapper">
-<i class="fa fa-lock icon-left"></i>
-<input type="password" id="password">
+<i class="fa fa-lock"></i>
+<input type="password" id="password" name="password" required>
 <i class="fa fa-eye password-toggle" onclick="togglePassword('password', this)"></i>
 </div>
 <span class="error" id="passError"></span>
@@ -104,14 +94,16 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="form-group">
 <label>Konfirmasi Password</label>
 <div class="input-wrapper">
-<i class="fa fa-lock icon-left"></i>
-<input type="password" id="confirmPassword">
+<i class="fa fa-lock"></i>
+<input type="password" id="confirmPassword" name="password_confirmation" required>
 <i class="fa fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
 </div>
 <span class="error" id="confirmError"></span>
 </div>
 
-<button class="btn-primary">Daftar Sekarang</button>
+<button type="submit" class="btn-primary">
+Daftar Sekarang
+</button>
 
 <div class="login-link">
 Sudah punya akun?
@@ -122,3 +114,35 @@ Sudah punya akun?
 
 </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Pendaftaran Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Pendaftaran Gagal',
+            text: '{{ $errors->first() }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+</script>
+</body>
+</html>

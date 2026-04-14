@@ -4,17 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-         Schema::create('skrining_utama', function (Blueprint $table) {
+        Schema::create('skrining_utama', function (Blueprint $table) {
             $table->id('id_skrining_utama');
             $table->unsignedBigInteger('id_skrining'); // FK ke tabel skrining
-
+            $table->unsignedBigInteger('id_lansia'); // FK ke tabel lansia
             // -------------------------------------------------------
             // FAKTOR RISIKO PERILAKU
             // -------------------------------------------------------
@@ -183,6 +182,11 @@ return new class extends Migration
             $table->foreign('id_skrining')
                 ->references('id_skrining')
                 ->on('skrining')
+                ->onDelete('cascade');
+
+            $table->foreign('id_lansia')
+                ->references('id_lansia')
+                ->on('lansia')
                 ->onDelete('cascade');
         });
         //

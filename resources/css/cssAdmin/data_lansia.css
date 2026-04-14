@@ -10,11 +10,7 @@
     --border-color: #f1f5f9;
 }
 
-.main-content {
-    padding: 24px;
-    background-color: #f8fafc;
-    min-height: 100vh;
-}
+
 
 /* Header & Breadcrumb */
 .page-header {
@@ -291,6 +287,38 @@
     gap: 8px;
 }
 
+.btn-outline-blue {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    color: var(--primary);
+    background-color: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.05);
+}
+
+.btn-outline-blue:hover {
+    background-color: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.25);
+}
+
+.btn-outline-blue i {
+    transition: transform 0.3s ease;
+}
+
+.btn-outline-blue:hover i {
+    transform: translateX(4px);
+}
+
 /* Container Utama Ringkasan Detail */
 .detail-container {
     margin-top: 30px;
@@ -485,6 +513,8 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transform: translateY(-20px);
     transition: transform 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-overlay.active .modal-content {
