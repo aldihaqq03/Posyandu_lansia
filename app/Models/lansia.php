@@ -11,16 +11,20 @@ class lansia extends Model
 
     protected $table = 'lansia';
     protected $primaryKey = 'id_lansia';
+
     protected $fillable = [
-        'nama',
         'nik',
-        'tanggal_lahir',
+        'nama_lansia',
         'jenis_kelamin',
-        'email',
-        'password',
+        'tempat_lahir',
+        'tanggal_lahir',
         'alamat',
-        'duno_hp',
-        'pekerjaan',
-      
+        'no_hp',
+        'status_perkawinan',
+        'riwayat_penyakit',
+        'tanggal_daftar',
+        'keterangan',
+        'email',
+        'wilayah',
     ];
 }

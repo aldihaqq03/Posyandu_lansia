@@ -44,8 +44,13 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function () {
             const row = this.closest('tr');
             if (row) {
-                const nameElem = row.querySelector('.user-name');
-                const name = nameElem ? nameElem.innerText : 'Detail Lansia';
+                const id = row.getAttribute('data-id');
+                const name = row.getAttribute('data-nama') || 'Detail Lansia';
+                const nik = row.getAttribute('data-nik') || '-';
+                const umur = row.getAttribute('data-umur') || '-';
+                const noHp = row.getAttribute('data-no-hp') || 'Tidak tersedia';
+                const alamat = row.getAttribute('data-alamat') || '-';
+
                 const detailSection = document.querySelector('.detail-container');
 
                 if (detailSection) {
@@ -55,9 +60,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         const dynamicName = document.getElementById('dynamic-name');
                         const nameDisplay = document.getElementById('name-display');
+                        const btnProfil = document.getElementById('btn-profil-lengkap');
 
                         if (dynamicName) dynamicName.innerText = name;
                         if (nameDisplay) nameDisplay.innerText = name;
+                        if (btnProfil && id) {
+                            btnProfil.href = `/lansia/${id}`;
+                        }
+
+                        // Tambahan data dinamis untuk detail
+                        const ageText = detailSection.querySelector('.age-text');
+                        if (ageText) ageText.innerText = umur + ' Tahun';
+
+                        // Isi kolom informasi pribadi di view dengan pencarian teks label
+                        const dataItems = detailSection.querySelectorAll('.data-item');
+                        dataItems.forEach(item => {
+                            const label = item.querySelector('label')?.innerText;
+                            const p = item.querySelector('p');
+                            if (p && label) {
+                                if (label.includes('NIK')) p.innerText = nik;
+                                if (label.includes('NOMOR HANDPHONE')) p.innerText = noHp || '-';
+                                if (label.includes('ALAMAT LENGKAP')) p.innerText = alamat;
+                            }
+                        });
+
 
                         detailSection.style.opacity = '1';
 
@@ -69,6 +95,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // 3b. Cegah klik "Profil Lengkap" jika belum ada lansia yang dipilih
+    const btnProfilLengkap = document.getElementById('btn-profil-lengkap');
+    if (btnProfilLengkap) {
+        btnProfilLengkap.addEventListener('click', function (e) {
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault();
+                alert('Silakan pilih lansia terlebih dahulu dari tabel.');
+            }
+        });
+    }
+
     // --- MODAL UTILITIES --- //
 
     // 4. Modal Tambah Lansia
@@ -79,6 +116,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const formTambah = modalTambah ? modalTambah.querySelector('form') : null;
 
     if (btnTambah && modalTambah) {
+        // Get route URL inside the conditional check with null safety
+        const routeMeta = document.querySelector('meta[name="route-store-lansia"]');
+        const url = routeMeta ? routeMeta.content : null;
         btnTambah.addEventListener('click', () => {
             if (formTambah) formTambah.reset(); // Reset form saat dibuka
             modalTambah.classList.add('active');
@@ -92,137 +132,168 @@ document.addEventListener('DOMContentLoaded', function () {
         modalTambah.addEventListener('click', (e) => {
             if (e.target === modalTambah) closeModal();
         });
-
-        if (formTambah) {
-            formTambah.addEventListener('submit', (e) => {
-                e.preventDefault();
-                // Logic tambah data ke Server bisa menggunakan fetch()
-                alert(`Data Lansia Baru: ${document.getElementById('nama_lengkap').value} berhasil ditambahkan! (Simulasi)`);
-                closeModal();
-            });
+        //logic tambah data disabled via JS to allow native Laravel submit with redirection
+        /* 
+        if (formTambah && url) {
+            // submit handled by form action now 
         }
-    }
+        */
 
-    // 5. Modal Edit Lansia
-    const modalEdit = document.getElementById('modal-edit-lansia');
-    const btnCloseEditModal = document.getElementById('btn-close-edit-modal');
-    const btnCancelEditModal = document.getElementById('btn-cancel-edit-modal');
-    const editBtns = document.querySelectorAll('.edit-btn');
-    const formEdit = modalEdit ? modalEdit.querySelector('form') : null;
+        // 5. Modal Edit Lansia
+        const modalEdit = document.getElementById('modal-edit-lansia');
+        const btnCloseEditModal = document.getElementById('btn-close-edit-modal');
+        const btnCancelEditModal = document.getElementById('btn-cancel-edit-modal');
+        const editBtns = document.querySelectorAll('.edit-btn');
+        const formEdit = document.getElementById('form-edit-lansia');
 
-    if (modalEdit) {
-        const closeEditModal = () => modalEdit.classList.remove('active');
+        if (modalEdit) {
+            const closeEditModal = () => modalEdit.classList.remove('active');
 
-        editBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const row = btn.closest('tr');
-                if (row) {
-                    // Mengambil nilai referensi dari tabel untuk Form Edit
-                    const name = row.querySelector('.user-name')?.innerText || '';
-                    const nik = row.querySelector('.user-subtext')?.innerText || '';
-                    const disease = row.querySelector('.badge-pill')?.innerText || '';
-                    const address = row.querySelector('address')?.innerText || '';
+            editBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const row = btn.closest('tr');
+                    if (row) {
+                        // Mengambil nilai referensi dari tabel untuk Form Edit
+                        const id = row.getAttribute('data-id');
+                        const name = row.getAttribute('data-nama');
+                        const nik = row.getAttribute('data-nik');
+                        const tglLahir = row.getAttribute('data-tanggal-lahir');
+                        const alamat = row.getAttribute('data-alamat');
+                        const jk = row.getAttribute('data-jenis-kelamin');
+                        const hp = row.getAttribute('data-no-hp');
+                        const tempatLahir = row.getAttribute('data-tempat-lahir');
+                        const statusKawin = row.getAttribute('data-status-perkawinan');
+                        const riwayat = row.getAttribute('data-riwayat-penyakit');
+                        const tglDaftar = row.getAttribute('data-tanggal-daftar');
+                        const ket = row.getAttribute('data-keterangan');
+                        const email = row.getAttribute('data-email');
 
-                    // Memasukkan nilai ke field input modal Edit
-                    const editName = document.getElementById('edit_nama_lengkap');
-                    const editNik = document.getElementById('edit_nik');
-                    const editAddr = document.getElementById('edit_alamat');
-                    const editDisease = document.getElementById('edit_penyakit');
+                        // Set the dynamic action URL
+                        if (formEdit) {
+                            formEdit.action = `/lansia/${id}`;
+                        }
 
-                    if (editName) editName.value = name;
-                    if (editNik) editNik.value = nik;
-                    if (editAddr) editAddr.value = address;
-                    if (editDisease) editDisease.value = disease;
-                }
-                modalEdit.classList.add('active');
+                        // Memasukkan nilai ke field input modal Edit
+                        const editName = document.getElementById('edit_nama_lansia');
+                        const editNik = document.getElementById('edit_nik');
+                        const editAddr = document.getElementById('edit_alamat');
+                        const editTglLahir = document.getElementById('edit_tanggal_lahir');
+                        const editJk = document.getElementById('edit_jenis_kelamin');
+                        
+                        const editHp = document.getElementById('edit_no_hp');
+                        const editTempatLahir = document.getElementById('edit_tempat_lahir');
+                        const editStatusKawin = document.getElementById('edit_status_perkawinan');
+                        const editRiwayat = document.getElementById('edit_riwayat_penyakit');
+                        const editTglDaftar = document.getElementById('edit_tanggal_daftar');
+                        const editKet = document.getElementById('edit_keterangan');
+                        const editEmail = document.getElementById('edit_email');
+
+                        if (editName) editName.value = name;
+                        if (editNik) editNik.value = nik;
+                        if (editAddr) editAddr.value = alamat;
+                        if (editTglLahir) editTglLahir.value = tglLahir;
+                        if (editJk) editJk.value = jk || 'L';
+                        
+                        if (editHp) editHp.value = hp || '';
+                        if (editTempatLahir) editTempatLahir.value = tempatLahir || '';
+                        if (editStatusKawin) editStatusKawin.value = statusKawin || '';
+                        if (editRiwayat) editRiwayat.value = riwayat || '';
+                        if (editTglDaftar) editTglDaftar.value = tglDaftar || '';
+                        if (editKet) editKet.value = ket || '';
+                        if (editEmail) editEmail.value = email || '';
+                    }
+                    modalEdit.classList.add('active');
+                });
             });
-        });
 
-        if (btnCloseEditModal) btnCloseEditModal.addEventListener('click', closeEditModal);
-        if (btnCancelEditModal) btnCancelEditModal.addEventListener('click', closeEditModal);
+            if (btnCloseEditModal) btnCloseEditModal.addEventListener('click', closeEditModal);
+            if (btnCancelEditModal) btnCancelEditModal.addEventListener('click', closeEditModal);
 
-        modalEdit.addEventListener('click', (e) => {
-            if (e.target === modalEdit) closeEditModal();
-        });
-
-        if (formEdit) {
-            formEdit.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert(`Data Lansia: ${document.getElementById('edit_nama_lengkap').value} berhasil diperbarui! (Simulasi)`);
-                closeEditModal();
+            modalEdit.addEventListener('click', (e) => {
+                if (e.target === modalEdit) closeEditModal();
             });
-        }
-    }
 
-    // 6. Modal Konfirmasi Hapus
-    const modalHapus = document.getElementById('modal-hapus-lansia');
-    const btnCancelHapus = document.getElementById('btn-cancel-hapus');
-    const btnConfirmHapus = document.getElementById('btn-confirm-hapus');
-    const deleteBtns = document.querySelectorAll('.delete-btn');
-    let rowToDelete = null;
-
-    if (modalHapus) {
-        const closeHapusModal = () => {
-            modalHapus.classList.remove('active');
-            rowToDelete = null;
-        };
-
-        deleteBtns.forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault(); // Mencegah form action
-                rowToDelete = this.closest('tr');
-                modalHapus.classList.add('active');
-            });
-        });
-
-        if (btnCancelHapus) btnCancelHapus.addEventListener('click', closeHapusModal);
-
-        if (btnConfirmHapus) {
-            btnConfirmHapus.addEventListener('click', () => {
-                if (rowToDelete) {
-                    // Animasi transisi hapus elemen HTML tabel
-                    rowToDelete.style.transition = "opacity 0.3s ease";
-                    rowToDelete.style.opacity = "0";
-                    setTimeout(() => {
-                        rowToDelete.remove();
-                    }, 300);
-                }
-                closeHapusModal();
-            });
+            // Form Edit now submits naturally due to action + method POST + @method('PUT'), NO fetch strictly needed unless you want to stay single-page.
+            // But since LansiaController@update uses redirect(), normal submission is best.
         }
 
-        modalHapus.addEventListener('click', (e) => {
-            if (e.target === modalHapus) closeHapusModal();
-        });
-    }
+        // 6. Modal Konfirmasi Hapus
+        const modalHapus = document.getElementById('modal-hapus-lansia');
+        const btnCancelHapus = document.getElementById('btn-cancel-hapus');
+        const btnConfirmHapus = document.getElementById('btn-confirm-hapus');
+        const deleteBtns = document.querySelectorAll('.delete-btn');
+        let rowToDelete = null;
 
-    // 7. Modal Filter
-    const modalFilter = document.getElementById('modal-filter-lansia');
-    const btnFilter = document.getElementById('btn-filter-lansia');
-    const btnCloseFilter = document.getElementById('btn-close-filter-modal');
-    const formFilter = modalFilter ? modalFilter.querySelector('form') : null;
+        if (modalHapus) {
+            const formHapus = modalHapus.querySelector('form');
+            const closeHapusModal = () => {
+                modalHapus.classList.remove('active');
+                rowToDelete = null;
+            };
 
-    if (modalFilter && btnFilter) {
-        const closeFilterModal = () => modalFilter.classList.remove('active');
+            deleteBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault(); // Mencegah form action
+                    rowToDelete = this.closest('tr');
 
-        btnFilter.addEventListener('click', () => {
-            modalFilter.classList.add('active');
-        });
+                    if (rowToDelete && formHapus) {
+                        const id = rowToDelete.getAttribute('data-id');
+                        formHapus.action = `/lansia/${id}`;
+                    }
 
-        if (btnCloseFilter) btnCloseFilter.addEventListener('click', closeFilterModal);
-
-        modalFilter.addEventListener('click', (e) => {
-            if (e.target === modalFilter) closeFilterModal();
-        });
-
-        if (formFilter) {
-            formFilter.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const status = document.getElementById('filter_status').value;
-                const umur = document.getElementById('filter_umur').value;
-                alert(`Filter Diterapkan: Status=${status || 'Semua'}, Umur=${umur || 'Semua'} (Simulasi)`);
-                closeFilterModal();
+                    modalHapus.classList.add('active');
+                });
             });
+
+            if (btnCancelHapus) btnCancelHapus.addEventListener('click', closeHapusModal);
+
+            if (btnConfirmHapus) {
+                btnConfirmHapus.addEventListener('click', () => {
+                    if (rowToDelete) {
+                        // Animasi transisi hapus elemen HTML tabel
+                        rowToDelete.style.transition = "opacity 0.3s ease";
+                        rowToDelete.style.opacity = "0";
+                        setTimeout(() => {
+                            rowToDelete.remove();
+                        }, 300);
+                    }
+                    closeHapusModal();
+                });
+            }
+
+            modalHapus.addEventListener('click', (e) => {
+                if (e.target === modalHapus) closeHapusModal();
+            });
+        }
+
+        // 7. Modal Filter
+        const modalFilter = document.getElementById('modal-filter-lansia');
+        const btnFilter = document.getElementById('btn-filter-lansia');
+        const btnCloseFilter = document.getElementById('btn-close-filter-modal');
+        const formFilter = modalFilter ? modalFilter.querySelector('form') : null;
+
+        if (modalFilter && btnFilter) {
+            const closeFilterModal = () => modalFilter.classList.remove('active');
+
+            btnFilter.addEventListener('click', () => {
+                modalFilter.classList.add('active');
+            });
+
+            if (btnCloseFilter) btnCloseFilter.addEventListener('click', closeFilterModal);
+
+            modalFilter.addEventListener('click', (e) => {
+                if (e.target === modalFilter) closeFilterModal();
+            });
+
+            if (formFilter) {
+                formFilter.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const status = document.getElementById('filter_status').value;
+                    const umur = document.getElementById('filter_umur').value;
+                    alert(`Filter Diterapkan: Status=${status || 'Semua'}, Umur=${umur || 'Semua'} (Simulasi)`);
+                    closeFilterModal();
+                });
+            }
         }
     }
 });

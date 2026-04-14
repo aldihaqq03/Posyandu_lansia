@@ -17,22 +17,26 @@ class AuthController extends Controller
 
     public function login()
     {
-        return view('simpel.login'); // pastikan ada file resources/views/simpel/login.blade.php
+        return view('simpel.login');
     }
 
     public function proses_register(Request $request)
     {
-        User::create([
-            'nama' => $request->nama,
+        $user = User::create([
             'email' => $request->email,
-            'nik' => $request->nik,
             'whatsapp' => $request->whatsapp,
-            'jabatan' => $request->jabatan,
-            'wilayah_kerja' => $request->wilayah_kerja,
-            'password' => Hash::make($request->password)
+            'password' => $request->password
         ]);
 
-        return redirect('/login');
+        \App\Models\Petugas::create([
+            'id_user' => $user->id,
+            'nama' => $request->nama,
+            'nik' => $request->nik,
+            'jabatan' => $request->jabatan,
+            'status' => 'pending'
+        ]);
+
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');
     }
 
 
@@ -47,8 +51,15 @@ class AuthController extends Controller
             // Redirect sesuai jabatan
             $jabatan = Auth::user()->jabatan;
 
-            if ($jabatan == 'kader' || $jabatan == 'KepalaKader') {
-                return redirect('/admin/dashboard');
+            if ($jabatan == 'kader') {
+                return redirect('/dashboard');
+
+            }
+
+            //els ini nyalain kalo front end kepala kader udah ada
+            elseif ($jabatan == 'kepala_kader') {
+                return redirect('/dashboard');
+
             }
 
             // default jika jabatan tidak terdeteksi
@@ -69,6 +80,12 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         // Hapus cookie laravel_session (opsional)
-        return redirect('/login')->withCookie(cookie()->forget('laravel_session'));
+        return redirect('/')->withCookie(cookie()->forget('laravel_session'));
     }
+
+
+
+
+
+
 }

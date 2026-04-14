@@ -9,8 +9,24 @@
     @vite('resources/css/cssAdmin/data_lansia.css')
 @endpush
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="route-store-lansia" content="{{ route('lansia.store') }}">
+
 @section('content')
     <main class="main-content">
+
+        <!-- Tampilkan Error Validasi Jika Ada -->
+        @if ($errors->any())
+            <div style="background: #ffebe9; border: 1px solid rgba(255,129,130,0.4); border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+                <h4 style="color: #cf222e; margin-bottom: 5px;">Terjadi Kesalahan:</h4>
+                <ul style="color: #cf222e; padding-left: 20px; font-size: 14px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="container">
             <header class="page-header">
                 <div class="header-info">
@@ -32,28 +48,28 @@
                 <div class="stat-card">
                     <h2 class="stat-label">TOTAL TERDAFTAR</h2>
                     <div class="stat-content">
-                        <span class="stat-number">128</span>
+                        <span class="stat-number">{{ $total_lansia ?? 0 }}</span>
                         <img src="img/icon-4.svg" alt="" class="stat-icon" />
                     </div>
                 </div>
                 <div class="stat-card border-danger">
                     <h2 class="stat-label text-danger">RESIKO TINGGI</h2>
                     <div class="stat-content">
-                        <span class="stat-number color-danger">14</span>
+                        <span class="stat-number color-danger">{{ $resiko_tinggi ?? 0 }}</span>
                         <img src="img/image.svg" alt="" class="stat-icon" />
                     </div>
                 </div>
                 <div class="stat-card border-success">
                     <h2 class="stat-label text-success">STATUS SEHAT</h2>
                     <div class="stat-content">
-                        <span class="stat-number color-success">84</span>
+                        <span class="stat-number color-success">{{ $status_sehat ?? 0 }}</span>
                         <img src="img/icon-3.svg" alt="" class="stat-icon" />
                     </div>
                 </div>
                 <div class="stat-card">
                     <h2 class="stat-label">JADWAL PERIKSA</h2>
                     <div class="stat-content">
-                        <span class="stat-number">5</span>
+                        <span class="stat-number">{{ $jadwal_periksa ?? 0 }}</span>
                         <img src="img/icon-11.svg" alt="" class="stat-icon" />
                     </div>
                 </div>
@@ -83,32 +99,49 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="table-row selectable-row active" data-id="1">
+                        @forelse ($lansias as $lansia)
+                        <tr class="table-row selectable-row active"
+                            data-id="{{ $lansia->id_lansia }}"
+                            data-nama="{{ $lansia->nama_lansia }}"
+                            data-nik="{{ $lansia->nik }}"
+                            data-tanggal-lahir="{{ $lansia->tanggal_lahir }}"
+                            data-alamat="{{ $lansia->alamat }}"
+                            data-jenis-kelamin="{{ $lansia->jenis_kelamin }}"
+                            data-no-hp="{{ $lansia->no_hp }}"
+                            data-tempat-lahir="{{ $lansia->tempat_lahir }}"
+                            data-status-perkawinan="{{ $lansia->status_perkawinan }}"
+                            data-riwayat-penyakit="{{ $lansia->riwayat_penyakit }}"
+                            data-tanggal-daftar="{{ $lansia->tanggal_daftar }}"
+                            data-keterangan="{{ $lansia->keterangan }}"
+                            data-email="{{ $lansia->email }}"
+                            data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
+                            data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
+                        >
                             <td>
                                 <div class="user-cell">
-                                    <div class="avatar">SA</div>
+                                    <div class="avatar">{{ strtoupper(substr($lansia->nama_lansia, 0, 2)) }}</div>
                                     <div class="user-text">
-                                        <span class="user-name">Siti Aminah</span>
-                                        <span class="user-subtext">3275012345678901</span>
+                                        <span class="user-name">{{ $lansia->nama_lansia }}</span>
+                                        <span class="user-subtext">{{ $lansia->nik }}</span>
                                     </div>
                                 </div>
                             </td>
 
                             <td>
-                                <span class="main-text">78 Tahun</span>
-                                <span class="sub-text">12/05/1945</span>
+                                <span class="main-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }} Tahun</span>
+                                <span class="sub-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}</span>
                             </td>
 
                             <td>
-                                <address>Jl. Merdeka No. 10, RT 04/02</address>
+                                <address>{{ $lansia->alamat }}</address>
                             </td>
 
                             <td>
-                                <span class="badge-pill">Hipertensi</span>
+                                <span class="badge-pill">-</span>
                             </td>
 
                             <td>
-                                <span class="badge-status danger">RESIKO TINGGI</span>
+                                <span class="badge-status muted">NORMAL</span>
                             </td>
 
                             <td class="aksi">
@@ -130,51 +163,12 @@
 
                             </td>
                         </tr>
-
-
-                        <tr class="table-row selectable-row" data-id="2">
-                            <td>
-                                <div class="user-cell">
-                                    <div class="avatar bg-gray">BS</div>
-                                    <div class="user-text">
-                                        <span class="user-name">Budi Santoso</span>
-                                        <span class="user-subtext">3275087654321009</span>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <td>
-                                <span class="main-text">73 Tahun</span>
-                                <span class="sub-text">23/08/1950</span>
-                            </td>
-
-                            <td>
-                                <address>Jl. Mawar No. 5, RT 01/01</address>
-                            </td>
-
-                            <td>
-                                <span class="badge-pill">Diabetes</span>
-                            </td>
-
-                            <td>
-                                <span class="badge-status muted">NORMAL</span>
-                            </td>
-
-                            <td class="aksi">
-
-                                <!-- tombol detail -->
-                                <button class="btn-icon view-btn" title="Detail">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-
-                                <!-- tombol edit -->
-                                <button class="btn-icon edit-btn" title="Edit">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-
-                            </td>
+                        @empty
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 20px;">Belum ada data lansia.</td>
                         </tr>
-                        
+                        @endforelse
+
                     </tbody>
                 </table>
             </section>
@@ -185,10 +179,10 @@
                         <div class="icon-box"><img src="img/icon.svg" alt=""></div>
                         <div>
                             <h3>Ringkasan Detail Lansia</h3>
-                            <p>Informasi terkini untuk <strong id="dynamic-name">Siti Aminah</strong></p>
+                            <p>Informasi terkini untuk <strong id="dynamic-name">-</strong></p>
                         </div>
                     </div>
-                    <a href="#" class="btn-outline-blue">Profil Lengkap ➔</a>
+                    <a href="#" id="btn-profil-lengkap" class="btn-outline-blue">Profil Lengkap <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="detail-content-grid">
@@ -196,10 +190,10 @@
                         <div class="profile-photo">
                             <img src="img/icon-9.svg" alt="User">
                         </div>
-                        <span class="badge-risk high">RESIKO TINGGI</span>
-                        <h2 id="name-display">Siti Aminah</h2>
-                        <p class="age-text">78 Tahun</p>
-                        <div class="status-pill live">● Hidup</div>
+                        <span class="badge-risk high">-</span>
+                        <h2 id="name-display">-</h2>
+                        <p class="age-text">-</p>
+                        <div class="status-pill live">-</div>
                     </div>
 
                     <div class="info-side-grid">
@@ -207,15 +201,15 @@
                             <h4>👤 INFORMASI PRIBADI</h4>
                             <div class="data-item">
                                 <label>NIK</label>
-                                <p>3275012345678901</p>
+                                <p>-</p>
                             </div>
                             <div class="data-item">
                                 <label>NOMOR HANDPHONE</label>
-                                <p>0812-3456-7890</p>
+                                <p>-</p>
                             </div>
                             <div class="data-item">
                                 <label>ALAMAT LENGKAP</label>
-                                <p>Jl. Merdeka No. 10, RT 04/02, Kel. Melati...</p>
+                                <p>-</p>
                             </div>
                         </div>
 
@@ -224,32 +218,31 @@
                             <div class="health-cards">
                                 <div class="h-card red">
                                     <span>TENSI</span>
-                                    <strong>160/95</strong>
-                                    <small>MMHG</small>
+                                    <strong>-</strong>
+                                    <small></small>
                                 </div>
                                 <div class="h-card blue">
                                     <span>GULA DARAH</span>
-                                    <strong>145</strong>
-                                    <small>MG/DL</small>
+                                    <strong>-</strong>
+                                    <small></small>
                                 </div>
                             </div>
                             <div class="medical-note">
                                 <label>CATATAN MEDIS</label>
-                                <blockquote>"Pasien mengeluh pusing di pagi hari. Disarankan pembatasan konsumsi garam."
-                                </blockquote>
+                                <blockquote>"-"</blockquote>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-      
-       
-       
-@include('modal.M_tambahlansia')
-@include('modal.M_editlansia')
-@include('modal.M_hapus')
-@include('modal.M_filter')
+
+
+
+        @include('modal.M_tambahlansia')
+        @include('modal.M_editlansia')
+        @include('modal.M_hapus')
+        @include('modal.M_filter')
     </main>
 @endsection
 
