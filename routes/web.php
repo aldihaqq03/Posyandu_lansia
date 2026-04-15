@@ -28,6 +28,7 @@ Route::middleware('guest')->group(function () {
 
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -38,12 +39,25 @@ Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+
+    // Admin routes
+    Route::middleware('role:Kader,Admin')->group(function () {
+        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+        Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
+        Route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
+        Route::view('/profil', 'admin.profil')->name('profil')->name('profil');
+    });
+
+    // Resource Lansia
+    Route::resource('lansia', LansiaController::class);
+
+
     /*
     |--------------------------------------------------------------------------
     | Admin / Kader Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:kader,kepala_kader,Kader,Admin')->group(function () {
+    Route::middleware('role:kader,kepala_kader')->group(function () {
 
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
@@ -69,15 +83,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
         Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
         Route::post('/pengaturan/password', [\App\Http\Controllers\PengaturanController::class, 'updatePassword'])->name('pengaturan.password');
-
-        Route::view('/profil', 'admin.profil')->name('profil');
     });
+
+
 
     /*
     |--------------------------------------------------------------------------
     | CRUD PETUGAS
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:kepala_kader')->group(function () {
         Route::get('/data_petugas', [PetugasController::class, 'index'])->name('petugas.index');
 
@@ -91,33 +106,36 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])->name('petugas.destroy');
 
+        // Rute Laporan (Hanya Admin)
         Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
     });
+
 
     /*
     |--------------------------------------------------------------------------
     | Resource Lansia
     |--------------------------------------------------------------------------
     */
+
     Route::resource('lansia', LansiaController::class)->parameters([
         'lansia' => 'lansia'
     ]);
+
 
     /*
     |--------------------------------------------------------------------------
     | Testing
     |--------------------------------------------------------------------------
     */
+
     Route::view('/scan', 'skrining.skrining_utama');
     Route::view('/tes', 'admin.dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Update Profil
-    |--------------------------------------------------------------------------
-    */
+
+    // Simpan perubahan profil
     Route::put('/profil', function (Request $request) {
 
+        // Ambil user langsung dari model Eloquent biar save() tidak error
         $user = User::find(Auth::id());
 
         $rules = [
@@ -155,13 +173,17 @@ Route::middleware('auth')->group(function () {
         $user->save();
 
         return redirect('/profil')->with('success', 'Profil berhasil diperbarui!');
+
     })->name('profil.update');
 
+
 });
+
 
 /*
 |--------------------------------------------------------------------------
 | Halaman Sukses
 |--------------------------------------------------------------------------
 */
+
 Route::view('/berhasil', 'simpel.berhasil')->name('berhasil');

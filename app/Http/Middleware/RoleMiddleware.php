@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-<<<<<<< HEAD
-   public function handle(Request $request, Closure $next, ...$roles)
+  public function handle(Request $request, Closure $next, ...$roles)
 {
     if (!Auth::check() || !in_array(Auth::user()->jabatan, $roles)) {
         abort(403, 'Unauthorized access.');
@@ -19,7 +18,7 @@ class RoleMiddleware
     return $next($request);
 }
 }
-=======
+
     /**
      * Handle an incoming request.
      *
@@ -41,4 +40,4 @@ class RoleMiddleware
         return $next($request);
     }
 }
->>>>>>> aldi
+
