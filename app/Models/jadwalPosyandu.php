@@ -42,4 +42,9 @@ class jadwalPosyandu extends Model
     {
         return $this->hasMany(Skrining::class, 'id_jadwal_posyandu');
     }
+
+    public function itemJadwal()
+    {
+        return $this->hasMany(ItemJadwalLansia::class, 'id_jadwal_posyandu');
+    }
 }
