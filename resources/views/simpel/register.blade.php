@@ -8,10 +8,11 @@
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 @vite([
-'resources/css/register.css',
-'resources/js/register.js'
+    'resources/css/register.css',
+    'resources/js/register.js'
 ])
 
 </head>
@@ -22,14 +23,13 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <div class="card">
 
 <div class="logo">
-<img src="{{ asset('images/logo_posyandu.png') }}">
+<x-logo style="width: 80px; height: 80px; color: #0ea5e9; margin: 0 auto; display: block;" />
 </div>
 
 <h2 class="title-main">Daftar Akun SIMPEL</h2>
 <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h4>
 
-<form id="registerForm" action="/register" method="POST">
-@csrf
+<form id="registerForm">
 
 <div class="form-group">
 <label>Nama Lengkap</label>
@@ -72,28 +72,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
                         
 <select name="jabatan" required>
 <option value="">Pilih Jabatan</option>
-<option value="Kader">Kader</option>
-<option value="Admin">Admin</option>
+<option value="kader">Kader</option>
+<option value="kepala_kader">Kepala Kader</option>
 </select>
 
 </div>
 </div>
 
-<div class="form-group">
-<label>Wilayah Kerja</label>
-<div class="input-wrapper">
-<i class="fa fa-map-marker-alt"></i>
 
-<select id="wilayah" name="wilayah_kerja" required>
-<option value="">Pilih Wilayah Kerja</option>
-<option value="Posyandu Mawar">Posyandu Mawar</option>
-<option value="Posyandu Melati">Posyandu Melati</option>
-<option value="Posyandu Anggrek">Posyandu Anggrek</option>
-<option value="Posyandu Dahlia">Posyandu Dahlia</option>
-</select>
-
-</div>
-</div>
 
 <div class="form-group">
 <label>Password</label>
@@ -129,5 +115,34 @@ Sudah punya akun?
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Pendaftaran Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Pendaftaran Gagal',
+            text: '{{ $errors->first() }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+</script>
 </body>
 </html>
