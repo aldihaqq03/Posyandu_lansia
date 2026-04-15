@@ -3,16 +3,13 @@
 use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-<<<<<<< HEAD
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
-=======
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\JadwalPosyanduController;
->>>>>>> aldi
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +28,6 @@ Route::middleware('guest')->group(function () {
 
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -42,25 +38,12 @@ Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-<<<<<<< HEAD
-    // Admin routes
-    Route::middleware('role:Kader,Admin')->group(function () {
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
-        Route::view('/pemeriksaan', 'admin.pemeriksaan')->name('pemeriksaan');
-        Route::view('/data_lansia', 'admin.data_lansia')->name('data_lansia');
-        Route::view('/profil', 'admin.profil')->name('profil')->name('profil');
-    });
-
-    // Resource Lansia
-    Route::resource('lansia', LansiaController::class);
-=======
-
     /*
     |--------------------------------------------------------------------------
     | Admin / Kader Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:kader,kepala_kader')->group(function () {
+    Route::middleware('role:kader,kepala_kader,Kader,Admin')->group(function () {
 
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
@@ -86,16 +69,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
         Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
         Route::post('/pengaturan/password', [\App\Http\Controllers\PengaturanController::class, 'updatePassword'])->name('pengaturan.password');
-    });
 
->>>>>>> aldi
+        Route::view('/profil', 'admin.profil')->name('profil');
+    });
 
     /*
     |--------------------------------------------------------------------------
     | CRUD PETUGAS
     |--------------------------------------------------------------------------
     */
-
     Route::middleware('role:kepala_kader')->group(function () {
         Route::get('/data_petugas', [PetugasController::class, 'index'])->name('petugas.index');
 
@@ -109,36 +91,33 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])->name('petugas.destroy');
 
-        // Rute Laporan (Hanya Admin)
         Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
     });
-
 
     /*
     |--------------------------------------------------------------------------
     | Resource Lansia
     |--------------------------------------------------------------------------
     */
-
     Route::resource('lansia', LansiaController::class)->parameters([
         'lansia' => 'lansia'
     ]);
-
 
     /*
     |--------------------------------------------------------------------------
     | Testing
     |--------------------------------------------------------------------------
     */
-
     Route::view('/scan', 'skrining.skrining_utama');
     Route::view('/tes', 'admin.dashboard');
 
-<<<<<<< HEAD
-    // Simpan perubahan profil
+    /*
+    |--------------------------------------------------------------------------
+    | Update Profil
+    |--------------------------------------------------------------------------
+    */
     Route::put('/profil', function (Request $request) {
 
-        // Ambil user langsung dari model Eloquent biar save() tidak error
         $user = User::find(Auth::id());
 
         $rules = [
@@ -176,18 +155,13 @@ Route::middleware('auth')->group(function () {
         $user->save();
 
         return redirect('/profil')->with('success', 'Profil berhasil diperbarui!');
-
     })->name('profil.update');
 
-=======
->>>>>>> aldi
 });
-
 
 /*
 |--------------------------------------------------------------------------
 | Halaman Sukses
 |--------------------------------------------------------------------------
 */
-
 Route::view('/berhasil', 'simpel.berhasil')->name('berhasil');
