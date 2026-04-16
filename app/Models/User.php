@@ -2,56 +2,67 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'email',
         'whatsapp',
         'password',
+        'is_active'
     ];
 
+    /**
+     * RELATION
+     */
     public function petugas()
     {
         return $this->hasOne(Petugas::class, 'id_user');
     }
 
+    /**
+     * ACCESSOR
+     */
     public function getNamaAttribute()
     {
-        return $this->petugas ? $this->petugas->nama : '-';
+        return $this->petugas?->nama ?? '-';
     }
 
     public function getNikAttribute()
     {
-        return $this->petugas ? $this->petugas->nik : '-';
+        return $this->petugas?->nik ?? '-';
     }
 
     public function getJabatanAttribute()
     {
-        return $this->petugas ? $this->petugas->jabatan : 'User';
+        return $this->petugas?->jabatan;
     }
 
     public function getWilayahKerjaAttribute()
     {
-        return $this->petugas ? $this->petugas->wilayah : '-';
+        return $this->petugas?->wilayah ?? '-';
     }
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * ROLE HELPER
+     */
+    public function isKepalaKader()
+    {
+        return $this->petugas?->jabatan === 'kepala_kader';
+    }
+
+    public function isKader()
+    {
+        return $this->petugas?->jabatan === 'kader';
+    }
+
+    /**
+     * HIDDEN
      */
     protected $hidden = [
         'password',
@@ -59,15 +70,14 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * CAST
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean', // 🔥 penting
         ];
     }
 }

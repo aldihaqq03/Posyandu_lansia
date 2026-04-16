@@ -1,46 +1,18 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/css/style.css',
-                'resources/css/berhasil.css',
-                'resources/css/cssAdmin/dashboard.css',
-                'resources/css/cssAdmin/pemeriksaan.css',
-                'resources/css/cssAdmin/data_lansia.css',
-                'resources/css/cssAdmin/jadwal_posyandu.css',
-                // resources js
-                'resources/js/jsADMIN/dashboard.js',
-                'resources/js/jsADMIN/pemeriksaan.js',
-                'resources/js/jsADMIN/data_lansia.js',
-                'resources/js/jsADMIN/jadwal_posyandu.js',
-                'resources/css/berhasil.css',
-                'resources/css/sidebar.css',
-                'resources/css/cssAdmin/dashboard.css',
-                'resources/css/cssAdmin/pemeriksaan.css',
-                'resources/css/cssAdmin/data_lansia.css',
-                'resources/css/cssAdmin/data_petugas.css',
-                'resources/css/cssAdmin/tambah_data_petugas.css',
-                'resources/css/cssAdmin/skrining_utama.css',
-                'resources/css/cssAdmin/pengaturan.css',
-                'resources/css/welcome.css',
-                //resources js
-                'resources/js/jsAdmin/dashboard.js',
-                'resources/js/jsAdmin/pemeriksaan.js',
-                'resources/js/jsAdmin/data_lansia.js',
-
+                'resources/css/login.css',
+                'resources/css/register.css',
+                'resources/js/app.tsx'
             ],
             refresh: true,
         }),
-        tailwindcss(),
+        react(),
     ],
-    server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
-    },
 });

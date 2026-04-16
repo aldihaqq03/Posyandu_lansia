@@ -19,11 +19,16 @@ class RoleMiddleware
             abort(403, 'Unauthorized access.');
         }
 
-        $userRole = strtolower(auth()->user()->jabatan);
+        $user = auth()->user();
+        if (!$user->is_active) {
+            abort(403, 'Profil belum aktif. Silakan lengkapi data diri.');
+        }
+
+        $userRole = strtolower($user->jabatan ?? '');
         $allowedRoles = array_map('strtolower', $roles);
 
         if (!in_array($userRole, $allowedRoles)) {
-            abort(403, 'Unauthorized access.');
+            abort(403, 'Anda tidak memiliki akses untuk fitur ini.');
         }
 
         return $next($request);
