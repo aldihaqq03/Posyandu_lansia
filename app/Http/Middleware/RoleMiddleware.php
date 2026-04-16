@@ -17,14 +17,16 @@ class RoleMiddleware
 
     return $next($request);
 }
-}
+
 
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response 
+    
+    
     {
         if (!auth()->check()) {
             abort(403, 'Unauthorized access.');
@@ -38,6 +40,6 @@ class RoleMiddleware
         }
 
         return $next($request);
-    }
-}
+          }
+
 
