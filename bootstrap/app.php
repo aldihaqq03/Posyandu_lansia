@@ -16,9 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'role'      => \App\Http\Middleware\RoleMiddleware::class,
-            'cek.aktif' => \App\Http\Middleware\CekStatusPetugas::class,
-            'inertia'   => \App\Http\Middleware\HandleInertiaRequests::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'profile.complete' => \App\Http\Middleware\EnsureProfileComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

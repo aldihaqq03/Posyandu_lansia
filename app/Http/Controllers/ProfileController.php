@@ -3,80 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * View for Profile completion.
      */
-    public function edit(Request $request): Response
+    public function lengkapi(Request $request): View
     {
-        return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
-        ]);
-    }
-
-    /**
-     * Tampilkan halaman lengkapi profil (untuk user yang belum aktif)
-     */
-    public function lengkapi(): Response
-    {
-        $user = Auth::user();
+        $user = $request->user();
         $petugas = $user->petugas;
-
-        return Inertia::render('Profile/LengkapiProfil', [
-            'user' => $user,
-            'petugas' => $petugas,
-        ]);
+        return view('auth.lengkapiProfil', compact('user', 'petugas'));
     }
 
     /**
-     * Update profil & set is_active = true
+     * Submit for Profile completion.
      */
     public function lengkapiUpdate(Request $request): RedirectResponse
     {
-        $user = Auth::user();
-
         $request->validate([
-            'nama'     => 'required|string|max:255',
-            'nik'      => 'required|string|size:16|unique:petugas,nik,' . ($user->petugas?->id_petugas ?? 0) . ',id_petugas',
-            'whatsapp' => 'required|string|max:15',
-            'foto'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'nama' => ['required', 'string', 'max:255'],
+            'nik' => ['required', 'string', 'size:16'],
+            'whatsapp' => ['required', 'string', 'max:15'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
-        // Update nomor WhatsApp di tabel users
-        $user->update(['whatsapp' => $request->whatsapp]);
+        $user = $request->user();
+        $user->whatsapp = $request->whatsapp;
+        $user->is_active = true;
+        $user->save();
 
-        $petugasData = [
-            'nama'   => $request->nama,
-            'nik'    => $request->nik,
-            'status' => 'aktif',
-            // jabatan TIDAK disentuh — sudah diisi oleh admin sebelumnya
-        ];
-
-        // Upload foto jika ada
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('foto_petugas', 'public');
-            $petugasData['foto'] = $fotoPath;
+        $petugas = $user->petugas;
+        if ($petugas) {
+             $petugas->nama = $request->nama;
+             $petugas->nik = $request->nik;
+             
+             if ($request->hasFile('foto')) {
+                 $path = $request->file('foto')->store('profil_petugas', 'public');
+                 $petugas->foto = $path;
+             }
+             $petugas->save();
         }
 
-        $user->petugas()->updateOrCreate(
-            ['id_user' => $user->id],
-            $petugasData
-        );
+        return Redirect::route('dashboard');
+    }
 
-        // Set user jadi aktif
-        $user->update(['is_active' => true]);
-
-        return Redirect::route('dashboard')->with('success', 'Profil berhasil dilengkapi!');
+    /**
+     * Display the user's profile form.
+     */
+    public function edit(Request $request): View
+    {
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
     }
 
     /**
@@ -92,7 +76,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
@@ -100,7 +84,7 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validate([
+        $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
 
