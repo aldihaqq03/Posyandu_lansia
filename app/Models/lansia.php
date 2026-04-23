@@ -27,4 +27,14 @@ class lansia extends Model
         'email',
         'wilayah',
     ];
+
+    public function skrinings()
+    {
+        return $this->hasMany(Skrining::class, 'id_lansia');
+    }
+
+    public function skriningUtamas()
+    {
+        return $this->hasMany(SkriningUtama::class, 'id_lansia');
+    }
 }

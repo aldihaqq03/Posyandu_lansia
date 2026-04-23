@@ -29,24 +29,32 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 <h2 class="title-main">SIMPEL</h2>
 <p class="subtitle">SISTEM INFORMASI PEDULI LANSIA</p>
 
-<form method="POST" action="{{ route('login') }}">
+<form method="POST" action="{{ route('proses_login') }}">
 @csrf
-
-
 
 <label>Email</label>
 <div class="input-group">
 <i class="fa fa-envelope"></i>
 <input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
 </div>
+@error('email')
+    <span class="error-message" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+        <i class="fa fa-exclamation-circle"></i> {{ $message }}
+    </span>
+@enderror
 
-<label>Kata Sandi</label>
+<label style="margin-top: 1rem;">Kata Sandi</label>
 <div class="input-group">
 <i class="fa fa-lock"></i>
 <input type="password" id="password" name="password" placeholder="********" required>
 <i class="fa fa-eye toggle-password"
 onclick="togglePassword('password',this)"></i>
 </div>
+@error('password')
+    <span class="error-message" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+        <i class="fa fa-exclamation-circle"></i> {{ $message }}
+    </span>
+@enderror
 
 <button type="submit" class="btn-login">
 Masuk
@@ -68,7 +76,7 @@ Belum punya akun?
     @if(session('error'))
         Swal.fire({
             icon: 'error',
-            title: 'Oops...',
+            title: 'Login Gagal',
             text: '{{ session('error') }}',
             confirmButtonColor: '#0ea5e9'
         });
@@ -79,15 +87,6 @@ Belum punya akun?
             icon: 'success',
             title: 'Berhasil!',
             text: '{{ session('success') }}',
-            confirmButtonColor: '#0ea5e9'
-        });
-    @endif
-
-    @if($errors->any())
-        Swal.fire({
-            icon: 'error',
-            title: 'Login Gagal',
-            text: '{{ $errors->first() }}',
             confirmButtonColor: '#0ea5e9'
         });
     @endif

@@ -61,7 +61,12 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
 
-        Route::get('/jadwal_posyandu', [JadwalPosyanduController::class, 'index'])->name('jadwal_posyandu');
+        Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
+
+        // Skrining & Pemeriksaan
+        Route::post('/pemeriksaan', [\App\Http\Controllers\SkriningController::class, 'storePemeriksaan'])->name('pemeriksaan.store');
+        Route::post('/skrining_utama', [\App\Http\Controllers\SkriningController::class, 'storeSkriningUtama'])->name('skrining_utama.store');
+        Route::post('/pemeriksaan/ppok', [\App\Http\Controllers\SkriningController::class, 'storeSkriningPPOK'])->name('skrining_ppok.store');
 
         Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
         Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');

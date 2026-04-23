@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lansia;
+use App\Models\Skrining;
+use App\Models\SkriningUtama;
+use App\Models\SkriningPPOK;
 use Illuminate\Http\Request;
 
 class LansiaController extends Controller
@@ -58,18 +61,20 @@ class LansiaController extends Controller
 
     public function show(Lansia $lansia)
     {
-        $skriningUtama = \Illuminate\Support\Facades\DB::table('skrining_utama')
-            ->join('skrining', 'skrining_utama.id_skrining', '=', 'skrining.id_skrining')
-            ->where('skrining_utama.id_lansia', $lansia->id_lansia)
-            ->orderBy('skrining.tanggal_skrining', 'desc')
+        // Menggunakan relasi Eloquent agar lebih bersih
+        $skriningUtama = $lansia->skriningUtamas()
+            ->with('skrining') // eager loading tabel induk
+            ->orderByDesc('created_at')
             ->get();
 
-        $skriningPPOK = \Illuminate\Support\Facades\DB::table('skrining_ppok')
-            ->join('skrining', 'skrining_ppok.id_skrining', '=', 'skrining.id_skrining')
-            ->where('skrining.id_lansia', $lansia->id_lansia)
-            ->orderBy('skrining.tanggal_skrining', 'desc')
+        $skriningPPOK = SkriningPPOK::whereHas('skrining', function($q) use ($lansia) {
+                $q->where('id_lansia', $lansia->id_lansia);
+            })
+            ->with('skrining')
+            ->orderByDesc('created_at')
             ->get();
 
+        // Contoh pemanggilan relasi lain jika diperlukan
         $jadwalMingguan = \Illuminate\Support\Facades\DB::table('item_jadwal_lansia')
             ->join('skrining', 'item_jadwal_lansia.id_skrining', '=', 'skrining.id_skrining')
             ->where('skrining.id_lansia', $lansia->id_lansia)

@@ -2,85 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Petugas;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-
-    public function register()
-    {
-        return view('simpel.register');
-    }
-
-    public function login()
+    /**
+     * Display the login view.
+     */
+    public function login(): View
     {
         return view('simpel.login');
     }
 
-    public function proses_register(Request $request)
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function proses_login(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        return redirect()->intended('/dashboard');
+    }
+
+    /**
+     * Display the registration view.
+     */
+    public function register(): View
+    {
+        return view('simpel.register');
+    }
+
+    /**
+     * Handle an incoming registration request.
+     */
+    public function proses_register(RegisterRequest $request): RedirectResponse
     {
         $user = User::create([
             'email' => $request->email,
             'whatsapp' => $request->whatsapp,
-            'password' => $request->password
+            'password' => $request->password,
         ]);
 
-        \App\Models\Petugas::create([
+        Petugas::create([
             'id_user' => $user->id,
             'nama' => $request->nama,
             'nik' => $request->nik,
             'jabatan' => $request->jabatan,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');
     }
 
-
-    public function proses_login(Request $request)
+    /**
+     * Destroy an authenticated session.
+     */
+    public function logout(Request $request): RedirectResponse
     {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-
-            $request->session()->regenerate(); // penting untuk keamanan
-
-            // Redirect sesuai jabatan
-            $jabatan = Auth::user()->jabatan;
-
-            if ($jabatan == 'kader') {
-                return redirect('/dashboard');
-
-            }
-
-            //els ini nyalain kalo front end kepala kader udah ada
-            elseif ($jabatan == 'kepala_kader') {
-                return redirect('/dashboard');
-
-            }
-
-            // default jika jabatan tidak terdeteksi
-            return redirect('/dashboard');
-        }
-
-        return back()->with('error', 'Email atau Password salah');
-    }
-    public function logout(Request $request)
-    {
-        // Logout user
         Auth::logout();
 
-        // Hapus session Laravel
         $request->session()->invalidate();
 
-        // Buat token CSRF baru
         $request->session()->regenerateToken();
 
-        // Hapus cookie laravel_session (opsional)
-        return redirect('/')->withCookie(cookie()->forget('laravel_session'));
+        return redirect('/');
     }
 
 
