@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (dynamicName) dynamicName.innerText = name;
                         if (nameDisplay) nameDisplay.innerText = name;
                         if (btnProfil && id) {
-                            btnProfil.href = `/lansia/${id}`;
+                            btnProfil.href = `/lansia/${id}/profil-lengkap`;
                         }
 
                         // Tambahan data dinamis untuk detail

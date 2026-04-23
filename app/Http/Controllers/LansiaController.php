@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Lansia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LansiaController extends Controller
 {
-
     public function index()
     {
         $lansias = Lansia::latest()->paginate(10);
@@ -48,8 +49,6 @@ class LansiaController extends Controller
             'email' => 'nullable|email|max:30'
         ]);
 
-
-
         Lansia::create($validated);
 
         return redirect()->route('data_lansia')
@@ -58,25 +57,46 @@ class LansiaController extends Controller
 
     public function show(Lansia $lansia)
     {
-        $skriningUtama = \Illuminate\Support\Facades\DB::table('skrining_utama')
+        // ========================
+        // FORMAT DATA TAMBAHAN
+        // ========================
+        $tanggal_lahir_format = $lansia->tanggal_lahir
+            ? Carbon::parse($lansia->tanggal_lahir)->format('d M Y')
+            : '-';
+
+        $umur = $lansia->tanggal_lahir
+            ? Carbon::parse($lansia->tanggal_lahir)->age
+            : null;
+
+        // ========================
+        // QUERY DATA RELASI
+        // ========================
+        $skriningUtama = DB::table('skrining_utama')
             ->join('skrining', 'skrining_utama.id_skrining', '=', 'skrining.id_skrining')
             ->where('skrining_utama.id_lansia', $lansia->id_lansia)
             ->orderBy('skrining.tanggal_skrining', 'desc')
             ->get();
 
-        $skriningPPOK = \Illuminate\Support\Facades\DB::table('skrining_ppok')
+        $skriningPPOK = DB::table('skrining_ppok')
             ->join('skrining', 'skrining_ppok.id_skrining', '=', 'skrining.id_skrining')
             ->where('skrining.id_lansia', $lansia->id_lansia)
             ->orderBy('skrining.tanggal_skrining', 'desc')
             ->get();
 
-        $jadwalMingguan = \Illuminate\Support\Facades\DB::table('item_jadwal_lansia')
+        $jadwalMingguan = DB::table('item_jadwal_lansia')
             ->join('skrining', 'item_jadwal_lansia.id_skrining', '=', 'skrining.id_skrining')
             ->where('skrining.id_lansia', $lansia->id_lansia)
             ->orderBy('item_jadwal_lansia.hari', 'asc')
             ->get();
 
-        return view('lansia.show', compact('lansia', 'skriningUtama', 'skriningPPOK', 'jadwalMingguan'));
+        return view('lansia.show', compact(
+            'lansia',
+            'skriningUtama',
+            'skriningPPOK',
+            'jadwalMingguan',
+            'tanggal_lahir_format',
+            'umur'
+        ));
     }
 
     public function edit(Lansia $lansia)
@@ -113,5 +133,36 @@ class LansiaController extends Controller
 
         return redirect()->route('data_lansia')
             ->with('success', 'Data lansia berhasil dihapus.');
+    }
+
+    public function profilLengkap(Lansia $lansia)
+    {
+        // ========================
+        // QUERY DATA SKRINING SAJA
+        // ========================
+        $skriningUtama = DB::table('skrining_utama')
+            ->join('skrining', 'skrining_utama.id_skrining', '=', 'skrining.id_skrining')
+            ->where('skrining.id_lansia', $lansia->id_lansia)
+            ->orderBy('skrining.tanggal_skrining', 'desc')
+            ->get();
+
+        $skriningPPOK = DB::table('skrining_ppok')
+            ->join('skrining', 'skrining_ppok.id_skrining', '=', 'skrining.id_skrining')
+            ->where('skrining.id_lansia', $lansia->id_lansia)
+            ->orderBy('skrining.tanggal_skrining', 'desc')
+            ->get();
+
+        $jadwalMingguan = DB::table('item_jadwal_lansia')
+            ->join('skrining', 'item_jadwal_lansia.id_skrining', '=', 'skrining.id_skrining')
+            ->where('skrining.id_lansia', $lansia->id_lansia)
+            ->orderBy('item_jadwal_lansia.hari', 'asc')
+            ->get();
+
+        return view('lansia.show', compact(
+            'lansia',
+            'skriningUtama',
+            'skriningPPOK',
+            'jadwalMingguan'
+        ));
     }
 }

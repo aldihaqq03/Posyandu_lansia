@@ -53,10 +53,7 @@
                             <option value="Cerai Mati">Cerai Mati</option>
                         </select>
                     </div>
-                    <div style="flex: 1;">
-                        <label for="tanggal_daftar">Tanggal Daftar</label>
-                        <input type="date" id="tanggal_daftar" name="tanggal_daftar">
-                    </div>
+
                 </div>
                 <div class="form-group">
                     <label for="riwayat_penyakit">Riwayat Penyakit</label>
