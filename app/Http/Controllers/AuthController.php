@@ -30,6 +30,13 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
+        if (auth()->user()->jabatan === 'lansia') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect('/login')->withErrors(['email' => 'Akun lansia hanya dapat diakses melalui aplikasi mobile.']);
+        }
+
         return redirect()->intended('/dashboard');
     }
 

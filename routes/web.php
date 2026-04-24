@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
     */
     Route::middleware('role:kader,kepala_kader')->group(function () {
 
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/pemeriksaan', function () {
             $lansias = \Illuminate\Support\Facades\DB::table('lansia')->get();
@@ -103,11 +103,11 @@ Route::middleware('auth')->group(function () {
     | Resource Lansia
     |--------------------------------------------------------------------------
     */
-
-    Route::resource('lansia', LansiaController::class)->parameters([
-        'lansia' => 'lansia'
-    ]);
-
+    Route::middleware('role:kader,kepala_kader')->group(function () {
+        Route::resource('lansia', LansiaController::class)->parameters([
+            'lansia' => 'lansia'
+        ]);
+    });
 
     /*
     |--------------------------------------------------------------------------
