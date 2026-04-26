@@ -58,6 +58,14 @@
                 <i class="fa-solid fa-users"></i>
                 <span class="nav-text">Data Lansia</span>
             </a>
+             
+             <a href="/obat" class="nav-item {{ Request::is('obat') ? 'active' : '' }}"
+                title="Data Obat">
+                <i class="fa-solid fa-pills"></i>
+                <span class="nav-text">Data Obat</span>
+            </a>
+           
+
 
             <div class="nav-dropdown">
 
@@ -93,7 +101,7 @@
             <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}"
                 title="Jadwal Posyandu">
                 <i class="fa-solid fa-calendar"></i>
-                <span class="nav-text">Jadwal Posyandu</span>
+                <span class="nav-text">Jadwal </span>
             </a>
 
         </nav>

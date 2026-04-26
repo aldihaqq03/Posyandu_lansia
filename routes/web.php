@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\JadwalPosyanduController;
+use App\Http\Controllers\ObatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +61,8 @@ Route::middleware('auth')->group(function () {
         })->name('pemeriksaan.create');
 
         Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
+       
+        Route::resource('obat', ObatController::class);
 
         Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
 

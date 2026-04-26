@@ -11,6 +11,7 @@ return new class extends Migration {
 
     public function up(): void
     {
+        
         Schema::create('lansia', function (Blueprint $table) {
             $table->id('id_lansia');
             $table->string('nik', 20)->unique();
@@ -22,7 +23,7 @@ return new class extends Migration {
             $table->string('no_hp', 13)->nullable();
             $table->string('status_perkawinan', 20)->nullable();
             $table->text('riwayat_penyakit')->nullable();
-            $table->date('tanggal_daftar')->useCurrent();
+            $table->date('tanggal_daftar')->nullable();
             $table->text('keterangan')->nullable();
             $table->string('email', 30)->nullable();
             $table->timestamps(); // created_at & updated_at

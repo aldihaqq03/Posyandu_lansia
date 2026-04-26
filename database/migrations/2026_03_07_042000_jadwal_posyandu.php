@@ -16,7 +16,8 @@ return new class extends Migration
         $table->unsignedBigInteger('id_petugas');
         $table->date('tanggal_pelaksanaan');
         $table->string('lokasi', 255);
-        $table->string('tema', 255)->nullable();
+        $table->string('tema', 255);
+        $table->json('kegiatan')->nullable();
         $table->text('keterangan')->nullable();
         // 1=Terjadwal, 2=Berlangsung, 3=Selesai, 4=Dibatalkan
         $table->tinyInteger('status')->unsigned()->default(1);
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('jadwal_posyandu');
     }
 };
