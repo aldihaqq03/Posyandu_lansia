@@ -33,14 +33,30 @@ class AuthApiController extends Controller
             ], 403);
         }
 
+        // Buat token sanctum
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil',
+            'token' => $token,
             'data' => [
                 'id' => $user->id,
                 'whatsapp' => $user->whatsapp,
-                'jabatan' => $user->jabatan
+                'jabatan' => $user->jabatan,
+                'nama' => $user->nama
             ]
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        // Hapus token yang sedang digunakan
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil'
         ]);
     }
 }
