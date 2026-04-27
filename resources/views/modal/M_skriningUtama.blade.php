@@ -8,13 +8,28 @@
 
 @section('content')
     <div class="skrining-wrapper">
-        <div class="skrining-header">
-            <h1>Skrining Utama Lansia</h1>
-            <p>Isi form pemeriksaan kesehatan lengkap untuk lansia</p>
-        </div>
+        @php
+            $jadwalHariIni = \Illuminate\Support\Facades\DB::table('jadwal_posyandu')
+                ->whereDate('tanggal_pelaksanaan', \Carbon\Carbon::today())
+                ->whereIn('status', [1, 2])
+                ->where('ada_skrining_utama', 1)
+                ->first();
+        @endphp
 
-        <!-- Gunakan route sementara jika route skrining_utama.store belum didefinisikan -->
-        <form action="#" method="POST">
+        @if(!$jadwalHariIni)
+            <div class="alert-warning" style="background: #fff7ed; border: 1px solid #fdba74; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #9a3412;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <strong>Peringatan:</strong> Jadwal posyandu hari ini tidak mencakup <strong>Skrining Utama</strong>. Anda tidak dapat menyimpan data ini.
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert-danger" style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <form action="{{ route('skrining_utama.store') }}" method="POST">
             @csrf
 
             <div class="search-lansia-wrapper">
@@ -220,7 +235,13 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <div class="section-title"><i class="fa-solid fa-comment-medical"></i> Catatan Keluhan</div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Keluhan Lansia</label>
+                <textarea name="keluhan" class="form-control" placeholder="Tuliskan keluhan yang dirasakan lansia saat ini..." rows="3" style="resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" {{ !$jadwalHariIni ? 'disabled' : '' }}>
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Data Skrining
             </button>
 

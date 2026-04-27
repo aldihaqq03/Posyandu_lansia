@@ -16,7 +16,8 @@
                     </div>
                     <div style="flex: 1;">
                         <label for="edit_nama_lansia">Nama Lengkap</label>
-                        <input type="text" id="edit_nama_lansia" name="nama_lansia" placeholder="Masukkan Nama Lengkap" required>
+                        <input type="text" id="edit_nama_lansia" name="nama_lansia" placeholder="Masukkan Nama Lengkap"
+                            required>
                     </div>
                 </div>
                 <div class="form-group" style="display: flex; gap: 10px;">
@@ -53,22 +54,22 @@
                             <option value="Cerai Mati">Cerai Mati</option>
                         </select>
                     </div>
-                    <div style="flex: 1;">
-                        <label for="edit_tanggal_daftar">Tanggal Daftar</label>
-                        <input type="date" id="edit_tanggal_daftar" name="tanggal_daftar">
-                    </div>
+
                 </div>
                 <div class="form-group">
                     <label for="edit_riwayat_penyakit">Riwayat Penyakit</label>
-                    <input type="text" id="edit_riwayat_penyakit" name="riwayat_penyakit" placeholder="Contoh: Hipertensi, Diabetes">
+                    <input type="text" id="edit_riwayat_penyakit" name="riwayat_penyakit"
+                        placeholder="Contoh: Hipertensi, Diabetes">
                 </div>
                 <div class="form-group">
                     <label for="edit_alamat">Alamat</label>
-                    <textarea id="edit_alamat" name="alamat" rows="2" placeholder="Masukkan Alamat Lengkap" required></textarea>
+                    <textarea id="edit_alamat" name="alamat" rows="2" placeholder="Masukkan Alamat Lengkap"
+                        required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="edit_keterangan">Keterangan</label>
-                    <textarea id="edit_keterangan" name="keterangan" rows="2" placeholder="Informasi Tambahan"></textarea>
+                    <textarea id="edit_keterangan" name="keterangan" rows="2"
+                        placeholder="Informasi Tambahan"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="edit_email">Email (Opsional)</label>

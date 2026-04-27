@@ -1,10 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Controllers_Mobile\AuthLansiaController;
+use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\DashboardApiController;
+use App\Http\Controllers\Api\ProfilApiController;
 
-Route::post('/login-lansia', [AuthLansiaController::class, 'login']);
+Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/login-lansia', [AuthApiController::class, 'login']); // Aliased just in case
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout-lansia', [AuthLansiaController::class, 'logout']);
+    Route::get('/dashboard', [DashboardApiController::class, 'index']);
+    Route::get('/profil', [ProfilApiController::class, 'index']);
+    Route::post('/logout-lansia', [AuthApiController::class, 'logout']);
 });
+

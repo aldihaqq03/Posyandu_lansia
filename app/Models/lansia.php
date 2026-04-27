@@ -14,6 +14,7 @@ class lansia extends Model
     protected $primaryKey = 'id_lansia';
 
     protected $fillable = [
+        'id_user',
         'nik',
         'nama_lansia',
         'jenis_kelamin',
@@ -28,4 +29,23 @@ class lansia extends Model
         'email',
         'wilayah',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function skrinings()
+    {
+        return $this->hasMany(Skrining::class, 'id_lansia');
+    }
+
+    public function skriningUtamas()
+    {
+        return $this->hasMany(SkriningUtama::class, 'id_lansia');
+    }
+    public function latestSkriningUtama()
+    {
+        return $this->hasOne(SkriningUtama::class, 'id_lansia')->latestOfMany('id_skrining_utama');
+    }
 }

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lansia;
+use App\Models\Skrining;
+use App\Models\SkriningUtama;
+use App\Models\SkriningPPOK;
 use Illuminate\Http\Request;
 
 class LansiaController extends Controller
@@ -10,12 +13,47 @@ class LansiaController extends Controller
 
     public function index()
     {
-        $lansias = Lansia::latest()->paginate(10);
+        $lansias = Lansia::with('latestSkriningUtama')->latest()->paginate(10);
         $total_lansia = Lansia::count();
 
-        $resiko_tinggi = 0;
-        $status_sehat = 0;
-        $jadwal_periksa = 0;
+        // Ambil ID lansia dengan screening terbaru untuk menghitung status risiko
+        $latestScreeningIds = SkriningUtama::select(\DB::raw('MAX(id_skrining_utama)'))
+            ->groupBy('id_lansia');
+
+        $penyakit_beresiko = ['Hipertensi', 'Diabetes', 'Jantung', 'Stroke', 'PPOK'];
+
+        $resiko_tinggi = Lansia::where(function($q) use ($penyakit_beresiko) {
+                foreach($penyakit_beresiko as $p) {
+                    $q->orWhere('riwayat_penyakit', 'LIKE', '%' . $p . '%');
+                }
+            })
+            ->orWhereIn('id_lansia', function($query) use ($latestScreeningIds) {
+                $query->select('id_lansia')
+                    ->from('skrining_utama')
+                    ->whereIn('id_skrining_utama', $latestScreeningIds)
+                    ->where(function($q) {
+                        $q->where('gula_darah_kategori', 3)
+                          ->orWhere('kolesterol_kategori', 3);
+                    });
+            })
+            ->count();
+
+        $status_sehat = Lansia::where(function($q) use ($penyakit_beresiko) {
+                foreach($penyakit_beresiko as $p) {
+                    $q->where('riwayat_penyakit', 'NOT LIKE', '%' . $p . '%')
+                      ->orWhereNull('riwayat_penyakit');
+                }
+            })
+            ->whereIn('id_lansia', function($query) use ($latestScreeningIds) {
+                $query->select('id_lansia')
+                    ->from('skrining_utama')
+                    ->whereIn('id_skrining_utama', $latestScreeningIds)
+                    ->where('gula_darah_kategori', 1)
+                    ->where('kolesterol_kategori', 1);
+            })
+            ->count();
+
+        $jadwal_periksa = \App\Models\JadwalPosyandu::whereIn('status', [1, 2])->count();
 
         return view('admin.data_lansia', compact(
             'lansias',
@@ -48,9 +86,20 @@ class LansiaController extends Controller
             'email' => 'nullable|email|max:30'
         ]);
 
+        \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
+            // Auto create user for Lansia (Tanpa Email)
+            // Password default menggunakan No HP, jika tidak ada gunakan NIK
+            $defaultPassword = $request->no_hp ? $request->no_hp : $request->nik;
 
+            $user = \App\Models\User::create([
+                'email' => null, // Lansia tidak wajib punya email
+                'whatsapp' => $request->no_hp ?? '', // Nomor telepon untuk login mobile nanti
+                'password' => bcrypt($defaultPassword),
+            ]);
 
-        Lansia::create($validated);
+            $validated['id_user'] = $user->id;
+            Lansia::create($validated);
+        });
 
         return redirect()->route('data_lansia')
             ->with('success', 'Data lansia berhasil ditambahkan.');
@@ -58,18 +107,20 @@ class LansiaController extends Controller
 
     public function show(Lansia $lansia)
     {
-        $skriningUtama = \Illuminate\Support\Facades\DB::table('skrining_utama')
-            ->join('skrining', 'skrining_utama.id_skrining', '=', 'skrining.id_skrining')
-            ->where('skrining_utama.id_lansia', $lansia->id_lansia)
-            ->orderBy('skrining.tanggal_skrining', 'desc')
+        // Menggunakan relasi Eloquent agar lebih bersih
+        $skriningUtama = $lansia->skriningUtamas()
+            ->with('skrining') // eager loading tabel induk
+            ->orderByDesc('created_at')
             ->get();
 
-        $skriningPPOK = \Illuminate\Support\Facades\DB::table('skrining_ppok')
-            ->join('skrining', 'skrining_ppok.id_skrining', '=', 'skrining.id_skrining')
-            ->where('skrining.id_lansia', $lansia->id_lansia)
-            ->orderBy('skrining.tanggal_skrining', 'desc')
+        $skriningPPOK = SkriningPPOK::whereHas('skrining', function($q) use ($lansia) {
+                $q->where('id_lansia', $lansia->id_lansia);
+            })
+            ->with('skrining')
+            ->orderByDesc('created_at')
             ->get();
 
+        // Contoh pemanggilan relasi lain jika diperlukan
         $jadwalMingguan = \Illuminate\Support\Facades\DB::table('item_jadwal_lansia')
             ->join('skrining', 'item_jadwal_lansia.id_skrining', '=', 'skrining.id_skrining')
             ->where('skrining.id_lansia', $lansia->id_lansia)

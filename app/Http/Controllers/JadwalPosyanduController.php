@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\jadwalPosyandu;
+
 class JadwalPosyanduController extends Controller
 {
     /**
@@ -43,7 +43,7 @@ class JadwalPosyanduController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tanggal_pelaksanaan' => 'required|date',
+            'tanggal_pelaksanaan' => 'required|date|after:today',
             'tema'                => 'required|string|max:255',
             'lokasi'              => 'required|string|max:255',
             'kegiatan'            => 'nullable|array',
@@ -52,9 +52,20 @@ class JadwalPosyanduController extends Controller
             'keterangan'          => 'nullable|string',
         ]);
 
-        $kegiatan = $request->kegiatan
-            ? json_encode($request->kegiatan)
-            : null;
+        $conflict = DB::table('jadwal_posyandu')
+    ->where('tanggal_pelaksanaan', $request->tanggal_pelaksanaan)
+    ->first();
+
+if ($conflict) {
+    if ($request->expectsJson()) {
+        return response()->json(['error' => 'Jadwal pada tanggal tersebut sudah ada'], 422);
+    }
+    return redirect()->back()->with('error', 'Jadwal pada tanggal tersebut sudah ada');
+}
+
+$kegiatan = $request->kegiatan
+    ? json_encode($request->kegiatan)
+    : null;
 
         $id_petugas = auth()->check() && auth()->user()->petugas ? auth()->user()->petugas->id_petugas : 1;
 
@@ -64,6 +75,8 @@ class JadwalPosyanduController extends Controller
             'tema'                => $request->tema,
             'lokasi'              => $request->lokasi,
             'kegiatan'            => $kegiatan,
+            'ada_skrining_utama'  => $request->ada_skrining_utama ?? 0,
+            'ada_skrining_ppok'   => $request->ada_skrining_ppok ?? 0,
             'keterangan'          => $request->keterangan,
             'status'              => 1,
             'created_at'          => now(),
@@ -147,6 +160,17 @@ class JadwalPosyanduController extends Controller
             'tanggal_pelaksanaan.after' => "Tanggal harus lebih dari {$minDate} (H+1 dari jadwal semula)",
         ]);
 
+                $conflict = DB::table('jadwal_posyandu')
+            ->where('tanggal_pelaksanaan', $request->tanggal_pelaksanaan)
+            ->first();
+
+        if ($conflict) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Jadwal pada tanggal tersebut sudah ada'], 422);
+            }
+            return redirect()->back()->with('error', 'Jadwal pada tanggal tersebut sudah ada');
+        }
+
         $kegiatan = $request->kegiatan
             ? json_encode($request->kegiatan)
             : null;
@@ -156,6 +180,8 @@ class JadwalPosyanduController extends Controller
             'tema'                => $request->tema,
             'lokasi'              => $request->lokasi,
             'kegiatan'            => $kegiatan,
+            'ada_skrining_utama'  => $request->ada_skrining_utama ?? 0,
+            'ada_skrining_ppok'   => $request->ada_skrining_ppok ?? 0,
             'keterangan'          => $request->keterangan,
             'updated_at'          => now(),
         ]);

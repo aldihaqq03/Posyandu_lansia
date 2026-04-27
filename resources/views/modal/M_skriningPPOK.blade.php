@@ -8,13 +8,28 @@
 
 @section('content')
 <div class="skrining-wrapper">
-    <div class="skrining-header">
-        <h1>Skrining PPOK Lansia</h1>
-        <p>Isi form deteksi dini PPOK dan pemeriksaan spirometri untuk lansia</p>
-    </div>
+    @php
+        $jadwalHariIni = \Illuminate\Support\Facades\DB::table('jadwal_posyandu')
+            ->whereDate('tanggal_pelaksanaan', \Carbon\Carbon::today())
+            ->whereIn('status', [1, 2])
+            ->where('ada_skrining_ppok', 1)
+            ->first();
+    @endphp
 
-    <!-- action route for storing skrining ppok -->
-    <form action="#" method="POST">
+    @if(!$jadwalHariIni)
+        <div class="alert-warning" style="background: #fff7ed; border: 1px solid #fdba74; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #9a3412;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <strong>Peringatan:</strong> Jadwal posyandu hari ini tidak mencakup <strong>Skrining PPOK</strong>. Anda tidak dapat menyimpan data ini.
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert-danger" style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <form action="{{ route('skrining_ppok.store') }}" method="POST">
         @csrf
 
         <!-- PENCARIAN LANSIA -->
@@ -324,9 +339,15 @@
                 <textarea name="hasil_spirometri" class="form-control" rows="3" placeholder="Isi hasil kesimpulan..."></textarea>
             </div>
 
+            <div class="section-title"><i class="fa-solid fa-comment-medical"></i> Catatan Keluhan</div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Keluhan Lansia</label>
+                <textarea name="keluhan" class="form-control" placeholder="Tuliskan keluhan yang dirasakan lansia saat ini..." rows="3" style="resize: vertical;"></textarea>
+            </div>
+
         </div>
 
-        <button type="submit" class="btn-submit">
+        <button type="submit" class="btn-submit" {{ !$jadwalHariIni ? 'disabled' : '' }}>
             <i class="fa-solid fa-floppy-disk"></i> Simpan Skrining PPOK
         </button>
 

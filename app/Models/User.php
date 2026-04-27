@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -28,19 +29,30 @@ class User extends Authenticatable
         return $this->hasOne(Petugas::class, 'id_user');
     }
 
+    public function lansia()
+    {
+        return $this->hasOne(Lansia::class, 'id_user');
+    }
+
     public function getNamaAttribute()
     {
-        return $this->petugas ? $this->petugas->nama : '-';
+        if ($this->petugas) return $this->petugas->nama;
+        if ($this->lansia) return $this->lansia->nama_lansia;
+        return '-';
     }
 
     public function getNikAttribute()
     {
-        return $this->petugas ? $this->petugas->nik : '-';
+        if ($this->petugas) return $this->petugas->nik;
+        if ($this->lansia) return $this->lansia->nik;
+        return '-';
     }
 
     public function getJabatanAttribute()
     {
-        return $this->petugas ? $this->petugas->jabatan : 'User';
+        if ($this->petugas) return $this->petugas->jabatan;
+        if ($this->lansia) return 'lansia';
+        return 'User';
     }
 
     public function getWilayahKerjaAttribute()
