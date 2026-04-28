@@ -67,7 +67,7 @@
            
 
 
-            <div class="nav-dropdown">
+            <!-- <div class="nav-dropdown">
 
                 <div class="nav-item dropdown-toggle" title="Pemeriksaan">
                     <i class="fa-solid fa-notes-medical"></i>
@@ -89,7 +89,12 @@
                     </a>
                 </div>
 
-            </div>
+            </div> -->
+
+            <a href="/skrining" class="nav-item {{ Request::is('skrining') ? 'active' : '' }}" title="Input Skrining">
+    <i class="fa-solid fa-notes-medical"></i>
+    <span class="nav-text">Input Skrining</span>
+</a>
 
             @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
                 <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}" title="Laporan">
@@ -101,7 +106,7 @@
             <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}"
                 title="Jadwal Posyandu">
                 <i class="fa-solid fa-calendar"></i>
-                <span class="nav-text">Jadwal </span>
+                <span class="nav-text">Jadwal Posyandu</span>
             </a>
 
         </nav>

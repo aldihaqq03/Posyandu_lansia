@@ -97,24 +97,26 @@
 
         @php
             $bulanSekarang = '';
-            $colorMap = [
-                1 => 'blue',
-                2 => 'yellow',
-                3 => 'gray',
-                4 => 'gray',
-            ];
-            $badgeMap = [
-                1 => 'badge-terjadwal',
-                2 => 'badge-berlangsung',
-                3 => 'badge-selesai',
-                4 => 'badge-batal',
-            ];
-            $labelMap = [
-                1 => 'Terjadwal',
-                2 => 'Berlangsung',
-                3 => 'Selesai',
-                4 => 'Dibatalkan',
-            ];
+                $colorMap = [
+            0 => 'blue',
+            1 => 'yellow',
+            2 => 'gray',
+            3 => 'gray',
+        ];
+
+        $badgeMap = [
+            0 => 'badge-terjadwal',
+            1 => 'badge-berlangsung',
+            2 => 'badge-selesai',
+            3 => 'badge-batal',
+        ];
+
+        $labelMap = [
+            0 => 'Terjadwal',
+            1 => 'Berlangsung',
+            2 => 'Selesai',
+            3 => 'Dibatalkan',
+        ];
         @endphp
 
         @forelse($jadwalPosyandu as $item)
@@ -177,7 +179,7 @@
                             data-id="{{ $item->id_jadwal_posyandu }}">
                             Detail
                         </button>
-                        @if($item->status == 1)
+                        @if($item->status == 0)
                             <button class="btn-outline btn-sm btn-edit"
                                 data-id="{{ $item->id_jadwal_posyandu }}">
                                 Edit
