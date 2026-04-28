@@ -8,12 +8,27 @@
 
 @section('content')
     <div class="skrining-wrapper">
-        <div class="skrining-header">
-            <h1>Pemeriksaan Mingguan</h1>
-            <p>Sistem Informasi Peduli Lansia (SIMPEL)</p>
-        </div>
+        @php
+            $jadwalHariIni = \Illuminate\Support\Facades\DB::table('jadwal_posyandu')
+                ->whereDate('tanggal_pelaksanaan', \Carbon\Carbon::today())
+                ->whereIn('status', [1, 2])
+                ->first();
+        @endphp
 
-        <form action="#" method="POST">
+        @if(!$jadwalHariIni)
+            <div class="alert-warning" style="background: #fff7ed; border: 1px solid #fdba74; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #9a3412;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <strong>Peringatan:</strong> Tidak ada jadwal posyandu aktif untuk hari ini. Anda tidak dapat menyimpan data pemeriksaan.
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert-danger" style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <form action="{{ route('pemeriksaan.store') }}" method="POST">
             @csrf
 
             <div class="search-lansia-wrapper">
@@ -62,10 +77,10 @@
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-notes-medical"></i> Tindakan & Edukasi</div>
+            <div class="section-title"><i class="fa-solid fa-notes-medical"></i> Keluhan & Edukasi</div>
             <div class="form-group" style="margin-bottom: 20px;">
-                <label>Edukasi Penyakit</label>
-                <textarea name="edukasi_penyakit" class="form-control" placeholder="Catat edukasi yang diberikan pada lansia..." rows="4" required style="resize: vertical;"></textarea>
+                <label>Keluhan Lansia & Edukasi</label>
+                <textarea name="edukasi_penyakit" class="form-control" placeholder="Tuliskan keluhan lansia dan edukasi yang diberikan..." rows="4" required style="resize: vertical;"></textarea>
             </div>
             
             <div class="form-group" style="margin-bottom: 20px;">
@@ -73,7 +88,7 @@
                 <textarea name="resep_obat" class="form-control" placeholder="Tuliskan resep obat jika ada..." rows="4" style="resize: vertical;"></textarea>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <button type="submit" class="btn-submit" {{ !$jadwalHariIni ? 'disabled' : '' }}>
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Pemeriksaan
             </button>
 

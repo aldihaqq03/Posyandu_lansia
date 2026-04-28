@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('obat', function (Blueprint $table) {
-        $table->id('id_obat');
-        $table->string('nama_obat', 150);
-        // 1=Tablet, 2=Kapsul, 3=Sirup, 4=Salep, 5=Tetes
-        $table->tinyInteger('tipe_obat')->unsigned();
-        $table->text('keterangan')->nullable();
-        $table->timestamps();
-    });
+            $table->string('id_obat', 20)->primary();
+            $table->string('nama_obat', 150);
+            $table->string('tipe_obat', 20);
+            $table->integer('stock')->default(0);
+            $table->text('keterangan')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

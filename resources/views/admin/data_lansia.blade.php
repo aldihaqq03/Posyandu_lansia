@@ -137,11 +137,32 @@
                             </td>
 
                             <td>
-                                <span class="badge-pill">-</span>
+                                <span class="badge-pill">{{ $lansia->riwayat_penyakit ?? '-' }}</span>
                             </td>
-
                             <td>
-                                <span class="badge-status muted">NORMAL</span>
+                                @php
+                                    $penyakit_berat = ['Hipertensi', 'Diabetes', 'Jantung', 'Stroke', 'PPOK'];
+                                    $punya_penyakit_berat = false;
+                                    foreach($penyakit_berat as $pb) {
+                                        if(stripos($lansia->riwayat_penyakit, $pb) !== false) {
+                                            $punya_penyakit_berat = true;
+                                            break;
+                                        }
+                                    }
+
+                                    $is_high_risk = $punya_penyakit_berat || ($lansia->latestSkriningUtama && ($lansia->latestSkriningUtama->gula_darah_kategori == 3 || $lansia->latestSkriningUtama->kolesterol_kategori == 3));
+                                    $is_warning = $lansia->latestSkriningUtama && ($lansia->latestSkriningUtama->gula_darah_kategori == 2 || $lansia->latestSkriningUtama->kolesterol_kategori == 2);
+                                @endphp
+
+                                @if($is_high_risk)
+                                    <span class="badge-status high">RESIKO TINGGI</span>
+                                @elseif($is_warning)
+                                    <span class="badge-status warning">WASPADA</span>
+                                @elseif($lansia->latestSkriningUtama)
+                                    <span class="badge-status success">NORMAL</span>
+                                @else
+                                    <span class="badge-status muted">BELUM PERIKSA</span>
+                                @endif
                             </td>
 
                             <td class="aksi">

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\JadwalPosyanduController;
+use App\Http\Controllers\ObatController;
+use App\Http\Controllers\SkriningController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,26 +44,36 @@ Route::middleware('auth')->group(function () {
     */
     Route::middleware('role:kader,kepala_kader')->group(function () {
 
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('/pemeriksaan', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->get();
-            return view('admin.pemeriksaan', compact('lansias'));
-        })->name('pemeriksaan');
+        // Route::get('/pemeriksaan', function () {
+        //     $lansias = \Illuminate\Support\Facades\DB::table('lansia')->get();
+        //     return view('admin.pemeriksaan', compact('lansias'));
+        // })->name('pemeriksaan');
 
-        Route::get('/skrining_utama', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
-            return view('modal.M_skriningUtama', compact('lansias'));
-        })->name('skrining_utama');
+        // Route::get('/skrining_utama', function () {
+        //     $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
+        //     return view('modal.M_skriningUtama', compact('lansias'));
+        // })->name('skrining_utama');
 
-        Route::get('/pemeriksaan/create', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
-            return view('modal.M_skriningPPOK', compact('lansias'));
-        })->name('pemeriksaan.create');
+        // Route::get('/pemeriksaan/create', function () {
+        //     $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
+        //     return view('modal.M_skriningPPOK', compact('lansias'));
+        // })->name('pemeriksaan.create');
 
         Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
+       
+        Route::resource('obat', ObatController::class);
 
-        Route::get('/jadwal_posyandu', [JadwalPosyanduController::class, 'index'])->name('jadwal_posyandu');
+        Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
+
+        Route::get('/skrining', [SkriningController::class, 'index'])->name('skrining.index');
+        Route::post('/skrining', [SkriningController::class, 'store'])->name('skrining.store');
+
+        // // Skrining & Pemeriksaan
+        // Route::post('/pemeriksaan', [\App\Http\Controllers\SkriningController::class, 'storePemeriksaan'])->name('pemeriksaan.store');
+        // Route::post('/skrining_utama', [\App\Http\Controllers\SkriningController::class, 'storeSkriningUtama'])->name('skrining_utama.store');
+        // Route::post('/pemeriksaan/ppok', [\App\Http\Controllers\SkriningController::class, 'storeSkriningPPOK'])->name('skrining_ppok.store');
 
         Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
         Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
@@ -98,11 +110,11 @@ Route::middleware('auth')->group(function () {
     | Resource Lansia
     |--------------------------------------------------------------------------
     */
-
-    Route::resource('lansia', LansiaController::class)->parameters([
-        'lansia' => 'lansia'
-    ]);
-
+    Route::middleware('role:kader,kepala_kader')->group(function () {
+        Route::resource('lansia', LansiaController::class)->parameters([
+            'lansia' => 'lansia'
+        ]);
+    });
 
     /*
     |--------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Fontawesome -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
@@ -61,8 +62,16 @@
                 <i class="fa-solid fa-users"></i>
                 <span class="nav-text">Data Lansia</span>
             </a>
+             
+             <a href="/obat" class="nav-item {{ Request::is('obat') ? 'active' : '' }}"
+                title="Data Obat">
+                <i class="fa-solid fa-pills"></i>
+                <span class="nav-text">Data Obat</span>
+            </a>
+           
 
-            <div class="nav-dropdown">
+
+            <!-- <div class="nav-dropdown">
 
                 <div class="nav-item dropdown-toggle" title="Pemeriksaan">
                     <i class="fa-solid fa-notes-medical"></i>
@@ -84,7 +93,12 @@
                     </a>
                 </div>
 
-            </div>
+            </div> -->
+
+            <a href="/skrining" class="nav-item {{ Request::is('skrining') ? 'active' : '' }}" title="Input Skrining">
+    <i class="fa-solid fa-notes-medical"></i>
+    <span class="nav-text">Input Skrining</span>
+</a>
 
             @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
                 <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}" title="Laporan">
