@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('lansia')->name('lansia.')->group(function () {
         Route::get('/{lansia}/histori-skrining', [LansiaController::class, 'historiSkrining'])->name('histori');
         Route::get('/{lansia}/health-summary', [LansiaController::class, 'healthSummary'])->name('health-summary');
+        Route::get('/{lansia}/keluarga', [LansiaController::class, 'getKeluarga'])->name('keluarga');
         Route::get('/{lansia}/skrining-utama/{id_skrining}', [LansiaController::class, 'detailSkriningUtama'])->name('detail-utama');
         Route::get('/{lansia}/skrining-ppok/{id_skrining}', [LansiaController::class, 'detailSkriningPPOK'])->name('detail-ppok');
     });

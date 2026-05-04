@@ -343,16 +343,21 @@
     display: grid;
     grid-template-columns: 250px 1fr;
     /* Membagi area foto dan area data */
-    gap: 40px;
+    gap: 24px;
 }
 
 /* Kolom Profil Kiri */
 .profile-side {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: top; /* tengah vertikal */
+    align-items: center; /* tengah horizontal */
+    text-align: top;
+    gap: 12px;
+
     border-right: 1px solid #f1f5f9;
     padding-right: 20px;
 }
-
 .profile-photo {
     width: 120px;
     height: 120px;
@@ -367,9 +372,14 @@
 /* Area Data Kanan */
 .info-side-grid {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    /* Membagi Info Pribadi dan Kesehatan */
-    gap: 30px;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px 24px;
+    align-items: start;
+}
+.info-column .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
 }
 
 .info-column h4 {
@@ -381,6 +391,7 @@
 
 .data-item {
     margin-bottom: 15px;
+    margin-bottom: 4px;
 }
 
 .data-item label {
@@ -392,6 +403,7 @@
 .data-item p {
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.4;
     color: #1e293b;
 }
 
@@ -706,4 +718,16 @@ td.empty-state {
     text-align: center;
     padding: 32px;
     color: var(--text-muted);
+}
+.big-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
 }

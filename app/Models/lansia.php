@@ -118,4 +118,10 @@ class Lansia extends Model
             'id_skrining'          // Local key in Skrining
         )->orderByDesc('skrining_utama.id_skrining_utama');
     }
+
+    // ─── Keluarga (Anggota Keluarga) ────────────────────────────
+    public function keluargas()
+    {
+        return $this->hasMany(Keluarga::class, 'id_lansia');
+    }
 }

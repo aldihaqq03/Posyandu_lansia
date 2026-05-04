@@ -13,17 +13,20 @@
                     <div style="flex: 1;">
                         <label for="edit_nik">NIK</label>
                         <input type="text" id="edit_nik" name="nik" placeholder="Masukkan 16 digit NIK" required>
+                        <small id="error-edit_nik" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                     </div>
                     <div style="flex: 1;">
                         <label for="edit_nama_lansia">Nama Lengkap</label>
                         <input type="text" id="edit_nama_lansia" name="nama_lansia" placeholder="Masukkan Nama Lengkap"
                             required>
+                        <small id="error-edit_nama_lansia" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                     </div>
                 </div>
                 <div class="form-group" style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <label for="edit_tanggal_lahir">Tanggal Lahir</label>
                         <input type="date" id="edit_tanggal_lahir" name="tanggal_lahir" required>
+                        <small id="error-edit_tanggal_lahir" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                     </div>
                     <div style="flex: 1;">
                         <label for="edit_jenis_kelamin">Jenis Kelamin</label>
@@ -39,8 +42,9 @@
                         <input type="text" id="edit_tempat_lahir" name="tempat_lahir" placeholder="Contoh: Jakarta">
                     </div>
                     <div style="flex: 1;">
-                        <label for="edit_no_hp">No Handphone</label>
+                        <label for="edit_no_hp">No Handphone (Opsional)</label>
                         <input type="text" id="edit_no_hp" name="no_hp" placeholder="Contoh: 081234567890">
+                        <small id="error-edit_no_hp" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                     </div>
                 </div>
                 <div class="form-group" style="display: flex; gap: 10px;">
@@ -65,6 +69,7 @@
                     <label for="edit_alamat">Alamat</label>
                     <textarea id="edit_alamat" name="alamat" rows="2" placeholder="Masukkan Alamat Lengkap"
                         required></textarea>
+                    <small id="error-edit_alamat" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                 </div>
                 <div class="form-group">
                     <label for="edit_keterangan">Keterangan</label>
@@ -74,13 +79,59 @@
                 <div class="form-group">
                     <label for="edit_email">Email (Opsional)</label>
                     <input type="email" id="edit_email" name="email" placeholder="Contoh: kakek@email.com">
+                    <small id="error-edit_email" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="btn-cancel-edit-modal">Batal</button>
-                    <button type="submit" class="btn-primary"
-                        style="padding: 10px 18px; border-radius: 8px;">Update</button>
+
+                <!-- INFORMASI KELUARGA SECTION -->
+                            <!-- INFORMASI KELUARGA SECTION -->
+                <hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">
+                <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">
+                    Informasi Keluarga <span style="color: #e74c3c;">*</span>
+                </h3>
+
+                <div id="edit-keluarga-container">
+                    <!-- Item pertama: WAJIB, tidak bisa dihapus -->
+                    <div class="keluarga-item-edit" data-index="0"
+                        style="padding:15px; background:#f9f9f9; border-radius:8px; margin-bottom:15px; border:1px solid #e0e0e0;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h4 style="margin:0; color:#555;">Anggota Keluarga #1 <span style="color:#e74c3c; font-size:12px;">*Wajib</span></h4>
+                            {{-- Tidak ada tombol hapus untuk yang pertama --}}
+                        </div>
+                        <div class="form-group">
+                            <label>Nama Keluarga <span style="color:#e74c3c;">*</span></label>
+                            <input type="text" class="nama_keluarga_input"
+                                name="keluarga[0][nama_keluarga]"
+                                placeholder="Masukkan nama anggota keluarga"
+                                required>
+                            <small class="error-nama-keluarga-0" style="color:#e74c3c; font-size:12px; display:none;"></small>
+                        </div>
+                        <div class="form-group" style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label>No Telepon (Opsional)</label>
+                                <input type="text" class="no_sama_input"
+                                    name="keluarga[0][no_sama]"
+                                    placeholder="Contoh: 081234567890">
+                            </div>
+                            <div style="flex:1;">
+                                <label>Alamat (Opsional)</label>
+                                <input type="text" class="alamat_keluarga_input"
+                                    name="keluarga[0][alamat]"
+                                    placeholder="Alamat anggota keluarga">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <button type="button" id="btn-tambah-keluarga-edit" class="btn-secondary"
+                    style="margin-bottom: 15px; background-color: #f5f5f5; color: #333; border: 1px dashed #999; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                    + Tambah Anggota Keluarga
+                </button>
             </form>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="btn-cancel-edit-modal" class="btn-secondary">Batal</button>
+            <button type="submit" form="form-edit-lansia" class="btn-primary">Simpan Perubahan</button>
         </div>
     </div>
 </div>

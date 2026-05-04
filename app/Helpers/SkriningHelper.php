@@ -96,14 +96,14 @@ class SkriningHelper
                     'decode' => fn($v) => self::yaToSetiapHari($v),
                 ],
                 'konsumsi_sayur_buah' => [
-                    'label'  => 'Konsumsi Sayur & Buah (≥500gr/hari)',
+                    'label'  => 'Konsumsi Sayur atau Buah 500gr/hari',
                     // Catatan: ini kebalikan — "Ya" berarti CUKUP (baik)
                     'decode' => fn($v) => self::yaToSetiapHari($v),
                 ],
                 'aktivitas_fisik' => [
-                    'label'  => 'Aktivitas Fisik (≥150 menit/minggu)',
+                    'label'  => 'Aktivitas Fisik (>=150 menit/minggu)',
                     'decode' => fn($v) => match((int)$v) {
-                        1 => 'Ya (≥150 menit/minggu)',
+                        1 => 'Ya (>=150 menit/minggu)',
                         2 => 'Tidak',
                         3 => 'Tidak setiap hari',
                         default => '-',
@@ -164,12 +164,12 @@ class SkriningHelper
                 ],
                 'gula_darah_kategori' => [
                     'label'  => 'Kategori Gula Darah',
-                    // DB: 1=Baik (80-144), 2=Sedang (145-199), 3=Tidak Baik (≥200)
-                    // Kartu: "B = 80-144, S = 145-199, TB = ≥200"
+                    // DB: 1=Baik (80-144), 2=Sedang (145-199), 3=Tidak Baik (>=200)
+                    // Kartu: "B = 80-144, S = 145-199, TB = >=200"
                     'decode' => fn($v) => match((int)$v) {
                         1 => 'Baik (80–144 mg/dL)',
                         2 => 'Sedang (145–199 mg/dL)',
-                        3 => 'Tidak Baik (≥200 mg/dL)',
+                        3 => 'Tidak Baik (>=200 mg/dL)',
                         default => '-',
                     },
                 ],
@@ -179,12 +179,12 @@ class SkriningHelper
                 ],
                 'kolesterol_kategori' => [
                     'label'  => 'Kategori Kolesterol',
-                    // DB: 1=Baik (<150), 2=Sedang (150-189), 3=Tidak Baik (≥190)
-                    // Kartu: "B = <150, S = 150-189, TB = ≥190"
+                    // DB: 1=Baik (<150), 2=Sedang (150-189), 3=Tidak Baik (>=190)
+                    // Kartu: "B = <150, S = 150-189, TB = >=190"
                     'decode' => fn($v) => match((int)$v) {
                         1 => 'Baik (<150 mg/dL)',
                         2 => 'Sedang (150–189 mg/dL)',
-                        3 => 'Tidak Baik (≥190 mg/dL)',
+                        3 => 'Tidak Baik (>=190 mg/dL)',
                         default => '-',
                     },
                 ],

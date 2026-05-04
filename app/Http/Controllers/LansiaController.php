@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 use App\Models\Lansia;
+use App\Models\Keluarga;
 use App\Models\Skrining;
 use App\Models\SkriningUtama;
 use App\Models\SkriningPPOK;
 use App\Helpers\SkriningHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LansiaController extends Controller
 {
@@ -172,18 +174,33 @@ class LansiaController extends Controller
     {
         $validated = $request->validate([
             'nik'               => 'required|digits:16|unique:lansia,nik',
-            'nama_lansia'       => 'required|string|max:100',
+            'nama_lansia'       => 'required|string|min:3|max:100',
             'jenis_kelamin'     => 'required|in:L,P',
             'tempat_lahir'      => 'nullable|string|max:50',
             'tanggal_lahir'     => 'nullable|date',
-            'alamat'            => 'nullable|string',
+            'alamat'            => 'required|string|min:5',
             'no_hp'             => 'nullable|digits_between:10,13',
             'status_perkawinan' => 'nullable|string|max:20',
             'riwayat_penyakit'  => 'nullable|string',
             'tanggal_daftar'    => 'nullable|date',
             'keterangan'        => 'nullable|string',
             'email'             => 'nullable|email|max:100',
+            'keluarga'          => 'nullable|array',
+            'keluarga.*.nama_keluarga' => 'nullable|string|min:3|max:100',
+            'keluarga.*.no_sama' => 'nullable|string|max:15',
+            'keluarga.*.alamat' => 'nullable|string|max:255',
         ]);
+
+        // Validasi umur >= 40 tahun
+        if ($request->tanggal_lahir) {
+            $birthDate = Carbon::createFromFormat('Y-m-d', $request->tanggal_lahir);
+            $age = $birthDate->diffInYears(Carbon::now());
+            if ($age < 40) {
+                return redirect()->back()
+                    ->withErrors(['tanggal_lahir' => "Umur harus minimal 40 tahun (Saat ini umur Anda $age tahun)"])
+                    ->withInput();
+            }
+        }
 
         DB::transaction(function () use ($validated, $request) {
             $defaultPassword = $request->no_hp ?: $request->nik;
@@ -195,7 +212,22 @@ class LansiaController extends Controller
             ]);
 
             $validated['id_user'] = $user->id;
-            Lansia::create($validated);
+            $lansia = Lansia::create($validated);
+
+            // Simpan data keluarga jika ada
+            if (!empty($validated['keluarga'])) {
+                foreach ($validated['keluarga'] as $keluargaData) {
+                    // Hanya simpan jika nama_keluarga tidak kosong
+                    if (!empty($keluargaData['nama_keluarga'])) {
+                        Keluarga::create([
+                            'id_lansia' => $lansia->id_lansia,
+                            'nama_keluarga' => $keluargaData['nama_keluarga'],
+                            'no_sama' => $keluargaData['no_sama'] ?? null,
+                            'alamat' => $keluargaData['alamat'] ?? null,
+                        ]);
+                    }
+                }
+            }
         });
 
         return redirect()->route('data_lansia')
@@ -205,30 +237,83 @@ class LansiaController extends Controller
     // ============================================================
     // UPDATE – Perbarui data lansia
     // ============================================================
-    public function update(Request $request, Lansia $lansia)
+        public function update(Request $request, Lansia $lansia)
     {
         $validated = $request->validate([
             'nik'               => 'required|digits:16|unique:lansia,nik,' . $lansia->id_lansia . ',id_lansia',
-            'nama_lansia'       => 'required|string|max:100',
+            'nama_lansia'       => 'required|string|min:3|max:100',
             'jenis_kelamin'     => 'required|in:L,P',
             'tempat_lahir'      => 'nullable|string|max:50',
-            'tanggal_lahir'     => 'nullable|date',
-            'alamat'            => 'nullable|string',
+            'tanggal_lahir'     => 'required|date',
+            'alamat'            => 'required|string|min:5',
             'no_hp'             => 'nullable|digits_between:10,13',
             'status_perkawinan' => 'nullable|string|max:20',
             'riwayat_penyakit'  => 'nullable|string',
             'tanggal_daftar'    => 'nullable|date',
             'keterangan'        => 'nullable|string',
             'email'             => 'nullable|email|max:100',
+            
+            // Keluarga pertama WAJIB
+            'keluarga.0.nama_keluarga' => 'required|string|min:3|max:100',
+            'keluarga.0.no_sama'       => 'nullable|string|max:15',
+            'keluarga.0.alamat'        => 'nullable|string|max:255',
+            
+            // Keluarga ke-2 dst opsional
+            'keluarga'                       => 'required|array|min:1',
+            'keluarga.*.nama_keluarga'       => 'nullable|string|min:3|max:100',
+            'keluarga.*.no_sama'             => 'nullable|string|max:15',
+            'keluarga.*.alamat'              => 'nullable|string|max:255',
+        ], [
+            'keluarga.0.nama_keluarga.required' => 'Nama anggota keluarga pertama wajib diisi.',
+            'keluarga.required'                 => 'Minimal satu anggota keluarga wajib diisi.',
         ]);
 
-        $lansia->update($validated);
+        // Validasi umur >= 40 tahun
+        $birthDate = Carbon::createFromFormat('Y-m-d', $request->tanggal_lahir);
+        $age = $birthDate->diffInYears(Carbon::now());
+        if ($age < 40) {
+            return redirect()->back()
+                ->withErrors(['tanggal_lahir' => "Umur harus minimal 40 tahun (saat ini $age tahun)"])
+                ->withInput();
+        }
+
+        // Pisahkan data keluarga dari data lansia
+        $keluargaData = $validated['keluarga'] ?? [];
+        $lansiaData = collect($validated)->except('keluarga')->toArray();
+
+        $idLansia = $lansia->id_lansia; // Simpan ID sebelum transaksi
+
+        DB::transaction(function () use ($lansiaData, $keluargaData, $lansia, $idLansia) {
+            // Update data lansia
+            $lansia->update($lansiaData);
+
+            // Hapus keluarga lama
+            Keluarga::where('id_lansia', $idLansia)->delete();
+
+            // Simpan keluarga baru — jika ada
+            if (is_array($keluargaData) && count($keluargaData) > 0) {
+                foreach ($keluargaData as $item) {
+                    // Pastikan $item adalah array sebelum akses
+                    if (!is_array($item)) continue;
+                    
+                    // Hanya simpan jika nama_keluarga tidak kosong
+                    $namaKeluarga = trim($item['nama_keluarga'] ?? '');
+                    if (!empty($namaKeluarga)) {
+                        Keluarga::create([
+                            'id_lansia'     => $idLansia,
+                            'nama_keluarga' => $namaKeluarga,
+                            'no_sama'       => trim($item['no_sama'] ?? '') ?: null,
+                            'alamat'        => trim($item['alamat'] ?? '') ?: null,
+                        ]);
+                    }
+                }
+            }
+        });
 
         return redirect()->route('data_lansia')
             ->with('success', 'Data lansia berhasil diperbarui.');
     }
-
-    // ============================================================
+        // ============================================================
     // DESTROY – Hapus lansia
     // ============================================================
     public function destroy(Lansia $lansia)
@@ -237,5 +322,17 @@ class LansiaController extends Controller
 
         return redirect()->route('data_lansia')
             ->with('success', 'Data lansia berhasil dihapus.');
+    }
+
+    // ============================================================
+    // KELUARGA – Ambil data keluarga via AJAX
+    // ============================================================
+    public function getKeluarga(Lansia $lansia)
+    {
+        $keluarga = $lansia->keluargas()
+            ->select('id_keluarga', 'nama_keluarga', 'no_sama', 'alamat')
+            ->get();
+
+        return response()->json(['keluarga' => $keluarga]);
     }
 }
