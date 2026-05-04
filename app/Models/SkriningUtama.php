@@ -11,7 +11,6 @@ class SkriningUtama extends Model
 
     protected $fillable = [
         'id_skrining',
-        'id_lansia',
         'merokok',
         'merokok_kategori',
         'paparan_asap_rokok',
@@ -49,13 +48,9 @@ class SkriningUtama extends Model
         'skrining_pendengaran' => 'array',
     ];
 
+    // ─── Belongs To ─────────────────────────────────────────────
     public function skrining()
     {
         return $this->belongsTo(Skrining::class, 'id_skrining');
-    }
-
-    public function lansia()
-    {
-        return $this->belongsTo(Lansia::class, 'id_lansia');
     }
 }

@@ -1,99 +1,196 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Lansia;
 use App\Models\Skrining;
 use App\Models\SkriningUtama;
 use App\Models\SkriningPPOK;
+use App\Helpers\SkriningHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LansiaController extends Controller
 {
-
+    // ============================================================
+    // INDEX – Daftar lansia (tabel ringkas)
+    // ============================================================
     public function index()
     {
-        $lansias = Lansia::with('latestSkriningUtama')->latest()->paginate(10);
-        $total_lansia = Lansia::count();
+        $lansias = Lansia::with('latestSkriningUtama')
+            ->latest()
+            ->paginate(10);
 
-        // Ambil ID lansia dengan screening terbaru untuk menghitung status risiko
-        $latestScreeningIds = SkriningUtama::select(\DB::raw('MAX(id_skrining_utama)'))
-            ->groupBy('id_lansia');
+        $total_lansia = Lansia::count();
 
         $penyakit_beresiko = ['Hipertensi', 'Diabetes', 'Jantung', 'Stroke', 'PPOK'];
 
-        $resiko_tinggi = Lansia::where(function($q) use ($penyakit_beresiko) {
-                foreach($penyakit_beresiko as $p) {
-                    $q->orWhere('riwayat_penyakit', 'LIKE', '%' . $p . '%');
+        $resiko_tinggi = Lansia::where(function ($q) use ($penyakit_beresiko) {
+                foreach ($penyakit_beresiko as $p) {
+                    $q->orWhere('riwayat_penyakit', 'LIKE', "%$p%");
                 }
             })
-            ->orWhereIn('id_lansia', function($query) use ($latestScreeningIds) {
-                $query->select('id_lansia')
-                    ->from('skrining_utama')
-                    ->whereIn('id_skrining_utama', $latestScreeningIds)
-                    ->where(function($q) {
-                        $q->where('gula_darah_kategori', 3)
-                          ->orWhere('kolesterol_kategori', 3);
-                    });
+            ->orWhereHas('latestSkriningUtama', fn($q) =>
+                $q->where('gula_darah_kategori', 3)->orWhere('kolesterol_kategori', 3)
+            )
+            ->count();
+
+        $status_sehat = Lansia::whereDoesntHave('latestSkriningUtama', fn($q) =>
+                $q->where('gula_darah_kategori', '>', 1)->orWhere('kolesterol_kategori', '>', 1)
+            )
+            ->whereHas('latestSkriningUtama')
+            ->where(function ($q) use ($penyakit_beresiko) {
+                foreach ($penyakit_beresiko as $p) {
+                    $q->where('riwayat_penyakit', 'NOT LIKE', "%$p%");
+                }
             })
             ->count();
 
-        $status_sehat = Lansia::where(function($q) use ($penyakit_beresiko) {
-                foreach($penyakit_beresiko as $p) {
-                    $q->where('riwayat_penyakit', 'NOT LIKE', '%' . $p . '%')
-                      ->orWhereNull('riwayat_penyakit');
-                }
-            })
-            ->whereIn('id_lansia', function($query) use ($latestScreeningIds) {
-                $query->select('id_lansia')
-                    ->from('skrining_utama')
-                    ->whereIn('id_skrining_utama', $latestScreeningIds)
-                    ->where('gula_darah_kategori', 1)
-                    ->where('kolesterol_kategori', 1);
-            })
+        $jadwal_periksa = DB::table('jadwal_posyandu')
+            ->whereIn('status', [1, 2])
             ->count();
-
-        $jadwal_periksa = \App\Models\JadwalPosyandu::whereIn('status', [1, 2])->count();
 
         return view('admin.data_lansia', compact(
             'lansias',
             'total_lansia',
             'resiko_tinggi',
             'status_sehat',
-            'jadwal_periksa'
+            'jadwal_periksa',
         ));
     }
 
-    public function create()
+    // ============================================================
+    // HISTORI SKRINING — 3 tabel terpisah: kunjungan, utama, ppok
+    // ============================================================
+    public function historiSkrining(Lansia $lansia)
     {
-        return view('lansia.create');
+        // Skrining yang punya relasi kunjungan
+        // Eager load semua field kunjungan agar tidak N+1
+        $kunjungans = $lansia->skrinings()
+            ->whereHas('kunjungan')
+            ->with([
+                'petugas:id_petugas,nama',
+                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,lingkar_perut,keluhan',
+            ])
+            ->orderByDesc('tanggal_skrining')
+            ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+
+        // Skrining yang punya relasi utama
+        // Eager load SEMUA field utama (40+ field)
+        $utamas = $lansia->skrinings()
+            ->whereHas('utama')
+            ->with([
+                'petugas:id_petugas,nama',
+                'utama', // Load ALL fields dari utama (tidak specify, ambil semua)
+            ])
+            ->orderByDesc('tanggal_skrining')
+            ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+
+        // Skrining yang punya relasi ppok
+        // Eager load SEMUA field ppok (50+ field)
+        $ppoks = $lansia->skrinings()
+            ->whereHas('ppok')
+            ->with([
+                'petugas:id_petugas,nama',
+                'ppok', // Load ALL fields dari ppok (tidak specify, ambil semua)
+            ])
+            ->orderByDesc('tanggal_skrining')
+            ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+
+        return view('lansia.show', compact(
+            'lansia',
+            'kunjungans',
+            'utamas',
+            'ppoks',
+        ));
+    }
+    
+    // ============================================================
+    // DETAIL SKRINING UTAMA — AJAX untuk modal
+    // ============================================================
+    public function detailSkriningUtama(Lansia $lansia, $id_skrining)
+    {
+        $skrining = Skrining::findOrFail($id_skrining);
+        
+        // Validasi: skrining ini milik lansia ini?
+        if ($skrining->id_lansia !== $lansia->id_lansia) {
+            abort(403, 'Unauthorized');
+        }
+        
+        $utama = $skrining->utama;
+        
+        // Render semua field per kategori menggunakan helper
+        $data = SkriningHelper::renderAll($utama, 'utama');
+        
+        return response()->json($data);
     }
 
+    // ============================================================
+    // DETAIL SKRINING PPOK — AJAX untuk modal
+    // ============================================================
+    public function detailSkriningPPOK(Lansia $lansia, $id_skrining)
+    {
+        $skrining = Skrining::findOrFail($id_skrining);
+        
+        // Validasi: skrining ini milik lansia ini?
+        if ($skrining->id_lansia !== $lansia->id_lansia) {
+            abort(403, 'Unauthorized');
+        }
+        
+        $ppok = $skrining->ppok;
+        
+        // Render semua field per kategori menggunakan helper
+        $data = SkriningHelper::renderAll($ppok, 'ppok');
+        
+        return response()->json($data);
+    }
+
+    // ============================================================
+    // HEALTH SUMMARY — AJAX untuk detail panel di halaman index
+    // ============================================================
+    public function healthSummary(Lansia $lansia)
+    {
+        $kunjungan = $lansia->skrinings()
+            ->whereHas('kunjungan')
+            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik')
+            ->orderByDesc('tanggal_skrining')
+            ->first()?->kunjungan;
+
+        $utama = $lansia->latestSkriningUtama;
+
+        return response()->json([
+            'sistolik'   => $kunjungan?->td_sistolik  ?? null,
+            'diastolik'  => $kunjungan?->td_diastolik ?? null,
+            'gula_darah' => $utama?->gula_darah       ?? null,
+            'kolesterol' => $utama?->kolesterol        ?? null,
+        ]);
+    }
+
+    // ============================================================
+    // STORE – Tambah lansia baru
+    // ============================================================
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nik' => 'required|digits:16|unique:lansia,nik',
-            'nama_lansia' => 'required|string|max:100',
-            'jenis_kelamin' => 'required|in:L,P',
-            'tempat_lahir' => 'nullable|string|max:50',
-            'tanggal_lahir' => 'nullable|date',
-            'alamat' => 'nullable|string',
-            'no_hp' => 'nullable|digits_between:10,13',
+            'nik'               => 'required|digits:16|unique:lansia,nik',
+            'nama_lansia'       => 'required|string|max:100',
+            'jenis_kelamin'     => 'required|in:L,P',
+            'tempat_lahir'      => 'nullable|string|max:50',
+            'tanggal_lahir'     => 'nullable|date',
+            'alamat'            => 'nullable|string',
+            'no_hp'             => 'nullable|digits_between:10,13',
             'status_perkawinan' => 'nullable|string|max:20',
-            'riwayat_penyakit' => 'nullable|string',
-            'tanggal_daftar' => 'nullable|date',
-            'keterangan' => 'nullable|string',
-            'email' => 'nullable|email|max:30'
+            'riwayat_penyakit'  => 'nullable|string',
+            'tanggal_daftar'    => 'nullable|date',
+            'keterangan'        => 'nullable|string',
+            'email'             => 'nullable|email|max:100',
         ]);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
-            // Auto create user for Lansia (Tanpa Email)
-            // Password default menggunakan No HP, jika tidak ada gunakan NIK
-            $defaultPassword = $request->no_hp ? $request->no_hp : $request->nik;
+        DB::transaction(function () use ($validated, $request) {
+            $defaultPassword = $request->no_hp ?: $request->nik;
 
             $user = \App\Models\User::create([
-                'email' => null, // Lansia tidak wajib punya email
-                'whatsapp' => $request->no_hp ?? '', // Nomor telepon untuk login mobile nanti
+                'email'    => $validated['email'] ?? null,
+                'whatsapp' => $request->no_hp ?? '',
                 'password' => bcrypt($defaultPassword),
             ]);
 
@@ -105,51 +202,24 @@ class LansiaController extends Controller
             ->with('success', 'Data lansia berhasil ditambahkan.');
     }
 
-    public function show(Lansia $lansia)
-    {
-        // Menggunakan relasi Eloquent agar lebih bersih
-        $skriningUtama = $lansia->skriningUtamas()
-            ->with('skrining') // eager loading tabel induk
-            ->orderByDesc('created_at')
-            ->get();
-
-        $skriningPPOK = SkriningPPOK::whereHas('skrining', function($q) use ($lansia) {
-                $q->where('id_lansia', $lansia->id_lansia);
-            })
-            ->with('skrining')
-            ->orderByDesc('created_at')
-            ->get();
-
-        // Contoh pemanggilan relasi lain jika diperlukan
-        $jadwalMingguan = \Illuminate\Support\Facades\DB::table('item_jadwal_lansia')
-            ->join('skrining', 'item_jadwal_lansia.id_skrining', '=', 'skrining.id_skrining')
-            ->where('skrining.id_lansia', $lansia->id_lansia)
-            ->orderBy('item_jadwal_lansia.hari', 'asc')
-            ->get();
-
-        return view('lansia.show', compact('lansia', 'skriningUtama', 'skriningPPOK', 'jadwalMingguan'));
-    }
-
-    public function edit(Lansia $lansia)
-    {
-        return view('lansia.edit', compact('lansia'));
-    }
-
+    // ============================================================
+    // UPDATE – Perbarui data lansia
+    // ============================================================
     public function update(Request $request, Lansia $lansia)
     {
         $validated = $request->validate([
-            'nik' => 'required|digits:16|unique:lansia,nik,' . $lansia->id_lansia . ',id_lansia',
-            'nama_lansia' => 'required|string|max:100',
-            'jenis_kelamin' => 'required|in:L,P',
-            'tempat_lahir' => 'nullable|string|max:50',
-            'tanggal_lahir' => 'nullable|date',
-            'alamat' => 'nullable|string',
-            'no_hp' => 'nullable|digits_between:10,13',
+            'nik'               => 'required|digits:16|unique:lansia,nik,' . $lansia->id_lansia . ',id_lansia',
+            'nama_lansia'       => 'required|string|max:100',
+            'jenis_kelamin'     => 'required|in:L,P',
+            'tempat_lahir'      => 'nullable|string|max:50',
+            'tanggal_lahir'     => 'nullable|date',
+            'alamat'            => 'nullable|string',
+            'no_hp'             => 'nullable|digits_between:10,13',
             'status_perkawinan' => 'nullable|string|max:20',
-            'riwayat_penyakit' => 'nullable|string',
-            'tanggal_daftar' => 'nullable|date',
-            'keterangan' => 'nullable|string',
-            'email' => 'nullable|email|max:30'
+            'riwayat_penyakit'  => 'nullable|string',
+            'tanggal_daftar'    => 'nullable|date',
+            'keterangan'        => 'nullable|string',
+            'email'             => 'nullable|email|max:100',
         ]);
 
         $lansia->update($validated);
@@ -158,6 +228,9 @@ class LansiaController extends Controller
             ->with('success', 'Data lansia berhasil diperbarui.');
     }
 
+    // ============================================================
+    // DESTROY – Hapus lansia
+    // ============================================================
     public function destroy(Lansia $lansia)
     {
         $lansia->delete();

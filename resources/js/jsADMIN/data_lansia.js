@@ -1,299 +1,267 @@
 /* resources/js/jsAdmin/data_lansia.js */
-
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
+    // ─────────────────────────────────────────────────────────────
     // 1. Animasi Angka Statistik
-    const statValues = document.querySelectorAll('.stat-number');
-    statValues.forEach(val => {
-        const textValue = val.innerText;
-        const target = parseInt(textValue.replace(/\D/g, ''));
-        if (!isNaN(target)) {
-            let count = 0;
-            const duration = 1000; // 1 detik
-            const increment = target / (duration / 16);
-
-            const update = () => {
-                count += increment;
-                if (count < target) {
-                    val.innerText = Math.ceil(count);
-                    requestAnimationFrame(update);
-                } else {
-                    val.innerText = textValue;
-                }
-            };
-            update();
-        }
+    // ─────────────────────────────────────────────────────────────
+    document.querySelectorAll(".stat-number").forEach((el) => {
+        const target = parseInt(el.innerText.replace(/\D/g, ""));
+        if (isNaN(target) || target === 0) return;
+        let count = 0;
+        const step = target / (1000 / 16);
+        const tick = () => {
+            count = Math.min(count + step, target);
+            el.innerText = Math.ceil(count);
+            if (count < target) requestAnimationFrame(tick);
+        };
+        tick();
     });
 
-    // 2. Filter Pencarian Real-time
-    const searchInput = document.getElementById('main-search');
-    const rows = document.querySelectorAll('.custom-table tbody tr');
+    // ─────────────────────────────────────────────────────────────
+    // 2. Pencarian Real-time
+    // ─────────────────────────────────────────────────────────────
+    const searchInput = document.getElementById("main-search");
+    const tableRows = document.querySelectorAll(".custom-table tbody tr");
 
-    if (searchInput && rows.length > 0) {
-        searchInput.addEventListener('input', function () {
-            const query = this.value.toLowerCase();
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
+    searchInput?.addEventListener("input", function () {
+        const q = this.value.toLowerCase();
+        tableRows.forEach((row) => {
+            row.style.display = row.innerText.toLowerCase().includes(q)
+                ? ""
+                : "none";
         });
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. Klik Baris → Tampilkan Detail Panel
+    // ─────────────────────────────────────────────────────────────
+    const detailPanel = document.getElementById("detail-panel");
+
+    document.querySelectorAll(".selectable-row").forEach((row) => {
+        row.addEventListener("click", function () {
+            document
+                .querySelectorAll(".selectable-row")
+                .forEach((r) => r.classList.remove("row-selected"));
+            this.classList.add("row-selected");
+
+            const id = this.dataset.id;
+            const nama = this.dataset.nama || "-";
+            const nik = this.dataset.nik || "-";
+            const umur = this.dataset.umur || "-";
+            const hp = this.dataset.noHp || "-";
+            const alamat = this.dataset.alamat || "-";
+            const jk =
+                this.dataset.jenisKelamin === "L" ? "Laki-laki" : "Perempuan";
+            const riwayat = this.dataset.riwayatPenyakit || "-";
+
+            // Tampilkan panel
+            detailPanel.style.opacity = "0";
+            detailPanel.style.display = "block";
+
+            // Avatar initials
+            const initials = nama
+                .split(" ")
+                .map((w) => w[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase();
+            const avatarEl = document.getElementById("detail-avatar");
+            if (avatarEl) avatarEl.textContent = initials;
+
+            setText("dynamic-name", nama);
+            setText("name-display", nama);
+            setText("detail-umur", umur + " Tahun");
+            setText("detail-jk", jk);
+            setText("d-nik", nik);
+            setText("d-hp", hp);
+            setText("d-alamat", alamat);
+            setText("d-riwayat", riwayat);
+
+            // Link Histori Skrining
+            const btnHistori = document.getElementById("btn-histori-skrining");
+            if (btnHistori && id) {
+                btnHistori.href = `/lansia/${id}/histori-skrining`;
+            }
+
+            // Ambil data kesehatan via AJAX
+            fetchHealthSummary(id);
+
+            requestAnimationFrame(() => {
+                detailPanel.style.transition = "opacity 0.3s ease";
+                detailPanel.style.opacity = "1";
+            });
+
+            detailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+    });
+
+    function setText(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
     }
 
-    // 3. Update Detail Card saat klik "Lihat" (Ikon Mata)
-    const viewBtns = document.querySelectorAll('.view-btn');
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const row = this.closest('tr');
-            if (row) {
-                const id = row.getAttribute('data-id');
-                const name = row.getAttribute('data-nama') || 'Detail Lansia';
-                const nik = row.getAttribute('data-nik') || '-';
-                const umur = row.getAttribute('data-umur') || '-';
-                const noHp = row.getAttribute('data-no-hp') || 'Tidak tersedia';
-                const alamat = row.getAttribute('data-alamat') || '-';
+    /**
+     * Ambil data kesehatan terakhir dari endpoint:
+     *   GET /lansia/{id}/health-summary
+     *
+     * Field yang dikembalikan controller:
+     *   sistolik, diastolik  → dari skrining_kunjungan.td_sistolik / td_diastolik
+     *   gula_darah           → dari skrining_utama.gula_darah
+     *   kolesterol           → dari skrining_utama.kolesterol
+     */
+    async function fetchHealthSummary(id) {
+        ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol"].forEach((k) =>
+            setText(k, "…"),
+        );
+        try {
+            const res = await fetch(`/lansia/${id}/health-summary`, {
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+            });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const data = await res.json();
+            setText("d-sistolik", data.sistolik ?? "-");
+            setText("d-diastolik", data.diastolik ?? "-");
+            setText("d-gula", data.gula_darah ?? "-");
+            setText("d-kolesterol", data.kolesterol ?? "-");
+        } catch {
+            ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol"].forEach(
+                (k) => setText(k, "-"),
+            );
+        }
+    }
 
-                const detailSection = document.querySelector('.detail-container');
-
-                if (detailSection) {
-                    // Animasi Fade Out
-                    detailSection.style.opacity = '0.5';
-
-                    setTimeout(() => {
-                        const dynamicName = document.getElementById('dynamic-name');
-                        const nameDisplay = document.getElementById('name-display');
-                        const btnProfil = document.getElementById('btn-profil-lengkap');
-
-                        if (dynamicName) dynamicName.innerText = name;
-                        if (nameDisplay) nameDisplay.innerText = name;
-                        if (btnProfil && id) {
-                            btnProfil.href = `/lansia/${id}`;
-                        }
-
-                        // Tambahan data dinamis untuk detail
-                        const ageText = detailSection.querySelector('.age-text');
-                        if (ageText) ageText.innerText = umur + ' Tahun';
-
-                        // Isi kolom informasi pribadi di view dengan pencarian teks label
-                        const dataItems = detailSection.querySelectorAll('.data-item');
-                        dataItems.forEach(item => {
-                            const label = item.querySelector('label')?.innerText;
-                            const p = item.querySelector('p');
-                            if (p && label) {
-                                if (label.includes('NIK')) p.innerText = nik;
-                                if (label.includes('NOMOR HANDPHONE')) p.innerText = noHp || '-';
-                                if (label.includes('ALAMAT LENGKAP')) p.innerText = alamat;
-                            }
-                        });
-
-
-                        detailSection.style.opacity = '1';
-
-                        // Scroll halus ke arah detail
-                        detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 200);
-                }
-            }
-        });
-    });
-
-    // 3b. Cegah klik "Profil Lengkap" jika belum ada lansia yang dipilih
-    const btnProfilLengkap = document.getElementById('btn-profil-lengkap');
-    if (btnProfilLengkap) {
-        btnProfilLengkap.addEventListener('click', function (e) {
-            if (this.getAttribute('href') === '#') {
+    // Cegah klik Histori Skrining jika belum ada lansia dipilih
+    document
+        .getElementById("btn-histori-skrining")
+        ?.addEventListener("click", function (e) {
+            if (this.getAttribute("href") === "#") {
                 e.preventDefault();
-                alert('Silakan pilih lansia terlebih dahulu dari tabel.');
+                alert("Silakan pilih lansia dari tabel terlebih dahulu.");
             }
         });
+
+    // ─────────────────────────────────────────────────────────────
+    // 4. Modal Tambah Lansia
+    // ─────────────────────────────────────────────────────────────
+    const modalTambah = document.getElementById("modal-tambah-lansia");
+    const formTambah = modalTambah?.querySelector("form");
+
+    document
+        .getElementById("btn-tambah-lansia")
+        ?.addEventListener("click", () => {
+            formTambah?.reset();
+            modalTambah?.classList.add("active");
+        });
+
+    setupModalClose(modalTambah, [
+        document.getElementById("btn-close-modal"),
+        document.getElementById("btn-cancel-modal"),
+    ]);
+
+    // ─────────────────────────────────────────────────────────────
+    // 5. Modal Edit Lansia
+    // ─────────────────────────────────────────────────────────────
+    const modalEdit = document.getElementById("modal-edit-lansia");
+    const formEdit = document.getElementById("form-edit-lansia");
+
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const row = btn.closest("tr");
+            if (!row) return;
+
+            if (formEdit) formEdit.action = `/lansia/${row.dataset.id}`;
+
+            setVal("edit_nama_lansia", row.dataset.nama);
+            setVal("edit_nik", row.dataset.nik);
+            setVal("edit_alamat", row.dataset.alamat);
+            setVal("edit_tanggal_lahir", row.dataset.tanggalLahir);
+            setVal("edit_jenis_kelamin", row.dataset.jenisKelamin || "L");
+            setVal("edit_no_hp", row.dataset.noHp);
+            setVal("edit_tempat_lahir", row.dataset.tempatLahir);
+            setVal("edit_status_perkawinan", row.dataset.statusPerkawinan);
+            setVal("edit_riwayat_penyakit", row.dataset.riwayatPenyakit);
+            setVal("edit_tanggal_daftar", row.dataset.tanggalDaftar);
+            setVal("edit_keterangan", row.dataset.keterangan);
+            setVal("edit_email", row.dataset.email);
+
+            modalEdit?.classList.add("active");
+        });
+    });
+
+    setupModalClose(modalEdit, [
+        document.getElementById("btn-close-edit-modal"),
+        document.getElementById("btn-cancel-edit-modal"),
+    ]);
+
+    // ─────────────────────────────────────────────────────────────
+    // 6. Modal Hapus Lansia
+    // ─────────────────────────────────────────────────────────────
+    const modalHapus = document.getElementById("modal-hapus-lansia");
+    const formHapus = modalHapus?.querySelector("form");
+    let rowToDelete = null;
+
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            rowToDelete = btn.closest("tr");
+            if (rowToDelete && formHapus) {
+                formHapus.action = `/lansia/${rowToDelete.dataset.id}`;
+            }
+            modalHapus?.classList.add("active");
+        });
+    });
+
+    document
+        .getElementById("btn-confirm-hapus")
+        ?.addEventListener("click", () => {
+            if (rowToDelete) {
+                rowToDelete.style.transition = "opacity 0.3s ease";
+                rowToDelete.style.opacity = "0";
+                setTimeout(() => rowToDelete?.remove(), 300);
+            }
+            modalHapus?.classList.remove("active");
+            rowToDelete = null;
+        });
+
+    setupModalClose(modalHapus, [document.getElementById("btn-cancel-hapus")]);
+
+    // ─────────────────────────────────────────────────────────────
+    // 7. Modal Filter
+    // ─────────────────────────────────────────────────────────────
+    const modalFilter = document.getElementById("modal-filter-lansia");
+    const formFilter = modalFilter?.querySelector("form");
+
+    document
+        .getElementById("btn-filter-lansia")
+        ?.addEventListener("click", () => {
+            modalFilter?.classList.add("active");
+        });
+
+    setupModalClose(modalFilter, [
+        document.getElementById("btn-close-filter-modal"),
+    ]);
+
+    formFilter?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const status = document.getElementById("filter_status")?.value;
+        const umur = document.getElementById("filter_umur")?.value;
+        alert(`Filter: Status=${status || "Semua"}, Umur=${umur || "Semua"}`);
+        modalFilter.classList.remove("active");
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // HELPERS
+    // ─────────────────────────────────────────────────────────────
+    function setVal(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val ?? "";
     }
 
-    // --- MODAL UTILITIES --- //
-
-    // 4. Modal Tambah Lansia
-    const modalTambah = document.getElementById('modal-tambah-lansia');
-    const btnTambah = document.getElementById('btn-tambah-lansia');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-    const btnCancelModal = document.getElementById('btn-cancel-modal');
-    const formTambah = modalTambah ? modalTambah.querySelector('form') : null;
-
-    if (btnTambah && modalTambah) {
-        // Get route URL inside the conditional check with null safety
-        const routeMeta = document.querySelector('meta[name="route-store-lansia"]');
-        const url = routeMeta ? routeMeta.content : null;
-        btnTambah.addEventListener('click', () => {
-            if (formTambah) formTambah.reset(); // Reset form saat dibuka
-            modalTambah.classList.add('active');
+    function setupModalClose(modal, triggers = []) {
+        if (!modal) return;
+        const close = () => modal.classList.remove("active");
+        triggers.forEach((btn) => btn?.addEventListener("click", close));
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) close();
         });
-
-        const closeModal = () => modalTambah.classList.remove('active');
-
-        if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
-        if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
-
-        modalTambah.addEventListener('click', (e) => {
-            if (e.target === modalTambah) closeModal();
-        });
-        //logic tambah data disabled via JS to allow native Laravel submit with redirection
-        /* 
-        if (formTambah && url) {
-            // submit handled by form action now 
-        }
-        */
-
-        // 5. Modal Edit Lansia
-        const modalEdit = document.getElementById('modal-edit-lansia');
-        const btnCloseEditModal = document.getElementById('btn-close-edit-modal');
-        const btnCancelEditModal = document.getElementById('btn-cancel-edit-modal');
-        const editBtns = document.querySelectorAll('.edit-btn');
-        const formEdit = document.getElementById('form-edit-lansia');
-
-        if (modalEdit) {
-            const closeEditModal = () => modalEdit.classList.remove('active');
-
-            editBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const row = btn.closest('tr');
-                    if (row) {
-                        // Mengambil nilai referensi dari tabel untuk Form Edit
-                        const id = row.getAttribute('data-id');
-                        const name = row.getAttribute('data-nama');
-                        const nik = row.getAttribute('data-nik');
-                        const tglLahir = row.getAttribute('data-tanggal-lahir');
-                        const alamat = row.getAttribute('data-alamat');
-                        const jk = row.getAttribute('data-jenis-kelamin');
-                        const hp = row.getAttribute('data-no-hp');
-                        const tempatLahir = row.getAttribute('data-tempat-lahir');
-                        const statusKawin = row.getAttribute('data-status-perkawinan');
-                        const riwayat = row.getAttribute('data-riwayat-penyakit');
-                        const tglDaftar = row.getAttribute('data-tanggal-daftar');
-                        const ket = row.getAttribute('data-keterangan');
-                        const email = row.getAttribute('data-email');
-
-                        // Set the dynamic action URL
-                        if (formEdit) {
-                            formEdit.action = `/lansia/${id}`;
-                        }
-
-                        // Memasukkan nilai ke field input modal Edit
-                        const editName = document.getElementById('edit_nama_lansia');
-                        const editNik = document.getElementById('edit_nik');
-                        const editAddr = document.getElementById('edit_alamat');
-                        const editTglLahir = document.getElementById('edit_tanggal_lahir');
-                        const editJk = document.getElementById('edit_jenis_kelamin');
-                        
-                        const editHp = document.getElementById('edit_no_hp');
-                        const editTempatLahir = document.getElementById('edit_tempat_lahir');
-                        const editStatusKawin = document.getElementById('edit_status_perkawinan');
-                        const editRiwayat = document.getElementById('edit_riwayat_penyakit');
-                        const editTglDaftar = document.getElementById('edit_tanggal_daftar');
-                        const editKet = document.getElementById('edit_keterangan');
-                        const editEmail = document.getElementById('edit_email');
-
-                        if (editName) editName.value = name;
-                        if (editNik) editNik.value = nik;
-                        if (editAddr) editAddr.value = alamat;
-                        if (editTglLahir) editTglLahir.value = tglLahir;
-                        if (editJk) editJk.value = jk || 'L';
-                        
-                        if (editHp) editHp.value = hp || '';
-                        if (editTempatLahir) editTempatLahir.value = tempatLahir || '';
-                        if (editStatusKawin) editStatusKawin.value = statusKawin || '';
-                        if (editRiwayat) editRiwayat.value = riwayat || '';
-                        if (editTglDaftar) editTglDaftar.value = tglDaftar || '';
-                        if (editKet) editKet.value = ket || '';
-                        if (editEmail) editEmail.value = email || '';
-                    }
-                    modalEdit.classList.add('active');
-                });
-            });
-
-            if (btnCloseEditModal) btnCloseEditModal.addEventListener('click', closeEditModal);
-            if (btnCancelEditModal) btnCancelEditModal.addEventListener('click', closeEditModal);
-
-            modalEdit.addEventListener('click', (e) => {
-                if (e.target === modalEdit) closeEditModal();
-            });
-
-            // Form Edit now submits naturally due to action + method POST + @method('PUT'), NO fetch strictly needed unless you want to stay single-page.
-            // But since LansiaController@update uses redirect(), normal submission is best.
-        }
-
-        // 6. Modal Konfirmasi Hapus
-        const modalHapus = document.getElementById('modal-hapus-lansia');
-        const btnCancelHapus = document.getElementById('btn-cancel-hapus');
-        const btnConfirmHapus = document.getElementById('btn-confirm-hapus');
-        const deleteBtns = document.querySelectorAll('.delete-btn');
-        let rowToDelete = null;
-
-        if (modalHapus) {
-            const formHapus = modalHapus.querySelector('form');
-            const closeHapusModal = () => {
-                modalHapus.classList.remove('active');
-                rowToDelete = null;
-            };
-
-            deleteBtns.forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault(); // Mencegah form action
-                    rowToDelete = this.closest('tr');
-
-                    if (rowToDelete && formHapus) {
-                        const id = rowToDelete.getAttribute('data-id');
-                        formHapus.action = `/lansia/${id}`;
-                    }
-
-                    modalHapus.classList.add('active');
-                });
-            });
-
-            if (btnCancelHapus) btnCancelHapus.addEventListener('click', closeHapusModal);
-
-            if (btnConfirmHapus) {
-                btnConfirmHapus.addEventListener('click', () => {
-                    if (rowToDelete) {
-                        // Animasi transisi hapus elemen HTML tabel
-                        rowToDelete.style.transition = "opacity 0.3s ease";
-                        rowToDelete.style.opacity = "0";
-                        setTimeout(() => {
-                            rowToDelete.remove();
-                        }, 300);
-                    }
-                    closeHapusModal();
-                });
-            }
-
-            modalHapus.addEventListener('click', (e) => {
-                if (e.target === modalHapus) closeHapusModal();
-            });
-        }
-
-        // 7. Modal Filter
-        const modalFilter = document.getElementById('modal-filter-lansia');
-        const btnFilter = document.getElementById('btn-filter-lansia');
-        const btnCloseFilter = document.getElementById('btn-close-filter-modal');
-        const formFilter = modalFilter ? modalFilter.querySelector('form') : null;
-
-        if (modalFilter && btnFilter) {
-            const closeFilterModal = () => modalFilter.classList.remove('active');
-
-            btnFilter.addEventListener('click', () => {
-                modalFilter.classList.add('active');
-            });
-
-            if (btnCloseFilter) btnCloseFilter.addEventListener('click', closeFilterModal);
-
-            modalFilter.addEventListener('click', (e) => {
-                if (e.target === modalFilter) closeFilterModal();
-            });
-
-            if (formFilter) {
-                formFilter.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const status = document.getElementById('filter_status').value;
-                    const umur = document.getElementById('filter_umur').value;
-                    alert(`Filter Diterapkan: Status=${status || 'Semua'}, Umur=${umur || 'Semua'} (Simulasi)`);
-                    closeFilterModal();
-                });
-            }
-        }
     }
 });
