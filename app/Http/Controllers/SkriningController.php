@@ -164,7 +164,6 @@ class SkriningController extends Controller
 
                 SkriningUtama::create(array_merge([
                     'id_skrining'               => $skrining->id_skrining,
-                    'id_lansia'                 => $request->id_lansia,
                     // Fisik (dari kunjungan)
                     'berat_badan'               => $bb,
                     'tinggi_badan'              => $tb,
@@ -293,7 +292,10 @@ class SkriningController extends Controller
                 ]);
             }
 
-            // Status jadwal sudah auto-update di getJadwalHariIni()
+            // 5. Update status jadwal → Berlangsung
+            if ($jadwal->status === JadwalPosyandu::STATUS_TERJADWAL) {
+                $jadwal->update(['status' => JadwalPosyandu::STATUS_BERLANGSUNG]);
+            }
         });
 
         return redirect()->route('skrining.index')->with('success', 'Skrining berhasil disimpan.');
@@ -302,16 +304,14 @@ class SkriningController extends Controller
     // ─── Helpers ──────────────────────────────────────────────────
     private function getJadwalHariIni(): ?JadwalPosyandu
     {
-        // 🔴 AUTO-UPDATE: Status 0 (Terjadwal) → 1 (Berlangsung) saat H-day
-        JadwalPosyandu::whereDate('tanggal_pelaksanaan', Carbon::today())
-            ->where('status', JadwalPosyandu::STATUS_TERJADWAL)
-            ->update(['status' => JadwalPosyandu::STATUS_BERLANGSUNG]);
-
-        // Ambil jadwal berlangsung
         return JadwalPosyandu::with('detailSkrining')
             ->whereDate('tanggal_pelaksanaan', Carbon::today())
-            ->where('status', JadwalPosyandu::STATUS_BERLANGSUNG)
+            ->whereIn('status', [
+                JadwalPosyandu::STATUS_TERJADWAL,
+                JadwalPosyandu::STATUS_BERLANGSUNG,
+            ])
             ->first();
+            
     }
 
     private function errorBack(string $message)
