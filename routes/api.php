@@ -15,5 +15,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profil', [ProfilApiController::class, 'index']);
     Route::get('/jadwal', [JadwalApiController::class, 'index']);
     Route::get('/item-jadwal', [ItemJadwalController::class, 'index']);
+    Route::get('/skrining', [\App\Http\Controllers\Api\SkriningApiController::class, 'index']);
+    Route::post('/update-password', [ProfilApiController::class, 'updatePassword']);
+    Route::post('/update-fcm-token', [AuthApiController::class, 'updateFcmToken']);
     Route::post('/logout-lansia', [AuthApiController::class, 'logout']);
 });

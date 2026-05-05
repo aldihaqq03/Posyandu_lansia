@@ -17,7 +17,26 @@
                 <h1>Ringkasan Kesehatan</h1>
                 <p>Pantau status kesehatan dan pergerakan risiko lansia secara real-time.</p>
             </div>
+            <div class="header-action" style="margin-top: 15px;">
+                <form action="{{ route('test.notification') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-primary" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        <i class="fa-solid fa-bell"></i> Uji Coba Notifikasi
+                    </button>
+                </form>
+            </div>
         </div>
+
+        @if(session('success'))
+            <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+                <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+                <i class="fa-solid fa-circle-xmark"></i> {{ session('error') }}
+            </div>
+        @endif
 
         <!-- STATS GRID -->
         <div class="stats-grid">

@@ -477,6 +477,28 @@ $statusJadwal = ($request->tanggal_pelaksanaan == today())
             DB::table('detail_skrining')->insert($inserts);
         });
 
+        // --- Kirim Notifikasi FCM ---
+        try {
+            $lansiaTokens = \App\Models\User::whereHas('lansia')
+                ->whereNotNull('fcm_token')
+                ->pluck('fcm_token')
+                ->toArray();
+
+            if (!empty($lansiaTokens)) {
+                $title = "Jadwal Posyandu Baru!";
+                $body = "Ada jadwal posyandu baru di " . $request->lokasi . " pada tanggal " . $request->tanggal_pelaksanaan;
+                
+                foreach ($lansiaTokens as $token) {
+                    \App\Services\FcmService::sendNotification($token, $title, $body, [
+                        'type' => 'jadwal_baru',
+                        'id' => $request->tanggal_pelaksanaan // Sebagai referensi
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Store Error: " . $e->getMessage());
+        }
+
         return $this->successResponse($request, 'Jadwal berhasil ditambahkan!');
     }
 

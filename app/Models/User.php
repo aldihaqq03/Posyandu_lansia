@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'whatsapp',
         'password',
+        'fcm_token',
     ];
 
     public function petugas()
@@ -81,5 +82,14 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Kirim notifikasi FCM ke user ini
+     */
+    public function notifyFcm($title, $body, $data = [])
+    {
+        if (!$this->fcm_token) return false;
+        return \App\Services\FcmService::sendNotification($this->fcm_token, $title, $body, $data);
     }
 }

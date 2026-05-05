@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
   Route::middleware('role:kader,kepala_kader')->group(function () {
 
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/test-notification', [\App\Http\Controllers\DashboardController::class, 'testNotification'])->name('test.notification');
 
     // ========================
     // LANSIA (FIXED)
