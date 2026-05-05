@@ -10,8 +10,6 @@
     --border-color: #f1f5f9;
 }
 
-
-
 /* Header & Breadcrumb */
 .page-header {
     display: flex;
@@ -345,16 +343,21 @@
     display: grid;
     grid-template-columns: 250px 1fr;
     /* Membagi area foto dan area data */
-    gap: 40px;
+    gap: 24px;
 }
 
 /* Kolom Profil Kiri */
 .profile-side {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: top; /* tengah vertikal */
+    align-items: center; /* tengah horizontal */
+    text-align: top;
+    gap: 12px;
+
     border-right: 1px solid #f1f5f9;
     padding-right: 20px;
 }
-
 .profile-photo {
     width: 120px;
     height: 120px;
@@ -369,9 +372,14 @@
 /* Area Data Kanan */
 .info-side-grid {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    /* Membagi Info Pribadi dan Kesehatan */
-    gap: 30px;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px 24px;
+    align-items: start;
+}
+.info-column .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
 }
 
 .info-column h4 {
@@ -383,6 +391,7 @@
 
 .data-item {
     margin-bottom: 15px;
+    margin-bottom: 4px;
 }
 
 .data-item label {
@@ -394,6 +403,7 @@
 .data-item p {
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.4;
     color: #1e293b;
 }
 
@@ -603,4 +613,123 @@
 .btn-secondary:hover {
     background: #e2e8f0;
     color: #475569;
+}
+/* Tambahan untuk resources/css/cssAdmin/data_lansia.css */
+
+/* ── Row Hint ─────────────────────────────────────────── */
+.row-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.row-hint i {
+    color: var(--primary);
+}
+
+/* ── Baris Table Bisa Diklik ──────────────────────────── */
+.selectable-row {
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+}
+.selectable-row:hover {
+    background: #f0f7ff;
+}
+.selectable-row.row-selected {
+    background: #eff6ff;
+    box-shadow: inset 4px 0 0 var(--primary);
+}
+
+/* ── Badge Status Extra ───────────────────────────────── */
+.badge-status.high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.badge-status.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+.badge-status.success {
+    background: #d1fae5;
+    color: #059669;
+}
+.badge-status.muted {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* ── Detail Panel (hidden awal) ──────────────────────── */
+#detail-panel {
+    transition: opacity 0.3s ease;
+}
+
+/* ── Health Cards tambahan untuk panel detail ─────────── */
+.h-card.orange {
+    background: #fff7ed;
+    color: #ea580c;
+    border: 1px solid #fed7aa;
+}
+.h-card.purple {
+    background: #faf5ff;
+    color: #7c3aed;
+    border: 1px solid #ddd6fe;
+}
+
+/* Health cards di detail: biar wrap 2x2 */
+.health-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+/* ── Alert ───────────────────────────────────────────── */
+.alert-error {
+    background: #ffebe9;
+    border: 1px solid rgba(255, 129, 130, 0.4);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    color: #cf222e;
+    font-size: 14px;
+}
+.alert-success {
+    background: #d1fae5;
+    border: 1px solid #6ee7b7;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    color: #065f46;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ── Pagination ──────────────────────────────────────── */
+.pagination-wrapper {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* ── Empty state di tabel ────────────────────────────── */
+td.empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+}
+.big-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
 }
