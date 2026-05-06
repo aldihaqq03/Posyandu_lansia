@@ -7,6 +7,7 @@ use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\JadwalPosyanduController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\SkriningController;
+use App\Http\Controllers\SaranController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{lansia}/keluarga', [LansiaController::class, 'getKeluarga'])->name('keluarga');
         Route::get('/{lansia}/skrining-utama/{id_skrining}', [LansiaController::class, 'detailSkriningUtama'])->name('detail-utama');
         Route::get('/{lansia}/skrining-ppok/{id_skrining}', [LansiaController::class, 'detailSkriningPPOK'])->name('detail-ppok');
+        
+        // ─── SARAN ──────────────────────────────────────────────
+        Route::get('/{lansia}/saran', [SaranController::class, 'index'])->name('saran.index');
+        Route::post('/{lansia}/saran', [SaranController::class, 'store'])->name('saran.store');
+        Route::put('/{lansia}/saran/{saran}', [SaranController::class, 'update'])->name('saran.update');
+        Route::delete('/{lansia}/saran/{saran}', [SaranController::class, 'destroy'])->name('saran.destroy');
     });
 
     Route::resource('lansia', LansiaController::class)

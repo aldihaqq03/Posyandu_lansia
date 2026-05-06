@@ -65,7 +65,7 @@
         class="{{ !$jadwal ? 'form-locked' : '' }}">
         @csrf
 
-        {{-- ─── PILIH LANSIA ─────────────────────────────────────── --}}
+                {{-- ─── PILIH LANSIA ─────────────────────────────────────── --}}
         <div class="form-section">
             <div class="section-header">
                 <i class="fa-solid fa-person-cane"></i>
@@ -87,6 +87,51 @@
                 <textarea name="keluhan" class="form-control" rows="2"
                     placeholder="Keluhan yang disampaikan lansia (opsional)"
                     {{ !$jadwal ? 'disabled' : '' }}>{{ old('keluhan') }}</textarea>
+            </div>
+
+            {{-- ─── SARAN ──────────────────────────────────────────── --}}
+            <div class="resep-toggle" id="saran-section" style="display:none;">
+
+                {{-- Saran Sebelumnya --}}
+                <div id="saran-sebelumnya-wrapper" style="display:none; margin-bottom:12px;">
+                    <label class="form-label" style="margin-bottom:6px;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Saran Sebelumnya
+                    </label>
+                    <div id="saran-sebelumnya-list"></div>
+                </div>
+
+                {{-- Modal Edit Saran --}}
+                <div id="modal-edit-saran" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;padding:20px;align-items:center;justify-content:center;">
+                    <div style="background:white;border-radius:8px;padding:24px;width:100%;max-width:500px;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+                        <h3 style="margin:0 0 20px 0;font-size:18px;font-weight:600;">Edit Saran</h3>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Judul Saran</label>
+                            <input type="text" id="edit-saran-jenis" class="form-control" placeholder="Judul saran...">
+                        </div>
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label">Isi Saran</label>
+                            <textarea id="edit-saran-isi" class="form-control" placeholder="Isi saran..." rows="4"></textarea>
+                        </div>
+                        <div style="display:flex;gap:12px;justify-content:flex-end;">
+                            <button type="button" id="btn-cancel-edit" style="padding:8px 16px;background:#d1d5db;color:#374151;border:none;border-radius:4px;cursor:pointer;font-weight:500;">
+                                Batal
+                            </button>
+                            <button type="button" id="btn-save-edit" style="padding:8px 16px;background:#3b82f6;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:500;">
+                                <i class="fa-solid fa-save"></i> Simpan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Tambah Saran Baru --}}
+                <div class="resep-header">
+                    <span>Saran</span>
+                    <button type="button" class="btn-add-kecil" id="btn-add-saran" {{ !$jadwal ? 'disabled' : '' }}>
+                        <i class="fa-solid fa-plus"></i> Tambah Saran
+                    </button>
+                </div>
+                <div id="saran-baru-list"></div>
+
             </div>
         </div>
 
@@ -662,6 +707,98 @@ document.addEventListener('DOMContentLoaded', () => {
     bbInput?.addEventListener('input', hitungIMT);
     tbInput?.addEventListener('input', hitungIMT);
 
+
+               // ── SARAN ─────────────────────────────────────────────────────
+const selectLansia          = document.getElementById('select-lansia');
+const saranSection          = document.getElementById('saran-section');
+const saranSebelumnyaWrapper= document.getElementById('saran-sebelumnya-wrapper');
+const saranSebelumnyaList   = document.getElementById('saran-sebelumnya-list');
+const saranBaruList         = document.getElementById('saran-baru-list');
+let saranIdx = 0;
+
+selectLansia?.addEventListener('change', async function () {
+    const id = this.value;
+    saranSebelumnyaWrapper.style.display = 'none';
+    saranSebelumnyaList.innerHTML = '';
+    saranBaruList.innerHTML = '';
+    saranIdx = 0;
+    saranSection.style.display = id ? 'block' : 'none';
+    if (!id) return;
+
+    saranSebelumnyaList.innerHTML = '<span style="font-size:13px;color:#9ca3af;font-style:italic"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</span>';
+    saranSebelumnyaWrapper.style.display = 'block';
+
+    try {
+        const res  = await fetch(`/lansia/${id}/saran`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const json = await res.json();
+        const data = json.data || [];
+
+        if (data.length === 0) {
+            saranSebelumnyaWrapper.style.display = 'none';
+        } else {
+            saranSebelumnyaList.innerHTML = data.map(s => `
+                <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <input type="text" class="form-control saran-edit-jenis" value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <textarea class="form-control saran-edit-isi" placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
+                    </div>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                        <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}" style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
+                            <i class="fa-solid fa-trash"></i> Hapus
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Attach event listeners for delete only
+            saranSebelumnyaList.querySelectorAll('.btn-delete-saran-lama').forEach(btn => {
+                btn.addEventListener('click', handleDeleteSaranLama);
+            });
+        }
+    } catch {
+        saranSebelumnyaWrapper.style.display = 'none';
+    }
+});
+
+document.getElementById('btn-add-saran')?.addEventListener('click', () => {
+    const list = document.getElementById('saran-baru-list');
+    const row  = document.createElement('div');
+    row.className = 'resep-row';
+    row.innerHTML = saranRowHTML(saranIdx);
+    list.appendChild(row);
+    row.querySelector('.btn-remove-saran').addEventListener('click', () => row.remove());
+    saranIdx++;
+});
+
+function saranRowHTML(i) {
+    return `
+        <div class="resep-row saran-baru-row">
+            <div class="saran-row-inner">
+                <div class="saran-row-fields">
+                    <input type="text"
+                        name="saran[${i}][jenis_saran]"
+                        class="form-control saran-judul-input"
+                        placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)"
+                        required>
+                    <textarea
+                        name="saran[${i}][isi_saran]"
+                        class="form-control saran-isi-input"
+                        placeholder="Tulis isi saran untuk lansia..."
+                        rows="3"
+                        required></textarea>
+                </div>
+                <button type="button" class="btn-remove-saran btn-remove-resep" title="Hapus saran">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>`;
+}
+
+function escSaran(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
     // ── SRQ Counter ──────────────────────────────────────
     const srqTotal = document.getElementById('srq-total');
     document.querySelectorAll('[name^="srq_"]').forEach(cb => {
@@ -787,13 +924,62 @@ document.addEventListener('DOMContentLoaded', () => {
     vep1Post?.addEventListener('input', hitungRasioPost);
     kvpPost?.addEventListener('input', hitungRasioPost);
 
-    // ── Prevent Double Submit ────────────────────────────
-    document.getElementById('formSkrining')?.addEventListener('submit', function () {
+    // ── DELETE SARAN LAMA ────────────────────────────────
+    async function handleDeleteSaranLama(e) {
+        const btn = e.currentTarget;
+        const id = btn.dataset.id;
+        const idLansia = selectLansia.value;
+        
+        // Confirm
+        if (!confirm('Yakin mau hapus saran ini?')) return;
+        
+        try {
+            const res = await fetch(`/lansia/${idLansia}/saran/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('[name="_token"]').value,
+                }
+            });
+            const json = await res.json();
+            if (res.ok) {
+                // Refresh list
+                selectLansia.dispatchEvent(new Event('change'));
+            } else {
+                alert('Error: ' + (json.message || 'Gagal hapus'));
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    }
+
+    // ── Prevent Double Submit & Kumpulkan Saran Edit ─────────────────────────
+    document.getElementById('formSkrining')?.addEventListener('submit', function (e) {
         const btn = document.getElementById('btn-submit-skrining');
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
         }
+        
+        // Kumpulkan saran yang diedit
+        const saranEditForms = document.querySelectorAll('.saran-edit-form');
+        saranEditForms.forEach(form => {
+            const id = form.dataset.id;
+            const jenis = form.querySelector('.saran-edit-jenis').value;
+            const isi = form.querySelector('.saran-edit-isi').value;
+            
+            // Buat hidden inputs
+            const inputJenis = document.createElement('input');
+            inputJenis.type = 'hidden';
+            inputJenis.name = `saran_edit[${id}][jenis_saran]`;
+            inputJenis.value = jenis;
+            this.appendChild(inputJenis);
+            
+            const inputIsi = document.createElement('input');
+            inputIsi.type = 'hidden';
+            inputIsi.name = `saran_edit[${id}][isi_saran]`;
+            inputIsi.value = isi;
+            this.appendChild(inputIsi);
+        });
     });
 
 });
