@@ -115,6 +115,7 @@
                         data-tanggal-daftar="{{ $lansia->tanggal_daftar }}"
                         data-keterangan="{{ $lansia->keterangan }}"
                         data-email="{{ $lansia->email }}"
+                        data-kode-unik="{{ $lansia->kode_unik ?? '' }}"
                         data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
                         data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
                     >
@@ -187,6 +188,13 @@
                     <h2 id="name-display">-</h2>
                     <p class="age-text" id="detail-umur">-</p>
                     <div class="status-pill" id="detail-jk">-</div>
+                    
+                    {{-- QR Code Telegram --}}
+                    <div style="margin-top:20px; padding:10px; background:#f9f9f9; border-radius:8px; border:1px solid #ddd;">
+                        <p style="font-size:12px; font-weight:bold; margin-bottom:5px;">Scan QR Darurat Telegram</p>
+                        <img id="detail-qr-telegram" src="" alt="QR Telegram" style="width:120px; height:120px; display:none; margin:0 auto;">
+                        <p id="detail-kode-telegram" style="font-size:11px; margin-top:5px; color:#555;">-</p>
+                    </div>
                 </div>
 
                 {{-- Kanan: info pribadi + kesehatan --}}

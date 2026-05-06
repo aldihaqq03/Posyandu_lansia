@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             lansia_seeder::class,
             JadwalPosyanduSeeder::class,
             SkriningSeeder::class,
+            ObatSeeder::class,
+            ResepSeeder::class,
         ]);
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DetailResep extends Model
 {
+    use HasFactory;
     protected $table = 'detail_resep';
     protected $primaryKey = 'id_detail_resep';
     public $timestamps = true;

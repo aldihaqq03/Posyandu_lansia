@@ -68,6 +68,7 @@ class Lansia extends Model
 
     protected $fillable = [
         'id_user',
+        'kode_unik',
         'nik',
         'nama_lansia',
         'jenis_kelamin',

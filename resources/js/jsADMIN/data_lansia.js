@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const tanggal = this.dataset.formatTanggal || "-";
             const status = this.dataset.statusPerkawinan || "-";
             const keterangan = this.dataset.keterangan || "-";
+            const kodeUnik = this.dataset.kodeUnik || "";
 
             detailPanel.style.opacity = "0";
             detailPanel.style.display = "block";
@@ -83,6 +84,23 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-alamat", alamat);
             setText("d-riwayat", riwayat);
             setText("d-keterangan", keterangan);
+
+            // Update QR Code
+            const qrImg = document.getElementById("detail-qr-telegram");
+            const kodeText = document.getElementById("detail-kode-telegram");
+            if (qrImg && kodeText) {
+                if (kodeUnik) {
+                    const botName = "simpell_bot"; // Sesuaikan dengan bot Anda
+                    const telegramUrl = `https://t.me/${botName}?start=${kodeUnik}`;
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(telegramUrl)}`;
+                    qrImg.style.display = "block";
+                    kodeText.innerText = `Kode: ${kodeUnik}`;
+                } else {
+                    qrImg.src = "";
+                    qrImg.style.display = "none";
+                    kodeText.innerText = "Kode belum di-generate (Silakan Edit & Simpan Lansia)";
+                }
+            }
 
             const btnHistori = document.getElementById("btn-histori-skrining");
             if (btnHistori && id) {

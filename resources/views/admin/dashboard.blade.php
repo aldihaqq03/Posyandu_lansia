@@ -20,7 +20,8 @@
             <div class="header-action" style="margin-top: 15px;">
                 <form action="{{ route('test.notification') }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-primary" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <button type="submit" class="btn btn-primary"
+                        style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                         <i class="fa-solid fa-bell"></i> Uji Coba Notifikasi
                     </button>
                 </form>
@@ -28,12 +29,14 @@
         </div>
 
         @if(session('success'))
-            <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+            <div
+                style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
                 <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
             </div>
         @endif
         @if(session('error'))
-            <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+            <div
+                style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
                 <i class="fa-solid fa-circle-xmark"></i> {{ session('error') }}
             </div>
         @endif
@@ -82,7 +85,8 @@
                 </div>
                 <div class="avatar-group">
                     @foreach($lansia_checked as $skrining)
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($skrining->lansia->nama_lansia) }}&background=random&color=fff" title="{{ $skrining->lansia->nama_lansia }}" alt="user">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($skrining->lansia->nama_lansia) }}&background=random&color=fff"
+                            title="{{ $skrining->lansia->nama_lansia }}" alt="user">
                     @endforeach
                     @if($pemeriksaan_selesai > 3)
                         <span class="avatar-more">+{{ $pemeriksaan_selesai - 3 }} lainnya</span>
@@ -136,7 +140,8 @@
                                     <td>
                                         <div class="patient-info">
                                             <div class="patient-avatar">
-                                                {{ strtoupper(substr($skrining->lansia->nama_lansia, 0, 2)) }}</div>
+                                                {{ strtoupper(substr($skrining->lansia->nama_lansia, 0, 2)) }}
+                                            </div>
                                             <span class="patient-name">{{ $skrining->lansia->nama_lansia }}</span>
                                         </div>
                                     </td>
