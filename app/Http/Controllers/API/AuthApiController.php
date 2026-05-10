@@ -40,12 +40,13 @@ class AuthApiController extends Controller
             'success' => true,
             'message' => 'Login berhasil',
             'token' => $token,
-            'data' => [
+            'user' => [
                 'id' => $user->id,
                 'whatsapp' => $user->whatsapp,
                 'jabatan' => $user->jabatan,
                 'nama' => $user->nama
-            ]
+            ],
+            'lansia' => $user->lansia
         ]);
     }
 
@@ -57,6 +58,22 @@ class AuthApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Logout berhasil'
+        ]);
+    }
+
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string'
+        ]);
+
+        $request->user()->update([
+            'fcm_token' => $request->fcm_token
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FCM Token updated successfully'
         ]);
     }
 }

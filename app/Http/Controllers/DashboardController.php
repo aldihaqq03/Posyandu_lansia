@@ -104,4 +104,27 @@ class DashboardController extends Controller
             default => 'var(--primary)',
         };
     }
+
+    public function testNotification()
+    {
+        // Get users with FCM token
+        $users = \App\Models\User::whereNotNull('fcm_token')->get();
+        $count = 0;
+
+        foreach ($users as $user) {
+            $success = \App\Services\FcmService::sendNotification(
+                $user->fcm_token,
+                'Notifikasi Test',
+                'Ini adalah pesan uji coba dari Dashboard Web!',
+                ['type' => 'jadwal_baru']
+            );
+            if ($success) $count++;
+        }
+
+        if ($count > 0) {
+            return redirect()->back()->with('success', "Notifikasi uji coba berhasil dikirim ke $count perangkat!");
+        } else {
+            return redirect()->back()->with('error', 'Gagal mengirim notifikasi. Pastikan ada user yang login di HP (memiliki fcm_token).');
+        }
+    }
 }

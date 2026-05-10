@@ -216,19 +216,33 @@ class LansiaController extends Controller
             ]);
 
             $validated['id_user'] = $user->id;
+            
+            // Generate random unique code (e.g., LNS-XXXXXX)
+            $kodeUnik = 'LNS-' . strtoupper(substr(md5(uniqid()), 0, 6));
+            $validated['kode_unik'] = $kodeUnik;
+            
             $lansia = Lansia::create($validated);
 
-            // Simpan data keluarga jika ada
+            // Tambahkan kontak default Posyandu
+            Keluarga::create([
+                'id_lansia' => $lansia->id_lansia,
+                'nama_keluarga' => 'Posyandu Melati',
+                'no_sama' => '085712345678', // Nomor default Posyandu
+                'alamat' => 'Kantor Desa / Posyandu',
+            ]);
+
+            // Simpan data keluarga jika ada dari form
             if (!empty($validated['keluarga'])) {
                 foreach ($validated['keluarga'] as $keluargaData) {
                     // Hanya simpan jika nama_keluarga tidak kosong
                     if (!empty($keluargaData['nama_keluarga'])) {
-                        Keluarga::create([
+                        $newKeluarga = Keluarga::create([
                             'id_lansia' => $lansia->id_lansia,
                             'nama_keluarga' => $keluargaData['nama_keluarga'],
                             'no_sama' => $keluargaData['no_sama'] ?? null,
                             'alamat' => $keluargaData['alamat'] ?? null,
                         ]);
+
                     }
                 }
             }
@@ -310,6 +324,12 @@ class LansiaController extends Controller
                             'no_sama' => trim($item['no_sama'] ?? '') ?: null,
                             'alamat' => trim($item['alamat'] ?? '') ?: null,
                         ]);
+
+                        // Generate kode_unik jika belum ada (untuk antisipasi data lama)
+                        if (!$lansia->kode_unik) {
+                            $lansia->kode_unik = 'LNS-' . strtoupper(substr(md5(uniqid()), 0, 6));
+                            $lansia->save();
+                        }
                     }
                 }
             }

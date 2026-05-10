@@ -296,6 +296,23 @@ class SkriningController extends Controller
             if ($jadwal->status === JadwalPosyandu::STATUS_TERJADWAL) {
                 $jadwal->update(['status' => JadwalPosyandu::STATUS_BERLANGSUNG]);
             }
+
+            // --- Kirim Notifikasi ke Lansia ---
+            try {
+                $userLansia = \App\Models\User::whereHas('lansia', function ($q) use ($request) {
+                    $q->where('id_lansia', $request->id_lansia);
+                })->first();
+
+                if ($userLansia && $userLansia->fcm_token) {
+                    $userLansia->notifyFcm(
+                        "Hasil Pemeriksaan Tersedia",
+                        "Hasil pemeriksaan Anda hari ini sudah dapat dilihat di aplikasi.",
+                        ['type' => 'skrining_baru', 'id' => $skrining->id_skrining]
+                    );
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("FCM Skrining Error: " . $e->getMessage());
+            }
         });
 
         return redirect()->route('skrining.index')->with('success', 'Skrining berhasil disimpan.');
