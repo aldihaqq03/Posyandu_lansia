@@ -12,6 +12,7 @@ use App\Models\Skrining;
 use App\Models\skrining_kunjungan;
 use App\Models\SkriningUtama;
 use App\Models\SkriningPPOK;
+use App\Models\Saran;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -291,8 +292,32 @@ class SkriningController extends Controller
                     'hasil_spirometri'         => $request->hasil_spirometri,
                 ]);
             }
+            // 6. Simpan Saran (opsional)
+            if ($request->filled('saran')) {
+                foreach ($request->saran as $s) {
+                    if (!empty($s['jenis_saran']) && !empty($s['isi_saran'])) {
+                        Saran::create([
+                            'id_lansia'  => $request->id_lansia,
+                            'jenis_saran' => $s['jenis_saran'],
+                            'isi_saran'   => $s['isi_saran'],
+                        ]);
+                    }
+                }
+            }
 
-            // 5. Update status jadwal → Berlangsung
+            // 6a. Update Saran Lama (edit dari form skrining)
+            if ($request->filled('saran_edit')) {
+                foreach ($request->saran_edit as $id => $data) {
+                    if (!empty($data['jenis_saran']) && !empty($data['isi_saran'])) {
+                        Saran::where('id_saran', $id)->update([
+                            'jenis_saran' => $data['jenis_saran'],
+                            'isi_saran'   => $data['isi_saran'],
+                        ]);
+                    }
+                }
+            }
+
+            // 7. Update status jadwal → Berlangsung
             if ($jadwal->status === JadwalPosyandu::STATUS_TERJADWAL) {
                 $jadwal->update(['status' => JadwalPosyandu::STATUS_BERLANGSUNG]);
             }
@@ -347,4 +372,7 @@ class SkriningController extends Controller
         }
         return redirect()->back()->with('error', $message);
     }
+
+
+
 }

@@ -6,6 +6,7 @@ use App\Models\Keluarga;
 use App\Models\Skrining;
 use App\Models\SkriningUtama;
 use App\Models\SkriningPPOK;
+use App\Models\Saran;
 use App\Helpers\SkriningHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

@@ -23,7 +23,6 @@ class ProfilApiController extends Controller
             'data' => $lansia
         ]);
     }
-
     public function updatePassword(Request $request)
     {
         $request->validate([
