@@ -84,6 +84,14 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-riwayat", riwayat);
             setText("d-keterangan", keterangan);
 
+            const btnMonitoring = document.getElementById(
+                "btn-monitoring-kesehatan",
+            );
+
+            if (btnMonitoring && id) {
+                btnMonitoring.href = `/lansia/${id}/monitoring`;
+            }
+
             const btnHistori = document.getElementById("btn-histori-skrining");
             if (btnHistori && id) {
                 btnHistori.href = `/lansia/${id}/histori-skrining`;
@@ -770,6 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert(`Filter: Status=${status || "Semua"}, Umur=${umur || "Semua"}`);
         modalFilter.classList.remove("active");
     });
+
 
     // ─────────────────────────────────────────────────────────────
     // HELPERS

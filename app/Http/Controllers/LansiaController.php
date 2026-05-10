@@ -106,6 +106,15 @@ class LansiaController extends Controller
             'ppoks',
         ));
     }
+
+    // ============================================================
+    // MONITORING KESEHATAN
+    // ============================================================
+    public function monitoringKesehatan(Lansia $lansia)
+    {
+        return view('lansia.monitoringKesehatan', compact('lansia'));
+    }
+
     
     // ============================================================
     // DETAIL SKRINING UTAMA — AJAX untuk modal
@@ -233,6 +242,59 @@ class LansiaController extends Controller
 
         return redirect()->route('data_lansia')
             ->with('success', 'Data lansia berhasil ditambahkan.');
+    }
+    public function healthHistory(Lansia $lansia)
+    {
+        // Ambil semua skrining dengan relasi kunjungan dan utama
+        $skrinings = $lansia->skrinings()
+            ->with([
+                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan',
+                'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
+            ])
+            ->orderBy('tanggal_skrining')
+            ->get(['id_skrining', 'tanggal_skrining']);
+
+        $data = $skrinings
+            ->filter(function ($s) {
+                // Hanya tampilkan jika ada minimal satu data (sistolik, diastolik, gula, atau kolesterol)
+                return $s->kunjungan?->td_sistolik || 
+                       $s->kunjungan?->td_diastolik || 
+                       $s->utama?->gula_darah || 
+                       $s->utama?->kolesterol;
+            })
+            ->map(function ($s) {
+                return [
+                    'tanggal'       => $s->tanggal_skrining,
+                    'td_sistolik'   => $s->kunjungan?->td_sistolik   ?? null,
+                    'td_diastolik'  => $s->kunjungan?->td_diastolik  ?? null,
+                    'berat_badan'   => $s->kunjungan?->berat_badan   ?? null,
+                    'gula_darah'    => $s->utama?->gula_darah        ?? null,
+                    'kolesterol'    => $s->utama?->kolesterol        ?? null,
+                ];
+            })
+            ->values();
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function keluhanHistory(Lansia $lansia)
+    {
+        $skrinings = $lansia->skrinings()
+            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan')
+            ->orderByDesc('tanggal_skrining')
+            ->get(['id_skrining', 'tanggal_skrining', 'keluhan']);
+
+        $data = $skrinings->map(function ($s) {
+            return [
+                'tanggal_skrining' => $s->tanggal_skrining,
+                'keluhan'          => $s->keluhan ?? 'Tidak ada keluhan',
+                'td_sistolik'      => $s->kunjungan?->td_sistolik  ?? null,
+                'td_diastolik'     => $s->kunjungan?->td_diastolik ?? null,
+                'berat_badan'      => $s->kunjungan?->berat_badan  ?? null,
+            ];
+        })->values();
+
+        return response()->json(['data' => $data]);
     }
 
     // ============================================================

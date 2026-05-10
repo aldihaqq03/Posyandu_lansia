@@ -708,120 +708,120 @@ document.addEventListener('DOMContentLoaded', () => {
     tbInput?.addEventListener('input', hitungIMT);
 
 
-               // ── SARAN ─────────────────────────────────────────────────────
-const selectLansia          = document.getElementById('select-lansia');
-const saranSection          = document.getElementById('saran-section');
-const saranSebelumnyaWrapper= document.getElementById('saran-sebelumnya-wrapper');
-const saranSebelumnyaList   = document.getElementById('saran-sebelumnya-list');
-const saranBaruList         = document.getElementById('saran-baru-list');
-let saranIdx = 0;
+                // ── SARAN ─────────────────────────────────────────────────────
+    const selectLansia          = document.getElementById('select-lansia');
+    const saranSection          = document.getElementById('saran-section');
+    const saranSebelumnyaWrapper= document.getElementById('saran-sebelumnya-wrapper');
+    const saranSebelumnyaList   = document.getElementById('saran-sebelumnya-list');
+    const saranBaruList         = document.getElementById('saran-baru-list');
+    let saranIdx = 0;
 
-selectLansia?.addEventListener('change', async function () {
-    const id = this.value;
-    saranSebelumnyaWrapper.style.display = 'none';
-    saranSebelumnyaList.innerHTML = '';
-    saranBaruList.innerHTML = '';
-    saranIdx = 0;
-    saranSection.style.display = id ? 'block' : 'none';
-    if (!id) return;
-
-    saranSebelumnyaList.innerHTML = '<span style="font-size:13px;color:#9ca3af;font-style:italic"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</span>';
-    saranSebelumnyaWrapper.style.display = 'block';
-
-    try {
-        const res  = await fetch(`/lansia/${id}/saran`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        const json = await res.json();
-        const data = json.data || [];
-
-        if (data.length === 0) {
-            saranSebelumnyaWrapper.style.display = 'none';
-        } else {
-            saranSebelumnyaList.innerHTML = data.map(s => `
-                <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
-                    <div class="form-group" style="margin-bottom:12px;">
-                        <input type="text" class="form-control saran-edit-jenis" value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
-                    </div>
-                    <div class="form-group" style="margin-bottom:12px;">
-                        <textarea class="form-control saran-edit-isi" placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
-                    </div>
-                    <div style="display:flex;gap:8px;justify-content:flex-end;">
-                        <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}" style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
-                            <i class="fa-solid fa-trash"></i> Hapus
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Attach event listeners for delete only
-            saranSebelumnyaList.querySelectorAll('.btn-delete-saran-lama').forEach(btn => {
-                btn.addEventListener('click', handleDeleteSaranLama);
-            });
-        }
-    } catch {
+    selectLansia?.addEventListener('change', async function () {
+        const id = this.value;
         saranSebelumnyaWrapper.style.display = 'none';
-    }
-});
+        saranSebelumnyaList.innerHTML = '';
+        saranBaruList.innerHTML = '';
+        saranIdx = 0;
+        saranSection.style.display = id ? 'block' : 'none';
+        if (!id) return;
 
-document.getElementById('btn-add-saran')?.addEventListener('click', () => {
-    const list = document.getElementById('saran-baru-list');
-    const row  = document.createElement('div');
-    row.className = 'resep-row';
-    row.innerHTML = saranRowHTML(saranIdx);
-    list.appendChild(row);
-    row.querySelector('.btn-remove-saran').addEventListener('click', () => row.remove());
-    saranIdx++;
-});
+        saranSebelumnyaList.innerHTML = '<span style="font-size:13px;color:#9ca3af;font-style:italic"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</span>';
+        saranSebelumnyaWrapper.style.display = 'block';
 
-function saranRowHTML(i) {
-    return `
-        <div class="resep-row saran-baru-row">
-            <div class="saran-row-inner">
-                <div class="saran-row-fields">
-                    <input type="text"
-                        name="saran[${i}][jenis_saran]"
-                        class="form-control saran-judul-input"
-                        placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)"
-                        required>
-                    <textarea
-                        name="saran[${i}][isi_saran]"
-                        class="form-control saran-isi-input"
-                        placeholder="Tulis isi saran untuk lansia..."
-                        rows="3"
-                        required></textarea>
-                </div>
-                <button type="button" class="btn-remove-saran btn-remove-resep" title="Hapus saran">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-        </div>`;
-}
+        try {
+            const res  = await fetch(`/lansia/${id}/saran`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await res.json();
+            const data = json.data || [];
 
-function escSaran(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-    // ── SRQ Counter ──────────────────────────────────────
-    const srqTotal = document.getElementById('srq-total');
-    document.querySelectorAll('[name^="srq_"]').forEach(cb => {
-        cb.addEventListener('change', () => {
-            const total = document.querySelectorAll('[name^="srq_"]:checked').length;
-            if (srqTotal) {
-                srqTotal.textContent = total;
-                srqTotal.style.color = total >= 6 ? '#dc2626' : 'inherit';
+            if (data.length === 0) {
+                saranSebelumnyaWrapper.style.display = 'none';
+            } else {
+                saranSebelumnyaList.innerHTML = data.map(s => `
+                    <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <input type="text" class="form-control saran-edit-jenis" value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <textarea class="form-control saran-edit-isi" placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
+                        </div>
+                        <div style="display:flex;gap:8px;justify-content:flex-end;">
+                            <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}" style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
+                                <i class="fa-solid fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Attach event listeners for delete only
+                saranSebelumnyaList.querySelectorAll('.btn-delete-saran-lama').forEach(btn => {
+                    btn.addEventListener('click', handleDeleteSaranLama);
+                });
             }
-        });
+        } catch {
+            saranSebelumnyaWrapper.style.display = 'none';
+        }
     });
 
-    // ── Toggle Resep ─────────────────────────────────────
-    const chkResep     = document.getElementById('chk-ada-resep');
-    const resepSection = document.getElementById('resep-section');
-    chkResep?.addEventListener('change', () => {
-        resepSection.classList.toggle('d-none', !chkResep.checked);
-        
-        // Toggle required attribute pada field resep
-        document.querySelectorAll('[name^="resep["]').forEach(input => {
-            input.required = chkResep.checked;
-        });
+    document.getElementById('btn-add-saran')?.addEventListener('click', () => {
+        const list = document.getElementById('saran-baru-list');
+        const row  = document.createElement('div');
+        row.className = 'resep-row';
+        row.innerHTML = saranRowHTML(saranIdx);
+        list.appendChild(row);
+        row.querySelector('.btn-remove-saran').addEventListener('click', () => row.remove());
+        saranIdx++;
     });
+
+    function saranRowHTML(i) {
+        return `
+            <div class="resep-row saran-baru-row">
+                <div class="saran-row-inner">
+                    <div class="saran-row-fields">
+                        <input type="text"
+                            name="saran[${i}][jenis_saran]"
+                            class="form-control saran-judul-input"
+                            placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)"
+                            required>
+                        <textarea
+                            name="saran[${i}][isi_saran]"
+                            class="form-control saran-isi-input"
+                            placeholder="Tulis isi saran untuk lansia..."
+                            rows="3"
+                            required></textarea>
+                    </div>
+                    <button type="button" class="btn-remove-saran btn-remove-resep" title="Hapus saran">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>`;
+    }
+
+    function escSaran(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+        // ── SRQ Counter ──────────────────────────────────────
+        const srqTotal = document.getElementById('srq-total');
+        document.querySelectorAll('[name^="srq_"]').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const total = document.querySelectorAll('[name^="srq_"]:checked').length;
+                if (srqTotal) {
+                    srqTotal.textContent = total;
+                    srqTotal.style.color = total >= 6 ? '#dc2626' : 'inherit';
+                }
+            });
+        });
+
+        // ── Toggle Resep ─────────────────────────────────────
+        const chkResep     = document.getElementById('chk-ada-resep');
+        const resepSection = document.getElementById('resep-section');
+        chkResep?.addEventListener('change', () => {
+            resepSection.classList.toggle('d-none', !chkResep.checked);
+            
+            // Toggle required attribute pada field resep
+            document.querySelectorAll('[name^="resep["]').forEach(input => {
+                input.required = chkResep.checked;
+            });
+        });
 
     // ── Tambah Baris Resep ───────────────────────────────
     let resepIdx = document.querySelectorAll('.resep-row').length;

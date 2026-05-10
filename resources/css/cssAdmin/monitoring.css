@@ -1,0 +1,436 @@
+/* resources/css/cssAdmin/monitoring.css */
+/* ══════════════════════════════════════════════════════════
+   EXTENSION — GRAFIK PERKEMBANGAN, KELUHAN & SARAN
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Section wrapper ── */
+.dp-section {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1.5px solid #e5e7eb;
+}
+.dp-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.dp-section-icon {
+    font-size: 18px;
+}
+.dp-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    flex: 1;
+}
+
+/* ── Buttons ── */
+.dp-btn-primary {
+    padding: 7px 14px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+}
+.dp-btn-primary:hover {
+    background: #1d4ed8;
+}
+.dp-btn-outline {
+    padding: 6px 12px;
+    background: transparent;
+    color: #374151;
+    border: 1.5px solid #d1d5db;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition:
+        border-color 0.15s,
+        background 0.15s;
+}
+.dp-btn-outline:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    background: #eff6ff;
+}
+.dp-btn-sm {
+    padding: 5px 10px;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.dp-btn-sm:hover {
+    background: #e5e7eb;
+}
+
+/* ── State helpers ── */
+.dp-loading-state,
+.dp-empty-state {
+    text-align: center;
+    padding: 24px 0;
+    color: #9ca3af;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.dp-loading-state i,
+.dp-empty-state i {
+    font-size: 22px;
+}
+
+/* ── Chart tabs ── */
+.chart-tab-group {
+    display: flex;
+    gap: 4px;
+    background: #f3f4f6;
+    padding: 3px;
+    border-radius: 8px;
+}
+.chart-tab {
+    padding: 5px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #6b7280;
+    transition:
+        background 0.15s,
+        color 0.15s;
+}
+.chart-tab.active {
+    background: #fff;
+    color: #1f2937;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Chart legend ── */
+.chart-legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #6b7280;
+}
+.chart-legend-row span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+/* ── Zone info ── */
+.chart-zone-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.zone-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.zone-normal {
+    background: #d1fae5;
+    color: #065f46;
+}
+.zone-waspada {
+    background: #fef9c3;
+    color: #854d0e;
+}
+.zone-bahaya {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ── Keluhan ── */
+.keluhan-card {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #f9fafb;
+}
+.keluhan-card.latest {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+.keluhan-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.keluhan-date {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+.keluhan-badge {
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.keluhan-text {
+    font-size: 14px;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+    line-height: 1.55;
+}
+.keluhan-vitals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+.keluhan-vital-chip {
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* ── Keluhan table ── */
+.keluhan-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #f3f4f6;
+    border-radius: 8px 8px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-bottom: none;
+}
+.keluhan-list-scroll {
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 0 0 8px 8px;
+}
+.keluhan-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f3f4f6;
+    align-items: start;
+}
+.keluhan-row:last-child {
+    border-bottom: none;
+}
+.keluhan-row:nth-child(even) {
+    background: #fafafa;
+}
+.keluhan-row-date {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    padding-top: 2px;
+}
+.keluhan-row-isi {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.5;
+}
+.keluhan-row-empty {
+    padding: 20px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+/* ── Saran items ── */
+.dp-saran-item {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #fafafa;
+    transition: border-color 0.15s;
+}
+.dp-saran-item.editing {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+.dp-saran-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.dp-saran-jenis {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+}
+.dp-saran-isi {
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.55;
+    margin: 0;
+}
+.dp-saran-actions {
+    display: flex;
+    gap: 6px;
+}
+.dp-saran-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
+}
+.dp-saran-btn.edit {
+    color: #2563eb;
+}
+.dp-saran-btn.edit:hover {
+    background: #eff6ff;
+    border-color: #2563eb;
+}
+.dp-saran-btn.save {
+    color: #059669;
+    border-color: #059669;
+    background: #d1fae5;
+}
+.dp-saran-btn.save:hover {
+    background: #a7f3d0;
+}
+.dp-saran-btn.del {
+    color: #dc2626;
+}
+.dp-saran-btn.del:hover {
+    background: #fee2e2;
+    border-color: #dc2626;
+}
+
+/* Edit mode inputs */
+.dp-saran-edit-jenis,
+.dp-saran-edit-isi {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1.5px solid #2563eb;
+    border-radius: 7px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    margin-bottom: 8px;
+    resize: vertical;
+}
+
+/* New saran row */
+.dp-new-saran-row {
+    border: 1.5px dashed #2563eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #f0f7ff;
+}
+.dp-new-saran-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.dp-new-saran-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+.dp-new-saran-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+.dp-input-new {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 7px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    background: #fff;
+}
+.dp-input-new:focus {
+    border-color: #2563eb;
+}
+.dp-btn-save-new {
+    padding: 7px 16px;
+    background: #059669;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.dp-btn-save-new:hover {
+    background: #047857;
+}
+.dp-btn-cancel-new {
+    padding: 7px 14px;
+    background: transparent;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.dp-btn-cancel-new:hover {
+    background: #f3f4f6;
+}
