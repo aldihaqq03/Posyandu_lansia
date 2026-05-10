@@ -12,6 +12,7 @@
         'resources/css/register.css',
         'resources/js/register.js'
     ])
+
 </head>
 
 <body>

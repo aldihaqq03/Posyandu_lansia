@@ -41,7 +41,12 @@ class DashboardApiController extends Controller
                 ->select(
                     'skrining_utama.td_sistolik as sistolik',
                     'skrining_utama.td_diastolik as diastolik',
-                    'skrining_utama.gula_darah'
+                    'skrining_utama.gula_darah',
+                    'skrining_utama.berat_badan',
+                    'skrining_utama.tinggi_badan',
+                    'skrining_utama.lingkar_perut',
+                    'skrining_utama.imt',
+                    'skrining_utama.kolesterol'
                 )
                 ->first();
         }

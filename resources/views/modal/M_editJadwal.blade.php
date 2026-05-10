@@ -73,7 +73,7 @@
 
                 {{-- Skrining Utama --}}
                 <div class="skrining-option" id="edit-opt-utama">
-                    <input type="checkbox" id="edit-chk-utama" name="ada_skrining_utama" value="1">
+                    <input type="checkbox" id="edit-chk-utama" name="jenis_skrining" value="2">
                     <div class="skrining-opt-info">
                         <div class="skrining-opt-title">Skrining Utama</div>
                         <div class="skrining-opt-desc">
@@ -85,7 +85,7 @@
 
                 {{-- Skrining PPOK --}}
                 <div class="skrining-option" id="edit-opt-ppok">
-                    <input type="checkbox" id="edit-chk-ppok" name="ada_skrining_ppok" value="1">
+                    <input type="checkbox" id="edit-chk-ppok" name="jenis_skrining" value="3">
                     <div class="skrining-opt-info">
                         <div class="skrining-opt-title">Skrining PPOK</div>
                         <div class="skrining-opt-desc">

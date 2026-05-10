@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\JadwalPosyanduController;
+use App\Http\Controllers\ObatController;
+use App\Http\Controllers\SkriningController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,38 +59,42 @@ Route::middleware('auth')->group(function () {
     | Admin / Kader Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:kader,kepala_kader')->group(function () {
+  Route::middleware('role:kader,kepala_kader')->group(function () {
 
-        Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/test-notification', [\App\Http\Controllers\DashboardController::class, 'testNotification'])->name('test.notification');
 
-        Route::get('/pemeriksaan', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->get();
-            return view('admin.pemeriksaan', compact('lansias'));
-        })->name('pemeriksaan');
+    // ========================
+    // LANSIA (FIXED)
+    // ========================
+    Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
 
-        Route::get('/skrining_utama', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
-            return view('modal.M_skriningUtama', compact('lansias'));
-        })->name('skrining_utama');
-
-        Route::get('/pemeriksaan/create', function () {
-            $lansias = \Illuminate\Support\Facades\DB::table('lansia')->select('id_lansia', 'nama_lansia', 'nik')->get();
-            return view('modal.M_skriningPPOK', compact('lansias'));
-        })->name('pemeriksaan.create');
-
-        Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
-
-        Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
-
-        // Skrining & Pemeriksaan
-        Route::post('/pemeriksaan', [\App\Http\Controllers\SkriningController::class, 'storePemeriksaan'])->name('pemeriksaan.store');
-        Route::post('/skrining_utama', [\App\Http\Controllers\SkriningController::class, 'storeSkriningUtama'])->name('skrining_utama.store');
-        Route::post('/pemeriksaan/ppok', [\App\Http\Controllers\SkriningController::class, 'storeSkriningPPOK'])->name('skrining_ppok.store');
-
-        Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
-        Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
-        Route::post('/pengaturan/password', [\App\Http\Controllers\PengaturanController::class, 'updatePassword'])->name('pengaturan.password');
+    Route::prefix('lansia')->name('lansia.')->group(function () {
+        Route::get('/{lansia}/histori-skrining', [LansiaController::class, 'historiSkrining'])->name('histori');
+        Route::get('/{lansia}/health-summary', [LansiaController::class, 'healthSummary'])->name('health-summary');
+        Route::get('/{lansia}/keluarga', [LansiaController::class, 'getKeluarga'])->name('keluarga');
+        Route::get('/{lansia}/skrining-utama/{id_skrining}', [LansiaController::class, 'detailSkriningUtama'])->name('detail-utama');
+        Route::get('/{lansia}/skrining-ppok/{id_skrining}', [LansiaController::class, 'detailSkriningPPOK'])->name('detail-ppok');
     });
+
+    Route::resource('lansia', LansiaController::class)
+        ->parameters(['lansia' => 'lansia'])
+        ->except(['show']); // ❗ penting
+
+    // ========================
+    // LAINNYA
+    // ========================
+    Route::resource('obat', ObatController::class);
+    Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
+
+    Route::get('/skrining', [SkriningController::class, 'index'])->name('skrining.index');
+    Route::post('/skrining', [SkriningController::class, 'store'])->name('skrining.store');
+
+    Route::get('/pengaturan', [\App\Http\Controllers\PengaturanController::class, 'index'])->name('pengaturan');
+    Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
+    Route::post('/pengaturan/password', [\App\Http\Controllers\PengaturanController::class, 'updatePassword'])->name('pengaturan.password');
+
+});
 
 
 
@@ -120,13 +126,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     | Resource Lansia
     |--------------------------------------------------------------------------
-    */
-    Route::middleware('role:kader,kepala_kader')->group(function () {
-        Route::resource('lansia', LansiaController::class)->parameters([
-            'lansia' => 'lansia'
-        ]);
-    });
-
+    
     /*
     |--------------------------------------------------------------------------
     | Testing
