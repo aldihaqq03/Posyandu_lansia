@@ -313,6 +313,15 @@ class SkriningController extends Controller
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("FCM Skrining Error: " . $e->getMessage());
             }
+
+            // Clear dashboard caches
+            \Illuminate\Support\Facades\Cache::forget('dash_total_lansia');
+            \Illuminate\Support\Facades\Cache::forget('dash_resiko_tinggi');
+            \Illuminate\Support\Facades\Cache::forget('dash_pemeriksaan_selesai');
+            \Illuminate\Support\Facades\Cache::forget('dash_penyakit_counts');
+            \Illuminate\Support\Facades\Cache::forget('dash_riwayat_terakhir');
+            \Illuminate\Support\Facades\Cache::forget('dash_lansia_checked');
+
         });
 
         return redirect()->route('skrining.index')->with('success', 'Skrining berhasil disimpan.');

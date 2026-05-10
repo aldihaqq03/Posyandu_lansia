@@ -40,10 +40,15 @@ class TelegramPoll extends Command
 
         while (true) {
             try {
-                $response = Http::timeout(30)->get($url, [
-                    'offset' => $offset,
-                    'timeout' => 20 // Long polling
-                ]);
+                $response = Http::timeout(35)
+                    ->connectTimeout(15)
+                    ->withOptions([
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    ])
+                    ->get($url, [
+                        'offset' => $offset,
+                        'timeout' => 20 // Long polling
+                    ]);
 
                 if ($response->successful()) {
                     $updates = $response->json('result');

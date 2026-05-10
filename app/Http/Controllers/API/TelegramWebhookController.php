@@ -70,10 +70,14 @@ class TelegramWebhookController extends Controller
 
         $url = "https://api.telegram.org/bot{$token}/sendMessage";
 
-        Http::post($url, [
-            'chat_id' => $chatId,
-            'text' => $text,
-            'parse_mode' => 'Markdown'
-        ]);
+        Http::timeout(10)
+            ->withOptions([
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+            ])
+            ->post($url, [
+                'chat_id' => $chatId,
+                'text' => $text,
+                'parse_mode' => 'Markdown'
+            ]);
     }
 }
