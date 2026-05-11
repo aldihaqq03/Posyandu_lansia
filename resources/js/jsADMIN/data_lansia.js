@@ -112,9 +112,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function fetchHealthSummary(id) {
-        ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol"].forEach((k) =>
+        ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol", "d-imt"].forEach((k) =>
             setText(k, "…"),
         );
+        // Reset card status colors
+        ["hcard-sistolik", "hcard-diastolik", "hcard-gula", "hcard-kolesterol", "hcard-imt"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.className = "h-card";
+        });
         try {
             const res = await fetch(`/lansia/${id}/health-summary`, {
                 headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -125,11 +130,28 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-diastolik", data.diastolik ?? "-");
             setText("d-gula", data.gula_darah ?? "-");
             setText("d-kolesterol", data.kolesterol ?? "-");
+            setText("d-imt", data.imt ?? "-");
+
+            // Apply status colors to health cards based on elderly parameters
+            applyCardStatus("hcard-sistolik", data.sistolik, v => v < 130 ? 'normal' : v <= 139 ? 'waspada' : 'tinggi');
+            applyCardStatus("hcard-diastolik", data.diastolik, v => v < 85 ? 'normal' : v <= 89 ? 'waspada' : 'tinggi');
+            applyCardStatus("hcard-gula", data.gula_darah, v => (v >= 70 && v <= 100) ? 'normal' : v <= 125 ? 'waspada' : 'tinggi');
+            applyCardStatus("hcard-kolesterol", data.kolesterol, v => v < 200 ? 'normal' : v <= 239 ? 'waspada' : 'tinggi');
+            applyCardStatus("hcard-imt", data.imt, v => (v >= 22 && v <= 27) ? 'normal' : ((v >= 18.5 && v < 22) || (v > 27 && v < 30)) ? 'waspada' : 'tinggi');
         } catch {
-            ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol"].forEach(
+            ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol", "d-imt"].forEach(
                 (k) => setText(k, "-"),
             );
         }
+    }
+
+    function applyCardStatus(cardId, value, classifier) {
+        const el = document.getElementById(cardId);
+        if (!el || value === null || value === undefined || value === "-") return;
+        const v = parseFloat(value);
+        if (isNaN(v) || v <= 0) return;
+        const status = classifier(v);
+        el.classList.add(`status-${status}`);
     }
 
     async function fetchKeluargaData(id) {

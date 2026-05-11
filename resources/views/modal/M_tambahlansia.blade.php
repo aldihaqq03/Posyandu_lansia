@@ -81,17 +81,17 @@
 
                 <!-- INFORMASI KELUARGA SECTION -->
                 <hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">
-                <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">Informasi Keluarga (Opsional)</h3>
+                <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">Informasi Keluarga <span style="color: #e74c3c;">*</span></h3>
 
                 <div id="keluarga-container">
-                    <div class="keluarga-item" style="padding: 15px; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0;">
+                    <div class="keluarga-item" data-first="true" style="padding: 15px; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h4 style="margin: 0; color: #555;">Anggota Keluarga #1</h4>
-                            <button type="button" class="btn-remove-keluarga" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 18px; padding: 0;">✕</button>
+                            <h4 style="margin: 0; color: #555;">Anggota Keluarga #1 <span style="font-size:11px; color:#e74c3c;">(Wajib)</span></h4>
+                            {{-- Tombol hapus disembunyikan untuk keluarga pertama --}}
                         </div>
                         <div class="form-group">
-                            <label>Nama Keluarga</label>
-                            <input type="text" class="nama_keluarga_input" name="keluarga[0][nama_keluarga]" placeholder="Masukkan nama anggota keluarga">
+                            <label>Nama Keluarga <span style="color:#e74c3c">*</span></label>
+                            <input type="text" class="nama_keluarga_input" name="keluarga[0][nama_keluarga]" placeholder="Masukkan nama anggota keluarga" required>
                         </div>
                         <div class="form-group" style="display: flex; gap: 10px;">
                             <div style="flex: 1;">

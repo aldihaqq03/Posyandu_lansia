@@ -19,45 +19,155 @@ class LansiaController extends Controller
     // ============================================================
     public function index()
     {
-        $lansias = Lansia::with('latestSkriningUtama')
+        $lansias = Lansia::with(['latestSkriningUtama'])
             ->latest()
             ->paginate(10);
 
+        // ── Hitung status kesehatan per lansia berdasarkan parameter medis ──
+        // Ambil data kunjungan terakhir untuk setiap lansia (sistolik, diastolik, imt)
+        $lansias->getCollection()->transform(function ($lansia) {
+            // Ambil data kunjungan terakhir
+            $kunjungan = $lansia->skrinings()
+                ->whereHas('kunjungan')
+                ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,imt')
+                ->orderByDesc('tanggal_skrining')
+                ->first()?->kunjungan;
+
+            $utama = $lansia->latestSkriningUtama;
+
+            // Kumpulkan semua parameter yang TERSEDIA (bukan null)
+            $statuses = []; // array of 'normal', 'waspada', 'tinggi'
+
+            // IMT: Normal 22-27, Waspada 18.5-21.9/27.1-29.9, Tinggi <18.5/>=30
+            $imt = $kunjungan?->imt;
+            if ($imt !== null && $imt > 0) {
+                if ($imt >= 22 && $imt <= 27) {
+                    $statuses[] = 'normal';
+                } elseif (($imt >= 18.5 && $imt < 22) || ($imt > 27 && $imt < 30)) {
+                    $statuses[] = 'waspada';
+                } else {
+                    $statuses[] = 'tinggi';
+                }
+            }
+
+            // Sistolik: Normal <130, Waspada 130-139, Tinggi >=140
+            $sistolik = $kunjungan?->td_sistolik;
+            if ($sistolik !== null && $sistolik > 0) {
+                if ($sistolik < 130) {
+                    $statuses[] = 'normal';
+                } elseif ($sistolik >= 130 && $sistolik <= 139) {
+                    $statuses[] = 'waspada';
+                } else {
+                    $statuses[] = 'tinggi';
+                }
+            }
+
+            // Diastolik: Normal <85, Waspada 85-89, Tinggi >=90
+            $diastolik = $kunjungan?->td_diastolik;
+            if ($diastolik !== null && $diastolik > 0) {
+                if ($diastolik < 85) {
+                    $statuses[] = 'normal';
+                } elseif ($diastolik >= 85 && $diastolik <= 89) {
+                    $statuses[] = 'waspada';
+                } else {
+                    $statuses[] = 'tinggi';
+                }
+            }
+
+            // Kolesterol: Normal <200, Waspada 200-239, Tinggi >=240
+            $kolesterol = $utama?->kolesterol;
+            if ($kolesterol !== null && $kolesterol > 0) {
+                if ($kolesterol < 200) {
+                    $statuses[] = 'normal';
+                } elseif ($kolesterol >= 200 && $kolesterol <= 239) {
+                    $statuses[] = 'waspada';
+                } else {
+                    $statuses[] = 'tinggi';
+                }
+            }
+
+            // Gula Darah: Normal 70-100, Waspada 101-125, Tinggi >=126
+            $gulaDarah = $utama?->gula_darah;
+            if ($gulaDarah !== null && $gulaDarah > 0) {
+                if ($gulaDarah >= 70 && $gulaDarah <= 100) {
+                    $statuses[] = 'normal';
+                } elseif ($gulaDarah >= 101 && $gulaDarah <= 125) {
+                    $statuses[] = 'waspada';
+                } else {
+                    $statuses[] = 'tinggi';
+                }
+            }
+
+            // Tentukan status akhir berdasarkan prioritas
+            // Jika TIDAK ADA data sama sekali → normal (belum ada data)
+            if (empty($statuses)) {
+                $lansia->risk_level = 'normal';
+            } elseif (in_array('tinggi', $statuses)) {
+                $lansia->risk_level = 'tinggi';
+            } elseif (in_array('waspada', $statuses)) {
+                $lansia->risk_level = 'waspada';
+            } else {
+                $lansia->risk_level = 'normal';
+            }
+
+            return $lansia;
+        });
+
+        // ── Stat card counts ──
         $total_lansia = Lansia::count();
 
-        $penyakit_beresiko = ['Hipertensi', 'Diabetes', 'Jantung', 'Stroke', 'PPOK'];
+        // Hitung kondisi per level dari semua lansia
+        $allLansias = Lansia::with('latestSkriningUtama')->get();
+        $kondisi_normal = 0;
+        $waspada = 0;
+        $perlu_perhatian = 0;
 
-        $resiko_tinggi = Lansia::where(function ($q) use ($penyakit_beresiko) {
-                foreach ($penyakit_beresiko as $p) {
-                    $q->orWhere('riwayat_penyakit', 'LIKE', "%$p%");
-                }
-            })
-            ->orWhereHas('latestSkriningUtama', fn($q) =>
-                $q->where('gula_darah_kategori', 3)->orWhere('kolesterol_kategori', 3)
-            )
-            ->count();
+        foreach ($allLansias as $l) {
+            $kunj = $l->skrinings()
+                ->whereHas('kunjungan')
+                ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,imt')
+                ->orderByDesc('tanggal_skrining')
+                ->first()?->kunjungan;
 
-        $status_sehat = Lansia::whereDoesntHave('latestSkriningUtama', fn($q) =>
-                $q->where('gula_darah_kategori', '>', 1)->orWhere('kolesterol_kategori', '>', 1)
-            )
-            ->whereHas('latestSkriningUtama')
-            ->where(function ($q) use ($penyakit_beresiko) {
-                foreach ($penyakit_beresiko as $p) {
-                    $q->where('riwayat_penyakit', 'NOT LIKE', "%$p%");
-                }
-            })
-            ->count();
+            $ut = $l->latestSkriningUtama;
+            $sts = [];
 
-        $jadwal_periksa = DB::table('jadwal_posyandu')
-            ->whereIn('status', [1, 2])
-            ->count();
+            $v = $kunj?->imt;
+            if ($v !== null && $v > 0) {
+                $sts[] = ($v >= 22 && $v <= 27) ? 'normal' : (($v >= 18.5 && $v < 22) || ($v > 27 && $v < 30) ? 'waspada' : 'tinggi');
+            }
+            $v = $kunj?->td_sistolik;
+            if ($v !== null && $v > 0) {
+                $sts[] = $v < 130 ? 'normal' : ($v <= 139 ? 'waspada' : 'tinggi');
+            }
+            $v = $kunj?->td_diastolik;
+            if ($v !== null && $v > 0) {
+                $sts[] = $v < 85 ? 'normal' : ($v <= 89 ? 'waspada' : 'tinggi');
+            }
+            $v = $ut?->kolesterol;
+            if ($v !== null && $v > 0) {
+                $sts[] = $v < 200 ? 'normal' : ($v <= 239 ? 'waspada' : 'tinggi');
+            }
+            $v = $ut?->gula_darah;
+            if ($v !== null && $v > 0) {
+                $sts[] = ($v >= 70 && $v <= 100) ? 'normal' : ($v <= 125 ? 'waspada' : 'tinggi');
+            }
+
+            if (empty($sts) || (!in_array('tinggi', $sts) && !in_array('waspada', $sts))) {
+                $kondisi_normal++;
+            } elseif (in_array('tinggi', $sts)) {
+                $perlu_perhatian++;
+            } else {
+                $waspada++;
+            }
+        }
 
         return view('admin.data_lansia', compact(
             'lansias',
             'total_lansia',
-            'resiko_tinggi',
-            'status_sehat',
-            'jadwal_periksa',
+            'kondisi_normal',
+            'waspada',
+            'perlu_perhatian',
         ));
     }
 
@@ -167,7 +277,42 @@ class LansiaController extends Controller
             'diastolik'  => $kunjungan?->td_diastolik ?? null,
             'gula_darah' => $utama?->gula_darah       ?? null,
             'kolesterol' => $utama?->kolesterol        ?? null,
+            'imt'        => $kunjungan?->imt           ?? null,
         ]);
+    }
+
+    // ============================================================
+    // HEALTH HISTORY — AJAX untuk grafik monitoring kesehatan
+    // ============================================================
+    public function healthHistory(Lansia $lansia)
+    {
+        // Ambil semua skrining yang punya kunjungan
+        $skrinings = $lansia->skrinings()
+            ->whereHas('kunjungan')
+            ->with([
+                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut',
+                'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
+            ])
+            ->orderBy('tanggal_skrining')
+            ->get(['id_skrining', 'tanggal_skrining', 'keluhan']);
+
+        $data = $skrinings->map(function ($s) {
+            $k = $s->kunjungan;
+            $u = $s->utama;
+            return [
+                'tanggal'       => $s->tanggal_skrining,
+                'td_sistolik'   => $k?->td_sistolik,
+                'td_diastolik'  => $k?->td_diastolik,
+                'berat_badan'   => $k?->berat_badan,
+                'tinggi_badan'  => $k?->tinggi_badan,
+                'imt'           => $k?->imt,
+                'lingkar_perut' => $k?->lingkar_perut,
+                'gula_darah'    => $u?->gula_darah,
+                'kolesterol'    => $u?->kolesterol,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     // ============================================================
@@ -239,50 +384,7 @@ class LansiaController extends Controller
 
 
 
-            // ================================================================
-            // UPDATE method healthHistory() di LansiaController
-            // Tambahkan lingkar_perut ke dalam select dan map
-            // ================================================================
 
-            public function healthHistory(Lansia $lansia)
-            {
-                $skrinings = $lansia->skrinings()
-                    ->with([
-                        // Tambah lingkar_perut di sini
-                        'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut',
-                        'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
-                    ])
-                    ->orderBy('tanggal_skrining')
-                    ->get(['id_skrining', 'tanggal_skrining']);
-
-                $data = $skrinings
-                    ->filter(function ($s) {
-                        return $s->kunjungan?->td_sistolik
-                            || $s->kunjungan?->td_diastolik
-                            || $s->kunjungan?->berat_badan
-                            || $s->kunjungan?->lingkar_perut
-                            || $s->utama?->gula_darah
-                            || $s->utama?->kolesterol;
-                    })
-                    ->map(function ($s) {
-                        return [
-                            'tanggal'       => $s->tanggal_skrining,   // format Y-m-d dari DB
-                            'td_sistolik'   => $s->kunjungan?->td_sistolik   ?? null,
-                            'td_diastolik'  => $s->kunjungan?->td_diastolik  ?? null,
-                            'berat_badan'   => $s->kunjungan?->berat_badan   ?? null,
-                            'lingkar_perut' => $s->kunjungan?->lingkar_perut ?? null,
-                            'gula_darah'    => $s->utama?->gula_darah        ?? null,
-                            'kolesterol'    => $s->utama?->kolesterol         ?? null,
-                        ];
-                    })
-                    ->values();
-
-                return response()->json(['data' => $data]);
-}
-
-// ================================================================
-// TIDAK ADA PERUBAHAN lain — method lain tetap sama
-// ================================================================
     public function keluhanHistory(Lansia $lansia)
     {
         $skrinings = $lansia->skrinings()

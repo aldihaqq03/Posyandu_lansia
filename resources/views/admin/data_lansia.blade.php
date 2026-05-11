@@ -44,31 +44,31 @@
         {{-- ── STATISTIK ───────────────────────────────────────────── --}}
         <section class="stats-grid" aria-label="Statistik Lansia">
             <div class="stat-card">
-                <h2 class="stat-label">TOTAL TERDAFTAR</h2>
+                <h2 class="stat-label">TOTAL LANSIA</h2>
                 <div class="stat-content">
                     <span class="stat-number">{{ $total_lansia ?? 0 }}</span>
-                    <img src="img/icon-4.svg" alt="" class="stat-icon">
-                </div>
-            </div>
-            <div class="stat-card border-danger">
-                <h2 class="stat-label text-danger">RESIKO TINGGI</h2>
-                <div class="stat-content">
-                    <span class="stat-number color-danger">{{ $resiko_tinggi ?? 0 }}</span>
-                    <img src="img/image.svg" alt="" class="stat-icon">
+                    <i class="fa-solid fa-users stat-icon-fa"></i>
                 </div>
             </div>
             <div class="stat-card border-success">
-                <h2 class="stat-label text-success">STATUS SEHAT</h2>
+                <h2 class="stat-label text-success">KONDISI NORMAL</h2>
                 <div class="stat-content">
-                    <span class="stat-number color-success">{{ $status_sehat ?? 0 }}</span>
-                    <img src="img/icon-3.svg" alt="" class="stat-icon">
+                    <span class="stat-number color-success">{{ $kondisi_normal ?? 0 }}</span>
+                    <i class="fa-solid fa-heart-pulse stat-icon-fa color-success"></i>
                 </div>
             </div>
-            <div class="stat-card">
-                <h2 class="stat-label">JADWAL PERIKSA</h2>
+            <div class="stat-card border-warning">
+                <h2 class="stat-label text-warning">WASPADA</h2>
                 <div class="stat-content">
-                    <span class="stat-number">{{ $jadwal_periksa ?? 0 }}</span>
-                    <img src="img/icon-11.svg" alt="" class="stat-icon">
+                    <span class="stat-number color-warning">{{ $waspada ?? 0 }}</span>
+                    <i class="fa-solid fa-exclamation-circle stat-icon-fa color-warning"></i>
+                </div>
+            </div>
+            <div class="stat-card border-danger">
+                <h2 class="stat-label text-danger">PERLU PERHATIAN</h2>
+                <div class="stat-content">
+                    <span class="stat-number color-danger">{{ $perlu_perhatian ?? 0 }}</span>
+                    <i class="fa-solid fa-triangle-exclamation stat-icon-fa color-danger"></i>
                 </div>
             </div>
         </section>
@@ -94,6 +94,7 @@
                         <th>NAMA LANSIA</th>
                         <th>UMUR</th>
                         <th>ALAMAT</th>
+                        <th>RISIKO</th>
                         <th>NO. HANDPHONE</th>
                         <th>AKSI</th>
                     </tr>
@@ -117,6 +118,7 @@
                         data-email="{{ $lansia->email }}"
                         data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
                         data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
+                        data-risk-level="{{ $lansia->risk_level ?? 'normal' }}"
                     >
                         {{-- Nama --}}
                         <td>
@@ -138,6 +140,20 @@
                         {{-- Alamat --}}
                         <td><address>{{ $lansia->alamat ?? '-' }}</address></td>
 
+                        {{-- Risiko --}}
+                        <td>
+                            @php
+                                $riskLevel = $lansia->risk_level ?? 'normal';
+                                $riskConfig = [
+                                    'normal'  => ['label' => 'Normal', 'class' => 'risk-normal'],
+                                    'waspada' => ['label' => 'Waspada', 'class' => 'risk-waspada'],
+                                    'tinggi'  => ['label' => 'Perlu Tindak Lanjut', 'class' => 'risk-tinggi'],
+                                ];
+                                $risk = $riskConfig[$riskLevel] ?? $riskConfig['normal'];
+                            @endphp
+                            <span class="risk-badge {{ $risk['class'] }}">{{ $risk['label'] }}</span>
+                        </td>
+
                         {{-- No. HP --}}
                         <td>{{ $lansia->no_hp ?? '-' }}</td>
 
@@ -153,7 +169,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="empty-state">Belum ada data lansia.</td>
+                        <td colspan="6" class="empty-state">Belum ada data lansia.</td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -174,14 +190,17 @@
                         <p>Informasi terkini untuk <strong id="dynamic-name">-</strong></p>
                     </div>
                 </div>
-               <a href="#" id="btn-monitoring-kesehatan"
-                  class="btn btn-primary">
-                  Monitoring Kesehatan
-                </a>
-                {{-- Tombol "Histori Skrining" sesuai spesifikasi --}}
-                <a href="#" id="btn-histori-skrining" class="btn-outline-blue">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Histori Skrining
-                </a>
+                <div class="detail-header-actions">
+                    {{-- Tombol "Histori Skrining" --}}
+                    <a href="#" id="btn-histori-skrining" class="btn-outline-blue">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Histori Skrining
+                    </a>
+                    {{-- Tombol "Monitoring Kesehatan" di kanan --}}
+                    <a href="#" id="btn-monitoring-kesehatan"
+                       class="btn btn-primary">
+                       <i class="fa-solid fa-chart-line"></i> Monitoring Kesehatan
+                    </a>
+                </div>
             </div>
 
             <div class="detail-content-grid">
@@ -222,25 +241,30 @@
                     <div class="info-column">
                         <h4>📈 KESEHATAN TERAKHIR</h4>
                         <div class="health-cards">
-                            <div class="h-card red">
-                                <span>TENSI SISTOLIK</span>
-                                <strong id="d-sistolik">-</strong>
-                                <small>mmHg</small>
+                            <div class="h-card" id="hcard-sistolik">
+                                <span class="h-card-label">TENSI SISTOLIK</span>
+                                <strong class="h-card-value" id="d-sistolik">-</strong>
+                                <small class="h-card-unit">mmHg</small>
                             </div>
-                            <div class="h-card orange">
-                                <span>TENSI DIASTOLIK</span>
-                                <strong id="d-diastolik">-</strong>
-                                <small>mmHg</small>
+                            <div class="h-card" id="hcard-diastolik">
+                                <span class="h-card-label">TENSI DIASTOLIK</span>
+                                <strong class="h-card-value" id="d-diastolik">-</strong>
+                                <small class="h-card-unit">mmHg</small>
                             </div>
-                            <div class="h-card blue">
-                                <span>GULA DARAH</span>
-                                <strong id="d-gula">-</strong>
-                                <small>mg/dL</small>
+                            <div class="h-card" id="hcard-gula">
+                                <span class="h-card-label">GULA DARAH</span>
+                                <strong class="h-card-value" id="d-gula">-</strong>
+                                <small class="h-card-unit">mg/dL</small>
                             </div>
-                            <div class="h-card purple">
-                                <span>KOLESTEROL</span>
-                                <strong id="d-kolesterol">-</strong>
-                                <small>mg/dL</small>
+                            <div class="h-card" id="hcard-kolesterol">
+                                <span class="h-card-label">KOLESTEROL</span>
+                                <strong class="h-card-value" id="d-kolesterol">-</strong>
+                                <small class="h-card-unit">mg/dL</small>
+                            </div>
+                            <div class="h-card" id="hcard-imt">
+                                <span class="h-card-label">IMT</span>
+                                <strong class="h-card-value" id="d-imt">-</strong>
+                                <small class="h-card-unit">kg/m²</small>
                             </div>
                         </div>
                       

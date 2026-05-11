@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function loadCharts(id) {
         // Set semua ke loading awal
-        ["tensi", "gula", "kolesterol", "bb", "lp"].forEach((k) =>
+        ["tensi", "gula", "kolesterol", "bb", "lp", "imt"].forEach((k) =>
             setChartState(k, "loading"),
         );
 
@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
         buildKolesterolChart(healthHistoryData);
         buildBBChart(healthHistoryData);
         buildLPChart(healthHistoryData, lpLimit);
+        buildIMTChart(healthHistoryData);
     }
 
     /* ────────────────────────────────────────────────────────
@@ -182,11 +183,10 @@ document.addEventListener("DOMContentLoaded", function () {
             .map(
                 (i) =>
                     `<span>
-                <span style="width:18px;height:2.5px;border-radius:2px;background:${
-                    i.dash
+                <span style="width:18px;height:2.5px;border-radius:2px;background:${i.dash
                         ? `repeating-linear-gradient(90deg,${i.color} 0,${i.color} 5px,transparent 5px,transparent 9px)`
                         : i.color
-                };display:inline-block;vertical-align:middle;margin-right:4px;"></span>
+                    };display:inline-block;vertical-align:middle;margin-right:4px;"></span>
                 ${i.label}
             </span>`,
             )
@@ -255,13 +255,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? v > 130
                         ? "🔴 Berbahaya"
                         : v > 120
-                          ? "⚠️ Tinggi"
-                          : "✅ Normal"
+                            ? "⚠️ Tinggi"
+                            : "✅ Normal"
                     : v > 90
-                      ? "🔴 Berbahaya"
-                      : v > 80
-                        ? "⚠️ Tinggi"
-                        : "✅ Normal";
+                        ? "🔴 Berbahaya"
+                        : v > 80
+                            ? "⚠️ Tinggi"
+                            : "✅ Normal";
                 return `  ${lbl}: ${v} mmHg  ${st}`;
             }),
         );
@@ -299,8 +299,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 126
                         ? "🔴 Diabetes"
                         : v >= 100
-                          ? "⚠️ Pra-DM"
-                          : "✅ Normal";
+                            ? "⚠️ Pra-DM"
+                            : "✅ Normal";
                 return `  Gula Darah: ${v} mg/dL  ${st}`;
             }),
         );
@@ -338,8 +338,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 240
                         ? "🔴 Tinggi"
                         : v >= 200
-                          ? "⚠️ Batas"
-                          : "✅ Normal";
+                            ? "⚠️ Batas"
+                            : "✅ Normal";
                 return `  Kolesterol: ${v} mg/dL  ${st}`;
             }),
         );
@@ -374,8 +374,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     Math.abs(diff) < 2
                         ? "Stabil"
                         : diff > 0
-                          ? `↑ ${diff} kg dari rata-rata`
-                          : `↓ ${Math.abs(diff)} kg dari rata-rata`;
+                            ? `↑ ${diff} kg dari rata-rata`
+                            : `↓ ${Math.abs(diff)} kg dari rata-rata`;
                 return `  Berat Badan: ${v} kg  (${note})`;
             }),
         );
@@ -413,6 +413,48 @@ document.addEventListener("DOMContentLoaded", function () {
                     return null;
                 const st = v > limit ? "🔴 Berisiko" : "✅ Normal";
                 return `  Lingkar Perut: ${v} cm  ${st}`;
+            }),
+        );
+    }
+
+    /* ════════════════════════════════════════════
+       6. IMT
+    ════════════════════════════════════════════ */
+    function buildIMTChart(rows) {
+        const data = pts(rows, "imt");
+        if (!data.length) {
+            setChartState("imt", "empty");
+            return;
+        }
+        setChartState("imt", "chart");
+
+        renderLegend("legend-imt", [
+            { color: "#e11d48", label: "IMT (kg/m²)", dash: false },
+            { color: "#10b981", label: "Batas normal bawah (22)", dash: true },
+            { color: "#10b981", label: "Batas normal atas (27)", dash: true },
+            { color: "#f59e0b", label: "Batas waspada (18.5 / 30)", dash: true },
+        ]);
+
+        renderChart(
+            "chart-imt",
+            [
+                lineset(data, "#e11d48", "IMT"),
+                refLine(rows, "imt", 22, "#10b981"),
+                refLine(rows, "imt", 27, "#10b981"),
+                refLine(rows, "imt", 18.5, "#f59e0b"),
+                refLine(rows, "imt", 30, "#f59e0b"),
+            ].filter(Boolean),
+            makeOptions((ctx) => {
+                const v = ctx.raw?.y;
+                if (v == null || ctx.dataset.label?.startsWith("Ref"))
+                    return null;
+                const st =
+                    (v >= 22 && v <= 27)
+                        ? "✅ Normal"
+                        : ((v >= 18.5 && v < 22) || (v > 27 && v < 30))
+                            ? "⚠️ Waspada"
+                            : "🔴 Abnormal";
+                return `  IMT: ${v} kg/m²  ${st}`;
             }),
         );
     }
@@ -490,6 +532,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 tdBuilder = (r) =>
                     `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.lingkar_perut || "-"}</td></tr>`;
                 break;
+            case "imt":
+                title = "Detail IMT";
+                thHTML = `<th>Tanggal</th><th>IMT (kg/m²)</th><th>Status</th>`;
+                filteredData = healthHistoryData.filter((r) =>
+                    hasData(r, ["imt"]),
+                );
+                tdBuilder = (r) => {
+                    const v = r.imt;
+                    let st = "-";
+                    if (v != null) {
+                        st = (v >= 22 && v <= 27) ? '✅ Normal' : ((v >= 18.5 && v < 22) || (v > 27 && v < 30)) ? '⚠️ Waspada' : '❌ Abnormal';
+                    }
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${v || "-"}</td><td>${st}</td></tr>`;
+                };
+                break;
         }
 
         titleEl.textContent = title;
@@ -533,15 +590,6 @@ document.addEventListener("DOMContentLoaded", function () {
             el("kl-tanggal").textContent = fmtDate(latest.tanggal_skrining);
             el("kl-isi").textContent = latest.keluhan || "Tidak ada keluhan.";
 
-            const chips = [];
-            if (latest.td_sistolik)
-                chips.push(`Sistolik: ${latest.td_sistolik} mmHg`);
-            if (latest.td_diastolik)
-                chips.push(`Diastolik: ${latest.td_diastolik} mmHg`);
-            if (latest.berat_badan) chips.push(`BB: ${latest.berat_badan} kg`);
-            el("kl-vitals").innerHTML = chips
-                .map((c) => `<span class="keluhan-vital-chip">${c}</span>`)
-                .join("");
             show("keluhan-latest");
 
             el("keluhan-all-list").innerHTML = data
@@ -549,10 +597,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     (r) => `
                 <div class="keluhan-row">
                     <div class="keluhan-row-date">${fmtDate(r.tanggal_skrining)}</div>
-                    <div class="keluhan-row-isi">${
-                        r.keluhan ||
+                    <div class="keluhan-row-isi">${r.keluhan ||
                         '<em style="color:#9ca3af;">Tidak ada keluhan</em>'
-                    }</div>
+                        }</div>
                 </div>
             `,
                 )

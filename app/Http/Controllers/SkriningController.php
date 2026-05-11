@@ -31,10 +31,30 @@ class SkriningController extends Controller
                 ->toArray()
             : [];
 
-        $lansia = Lansia::orderBy('nama_lansia')->get(['id_lansia', 'nama_lansia']);
-        $obat   = Obat::where('stock', '>', 0)->orderBy('nama_obat')->get();
+        // ── Ambil semua lansia ──────────────────────────────────────
+        $semua = Lansia::orderBy('nama_lansia')->get(['id_lansia', 'nama_lansia']);
 
-        return view('admin.skrining.index', compact('jadwal', 'aktifSkrining', 'lansia', 'obat'));
+        // ── ID lansia yang sudah skrining di jadwal hari ini ────────
+        $sudahSkriningIds = [];
+        if ($jadwal) {
+            $sudahSkriningIds = Skrining::where('id_jadwal_posyandu', $jadwal->id_jadwal_posyandu)
+                ->pluck('id_lansia')
+                ->toArray();
+        }
+
+        // ── Pisahkan: belum vs sudah ────────────────────────────────
+        $lansia       = $semua->whereNotIn('id_lansia', $sudahSkriningIds)->values();
+        $sudahSkrining = $semua->whereIn('id_lansia', $sudahSkriningIds)->values();
+
+        $obat = Obat::where('stock', '>', 0)->orderBy('nama_obat')->get();
+
+        return view('admin.skrining.index', compact(
+            'jadwal',
+            'aktifSkrining',
+            'lansia',
+            'sudahSkrining',
+            'obat'
+        ));
     }
 
     // ─── Store ────────────────────────────────────────────────────
@@ -44,6 +64,15 @@ class SkriningController extends Controller
 
         if (! $jadwal) {
             return $this->errorBack('Tidak ada jadwal posyandu aktif hari ini.');
+        }
+
+        // ── Cek apakah lansia sudah skrining di jadwal ini ──────────
+        $sudah = Skrining::where('id_jadwal_posyandu', $jadwal->id_jadwal_posyandu)
+            ->where('id_lansia', $request->id_lansia)
+            ->exists();
+
+        if ($sudah) {
+            return $this->errorBack('Lansia ini sudah melakukan skrining pada jadwal hari ini.');
         }
 
         $aktifSkrining = $jadwal->detailSkrining
@@ -81,7 +110,7 @@ class SkriningController extends Controller
 
             $idPetugas = auth()->user()?->petugas?->id_petugas;
 
-            // ── Field fisik dasar (single source of truth dari form kunjungan) ──
+            // ── Field fisik dasar ──────────────────────────────────
             $bb  = $request->berat_badan;
             $tb  = $request->tinggi_badan;
             $lp  = $request->lingkar_perut;
@@ -111,7 +140,6 @@ class SkriningController extends Controller
                     'keluhan'       => $request->keluhan,
                 ]);
 
-                // Resep Obat (opsional, bagian dari kunjungan)
                 if ($request->filled('ada_resep') && ! empty($request->resep)) {
                     $resep = Resep::create([
                         'id_skrining' => $skrining->id_skrining,
@@ -134,23 +162,20 @@ class SkriningController extends Controller
             // 3. SKRINING UTAMA (jenis_skrining = 1)
             if (in_array(DetailSkrining::SKRINING_UTAMA, $aktifSkrining)) {
 
-                // Hitung srq_total
                 $srqTotal = 0;
                 $srqData  = [];
                 for ($i = 1; $i <= 20; $i++) {
-                    $val            = $request->has("srq_{$i}") ? 1 : 0;
+                    $val             = $request->has("srq_{$i}") ? 1 : 0;
                     $srqData["srq_{$i}"] = $val;
                     $srqTotal += $val;
                 }
 
-                // Kategorikan gula darah & kolesterol
                 $gulaDarah  = $request->gula_darah;
                 $kolesterol = $request->kolesterol;
 
                 $gulaDarahKategori  = $gulaDarah  ? ($gulaDarah < 145  ? 1 : ($gulaDarah < 200  ? 2 : 3)) : null;
                 $kolesterolKategori = $kolesterol ? ($kolesterol < 150  ? 1 : ($kolesterol < 190 ? 2 : 3)) : null;
 
-                // JSON encode array fields
                 $riwayatKeluarga = $request->riwayat_penyakit_keluarga
                     ? json_encode($request->riwayat_penyakit_keluarga)
                     : null;
@@ -166,14 +191,12 @@ class SkriningController extends Controller
 
                 SkriningUtama::create(array_merge([
                     'id_skrining'               => $skrining->id_skrining,
-                    // Fisik (dari kunjungan)
                     'berat_badan'               => $bb,
                     'tinggi_badan'              => $tb,
                     'imt'                       => $imt,
                     'lingkar_perut'             => $lp,
                     'td_sistolik'               => $tds,
                     'td_diastolik'              => $tdd,
-                    // Gaya hidup
                     'merokok'                   => $request->merokok,
                     'merokok_kategori'          => $request->merokok_kategori,
                     'paparan_asap_rokok'        => $request->paparan_asap_rokok,
@@ -184,18 +207,14 @@ class SkriningController extends Controller
                     'konsumsi_minyak'           => $request->konsumsi_minyak,
                     'konsumsi_sayur_buah'       => $request->konsumsi_sayur_buah,
                     'aktivitas_fisik'           => $request->aktivitas_fisik,
-                    // Riwayat penyakit
                     'riwayat_penyakit_keluarga' => $riwayatKeluarga,
                     'riwayat_penyakit_sendiri'  => $riwayatSendiri,
-                    // Lab
                     'gula_darah'                => $gulaDarah,
                     'gula_darah_kategori'       => $gulaDarahKategori,
                     'kolesterol'                => $kolesterol,
                     'kolesterol_kategori'       => $kolesterolKategori,
                     'iva_sadanis'               => $request->iva_sadanis,
-                    // SRQ-20
                     'srq_total'                 => $srqTotal,
-                    // Skrining indera
                     'skrining_penglihatan'      => $penglihatan,
                     'skrining_pendengaran'      => $pendengaran,
                 ], $srqData));
@@ -211,60 +230,47 @@ class SkriningController extends Controller
                     : null;
 
                 $skorMerokok = match (true) {
-                    $rph === 0                                            => 0,
-                    $packYears !== null && $packYears <= 30               => 1,
-                    default                                               => 2,
+                    $rph === 0                                      => 0,
+                    $packYears !== null && $packYears <= 30         => 1,
+                    default                                         => 2,
                 };
 
-                // Hitung total skor PUMA
                 $pumaSkor = 0;
-                $pumaSkor += (int) ($request->puma_jenis_kelamin   ?? 0);
-                $pumaSkor += (int) ($request->puma_kategori_usia   ?? 0);
+                $pumaSkor += (int) ($request->puma_jenis_kelamin    ?? 0);
+                $pumaSkor += (int) ($request->puma_kategori_usia    ?? 0);
                 $pumaSkor += (int) $skorMerokok;
-                $pumaSkor += (int) ($request->puma_napas_pendek    ?? 0);
-                $pumaSkor += (int) ($request->puma_sulit_dahak     ?? 0);
-                $pumaSkor += (int) ($request->puma_batuk_tanpa_flu ?? 0);
+                $pumaSkor += (int) ($request->puma_napas_pendek     ?? 0);
+                $pumaSkor += (int) ($request->puma_sulit_dahak      ?? 0);
+                $pumaSkor += (int) ($request->puma_batuk_tanpa_flu  ?? 0);
                 $pumaSkor += (int) ($request->puma_pernah_spirometri ?? 0);
 
-                // Rasio spirometri pre
-                $rasioVepKvpPre = ($request->vep1_pre && $request->kvp_pre)
-                    ? round(($request->vep1_pre / $request->kvp_pre) * 100, 2)
-                    : null;
-
-                // Rasio spirometri post
+                $rasioVepKvpPre  = ($request->vep1_pre  && $request->kvp_pre)
+                    ? round(($request->vep1_pre  / $request->kvp_pre)  * 100, 2) : null;
                 $rasioVepKvpPost = ($request->vep1_post && $request->kvp_post)
-                    ? round(($request->vep1_post / $request->kvp_post) * 100, 2)
-                    : null;
+                    ? round(($request->vep1_post / $request->kvp_post) * 100, 2) : null;
 
                 $riwayatKeluargaPPOK = $request->riwayat_penyakit_keluarga
-                    ? json_encode($request->riwayat_penyakit_keluarga)
-                    : null;
+                    ? json_encode($request->riwayat_penyakit_keluarga) : null;
                 $riwayatSendiriPPOK = $request->riwayat_penyakit_sendiri
-                    ? json_encode($request->riwayat_penyakit_sendiri)
-                    : null;
+                    ? json_encode($request->riwayat_penyakit_sendiri)  : null;
 
                 SkriningPPOK::create([
                     'id_skrining'              => $skrining->id_skrining,
-                    // Profil
                     'pekerjaan'                => $request->pekerjaan,
                     'status_vaksinasi_covid'   => $request->status_vaksinasi_covid,
-                    // Gaya hidup
                     'kurang_aktivitas_fisik'   => $request->kurang_aktivitas_fisik,
                     'kurang_sayur_buah'        => $request->kurang_sayur_buah,
                     'merokok'                  => $request->merokok,
                     'jenis_rokok'              => $request->jenis_rokok,
                     'konsumsi_alkohol'         => $request->konsumsi_alkohol,
-                    // Riwayat penyakit
                     'riwayat_penyakit_keluarga' => $riwayatKeluargaPPOK,
                     'riwayat_penyakit_sendiri'  => $riwayatSendiriPPOK,
-                    // Fisik (dari kunjungan)
                     'berat_badan'              => $bb,
                     'tinggi_badan'             => $tb,
                     'imt'                      => $imt,
                     'lingkar_perut'            => $lp,
                     'td_sistolik'              => $tds,
                     'td_diastolik'             => $tdd,
-                    // PUMA
                     'puma_jenis_kelamin'       => $request->puma_jenis_kelamin,
                     'puma_kategori_usia'       => $request->puma_kategori_usia,
                     'puma_tidak_merokok'       => ($rph === 0) ? 1 : 0,
@@ -278,14 +284,11 @@ class SkriningController extends Controller
                     'puma_pernah_spirometri'   => $request->puma_pernah_spirometri,
                     'puma_total_skor'          => $pumaSkor,
                     'puma_kategori_hasil'      => $pumaSkor >= 6 ? 1 : 0,
-                    // Pemeriksaan tambahan
                     'rapid_antigen'            => $request->rapid_antigen,
                     'kadar_co_ppm'             => $request->kadar_co_ppm,
-                    // Spirometri Pre
                     'vep1_pre'                 => $request->vep1_pre,
                     'kvp_pre'                  => $request->kvp_pre,
                     'rasio_vep1_kvp_pre'       => $rasioVepKvpPre,
-                    // Spirometri Post
                     'pemberian_bronkodilator'  => $request->pemberian_bronkodilator,
                     'vep1_post'                => $request->vep1_post,
                     'kvp_post'                 => $request->kvp_post,
@@ -293,12 +296,13 @@ class SkriningController extends Controller
                     'hasil_spirometri'         => $request->hasil_spirometri,
                 ]);
             }
-            // 6. Simpan Saran (opsional)
+
+            // 5. Simpan Saran baru
             if ($request->filled('saran')) {
                 foreach ($request->saran as $s) {
                     if (!empty($s['jenis_saran']) && !empty($s['isi_saran'])) {
                         Saran::create([
-                            'id_lansia'  => $request->id_lansia,
+                            'id_lansia'   => $request->id_lansia,
                             'jenis_saran' => $s['jenis_saran'],
                             'isi_saran'   => $s['isi_saran'],
                         ]);
@@ -306,7 +310,7 @@ class SkriningController extends Controller
                 }
             }
 
-            // 6a. Update Saran Lama (edit dari form skrining)
+            // 6. Update Saran Lama
             if ($request->filled('saran_edit')) {
                 foreach ($request->saran_edit as $id => $data) {
                     if (!empty($data['jenis_saran']) && !empty($data['isi_saran'])) {
@@ -337,7 +341,6 @@ class SkriningController extends Controller
                 JadwalPosyandu::STATUS_BERLANGSUNG,
             ])
             ->first();
-            
     }
 
     private function errorBack(string $message)
@@ -347,7 +350,4 @@ class SkriningController extends Controller
         }
         return redirect()->back()->with('error', $message);
     }
-
-
-
 }

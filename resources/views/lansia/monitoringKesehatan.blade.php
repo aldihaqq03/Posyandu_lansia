@@ -54,6 +54,7 @@
         <button class="mon-tab-btn" data-tab="kolesterol"><i class="fa-solid fa-vial"></i> Kolesterol</button>
         <button class="mon-tab-btn" data-tab="bb"><i class="fa-solid fa-weight-scale"></i> Berat Badan</button>
         <button class="mon-tab-btn" data-tab="lp"><i class="fa-solid fa-circle-dot"></i> Lingkar Perut</button>
+        <button class="mon-tab-btn" data-tab="imt"><i class="fa-solid fa-calculator"></i> IMT</button>
     </div>
 
     {{-- ── TAB CONTENT: TEKANAN DARAH ── --}}
@@ -182,9 +183,9 @@
                     <p class="mon-chart-desc">Indikator risiko obesitas abdominal (cm)</p>
                 </div>
                 <div class="mon-zones" id="zone-lp">
-                    {{-- Diisi JS sesuai jenis kelamin --}}
-                    <button class="mon-btn-detail" onclick="openDetailModal('lp')" title="Lihat Detail Data"><i class="fa-solid fa-table"></i> Lihat Detail</button>
+                    {{-- Diisi JS sesuai jenis kelamin, tapi Lihat Detail tetap ada --}}
                 </div>
+                <button class="mon-btn-detail" onclick="openDetailModal('lp')" title="Lihat Detail Data"><i class="fa-solid fa-table"></i> Lihat Detail</button>
             </div>
             <div class="mon-legend" id="legend-lp"></div>
             <div class="mon-canvas-wrap" id="wrap-lp" style="display:none;">
@@ -198,6 +199,36 @@
                 </div>
             </div>
             <div class="mon-loading" id="loading-lp"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</div>
+        </div>
+    </div>
+
+    {{-- ── TAB CONTENT: IMT ── --}}
+    <div class="mon-tab-content" id="tab-imt">
+        <div class="mon-chart-card">
+            <div class="mon-chart-header">
+                <div>
+                    <h3 class="mon-chart-title">Indeks Massa Tubuh (IMT)</h3>
+                    <p class="mon-chart-desc">Perkembangan IMT lansia (kg/m²)</p>
+                </div>
+                <div class="mon-zones">
+                    <span class="mz mz-bahaya">&lt;18.5 / ≥30</span>
+                    <span class="mz mz-waspada">18.5–21.9 / 27.1–29.9</span>
+                    <span class="mz mz-normal">Normal 22–27</span>
+                    <button class="mon-btn-detail" onclick="openDetailModal('imt')" title="Lihat Detail Data"><i class="fa-solid fa-table"></i> Lihat Detail</button>
+                </div>
+            </div>
+            <div class="mon-legend" id="legend-imt"></div>
+            <div class="mon-canvas-wrap" id="wrap-imt" style="display:none;">
+                <canvas id="chart-imt" role="img" aria-label="Grafik IMT">Data IMT.</canvas>
+            </div>
+            <div class="mon-empty" id="empty-imt" style="display:none;">
+                <i class="fa-solid fa-calculator"></i>
+                <div class="mon-empty-text">
+                    <strong>Belum ada data</strong>
+                    <span>Data pemeriksaan IMT belum tersedia.</span>
+                </div>
+            </div>
+            <div class="mon-loading" id="loading-imt"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</div>
         </div>
     </div>
 
@@ -248,7 +279,6 @@
                     <span class="keluhan-badge">Terbaru</span>
                 </div>
                 <p class="keluhan-text" id="kl-isi">-</p>
-                <div class="keluhan-vitals" id="kl-vitals"></div>
             </div>
         </div>
         <div id="keluhan-all-wrapper" style="display:none; margin-top:16px;">
