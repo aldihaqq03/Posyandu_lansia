@@ -87,15 +87,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const btnMonitoring = document.getElementById(
                 "btn-monitoring-kesehatan",
             );
-
-            if (btnMonitoring && id) {
+            if (btnMonitoring && id)
                 btnMonitoring.href = `/lansia/${id}/monitoring`;
-            }
 
             const btnHistori = document.getElementById("btn-histori-skrining");
-            if (btnHistori && id) {
+            if (btnHistori && id)
                 btnHistori.href = `/lansia/${id}/histori-skrining`;
-            }
 
             fetchHealthSummary(id);
             fetchKeluargaData(id);
@@ -185,28 +182,487 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ─────────────────────────────────────────────────────────────
-    // EDIT KELUARGA — state & helpers
+    // SHARED VALIDATION FUNCTIONS (dipakai oleh tambah & edit)
+    // ─────────────────────────────────────────────────────────────
+
+    function validateNIK(value) {
+        if (!value || !value.trim()) return "NIK tidak boleh kosong";
+        if (!/^\d{16}$/.test(value.trim())) return "NIK harus 16 digit angka";
+        return "";
+    }
+
+    function validateNama(value) {
+        if (!value || !value.trim()) return "Nama Lansia tidak boleh kosong";
+        if (value.trim().length < 3) return "Nama Lansia minimal 3 karakter";
+        return "";
+    }
+
+    function validateTanggalLahir(value) {
+        if (!value) return "Tanggal Lahir tidak boleh kosong";
+        const birth = new Date(value);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        if (age < 40)
+            return `Umur harus minimal 40 tahun (saat ini ${age} tahun)`;
+        return "";
+    }
+
+    function validateNoHP(value) {
+        if (!value || !value.trim()) return "";
+        // Cukup cek digit 10-13 angka, boleh awali +62 atau 0
+        if (!/^(\+62|0)[0-9]{9,12}$/.test(value.trim())) {
+            return "Format No HP tidak valid (Contoh: 081234567890)";
+        }
+        return "";
+    }
+
+    function validateEmail(value) {
+        if (!value || !value.trim()) return "";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()))
+            return "Format Email tidak valid";
+        return "";
+    }
+
+    function validateAlamat(value) {
+        if (!value || !value.trim()) return "Alamat Lansia tidak boleh kosong";
+        return "";
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 4. MODAL TAMBAH LANSIA
+    // ─────────────────────────────────────────────────────────────
+    const modalTambah = document.getElementById("modal-tambah-lansia");
+    const formTambah = document.getElementById("form-tambah-lansia");
+    // ⚠️ FIX: cari submitBtn di dalam form, bukan di luar
+    const submitBtnTambah = formTambah?.querySelector('button[type="submit"]');
+
+    // Helper show/hide error untuk form tambah
+    function showTambahError(fieldId, message) {
+        const errorEl = document.getElementById(`error-${fieldId}`);
+        const inputEl = document.getElementById(fieldId);
+        if (!errorEl) return;
+        if (message) {
+            errorEl.textContent = message;
+            errorEl.style.display = "block";
+            if (inputEl) {
+                inputEl.style.borderColor = "#e74c3c";
+                inputEl.style.borderWidth = "2px";
+            }
+        } else {
+            errorEl.style.display = "none";
+            if (inputEl) {
+                inputEl.style.borderColor = "";
+                inputEl.style.borderWidth = "";
+            }
+        }
+    }
+
+    function isTambahFormValid() {
+        return (
+            !validateNIK(document.getElementById("nik")?.value) &&
+            !validateNama(document.getElementById("nama_lansia")?.value) &&
+            !validateTanggalLahir(
+                document.getElementById("tanggal_lahir")?.value,
+            ) &&
+            !validateNoHP(document.getElementById("no_hp")?.value) &&
+            !validateEmail(document.getElementById("email")?.value) &&
+            !validateAlamat(document.getElementById("alamat")?.value)
+        );
+    }
+
+    function updateTambahSubmitBtn() {
+        if (submitBtnTambah) submitBtnTambah.disabled = !isTambahFormValid();
+    }
+
+    // Pasang event listener validasi real-time form tambah
+    if (formTambah) {
+        document.getElementById("nik")?.addEventListener("blur", function () {
+            showTambahError("nik", validateNIK(this.value));
+            updateTambahSubmitBtn();
+        });
+        document
+            .getElementById("nama_lansia")
+            ?.addEventListener("blur", function () {
+                showTambahError("nama_lansia", validateNama(this.value));
+                updateTambahSubmitBtn();
+            });
+        document
+            .getElementById("tanggal_lahir")
+            ?.addEventListener("change", function () {
+                showTambahError(
+                    "tanggal_lahir",
+                    validateTanggalLahir(this.value),
+                );
+                updateTambahSubmitBtn();
+            });
+        document.getElementById("no_hp")?.addEventListener("blur", function () {
+            showTambahError("no_hp", validateNoHP(this.value));
+            updateTambahSubmitBtn();
+        });
+        document.getElementById("email")?.addEventListener("blur", function () {
+            showTambahError("email", validateEmail(this.value));
+            updateTambahSubmitBtn();
+        });
+        document
+            .getElementById("alamat")
+            ?.addEventListener("blur", function () {
+                showTambahError("alamat", validateAlamat(this.value));
+                updateTambahSubmitBtn();
+            });
+
+        // Submit handler form tambah
+        formTambah.addEventListener("submit", function (e) {
+            // Tampilkan semua error
+            showTambahError(
+                "nik",
+                validateNIK(document.getElementById("nik")?.value),
+            );
+            showTambahError(
+                "nama_lansia",
+                validateNama(document.getElementById("nama_lansia")?.value),
+            );
+            showTambahError(
+                "tanggal_lahir",
+                validateTanggalLahir(
+                    document.getElementById("tanggal_lahir")?.value,
+                ),
+            );
+            showTambahError(
+                "no_hp",
+                validateNoHP(document.getElementById("no_hp")?.value),
+            );
+            showTambahError(
+                "email",
+                validateEmail(document.getElementById("email")?.value),
+            );
+            showTambahError(
+                "alamat",
+                validateAlamat(document.getElementById("alamat")?.value),
+            );
+
+            if (!isTambahFormValid()) {
+                e.preventDefault();
+            }
+        });
+
+        // Initial state: disable submit
+        if (submitBtnTambah) submitBtnTambah.disabled = true;
+    }
+
+    // Dinamis tambah keluarga - form tambah
+    let keluargaCount = 1;
+
+    document
+        .getElementById("btn-tambah-keluarga")
+        ?.addEventListener("click", function (e) {
+            e.preventDefault();
+            const container = document.getElementById("keluarga-container");
+            if (!container) return;
+            keluargaCount++;
+
+            const newItem = document.createElement("div");
+            newItem.className = "keluarga-item";
+            newItem.style.cssText =
+                "padding: 15px; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0;";
+            newItem.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #555;">Anggota Keluarga #${keluargaCount}</h4>
+                <button type="button" class="btn-remove-keluarga" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 18px; padding: 0;">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Nama Keluarga</label>
+                <input type="text" class="nama_keluarga_input" name="keluarga[${keluargaCount - 1}][nama_keluarga]" placeholder="Masukkan nama anggota keluarga">
+            </div>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>No Telepon (Opsional)</label>
+                    <input type="text" class="no_sama_input" name="keluarga[${keluargaCount - 1}][no_sama]" placeholder="Contoh: 081234567890">
+                </div>
+                <div style="flex: 1;">
+                    <label>Alamat (Opsional)</label>
+                    <input type="text" class="alamat_keluarga_input" name="keluarga[${keluargaCount - 1}][alamat]" placeholder="Alamat anggota keluarga">
+                </div>
+            </div>
+        `;
+            container.appendChild(newItem);
+            newItem
+                .querySelector(".btn-remove-keluarga")
+                .addEventListener("click", function () {
+                    newItem.remove();
+                });
+        });
+
+    // Pasang listener hapus untuk item pertama (yang sudah ada di HTML)
+    document
+        .querySelectorAll("#keluarga-container .btn-remove-keluarga")
+        .forEach((btn) => {
+            btn.addEventListener("click", function () {
+                this.closest(".keluarga-item").remove();
+            });
+        });
+
+    // Buka modal tambah
+    document
+        .getElementById("btn-tambah-lansia")
+        ?.addEventListener("click", () => {
+            formTambah?.reset();
+            // Reset semua error
+            [
+                "nik",
+                "nama_lansia",
+                "tanggal_lahir",
+                "no_hp",
+                "email",
+                "alamat",
+            ].forEach((f) => showTambahError(f, ""));
+            // Reset submit button state
+            if (submitBtnTambah) submitBtnTambah.disabled = true;
+            modalTambah?.classList.add("active");
+        });
+
+    setupModalClose(modalTambah, [
+        document.getElementById("btn-close-modal"),
+        document.getElementById("btn-cancel-modal"),
+    ]);
+
+    // ─────────────────────────────────────────────────────────────
+    // 5. MODAL EDIT LANSIA
+    // ─────────────────────────────────────────────────────────────
+    const modalEdit = document.getElementById("modal-edit-lansia");
+    const editForm = document.getElementById("form-edit-lansia");
+    // ⚠️ FIX: cari submitBtn di dalam form edit langsung
+    const editSubmitBtn = editForm?.querySelector('button[type="submit"]');
+
+    if (!editForm) {
+        console.error("❌ editForm (form-edit-lansia) NOT FOUND in DOM");
+    } else {
+        console.log("✓ editForm found at initialization");
+    }
+
+    // Helper show/hide error untuk form edit
+    function showEditError(fieldId, message) {
+        const errorEl = document.getElementById(`error-edit_${fieldId}`);
+        const inputEl = document.getElementById(`edit_${fieldId}`);
+        if (!errorEl) return;
+        if (message) {
+            errorEl.textContent = message;
+            errorEl.style.display = "block";
+            if (inputEl) {
+                inputEl.style.borderColor = "#e74c3c";
+                inputEl.style.borderWidth = "2px";
+            }
+        } else {
+            errorEl.style.display = "none";
+            if (inputEl) {
+                inputEl.style.borderColor = "";
+                inputEl.style.borderWidth = "";
+            }
+        }
+    }
+
+    function validateKeluargaPertama() {
+        const container = document.getElementById("edit-keluarga-container");
+        if (!container) return true;
+        const firstItem = container.querySelector(".keluarga-item-edit");
+        if (!firstItem) return false;
+        const namaInput = firstItem.querySelector(".nama_keluarga_input");
+        const errorEl = firstItem.querySelector(".error-nama-keluarga-0");
+        const val = namaInput?.value?.trim();
+        if (!val) {
+            if (errorEl) {
+                errorEl.textContent =
+                    "Nama anggota keluarga pertama wajib diisi.";
+                errorEl.style.display = "block";
+            }
+            if (namaInput) {
+                namaInput.style.borderColor = "#e74c3c";
+                namaInput.style.borderWidth = "2px";
+            }
+            return false;
+        }
+        if (val.length < 3) {
+            if (errorEl) {
+                errorEl.textContent = "Nama keluarga minimal 3 karakter.";
+                errorEl.style.display = "block";
+            }
+            if (namaInput) {
+                namaInput.style.borderColor = "#e74c3c";
+                namaInput.style.borderWidth = "2px";
+            }
+            return false;
+        }
+        if (errorEl) errorEl.style.display = "none";
+        if (namaInput) {
+            namaInput.style.borderColor = "";
+            namaInput.style.borderWidth = "";
+        }
+        return true;
+    }
+
+    function isEditFormValid() {
+        return (
+            !validateNIK(document.getElementById("edit_nik")?.value) &&
+            !validateNama(document.getElementById("edit_nama_lansia")?.value) &&
+            !validateTanggalLahir(
+                document.getElementById("edit_tanggal_lahir")?.value,
+            ) &&
+            !validateNoHP(document.getElementById("edit_no_hp")?.value) &&
+            !validateEmail(document.getElementById("edit_email")?.value) &&
+            !validateAlamat(document.getElementById("edit_alamat")?.value) &&
+            validateKeluargaPertama()
+        );
+    }
+
+    function updateEditSubmitBtn() {
+        if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
+    }
+
+    // Real-time validation edit form
+    if (editForm) {
+        document
+            .getElementById("edit_nik")
+            ?.addEventListener("blur", function () {
+                showEditError("nik", validateNIK(this.value));
+                updateEditSubmitBtn();
+            });
+        document
+            .getElementById("edit_nama_lansia")
+            ?.addEventListener("blur", function () {
+                showEditError("nama_lansia", validateNama(this.value));
+                updateEditSubmitBtn();
+            });
+        document
+            .getElementById("edit_tanggal_lahir")
+            ?.addEventListener("change", function () {
+                showEditError(
+                    "tanggal_lahir",
+                    validateTanggalLahir(this.value),
+                );
+                updateEditSubmitBtn();
+            });
+        document
+            .getElementById("edit_no_hp")
+            ?.addEventListener("blur", function () {
+                showEditError("no_hp", validateNoHP(this.value));
+                updateEditSubmitBtn();
+            });
+        document
+            .getElementById("edit_email")
+            ?.addEventListener("blur", function () {
+                showEditError("email", validateEmail(this.value));
+                updateEditSubmitBtn();
+            });
+        document
+            .getElementById("edit_alamat")
+            ?.addEventListener("blur", function () {
+                showEditError("alamat", validateAlamat(this.value));
+                updateEditSubmitBtn();
+            });
+
+        // Validasi realtime nama keluarga pertama (event delegation)
+        document
+            .getElementById("edit-keluarga-container")
+            ?.addEventListener("input", function (e) {
+                const container = document.getElementById(
+                    "edit-keluarga-container",
+                );
+                const firstItem = container?.querySelector(
+                    ".keluarga-item-edit",
+                );
+                if (!firstItem) return;
+                const firstInput = firstItem.querySelector(
+                    ".nama_keluarga_input",
+                );
+                if (e.target === firstInput) {
+                    validateKeluargaPertama();
+                    updateEditSubmitBtn();
+                }
+            });
+
+        // Submit handler edit form
+        editForm.addEventListener("submit", function (e) {
+            console.log("📝 Edit form submitted!");
+            console.log("  - Form action:", this.action);
+
+            // Safety check: pastikan action sudah berisi ID yang valid
+            if (
+                !this.action ||
+                this.action.includes("undefined") ||
+                !this.action.match(/\/lansia\/\d+/)
+            ) {
+                console.error(
+                    "❌ ABORT: Form action tidak valid:",
+                    this.action,
+                );
+                e.preventDefault();
+                alert(
+                    "❌ Kesalahan: Form tidak siap. Coba tutup dan buka kembali modal edit.",
+                );
+                return;
+            }
+
+            // Tampilkan semua error
+            showEditError(
+                "nik",
+                validateNIK(document.getElementById("edit_nik")?.value),
+            );
+            showEditError(
+                "nama_lansia",
+                validateNama(
+                    document.getElementById("edit_nama_lansia")?.value,
+                ),
+            );
+            showEditError(
+                "tanggal_lahir",
+                validateTanggalLahir(
+                    document.getElementById("edit_tanggal_lahir")?.value,
+                ),
+            );
+            showEditError(
+                "no_hp",
+                validateNoHP(document.getElementById("edit_no_hp")?.value),
+            );
+            showEditError(
+                "email",
+                validateEmail(document.getElementById("edit_email")?.value),
+            );
+            showEditError(
+                "alamat",
+                validateAlamat(document.getElementById("edit_alamat")?.value),
+            );
+            validateKeluargaPertama();
+
+            if (!isEditFormValid()) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // EDIT KELUARGA — helpers
     // ─────────────────────────────────────────────────────────────
     let editKeluargaCount = 0;
 
-    /**
-     * Buat item keluarga di edit modal.
-     * @param {number} idx   — index array untuk name="keluarga[idx][...]"
-     * @param {object} fam   — data awal { nama_keluarga, no_sama, alamat }
-     * @param {boolean} isFirst — jika true, tombol hapus disembunyikan & field wajib
-     */
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
     function buatItemKeluargaEdit(idx, fam = {}, isFirst = false) {
         const nomor = idx + 1;
         const hapusBtn = isFirst
-            ? "" // item pertama tidak bisa dihapus
+            ? ""
             : `<button type="button" class="btn-remove-keluarga-edit"
-                   style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:18px; padding:0;"
-                   title="Hapus anggota keluarga ini">✕</button>`;
-
+            style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:18px; padding:0;"
+            title="Hapus anggota keluarga ini">✕</button>`;
         const labelWajib = isFirst
             ? `<span style="color:#e74c3c; font-size:11px; margin-left:6px; font-weight:400;">*Wajib</span>`
             : "";
-
         const requiredAttr = isFirst ? "required" : "";
 
         const item = document.createElement("div");
@@ -250,7 +706,6 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
-        // Pasang listener hapus (hanya untuk item bukan pertama)
         if (!isFirst) {
             item.querySelector(".btn-remove-keluarga-edit").addEventListener(
                 "click",
@@ -264,22 +719,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return item;
     }
 
-    /**
-     * Perbarui nomor urut header setelah item dihapus.
-     */
     function renumberKeluargaEdit() {
         const container = document.getElementById("edit-keluarga-container");
         if (!container) return;
         container.querySelectorAll(".keluarga-item-edit").forEach((el, i) => {
             const h4 = el.querySelector("h4");
             if (h4) {
-                const isFirst = i === 0;
-                const labelWajib = isFirst
-                    ? `<span style="color:#e74c3c; font-size:11px; margin-left:6px; font-weight:400;">*Wajib</span>`
-                    : "";
+                const labelWajib =
+                    i === 0
+                        ? `<span style="color:#e74c3c; font-size:11px; margin-left:6px; font-weight:400;">*Wajib</span>`
+                        : "";
                 h4.innerHTML = `Anggota Keluarga #${i + 1} ${labelWajib}`;
             }
-            // Perbarui name attribute semua input di item ini
             el.querySelectorAll("input").forEach((inp) => {
                 inp.name = inp.name.replace(
                     /keluarga\[\d+\]/,
@@ -289,24 +740,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /**
-     * Escape HTML untuk nilai yang dimasukkan ke value attribute.
-     */
-    function escapeHtml(str) {
-        return String(str)
-            .replace(/&/g, "&amp;")
-            .replace(/"/g, "&quot;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-    }
-
-    /**
-     * Muat data keluarga ke dalam edit modal.
-     */
     async function loadKeluargaForEdit(id) {
         const container = document.getElementById("edit-keluarga-container");
         if (!container) return;
-
         container.innerHTML =
             '<p style="color:#999; text-align:center; padding:10px;">Memuat data keluarga...</p>';
         editKeluargaCount = 0;
@@ -321,7 +757,6 @@ document.addEventListener("DOMContentLoaded", function () {
             container.innerHTML = "";
 
             if (!keluarga || keluarga.length === 0) {
-                // Tidak ada data → buat 1 item kosong wajib
                 editKeluargaCount = 1;
                 container.appendChild(buatItemKeluargaEdit(0, {}, true));
             } else {
@@ -340,7 +775,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Tombol "+ Tambah Anggota Keluarga" di modal edit
+    // Tombol + Tambah Anggota Keluarga di modal edit
     document
         .getElementById("btn-tambah-keluarga-edit")
         ?.addEventListener("click", function (e) {
@@ -349,304 +784,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 "edit-keluarga-container",
             );
             if (!container) return;
-
             const currentItems = container.querySelectorAll(
                 ".keluarga-item-edit",
             );
-            const newIdx = currentItems.length; // index berikutnya
+            const newIdx = currentItems.length;
             editKeluargaCount++;
-
             container.appendChild(buatItemKeluargaEdit(newIdx, {}, false));
         });
 
-    document
-        .getElementById("btn-histori-skrining")
-        ?.addEventListener("click", function (e) {
-            if (this.getAttribute("href") === "#") {
-                e.preventDefault();
-                alert("Silakan pilih lansia dari tabel terlebih dahulu.");
-            }
-        });
-
-    // ─────────────────────────────────────────────────────────────
-    // VALIDASI EDIT FORM
-    // ─────────────────────────────────────────────────────────────
-    const editForm = document.getElementById("form-edit-lansia");
-    const editSubmitBtn = editForm?.querySelector('button[type="submit"]');
-
-    // Verify editForm exists
-    if (!editForm) {
-        console.error("❌ editForm (form-edit-lansia) NOT FOUND in DOM");
-    } else {
-        console.log("✓ editForm found at initialization");
-    }
-
-    function validateEditNIK(value) {
-        if (!value) return "NIK tidak boleh kosong";
-        if (!/^\d{16}$/.test(value.trim())) return "NIK harus 16 digit angka";
-        return "";
-    }
-
-    function validateEditNama(value) {
-        if (!value) return "Nama Lansia tidak boleh kosong";
-        if (value.trim().length < 3) return "Nama Lansia minimal 3 karakter";
-        return "";
-    }
-
-    function validateEditTanggalLahir(value) {
-        if (!value) return "Tanggal Lahir tidak boleh kosong";
-        const birth = new Date(value);
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-        if (age < 40)
-            return `Umur harus minimal 40 tahun (saat ini ${age} tahun)`;
-        return "";
-    }
-
-    function validateEditNoHP(value) {
-        if (!value) return "";
-        if (!/^(\+62|0)[0-9]{9,12}$/.test(value))
-            return "Format No HP tidak valid (Contoh: 081234567890)";
-        return "";
-    }
-
-    function validateEditEmail(value) {
-        if (!value) return "";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-            return "Format Email tidak valid";
-        return "";
-    }
-
-    function validateEditAlamat(value) {
-        if (!value) return "Alamat Lansia tidak boleh kosong";
-        return "";
-    }
-
-    function validateKeluargaPertama() {
-        const container = document.getElementById("edit-keluarga-container");
-        if (!container) return true;
-        const firstItem = container.querySelector(".keluarga-item-edit");
-        if (!firstItem) return false;
-        const namaInput = firstItem.querySelector(".nama_keluarga_input");
-        const errorEl = firstItem.querySelector(".error-nama-keluarga-0");
-        const val = namaInput?.value?.trim();
-        if (!val) {
-            if (errorEl) {
-                errorEl.textContent =
-                    "Nama anggota keluarga pertama wajib diisi.";
-                errorEl.style.display = "block";
-            }
-            if (namaInput) {
-                namaInput.style.borderColor = "#e74c3c";
-                namaInput.style.borderWidth = "2px";
-            }
-            return false;
-        }
-        if (val.length < 3) {
-            if (errorEl) {
-                errorEl.textContent = "Nama keluarga minimal 3 karakter.";
-                errorEl.style.display = "block";
-            }
-            if (namaInput) {
-                namaInput.style.borderColor = "#e74c3c";
-                namaInput.style.borderWidth = "2px";
-            }
-            return false;
-        }
-        if (errorEl) errorEl.style.display = "none";
-        if (namaInput) {
-            namaInput.style.borderColor = "";
-            namaInput.style.borderWidth = "";
-        }
-        return true;
-    }
-
-    function showEditError(fieldId, message) {
-        const errorEl = document.getElementById(`error-edit_${fieldId}`);
-        const inputEl = document.getElementById(`edit_${fieldId}`);
-        if (!errorEl) return;
-        if (message) {
-            errorEl.textContent = message;
-            errorEl.style.display = "block";
-            if (inputEl) {
-                inputEl.style.borderColor = "#e74c3c";
-                inputEl.style.borderWidth = "2px";
-            }
-        } else {
-            errorEl.style.display = "none";
-            if (inputEl) {
-                inputEl.style.borderColor = "";
-                inputEl.style.borderWidth = "";
-            }
-        }
-    }
-
-    function isEditFormValid() {
-        const valid =
-            !validateEditNIK(document.getElementById("edit_nik")?.value) &&
-            !validateEditNama(
-                document.getElementById("edit_nama_lansia")?.value,
-            ) &&
-            !validateEditTanggalLahir(
-                document.getElementById("edit_tanggal_lahir")?.value,
-            ) &&
-            !validateEditNoHP(document.getElementById("edit_no_hp")?.value) &&
-            !validateEditEmail(document.getElementById("edit_email")?.value) &&
-            !validateEditAlamat(
-                document.getElementById("edit_alamat")?.value,
-            ) &&
-            validateKeluargaPertama();
-        return valid;
-    }
-
-    // Real-time validation
-    document.getElementById("edit_nik")?.addEventListener("blur", function () {
-        showEditError("nik", validateEditNIK(this.value));
-        if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-    });
-
-    document
-        .getElementById("edit_nama_lansia")
-        ?.addEventListener("blur", function () {
-            showEditError("nama_lansia", validateEditNama(this.value));
-            if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-        });
-
-    document
-        .getElementById("edit_tanggal_lahir")
-        ?.addEventListener("change", function () {
-            showEditError(
-                "tanggal_lahir",
-                validateEditTanggalLahir(this.value),
-            );
-            if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-        });
-
-    document
-        .getElementById("edit_no_hp")
-        ?.addEventListener("blur", function () {
-            showEditError("no_hp", validateEditNoHP(this.value));
-            if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-        });
-
-    document
-        .getElementById("edit_email")
-        ?.addEventListener("blur", function () {
-            showEditError("email", validateEditEmail(this.value));
-            if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-        });
-
-    document
-        .getElementById("edit_alamat")
-        ?.addEventListener("blur", function () {
-            showEditError("alamat", validateEditAlamat(this.value));
-            if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-        });
-
-    // Validasi realtime nama keluarga pertama (delegasi event)
-    document
-        .getElementById("edit-keluarga-container")
-        ?.addEventListener("input", function (e) {
-            const container = document.getElementById(
-                "edit-keluarga-container",
-            );
-            const firstItem = container?.querySelector(".keluarga-item-edit");
-            if (!firstItem) return;
-            const firstInput = firstItem.querySelector(".nama_keluarga_input");
-            if (e.target === firstInput) {
-                validateKeluargaPertama();
-                if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-            }
-        });
-
-    // Submit handler
-    editForm?.addEventListener("submit", function (e) {
-        console.log("📝 Form submitted!");
-        console.log("  - Form action:", this.action);
-        console.log("  - Form method:", this.method);
-        console.log(
-            "  - NIK value:",
-            document.getElementById("edit_nik")?.value,
-        );
-
-        // SAFETY CHECK: Ensure form action has ID
-        if (
-            !this.action ||
-            this.action.includes("undefined") ||
-            !this.action.includes("/lansia/")
-        ) {
-            console.error("❌ ABORT: Form action is invalid:", this.action);
-            e.preventDefault();
-            alert(
-                "❌ Kesalahan: Form tidak siap untuk submit. Coba refresh halaman dan klik edit lagi.",
-            );
-            return;
-        }
-
-        // Tampilkan semua error
-        showEditError(
-            "nik",
-            validateEditNIK(document.getElementById("edit_nik")?.value),
-        );
-        showEditError(
-            "nama_lansia",
-            validateEditNama(
-                document.getElementById("edit_nama_lansia")?.value,
-            ),
-        );
-        showEditError(
-            "tanggal_lahir",
-            validateEditTanggalLahir(
-                document.getElementById("edit_tanggal_lahir")?.value,
-            ),
-        );
-        showEditError(
-            "no_hp",
-            validateEditNoHP(document.getElementById("edit_no_hp")?.value),
-        );
-        showEditError(
-            "email",
-            validateEditEmail(document.getElementById("edit_email")?.value),
-        );
-        showEditError(
-            "alamat",
-            validateEditAlamat(document.getElementById("edit_alamat")?.value),
-        );
-        validateKeluargaPertama();
-
-        if (!isEditFormValid()) {
-            e.preventDefault();
-        }
-    });
-
-    // ─────────────────────────────────────────────────────────────
-    // 4. Modal Tambah Lansia
-    // ─────────────────────────────────────────────────────────────
-    const modalTambah = document.getElementById("modal-tambah-lansia");
-    const formTambah = modalTambah?.querySelector("form");
-
-    document
-        .getElementById("btn-tambah-lansia")
-        ?.addEventListener("click", () => {
-            formTambah?.reset();
-            modalTambah?.classList.add("active");
-        });
-
-    setupModalClose(modalTambah, [
-        document.getElementById("btn-close-modal"),
-        document.getElementById("btn-cancel-modal"),
-    ]);
-
-    // ─────────────────────────────────────────────────────────────
-    // 5. Modal Edit Lansia
-    // ─────────────────────────────────────────────────────────────
-    const modalEdit = document.getElementById("modal-edit-lansia");
-    // NOTE: editForm already defined above in VALIDASI EDIT FORM section
-
+    // Buka modal edit saat tombol edit diklik
     document.querySelectorAll(".edit-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
+        btn.addEventListener("click", async function () {
             const row = btn.closest("tr");
             if (!row) {
                 console.error("❌ Row not found!");
@@ -654,23 +802,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const lansiaId = row.dataset.id;
-            console.log("✓ Edit button clicked, ID Lansia:", lansiaId);
+            console.log("✓ Edit clicked, Lansia ID:", lansiaId);
 
             if (!editForm) {
-                console.error("❌ editForm is null, cannot set action!");
+                console.error("❌ editForm is null!");
                 return;
             }
 
-            // Set form action
-            const newAction = `/lansia/${lansiaId}`;
-            editForm.action = newAction;
-            console.log("✓ Form action set to:", editForm.action);
-            console.log("✓ Form method:", editForm.method);
-            console.log(
-                "✓ Form verify action again:",
-                document.getElementById("form-edit-lansia")?.action,
-            );
+            // ⚠️ FIX UTAMA: Set form action dengan ID yang benar
+            editForm.action = `/lansia/${lansiaId}`;
+            console.log("✓ Form action set:", editForm.action);
 
+            // Isi semua field
             setVal("edit_nama_lansia", row.dataset.nama);
             setVal("edit_nik", row.dataset.nik);
             setVal("edit_alamat", row.dataset.alamat);
@@ -680,11 +823,10 @@ document.addEventListener("DOMContentLoaded", function () {
             setVal("edit_tempat_lahir", row.dataset.tempatLahir);
             setVal("edit_status_perkawinan", row.dataset.statusPerkawinan);
             setVal("edit_riwayat_penyakit", row.dataset.riwayatPenyakit);
-            setVal("edit_tanggal_daftar", row.dataset.tanggalDaftar);
             setVal("edit_keterangan", row.dataset.keterangan);
             setVal("edit_email", row.dataset.email);
 
-            // Reset error sebelumnya
+            // Reset semua pesan error
             [
                 "nik",
                 "nama_lansia",
@@ -694,12 +836,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 "alamat",
             ].forEach((f) => showEditError(f, ""));
 
-            // Load keluarga (termasuk buat item pertama wajib)
-            await loadKeluargaForEdit(row.dataset.id);
+            // Load data keluarga
+            await loadKeluargaForEdit(lansiaId);
 
             modalEdit?.classList.add("active");
 
-            // Trigger validasi awal agar tombol submit aktif/nonaktif sesuai data
+            // Trigger validasi setelah modal terbuka dan data terisi
             setTimeout(() => {
                 document
                     .getElementById("edit_nik")
@@ -713,10 +855,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 document
                     .getElementById("edit_alamat")
                     ?.dispatchEvent(new Event("blur"));
-                if (editSubmitBtn) editSubmitBtn.disabled = !isEditFormValid();
-            }, 150);
+                updateEditSubmitBtn();
+            }, 200);
         });
     });
+
+    document
+        .getElementById("btn-histori-skrining")
+        ?.addEventListener("click", function (e) {
+            if (this.getAttribute("href") === "#") {
+                e.preventDefault();
+                alert("Silakan pilih lansia dari tabel terlebih dahulu.");
+            }
+        });
 
     setupModalClose(modalEdit, [
         document.getElementById("btn-close-edit-modal"),
@@ -778,7 +929,6 @@ document.addEventListener("DOMContentLoaded", function () {
         alert(`Filter: Status=${status || "Semua"}, Umur=${umur || "Semua"}`);
         modalFilter.classList.remove("active");
     });
-
 
     // ─────────────────────────────────────────────────────────────
     // HELPERS

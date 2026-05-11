@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let saranNewIdx = 0;
+    let healthHistoryData = []; // Simpan data riwayat untuk modal
 
     // ── Inisiasi lingkar perut zone label sesuai gender ──────
     const lpLimit = gender === "P" ? 80 : 90;
@@ -17,6 +18,22 @@ document.addEventListener("DOMContentLoaded", function () {
         <span class="mz mz-normal">Normal ≤${lpLimit} cm</span>
         <span class="mz mz-bahaya">Berisiko &gt;${lpLimit} cm</span>
     `;
+
+    // ── Tabs Logic ────────────────────────────────────────────
+    const tabBtns = document.querySelectorAll(".mon-tab-btn");
+    const tabContents = document.querySelectorAll(".mon-tab-content");
+
+    tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            tabBtns.forEach((b) => b.classList.remove("active"));
+            tabContents.forEach((p) => p.classList.remove("active"));
+
+            btn.classList.add("active");
+            const tabId = btn.getAttribute("data-tab");
+            const pane = document.getElementById(`tab-${tabId}`);
+            if (pane) pane.classList.add("active");
+        });
+    });
 
     // ── Boot ──────────────────────────────────────────────────
     loadCharts(lansiaId);
@@ -37,16 +54,16 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const res = await apiFetch(`/lansia/${id}/health-history`);
             const json = await res.json();
-            rows = json.data || [];
+            healthHistoryData = json.data || [];
         } catch (e) {
             console.error("Gagal mengambil data health-history:", e);
         }
 
-        buildTensiChart(rows);
-        buildGulaChart(rows);
-        buildKolesterolChart(rows);
-        buildBBChart(rows);
-        buildLPChart(rows, lpLimit);
+        buildTensiChart(healthHistoryData);
+        buildGulaChart(healthHistoryData);
+        buildKolesterolChart(healthHistoryData);
+        buildBBChart(healthHistoryData);
+        buildLPChart(healthHistoryData, lpLimit);
     }
 
     /* ────────────────────────────────────────────────────────
@@ -181,9 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const loading = document.getElementById(`loading-${key}`);
         const empty = document.getElementById(`empty-${key}`);
         const wrap = document.getElementById(`wrap-${key}`);
-        if (loading) loading.style.display = state === "loading" ? "" : "none";
-        if (empty) empty.style.display = state === "empty" ? "" : "none";
-        if (wrap) wrap.style.display = state === "chart" ? "" : "none";
+        if (loading)
+            loading.style.display = state === "loading" ? "block" : "none";
+        if (empty) empty.style.display = state === "empty" ? "flex" : "none";
+        if (wrap) wrap.style.display = state === "chart" ? "block" : "none";
     }
 
     /* ── Render chart ── */
@@ -398,6 +416,97 @@ document.addEventListener("DOMContentLoaded", function () {
             }),
         );
     }
+
+    // ══════════════════════════════════════════════════════════
+    // MODAL DETAIL DATA
+    // ══════════════════════════════════════════════════════════
+    const modalDetail = document.getElementById("detail-modal");
+
+    window.closeDetailModal = function () {
+        if (modalDetail) modalDetail.style.display = "none";
+    };
+
+    modalDetail?.addEventListener("click", (e) => {
+        if (e.target === modalDetail) closeDetailModal();
+    });
+
+    window.openDetailModal = function (type) {
+        if (!modalDetail) return;
+
+        const titleEl = document.getElementById("modal-title");
+        const thead = document.getElementById("detail-thead");
+        const tbody = document.getElementById("detail-tbody");
+
+        let title = "";
+        let thHTML = "";
+        let tdBuilder = (r) => "";
+
+        const hasData = (r, keys) => keys.some((k) => r[k] != null);
+        let filteredData = [];
+
+        switch (type) {
+            case "tensi":
+                title = "Detail Tekanan Darah";
+                thHTML = `<th>Tanggal</th><th>Sistolik (mmHg)</th><th>Diastolik (mmHg)</th>`;
+                filteredData = healthHistoryData.filter((r) =>
+                    hasData(r, ["td_sistolik", "td_diastolik"]),
+                );
+                tdBuilder = (r) =>
+                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.td_sistolik || "-"}</td><td>${r.td_diastolik || "-"}</td></tr>`;
+                break;
+            case "gula":
+                title = "Detail Gula Darah";
+                thHTML = `<th>Tanggal</th><th>Gula Darah (mg/dL)</th>`;
+                filteredData = healthHistoryData.filter((r) =>
+                    hasData(r, ["gula_darah"]),
+                );
+                tdBuilder = (r) =>
+                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.gula_darah || "-"}</td></tr>`;
+                break;
+            case "kolesterol":
+                title = "Detail Kolesterol";
+                thHTML = `<th>Tanggal</th><th>Kolesterol (mg/dL)</th>`;
+                filteredData = healthHistoryData.filter((r) =>
+                    hasData(r, ["kolesterol"]),
+                );
+                tdBuilder = (r) =>
+                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.kolesterol || "-"}</td></tr>`;
+                break;
+            case "bb":
+                title = "Detail Berat Badan";
+                thHTML = `<th>Tanggal</th><th>Berat Badan (kg)</th>`;
+                filteredData = healthHistoryData.filter((r) =>
+                    hasData(r, ["berat_badan"]),
+                );
+                tdBuilder = (r) =>
+                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.berat_badan || "-"}</td></tr>`;
+                break;
+            case "lp":
+                title = "Detail Lingkar Perut";
+                thHTML = `<th>Tanggal</th><th>Lingkar Perut (cm)</th>`;
+                filteredData = healthHistoryData.filter((r) =>
+                    hasData(r, ["lingkar_perut"]),
+                );
+                tdBuilder = (r) =>
+                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.lingkar_perut || "-"}</td></tr>`;
+                break;
+        }
+
+        titleEl.textContent = title;
+        thead.innerHTML = thHTML;
+
+        if (filteredData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px;">Tidak ada riwayat data.</td></tr>`;
+        } else {
+            // Urutkan terbaru di atas
+            const sorted = [...filteredData].sort(
+                (a, b) => new Date(b.tanggal) - new Date(a.tanggal),
+            );
+            tbody.innerHTML = sorted.map(tdBuilder).join("");
+        }
+
+        modalDetail.style.display = "flex";
+    };
 
     // ══════════════════════════════════════════════════════════
     // KELUHAN

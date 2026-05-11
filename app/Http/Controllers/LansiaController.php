@@ -72,7 +72,7 @@ class LansiaController extends Controller
             ->whereHas('kunjungan')
             ->with([
                 'petugas:id_petugas,nama',
-                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,lingkar_perut,keluhan',
+                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan',
             ])
             ->orderByDesc('tanggal_skrining')
             ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
@@ -156,7 +156,7 @@ class LansiaController extends Controller
     {
         $kunjungan = $lansia->skrinings()
             ->whereHas('kunjungan')
-            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik')
+            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt')
             ->orderByDesc('tanggal_skrining')
             ->first()?->kunjungan;
 
@@ -249,7 +249,7 @@ class LansiaController extends Controller
                 $skrinings = $lansia->skrinings()
                     ->with([
                         // Tambah lingkar_perut di sini
-                        'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,lingkar_perut',
+                        'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut',
                         'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
                     ])
                     ->orderBy('tanggal_skrining')
@@ -286,7 +286,7 @@ class LansiaController extends Controller
     public function keluhanHistory(Lansia $lansia)
     {
         $skrinings = $lansia->skrinings()
-            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan')
+            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt')
             ->orderByDesc('tanggal_skrining')
             ->get(['id_skrining', 'tanggal_skrining', 'keluhan']);
 

@@ -104,6 +104,7 @@ class SkriningController extends Controller
                     'id_skrining'   => $skrining->id_skrining,
                     'berat_badan'   => $bb,
                     'tinggi_badan'  => $tb,
+                    'imt'           => $imt,
                     'lingkar_perut' => $lp,
                     'td_sistolik'   => $tds,
                     'td_diastolik'  => $tdd,
