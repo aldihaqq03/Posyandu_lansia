@@ -1,61 +1,242 @@
 /* resources/css/cssAdmin/monitoring.css */
-/* ══════════════════════════════════════════════════════════
-   EXTENSION — GRAFIK PERKEMBANGAN, KELUHAN & SARAN
-   ══════════════════════════════════════════════════════════ */
 
-/* ── Section wrapper ── */
+.monitoring-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+}
+
+/* ── Header ── */
+.mon-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.mon-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 3px;
+}
+.mon-sub {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+.mon-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+    background: #fff;
+    white-space: nowrap;
+    transition:
+        border-color 0.15s,
+        background 0.15s;
+}
+.mon-back:hover {
+    border-color: #9ca3af;
+    background: #f9fafb;
+}
+
+/* ── Profil ── */
+.mon-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+}
+.mon-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.mon-profile-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 6px;
+}
+.mon-profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: #6b7280;
+}
+.mon-profile-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.mon-riwayat {
+    color: #92400e !important;
+    background: #fef3c7;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+/* ── Chart Card ── */
+.mon-chart-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+}
+.mon-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.mon-chart-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 2px;
+}
+.mon-chart-desc {
+    font-size: 11px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* ── Zona badges ── */
+.mon-zones {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.mz {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+.mz-normal {
+    background: #d1fae5;
+    color: #065f46;
+}
+.mz-waspada {
+    background: #fef9c3;
+    color: #854d0e;
+}
+.mz-bahaya {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ── Legend ── */
+.mon-legend {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #6b7280;
+    flex-wrap: wrap;
+}
+.mon-legend span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ── Canvas ── */
+.mon-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+
+/* ── States ── */
+.mon-loading,
+.mon-empty {
+    text-align: center;
+    padding: 28px 0;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* ══════════════════════════════════════════
+   KELUHAN & SARAN
+══════════════════════════════════════════ */
 .dp-section {
-    margin-top: 28px;
-    padding-top: 22px;
-    border-top: 1.5px solid #e5e7eb;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
 }
 .dp-section-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     flex-wrap: wrap;
 }
 .dp-section-icon {
-    font-size: 18px;
+    font-size: 17px;
 }
 .dp-section-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1f2937;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
     margin: 0;
     flex: 1;
 }
-
-/* ── Buttons ── */
 .dp-btn-primary {
-    padding: 7px 14px;
+    padding: 7px 13px;
     background: #2563eb;
     color: #fff;
     border: none;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     transition: background 0.15s;
 }
 .dp-btn-primary:hover {
     background: #1d4ed8;
 }
 .dp-btn-outline {
-    padding: 6px 12px;
+    padding: 6px 11px;
     background: transparent;
     color: #374151;
-    border: 1.5px solid #d1d5db;
+    border: 1px solid #d1d5db;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     transition:
         border-color 0.15s,
         background 0.15s;
@@ -66,120 +247,41 @@
     background: #eff6ff;
 }
 .dp-btn-sm {
-    padding: 5px 10px;
+    padding: 5px 9px;
     background: #f3f4f6;
     color: #374151;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 11px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
 }
 .dp-btn-sm:hover {
     background: #e5e7eb;
 }
-
-/* ── State helpers ── */
 .dp-loading-state,
 .dp-empty-state {
     text-align: center;
-    padding: 24px 0;
+    padding: 20px 0;
     color: #9ca3af;
-    font-size: 14px;
+    font-size: 13px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 .dp-loading-state i,
 .dp-empty-state i {
-    font-size: 22px;
+    font-size: 20px;
 }
 
-/* ── Chart tabs ── */
-.chart-tab-group {
-    display: flex;
-    gap: 4px;
-    background: #f3f4f6;
-    padding: 3px;
-    border-radius: 8px;
-}
-.chart-tab {
-    padding: 5px 12px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    color: #6b7280;
-    transition:
-        background 0.15s,
-        color 0.15s;
-}
-.chart-tab.active {
-    background: #fff;
-    color: #1f2937;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* ── Chart legend ── */
-.chart-legend-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    color: #6b7280;
-}
-.chart-legend-row span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    display: inline-block;
-}
-
-/* ── Zone info ── */
-.chart-zone-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 14px;
-}
-.zone-badge {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.zone-normal {
-    background: #d1fae5;
-    color: #065f46;
-}
-.zone-waspada {
-    background: #fef9c3;
-    color: #854d0e;
-}
-.zone-bahaya {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-/* ── Keluhan ── */
+/* Keluhan */
 .keluhan-card {
-    border: 1.5px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
     border-radius: 10px;
-    padding: 14px 16px;
+    padding: 13px 15px;
     background: #f9fafb;
 }
 .keluhan-card.latest {
@@ -189,61 +291,59 @@
 .keluhan-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: 9px;
+    margin-bottom: 7px;
 }
 .keluhan-date {
-    font-size: 12px;
+    font-size: 11px;
     color: #6b7280;
     font-weight: 500;
 }
 .keluhan-badge {
-    padding: 2px 8px;
+    padding: 2px 7px;
     border-radius: 20px;
     background: #2563eb;
     color: #fff;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
 .keluhan-text {
-    font-size: 14px;
+    font-size: 13px;
     color: #1f2937;
-    margin: 0 0 8px 0;
-    line-height: 1.55;
+    margin: 0 0 7px;
+    line-height: 1.5;
 }
 .keluhan-vitals {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
+    gap: 6px;
+    margin-top: 5px;
 }
 .keluhan-vital-chip {
-    padding: 3px 9px;
-    border-radius: 6px;
+    padding: 2px 8px;
+    border-radius: 5px;
     background: #e0f2fe;
     color: #0369a1;
     font-size: 11px;
     font-weight: 500;
 }
-
-/* ── Keluhan table ── */
 .keluhan-table-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 14px;
+    padding: 9px 13px;
     background: #f3f4f6;
     border-radius: 8px 8px 0 0;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: #374151;
     border: 1px solid #e5e7eb;
     border-bottom: none;
 }
 .keluhan-list-scroll {
-    max-height: 340px;
+    max-height: 320px;
     overflow-y: auto;
     border: 1px solid #e5e7eb;
     border-radius: 0 0 8px 8px;
@@ -251,8 +351,8 @@
 .keluhan-row {
     display: grid;
     grid-template-columns: 130px 1fr;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 10px;
+    padding: 11px 13px;
     border-bottom: 1px solid #f3f4f6;
     align-items: start;
 }
@@ -263,29 +363,22 @@
     background: #fafafa;
 }
 .keluhan-row-date {
-    font-size: 12px;
+    font-size: 11px;
     color: #6b7280;
     font-weight: 500;
-    padding-top: 2px;
 }
 .keluhan-row-isi {
-    font-size: 13px;
+    font-size: 12px;
     color: #374151;
     line-height: 1.5;
 }
-.keluhan-row-empty {
-    padding: 20px;
-    text-align: center;
-    color: #9ca3af;
-    font-size: 13px;
-}
 
-/* ── Saran items ── */
+/* Saran */
 .dp-saran-item {
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    padding: 12px 14px;
+    margin-bottom: 9px;
     background: #fafafa;
     transition: border-color 0.15s;
 }
@@ -297,7 +390,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 .dp-saran-jenis {
     font-size: 13px;
@@ -307,16 +400,16 @@
 .dp-saran-isi {
     font-size: 13px;
     color: #374151;
-    line-height: 1.55;
+    line-height: 1.5;
     margin: 0;
 }
 .dp-saran-actions {
     display: flex;
-    gap: 6px;
+    gap: 5px;
 }
 .dp-saran-btn {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -324,7 +417,7 @@
     border-radius: 6px;
     background: #fff;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     transition:
         background 0.15s,
         border-color 0.15s;
@@ -351,53 +444,43 @@
     background: #fee2e2;
     border-color: #dc2626;
 }
-
-/* Edit mode inputs */
 .dp-saran-edit-jenis,
 .dp-saran-edit-isi {
     width: 100%;
-    padding: 7px 10px;
-    border: 1.5px solid #2563eb;
+    padding: 7px 9px;
+    border: 1px solid #2563eb;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     outline: none;
     box-sizing: border-box;
     font-family: inherit;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
     resize: vertical;
 }
-
-/* New saran row */
 .dp-new-saran-row {
     border: 1.5px dashed #2563eb;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
+    border-radius: 9px;
+    padding: 12px 14px;
+    margin-bottom: 9px;
     background: #f0f7ff;
 }
 .dp-new-saran-inner {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
-.dp-new-saran-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
+    gap: 7px;
 }
 .dp-new-saran-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 4px;
+    gap: 7px;
+    margin-top: 3px;
 }
 .dp-input-new {
     width: 100%;
-    padding: 8px 10px;
-    border: 1.5px solid #bfdbfe;
+    padding: 7px 9px;
+    border: 1px solid #bfdbfe;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     outline: none;
     box-sizing: border-box;
     font-family: inherit;
@@ -407,28 +490,28 @@
     border-color: #2563eb;
 }
 .dp-btn-save-new {
-    padding: 7px 16px;
+    padding: 7px 14px;
     background: #059669;
     color: #fff;
     border: none;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 .dp-btn-save-new:hover {
     background: #047857;
 }
 .dp-btn-cancel-new {
-    padding: 7px 14px;
+    padding: 7px 12px;
     background: transparent;
     color: #6b7280;
     border: 1px solid #d1d5db;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
 }
 .dp-btn-cancel-new:hover {

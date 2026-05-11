@@ -1,590 +1,644 @@
 /* resources/js/jsAdmin/monitoring.js */
-document.addEventListener("DOMContentLoaded", function () {
-    const lansiaIdInput = document.getElementById("lansia-id");
-    const currentLansiaId = lansiaIdInput ? lansiaIdInput.value : null;
 
-    if (!currentLansiaId) {
-        console.error("Lansia ID is missing.");
+document.addEventListener("DOMContentLoaded", function () {
+    const lansiaId = document.getElementById("lansia-id")?.value;
+    const gender = document.getElementById("lansia-gender")?.value || "L"; // L atau P
+
+    if (!lansiaId) {
+        console.error("Lansia ID tidak ditemukan.");
         return;
     }
 
-    let healthChartInstance = null;
-    let allHealthData = {
-        labels: [],
-        tensi_sistolik: [],
-        tensi_diastolik: [],
-        gula: [],
-        kolesterol: [],
-    };
-    let currentChartMode = "tensi";
     let saranNewIdx = 0;
 
-    // Load all sections on page load
-    loadAllSections(currentLansiaId);
+    // ── Inisiasi lingkar perut zone label sesuai gender ──────
+    const lpLimit = gender === "P" ? 80 : 90;
+    document.getElementById("zone-lp").innerHTML = `
+        <span class="mz mz-normal">Normal ≤${lpLimit} cm</span>
+        <span class="mz mz-bahaya">Berisiko &gt;${lpLimit} cm</span>
+    `;
 
-    function loadAllSections(id) {
-        console.log("🔄 loadAllSections() called, id:", id);
-        loadHealthChart(id);
-        loadKeluhan(id);
-        loadSaran(id);
-    }
+    // ── Boot ──────────────────────────────────────────────────
+    loadCharts(lansiaId);
+    loadKeluhan(lansiaId);
+    loadSaran(lansiaId);
 
-    /* ── Grafik Kesehatan ── */
-    async function loadHealthChart(id) {
-        console.log("🔄 loadHealthChart() called, id:", id);
-        showEl("grafik-loading");
-        hideEl("grafik-empty");
-        hideEl("grafik-container");
+    // ══════════════════════════════════════════════════════════
+    // GRAFIK — ambil data lalu build masing-masing chart
+    // ══════════════════════════════════════════════════════════
 
+    async function loadCharts(id) {
+        // Set semua ke loading awal
+        ["tensi", "gula", "kolesterol", "bb", "lp"].forEach((k) =>
+            setChartState(k, "loading"),
+        );
+
+        let rows = [];
         try {
-            const url = `/lansia/${id}/health-history`;
-            console.log("📍 Fetch URL:", url);
-            const res = await apiFetchExt(url);
-            console.log("✓ Response status:", res.status);
+            const res = await apiFetch(`/lansia/${id}/health-history`);
             const json = await res.json();
-            console.log("✓ JSON data:", json);
-
-            if (!json.data || json.data.length === 0) {
-                console.log("⚠️ No health data found");
-                hideEl("grafik-loading");
-                showEl("grafik-empty");
-                return;
-            }
-
-            console.log("✓ Processing", json.data.length, "health records");
-            allHealthData = parseHealthData(json.data);
-            console.log("✓ Parsed health data:", allHealthData);
-            hideEl("grafik-loading");
-            showEl("grafik-container");
-            renderChart(currentChartMode);
-        } catch (err) {
-            console.error("❌ loadHealthChart() error:", err);
-            hideEl("grafik-loading");
-            showEl("grafik-empty");
+            rows = json.data || [];
+        } catch (e) {
+            console.error("Gagal mengambil data health-history:", e);
         }
+
+        buildTensiChart(rows);
+        buildGulaChart(rows);
+        buildKolesterolChart(rows);
+        buildBBChart(rows);
+        buildLPChart(rows, lpLimit);
     }
 
-    function parseHealthData(rows) {
-        const labels = [],
-            sis = [],
-            dias = [],
-            gula = [],
-            kol = [];
-        rows.forEach((r) => {
-            labels.push(formatTanggalExt(r.tanggal));
-            sis.push(r.td_sistolik ?? null);
-            dias.push(r.td_diastolik ?? null);
-            gula.push(r.gula_darah ?? null);
-            kol.push(r.kolesterol ?? null);
-        });
+    /* ────────────────────────────────────────────────────────
+       HELPER: buat opsi Chart.js dengan time scale
+    ──────────────────────────────────────────────────────── */
+    function makeOptions(labelCallback) {
         return {
-            labels,
-            tensi_sistolik: sis,
-            tensi_diastolik: dias,
-            gula,
-            kolesterol: kol,
-        };
-    }
-
-    const ZONES = {
-        tensi_sistolik: [
-            { max: 120, cls: "normal", label: "Normal <120" },
-            { max: 130, cls: "waspada", label: "Tinggi 120–130" },
-            { max: 999, cls: "bahaya", label: "Berbahaya >130" },
-        ],
-        tensi_diastolik: [
-            { max: 80, cls: "normal", label: "Normal <80" },
-            { max: 90, cls: "waspada", label: "Tinggi 80–90" },
-            { max: 999, cls: "bahaya", label: "Berbahaya >90" },
-        ],
-        gula: [
-            { max: 100, cls: "normal", label: "Normal <100" },
-            { max: 126, cls: "waspada", label: "Pra-DM 100–125" },
-            { max: 999, cls: "bahaya", label: "Diabetes ≥126" },
-        ],
-        kolesterol: [
-            { max: 200, cls: "normal", label: "Normal <200" },
-            { max: 240, cls: "waspada", label: "Batas 200–239" },
-            { max: 999, cls: "bahaya", label: "Tinggi ≥240" },
-        ],
-    };
-
-    const SERIES_META = {
-        tensi_sistolik: { label: "Sistolik", color: "#ef4444", dash: [] },
-        tensi_diastolik: { label: "Diastolik", color: "#f97316", dash: [5, 3] },
-        gula: { label: "Gula Darah", color: "#2563eb", dash: [] },
-        kolesterol: { label: "Kolesterol", color: "#7c3aed", dash: [5, 3] },
-    };
-
-    const MODE_SERIES = {
-        tensi: ["tensi_sistolik", "tensi_diastolik"],
-        gula: ["gula"],
-        kolesterol: ["kolesterol"],
-        semua: ["tensi_sistolik", "tensi_diastolik", "gula", "kolesterol"],
-    };
-
-    function renderChart(mode) {
-        const seriesKeys = MODE_SERIES[mode];
-        const datasets = seriesKeys.map((k) => ({
-            label: SERIES_META[k].label,
-            data: allHealthData[k],
-            borderColor: SERIES_META[k].color,
-            backgroundColor: SERIES_META[k].color + "22",
-            borderWidth: 2.5,
-            borderDash: SERIES_META[k].dash,
-            pointRadius: 5,
-            pointHoverRadius: 7,
-            pointBackgroundColor: SERIES_META[k].color,
-            fill: false,
-            tension: 0,
-            spanGaps: true,
-        }));
-
-        const legendEl = document.getElementById("chart-legend");
-        legendEl.innerHTML = seriesKeys
-            .map(
-                (k) =>
-                    `<span><span class="legend-dot" style="background:${SERIES_META[k].color}"></span>${SERIES_META[k].label}</span>`,
-            )
-            .join("");
-
-        const zoneEl = document.getElementById("chart-zone-info");
-        const refKey = seriesKeys[0];
-        if (ZONES[refKey]) {
-            zoneEl.innerHTML = ZONES[refKey]
-                .map(
-                    (z) =>
-                        `<span class="zone-badge zone-${z.cls}">${z.label}</span>`,
-                )
-                .join("");
-        } else {
-            zoneEl.innerHTML = "";
-        }
-
-        const refLines = [];
-        if (mode !== "semua" && ZONES[refKey]) {
-            ZONES[refKey].slice(0, -1).forEach((z) => {
-                refLines.push({
-                    label: z.label,
-                    data: allHealthData.labels.map(() => z.max),
-                    borderColor: z.cls === "waspada" ? "#f59e0b" : "#10b981",
-                    borderWidth: 1,
-                    borderDash: [4, 4],
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0,
-                    spanGaps: true,
-                    order: 99,
-                });
-            });
-        }
-
-        if (healthChartInstance) {
-            healthChartInstance.destroy();
-        }
-
-        healthChartInstance = new Chart(
-            document.getElementById("health-chart"),
-            {
-                type: "line",
-                data: {
-                    labels: allHealthData.labels,
-                    datasets: [...datasets, ...refLines],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: "index", intersect: false },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label(ctx) {
-                                    const v = ctx.parsed.y;
-                                    if (v === null) return null;
-                                    const k = seriesKeys[ctx.datasetIndex];
-                                    const unit =
-                                        k === "gula" || k === "kolesterol"
-                                            ? " mg/dL"
-                                            : " mmHg";
-                                    let status = "";
-                                    if (k && ZONES[k]) {
-                                        const zone = ZONES[k].find(
-                                            (z) => v <= z.max,
-                                        );
-                                        if (zone) {
-                                            const icons = {
-                                                normal: "✅",
-                                                waspada: "⚠️",
-                                                bahaya: "🔴",
-                                            };
-                                            status = " " + icons[zone.cls];
-                                        }
-                                    }
-                                    return ` ${SERIES_META[k]?.label || ctx.dataset.label}: ${v}${unit}${status}`;
-                                },
-                            },
+            responsive: true,
+            maintainAspectRatio: false,
+            parsing: false, // data sudah {x, y}
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#1f2937",
+                    titleColor: "#f9fafb",
+                    bodyColor: "#d1d5db",
+                    padding: 10,
+                    callbacks: {
+                        title(items) {
+                            if (!items.length) return "";
+                            const raw = items[0].raw?.x;
+                            if (!raw) return "";
+                            return new Date(raw).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                            });
                         },
-                    },
-                    scales: {
-                        x: {
-                            ticks: { font: { size: 11 }, maxRotation: 45 },
-                            grid: { color: "#f3f4f6" },
-                        },
-                        y: {
-                            ticks: { font: { size: 11 } },
-                            grid: { color: "#f3f4f6" },
-                            beginAtZero: false,
-                        },
+                        label: labelCallback,
                     },
                 },
             },
+            scales: {
+                x: {
+                    type: "time",
+                    time: {
+                        unit: "month",
+                        displayFormats: { month: "MMM yyyy" },
+                    },
+                    ticks: {
+                        font: { size: 11 },
+                        color: "#9ca3af",
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 8,
+                    },
+                    grid: { color: "#f3f4f6" },
+                    border: { color: "#e5e7eb" },
+                },
+                y: {
+                    ticks: { font: { size: 11 }, color: "#9ca3af" },
+                    grid: { color: "#f3f4f6" },
+                    border: { color: "#e5e7eb" },
+                    beginAtZero: false,
+                },
+            },
+        };
+    }
+
+    /* ── Buat dataset titik utama ── */
+    function pts(rows, key) {
+        return rows
+            .filter((r) => r[key] != null)
+            .map((r) => ({ x: new Date(r.tanggal), y: Number(r[key]) }));
+    }
+
+    /* ── Buat garis referensi horizontal ── */
+    function refLine(rows, key, value, color) {
+        const validRows = rows.filter((r) => r[key] != null);
+        if (validRows.length < 1) return null;
+        const dates = validRows
+            .map((r) => new Date(r.tanggal))
+            .sort((a, b) => a - b);
+        return {
+            label: `Ref ${value}`,
+            data: [
+                { x: dates[0], y: value },
+                { x: dates[dates.length - 1], y: value },
+            ],
+            borderColor: color,
+            borderWidth: 1.2,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+            parsing: false,
+        };
+    }
+
+    /* ── Dataset garis data ── */
+    function lineset(data, color, label) {
+        return {
+            label,
+            data,
+            borderColor: color,
+            backgroundColor: color + "18",
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: color,
+            pointBorderColor: "#fff",
+            pointBorderWidth: 1.5,
+            fill: false,
+            tension: 0.2,
+            spanGaps: true,
+            parsing: false,
+        };
+    }
+
+    /* ── Render legend ── */
+    function renderLegend(elId, items) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.innerHTML = items
+            .map(
+                (i) =>
+                    `<span>
+                <span style="width:18px;height:2.5px;border-radius:2px;background:${
+                    i.dash
+                        ? `repeating-linear-gradient(90deg,${i.color} 0,${i.color} 5px,transparent 5px,transparent 9px)`
+                        : i.color
+                };display:inline-block;vertical-align:middle;margin-right:4px;"></span>
+                ${i.label}
+            </span>`,
+            )
+            .join("");
+    }
+
+    /* ── State chart (loading / chart / empty) ── */
+    function setChartState(key, state) {
+        const loading = document.getElementById(`loading-${key}`);
+        const empty = document.getElementById(`empty-${key}`);
+        const wrap = document.getElementById(`wrap-${key}`);
+        if (loading) loading.style.display = state === "loading" ? "" : "none";
+        if (empty) empty.style.display = state === "empty" ? "" : "none";
+        if (wrap) wrap.style.display = state === "chart" ? "" : "none";
+    }
+
+    /* ── Render chart ── */
+    function renderChart(canvasId, datasets, options) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        new Chart(canvas, { type: "line", data: { datasets }, options });
+    }
+
+    /* ════════════════════════════════════════════
+       1. TENSI
+    ════════════════════════════════════════════ */
+    function buildTensiChart(rows) {
+        const sisPts = pts(rows, "td_sistolik");
+        const diasPts = pts(rows, "td_diastolik");
+
+        if (!sisPts.length && !diasPts.length) {
+            setChartState("tensi", "empty");
+            return;
+        }
+        setChartState("tensi", "chart");
+
+        renderLegend("legend-tensi", [
+            { color: "#3b82f6", label: "Sistolik", dash: false },
+            { color: "#f97316", label: "Diastolik", dash: true },
+            { color: "#10b981", label: "Batas normal", dash: true },
+            { color: "#f59e0b", label: "Batas waspada", dash: true },
+        ]);
+
+        const ZONES_SIS = { normal: 120, waspada: 130 };
+        const ZONES_DIAS = { normal: 80 };
+
+        const datasets = [
+            lineset(sisPts, "#3b82f6", "Sistolik"),
+            lineset(diasPts, "#f97316", "Diastolik"),
+            refLine(rows, "td_sistolik", ZONES_SIS.normal, "#10b981"),
+            refLine(rows, "td_sistolik", ZONES_SIS.waspada, "#f59e0b"),
+            refLine(rows, "td_diastolik", ZONES_DIAS.normal, "#10b981"),
+        ].filter(Boolean);
+
+        renderChart(
+            "chart-tensi",
+            datasets,
+            makeOptions((ctx) => {
+                const v = ctx.raw?.y;
+                if (v == null) return null;
+                const lbl = ctx.dataset.label;
+                if (lbl?.startsWith("Ref")) return null;
+                const isSis = lbl === "Sistolik";
+                const st = isSis
+                    ? v > 130
+                        ? "🔴 Berbahaya"
+                        : v > 120
+                          ? "⚠️ Tinggi"
+                          : "✅ Normal"
+                    : v > 90
+                      ? "🔴 Berbahaya"
+                      : v > 80
+                        ? "⚠️ Tinggi"
+                        : "✅ Normal";
+                return `  ${lbl}: ${v} mmHg  ${st}`;
+            }),
         );
     }
 
-    document.querySelectorAll(".chart-tab").forEach((btn) => {
-        btn.addEventListener("click", function () {
-            document
-                .querySelectorAll(".chart-tab")
-                .forEach((b) => b.classList.remove("active"));
-            this.classList.add("active");
-            currentChartMode = this.dataset.chart;
-            if (healthChartInstance) renderChart(currentChartMode);
-        });
-    });
+    /* ════════════════════════════════════════════
+       2. GULA DARAH
+    ════════════════════════════════════════════ */
+    function buildGulaChart(rows) {
+        const data = pts(rows, "gula_darah");
+        if (!data.length) {
+            setChartState("gula", "empty");
+            return;
+        }
+        setChartState("gula", "chart");
 
-    /* ── Keluhan ── */
+        renderLegend("legend-gula", [
+            { color: "#2563eb", label: "Gula Darah", dash: false },
+            { color: "#10b981", label: "Batas normal (100)", dash: true },
+            { color: "#f59e0b", label: "Batas diabetes (126)", dash: true },
+        ]);
+
+        renderChart(
+            "chart-gula",
+            [
+                lineset(data, "#2563eb", "Gula Darah"),
+                refLine(rows, "gula_darah", 100, "#10b981"),
+                refLine(rows, "gula_darah", 126, "#f59e0b"),
+            ].filter(Boolean),
+            makeOptions((ctx) => {
+                const v = ctx.raw?.y;
+                if (v == null || ctx.dataset.label?.startsWith("Ref"))
+                    return null;
+                const st =
+                    v >= 126
+                        ? "🔴 Diabetes"
+                        : v >= 100
+                          ? "⚠️ Pra-DM"
+                          : "✅ Normal";
+                return `  Gula Darah: ${v} mg/dL  ${st}`;
+            }),
+        );
+    }
+
+    /* ════════════════════════════════════════════
+       3. KOLESTEROL
+    ════════════════════════════════════════════ */
+    function buildKolesterolChart(rows) {
+        const data = pts(rows, "kolesterol");
+        if (!data.length) {
+            setChartState("kolesterol", "empty");
+            return;
+        }
+        setChartState("kolesterol", "chart");
+
+        renderLegend("legend-kolesterol", [
+            { color: "#7c3aed", label: "Kolesterol", dash: false },
+            { color: "#10b981", label: "Batas normal (200)", dash: true },
+            { color: "#f59e0b", label: "Batas tinggi (240)", dash: true },
+        ]);
+
+        renderChart(
+            "chart-kolesterol",
+            [
+                lineset(data, "#7c3aed", "Kolesterol"),
+                refLine(rows, "kolesterol", 200, "#10b981"),
+                refLine(rows, "kolesterol", 240, "#f59e0b"),
+            ].filter(Boolean),
+            makeOptions((ctx) => {
+                const v = ctx.raw?.y;
+                if (v == null || ctx.dataset.label?.startsWith("Ref"))
+                    return null;
+                const st =
+                    v >= 240
+                        ? "🔴 Tinggi"
+                        : v >= 200
+                          ? "⚠️ Batas"
+                          : "✅ Normal";
+                return `  Kolesterol: ${v} mg/dL  ${st}`;
+            }),
+        );
+    }
+
+    /* ════════════════════════════════════════════
+       4. BERAT BADAN
+    ════════════════════════════════════════════ */
+    function buildBBChart(rows) {
+        const data = pts(rows, "berat_badan");
+        if (!data.length) {
+            setChartState("bb", "empty");
+            return;
+        }
+        setChartState("bb", "chart");
+
+        renderLegend("legend-bb", [
+            { color: "#0891b2", label: "Berat Badan (kg)", dash: false },
+        ]);
+
+        // Hitung rata-rata untuk context
+        const avg = Math.round(data.reduce((s, d) => s + d.y, 0) / data.length);
+
+        renderChart(
+            "chart-bb",
+            [lineset(data, "#0891b2", "Berat Badan")],
+            makeOptions((ctx) => {
+                const v = ctx.raw?.y;
+                if (v == null) return null;
+                const diff = v - avg;
+                const note =
+                    Math.abs(diff) < 2
+                        ? "Stabil"
+                        : diff > 0
+                          ? `↑ ${diff} kg dari rata-rata`
+                          : `↓ ${Math.abs(diff)} kg dari rata-rata`;
+                return `  Berat Badan: ${v} kg  (${note})`;
+            }),
+        );
+    }
+
+    /* ════════════════════════════════════════════
+       5. LINGKAR PERUT
+    ════════════════════════════════════════════ */
+    function buildLPChart(rows, limit) {
+        const data = pts(rows, "lingkar_perut");
+        if (!data.length) {
+            setChartState("lp", "empty");
+            return;
+        }
+        setChartState("lp", "chart");
+
+        renderLegend("legend-lp", [
+            { color: "#0d9488", label: "Lingkar Perut (cm)", dash: false },
+            {
+                color: "#ef4444",
+                label: `Batas risiko (${limit} cm)`,
+                dash: true,
+            },
+        ]);
+
+        renderChart(
+            "chart-lp",
+            [
+                lineset(data, "#0d9488", "Lingkar Perut"),
+                refLine(rows, "lingkar_perut", limit, "#ef4444"),
+            ].filter(Boolean),
+            makeOptions((ctx) => {
+                const v = ctx.raw?.y;
+                if (v == null || ctx.dataset.label?.startsWith("Ref"))
+                    return null;
+                const st = v > limit ? "🔴 Berisiko" : "✅ Normal";
+                return `  Lingkar Perut: ${v} cm  ${st}`;
+            }),
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // KELUHAN
+    // ══════════════════════════════════════════════════════════
+
     async function loadKeluhan(id) {
-        console.log("🔄 loadKeluhan() called, id:", id);
-        showEl("keluhan-loading");
-        hideEl("keluhan-empty");
-        hideEl("keluhan-latest");
-        hideEl("keluhan-all-wrapper");
+        show("keluhan-loading");
+        hide("keluhan-empty");
+        hide("keluhan-latest");
+        hide("keluhan-all-wrapper");
 
         try {
-            const url = `/lansia/${id}/keluhan-history`;
-            console.log("📍 Fetch URL:", url);
-            const res = await apiFetchExt(url);
-            console.log("✓ Response status:", res.status);
+            const res = await apiFetch(`/lansia/${id}/keluhan-history`);
             const json = await res.json();
-            console.log("✓ JSON data:", json);
             const data = json.data || [];
+            hide("keluhan-loading");
 
-            hideEl("keluhan-loading");
-
-            if (data.length === 0) {
-                console.log("⚠️ No keluhan data found");
-                showEl("keluhan-empty");
+            if (!data.length) {
+                show("keluhan-empty");
                 return;
             }
 
-            console.log("✓ Processing", data.length, "keluhan records");
             const latest = data[0];
-            document.getElementById("kl-tanggal").textContent =
-                formatTanggalExt(latest.tanggal_skrining);
-            document.getElementById("kl-isi").textContent =
-                latest.keluhan || "Tidak ada keluhan.";
+            el("kl-tanggal").textContent = fmtDate(latest.tanggal_skrining);
+            el("kl-isi").textContent = latest.keluhan || "Tidak ada keluhan.";
 
-            const vitalsEl = document.getElementById("kl-vitals");
             const chips = [];
             if (latest.td_sistolik)
                 chips.push(`Sistolik: ${latest.td_sistolik} mmHg`);
             if (latest.td_diastolik)
                 chips.push(`Diastolik: ${latest.td_diastolik} mmHg`);
             if (latest.berat_badan) chips.push(`BB: ${latest.berat_badan} kg`);
-            vitalsEl.innerHTML = chips
+            el("kl-vitals").innerHTML = chips
                 .map((c) => `<span class="keluhan-vital-chip">${c}</span>`)
                 .join("");
+            show("keluhan-latest");
 
-            showEl("keluhan-latest");
-
-            const allList = document.getElementById("keluhan-all-list");
-            if (data.length === 0) {
-                allList.innerHTML =
-                    '<div class="keluhan-row-empty">Tidak ada riwayat keluhan.</div>';
-            } else {
-                allList.innerHTML = data
-                    .map(
-                        (r) => `
-                    <div class="keluhan-row">
-                        <div class="keluhan-row-date">
-                            <i class="fa-solid fa-calendar-day" style="margin-right:4px;font-size:11px;color:#9ca3af;"></i>
-                            ${formatTanggalExt(r.tanggal_skrining)}
-                        </div>
-                        <div class="keluhan-row-isi">${r.keluhan || '<em style="color:#9ca3af;">Tidak ada keluhan</em>'}</div>
-                    </div>
-                `,
-                    )
-                    .join("");
-            }
-        } catch (err) {
-            console.error("❌ loadKeluhan() error:", err);
-            hideEl("keluhan-loading");
-            showEl("keluhan-empty");
+            el("keluhan-all-list").innerHTML = data
+                .map(
+                    (r) => `
+                <div class="keluhan-row">
+                    <div class="keluhan-row-date">${fmtDate(r.tanggal_skrining)}</div>
+                    <div class="keluhan-row-isi">${
+                        r.keluhan ||
+                        '<em style="color:#9ca3af;">Tidak ada keluhan</em>'
+                    }</div>
+                </div>
+            `,
+                )
+                .join("");
+        } catch (e) {
+            console.error("loadKeluhan error:", e);
+            hide("keluhan-loading");
+            show("keluhan-empty");
         }
     }
 
-    document
-        .getElementById("btn-lihat-semua-keluhan")
-        ?.addEventListener("click", () => {
-            showEl("keluhan-all-wrapper");
-            hideEl("keluhan-latest");
-        });
-    document
-        .getElementById("btn-tutup-keluhan")
-        ?.addEventListener("click", () => {
-            hideEl("keluhan-all-wrapper");
-            showEl("keluhan-latest");
-        });
+    el("btn-lihat-semua-keluhan")?.addEventListener("click", () => {
+        show("keluhan-all-wrapper");
+        hide("keluhan-latest");
+    });
+    el("btn-tutup-keluhan")?.addEventListener("click", () => {
+        hide("keluhan-all-wrapper");
+        show("keluhan-latest");
+    });
 
-    /* ── Manajemen Saran ── */
+    // ══════════════════════════════════════════════════════════
+    // SARAN
+    // ══════════════════════════════════════════════════════════
+
     async function loadSaran(id) {
-        console.log("🔄 loadSaran() called, id:", id);
-        showEl("dp-saran-loading");
-        hideEl("dp-saran-empty");
-        document.getElementById("dp-saran-list").innerHTML = "";
-        document.getElementById("dp-saran-new-list").innerHTML = "";
+        show("dp-saran-loading");
+        hide("dp-saran-empty");
+        el("dp-saran-list").innerHTML = "";
+        el("dp-saran-new-list").innerHTML = "";
         saranNewIdx = 0;
 
         try {
-            const url = `/lansia/${id}/saran`;
-            console.log("📍 Fetch URL:", url);
-            const res = await apiFetchExt(url);
-            console.log("✓ Response status:", res.status);
+            const res = await apiFetch(`/lansia/${id}/saran`);
             const json = await res.json();
-            console.log("✓ JSON data:", json);
             const data = json.data || [];
-
-            hideEl("dp-saran-loading");
-
-            if (data.length === 0) {
-                console.log("⚠️ No saran data found");
-                showEl("dp-saran-empty");
-            } else {
-                console.log("✓ Processing", data.length, "saran records");
-                renderSaranList(data);
-            }
-        } catch (err) {
-            console.error("❌ loadSaran() error:", err);
-            hideEl("dp-saran-loading");
-            showEl("dp-saran-empty");
+            hide("dp-saran-loading");
+            data.length ? renderSaranList(data) : show("dp-saran-empty");
+        } catch {
+            hide("dp-saran-loading");
+            show("dp-saran-empty");
         }
     }
 
     function renderSaranList(data) {
-        const list = document.getElementById("dp-saran-list");
+        const list = el("dp-saran-list");
         list.innerHTML = "";
-        hideEl("dp-saran-empty");
-
-        data.forEach((s) => {
-            const item = buildSaranItem(s);
-            list.appendChild(item);
-        });
+        hide("dp-saran-empty");
+        data.forEach((s) => list.appendChild(buildSaranItem(s)));
     }
 
     function buildSaranItem(s) {
-        const el = document.createElement("div");
-        el.className = "dp-saran-item";
-        el.dataset.id = s.id_saran;
-        el.innerHTML = `
+        const div = document.createElement("div");
+        div.className = "dp-saran-item";
+        div.dataset.id = s.id_saran;
+        div.innerHTML = `
             <div class="dp-saran-item-header">
-                <span class="dp-saran-jenis" id="sji-${s.id_saran}">${escHtmlExt(s.jenis_saran)}</span>
+                <span class="dp-saran-jenis" id="sji-${s.id_saran}">${esc(s.jenis_saran)}</span>
                 <div class="dp-saran-actions">
-                    <button class="dp-saran-btn edit" title="Edit" data-action="edit" data-id="${s.id_saran}">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="dp-saran-btn save" title="Simpan" data-action="save" data-id="${s.id_saran}" style="display:none;">
-                        <i class="fa-solid fa-check"></i>
-                    </button>
-                    <button class="dp-saran-btn del" title="Hapus" data-action="del" data-id="${s.id_saran}">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <button class="dp-saran-btn edit" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                    <button class="dp-saran-btn save" data-action="save" title="Simpan" style="display:none;"><i class="fa-solid fa-check"></i></button>
+                    <button class="dp-saran-btn del"  data-action="del"  title="Hapus"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
-            <p class="dp-saran-isi" id="sii-${s.id_saran}">${escHtmlExt(s.isi_saran)}</p>
+            <p class="dp-saran-isi" id="sii-${s.id_saran}">${esc(s.isi_saran)}</p>
             <div id="sed-${s.id_saran}" style="display:none;">
-                <input type="text" class="dp-saran-edit-jenis" id="sej-${s.id_saran}" value="${escHtmlExt(s.jenis_saran)}" placeholder="Judul saran...">
-                <textarea class="dp-saran-edit-isi" id="sei-${s.id_saran}" rows="3" placeholder="Isi saran...">${escHtmlExt(s.isi_saran)}</textarea>
+                <input  type="text" class="dp-saran-edit-jenis" id="sej-${s.id_saran}" value="${esc(s.jenis_saran)}" placeholder="Judul saran...">
+                <textarea class="dp-saran-edit-isi" id="sei-${s.id_saran}" rows="3">${esc(s.isi_saran)}</textarea>
             </div>
         `;
-
-        el.querySelector('[data-action="edit"]').addEventListener("click", () =>
-            toggleEditSaran(s.id_saran, true),
+        div.querySelector('[data-action="edit"]').addEventListener(
+            "click",
+            () => toggleEdit(s.id_saran, true),
         );
-        el.querySelector('[data-action="save"]').addEventListener("click", () =>
-            saveEditSaran(s.id_saran),
+        div.querySelector('[data-action="save"]').addEventListener(
+            "click",
+            () => saveSaran(s.id_saran),
         );
-        el.querySelector('[data-action="del"]').addEventListener("click", () =>
-            deleteSaran(s.id_saran),
+        div.querySelector('[data-action="del"]').addEventListener("click", () =>
+            delSaran(s.id_saran),
         );
-
-        return el;
+        return div;
     }
 
-    function toggleEditSaran(id, editing) {
+    function toggleEdit(id, on) {
         const item = document.querySelector(`.dp-saran-item[data-id="${id}"]`);
-        const jiEl = document.getElementById(`sji-${id}`);
-        const isiEl = document.getElementById(`sii-${id}`);
-        const edEl = document.getElementById(`sed-${id}`);
-        const editBtn = item.querySelector('[data-action="edit"]');
-        const saveBtn = item.querySelector('[data-action="save"]');
-
-        if (editing) {
-            item.classList.add("editing");
-            jiEl.style.display = "none";
-            isiEl.style.display = "none";
-            edEl.style.display = "block";
-            editBtn.style.display = "none";
-            saveBtn.style.display = "flex";
-        } else {
-            item.classList.remove("editing");
-            jiEl.style.display = "";
-            isiEl.style.display = "";
-            edEl.style.display = "none";
-            editBtn.style.display = "flex";
-            saveBtn.style.display = "none";
-        }
+        if (!item) return;
+        item.classList.toggle("editing", on);
+        item.querySelector('[data-action="edit"]').style.display = on
+            ? "none"
+            : "flex";
+        item.querySelector('[data-action="save"]').style.display = on
+            ? "flex"
+            : "none";
+        el(`sji-${id}`).style.display = on ? "none" : "";
+        el(`sii-${id}`).style.display = on ? "none" : "";
+        el(`sed-${id}`).style.display = on ? "block" : "none";
     }
 
-    async function saveEditSaran(id) {
-        const jenis = document.getElementById(`sej-${id}`).value.trim();
-        const isi = document.getElementById(`sei-${id}`).value.trim();
+    async function saveSaran(id) {
+        const jenis = el(`sej-${id}`)?.value.trim();
+        const isi = el(`sei-${id}`)?.value.trim();
         if (!jenis || !isi) {
-            alert("Judul dan isi saran wajib diisi.");
+            alert("Judul dan isi wajib diisi.");
             return;
         }
-
-        try {
-            const res = await fetch(`/lansia/${currentLansiaId}/saran/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfTokenExt(),
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                body: JSON.stringify({ jenis_saran: jenis, isi_saran: isi }),
-            });
-            const json = await res.json();
-            if (json.success) {
-                document.getElementById(`sji-${id}`).textContent = jenis;
-                document.getElementById(`sii-${id}`).textContent = isi;
-                document.getElementById(`sej-${id}`).value = jenis;
-                document.getElementById(`sei-${id}`).value = isi;
-                toggleEditSaran(id, false);
-            } else {
-                alert("Gagal menyimpan saran.");
-            }
-        } catch {
-            alert("Terjadi kesalahan jaringan.");
+        const res = await fetchJSON("PUT", `/lansia/${lansiaId}/saran/${id}`, {
+            jenis_saran: jenis,
+            isi_saran: isi,
+        });
+        const json = await res.json();
+        if (json.success) {
+            el(`sji-${id}`).textContent = jenis;
+            el(`sii-${id}`).textContent = isi;
+            toggleEdit(id, false);
         }
     }
 
-    async function deleteSaran(id) {
+    async function delSaran(id) {
         if (!confirm("Hapus saran ini?")) return;
-        try {
-            const res = await fetch(`/lansia/${currentLansiaId}/saran/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRF-TOKEN": csrfTokenExt(),
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-            });
-            const json = await res.json();
-            if (json.success) {
-                const el = document.querySelector(
-                    `.dp-saran-item[data-id="${id}"]`,
-                );
-                el?.remove();
-                if (!document.getElementById("dp-saran-list").children.length) {
-                    showEl("dp-saran-empty");
-                }
-            }
-        } catch {
-            alert("Gagal menghapus saran.");
+        const res = await fetchJSON(
+            "DELETE",
+            `/lansia/${lansiaId}/saran/${id}`,
+        );
+        const json = await res.json();
+        if (json.success) {
+            document.querySelector(`.dp-saran-item[data-id="${id}"]`)?.remove();
+            if (!el("dp-saran-list").children.length) show("dp-saran-empty");
         }
     }
 
-    document
-        .getElementById("dp-btn-add-saran")
-        ?.addEventListener("click", () => {
-            hideEl("dp-saran-empty");
-            const list = document.getElementById("dp-saran-new-list");
-            const idx = saranNewIdx++;
-            const row = document.createElement("div");
-            row.className = "dp-new-saran-row";
-            row.id = `new-saran-row-${idx}`;
-            row.innerHTML = `
+    el("dp-btn-add-saran")?.addEventListener("click", () => {
+        hide("dp-saran-empty");
+        const idx = saranNewIdx++;
+        const row = document.createElement("div");
+        row.className = "dp-new-saran-row";
+        row.id = `new-saran-row-${idx}`;
+        row.innerHTML = `
             <div class="dp-new-saran-inner">
-                <div class="dp-new-saran-fields">
-                    <input type="text" class="dp-input-new" id="nsj-${idx}" placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)">
-                    <textarea class="dp-input-new" id="nsi-${idx}" rows="3" placeholder="Tulis isi saran untuk lansia..."></textarea>
-                </div>
+                <input  type="text" class="dp-input-new" id="nsj-${idx}" placeholder="Judul saran (cth: Pola Makan...)">
+                <textarea class="dp-input-new" id="nsi-${idx}" rows="3" placeholder="Tulis isi saran..."></textarea>
                 <div class="dp-new-saran-footer">
-                    <button type="button" class="dp-btn-cancel-new" data-idx="${idx}">Batal</button>
-                    <button type="button" class="dp-btn-save-new" data-idx="${idx}">
-                        <i class="fa-solid fa-check"></i> Simpan
-                    </button>
+                    <button type="button" class="dp-btn-cancel-new">Batal</button>
+                    <button type="button" class="dp-btn-save-new"><i class="fa-solid fa-check"></i> Simpan</button>
                 </div>
             </div>
         `;
-            list.appendChild(row);
-            row.querySelector(".dp-btn-cancel-new").addEventListener(
-                "click",
-                () => row.remove(),
-            );
-            row.querySelector(".dp-btn-save-new").addEventListener(
-                "click",
-                () => submitNewSaran(idx),
-            );
-            row.querySelector(`#nsj-${idx}`).focus();
-        });
+        el("dp-saran-new-list").appendChild(row);
+        row.querySelector(".dp-btn-cancel-new").addEventListener("click", () =>
+            row.remove(),
+        );
+        row.querySelector(".dp-btn-save-new").addEventListener("click", () =>
+            submitNewSaran(idx, row),
+        );
+        row.querySelector(`#nsj-${idx}`).focus();
+    });
 
-    async function submitNewSaran(idx) {
-        const jenis = document.getElementById(`nsj-${idx}`)?.value.trim();
-        const isi = document.getElementById(`nsi-${idx}`)?.value.trim();
+    async function submitNewSaran(idx, row) {
+        const jenis = el(`nsj-${idx}`)?.value.trim();
+        const isi = el(`nsi-${idx}`)?.value.trim();
         if (!jenis || !isi) {
-            alert("Judul dan isi saran wajib diisi.");
+            alert("Judul dan isi wajib diisi.");
             return;
         }
-
-        try {
-            const res = await fetch(`/lansia/${currentLansiaId}/saran`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfTokenExt(),
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                body: JSON.stringify({ jenis_saran: jenis, isi_saran: isi }),
-            });
-            const json = await res.json();
-            if (json.success) {
-                document.getElementById(`new-saran-row-${idx}`)?.remove();
-                const list = document.getElementById("dp-saran-list");
-                const item = buildSaranItem(json.data);
-                list.appendChild(item);
-                hideEl("dp-saran-empty");
-            } else {
-                alert("Gagal menyimpan saran.");
-            }
-        } catch {
-            alert("Terjadi kesalahan jaringan.");
+        const res = await fetchJSON("POST", `/lansia/${lansiaId}/saran`, {
+            jenis_saran: jenis,
+            isi_saran: isi,
+        });
+        const json = await res.json();
+        if (json.success) {
+            row.remove();
+            el("dp-saran-list").appendChild(buildSaranItem(json.data));
+            hide("dp-saran-empty");
         }
     }
 
-    /* ── Utilities untuk Extension ── */
-    function showEl(id) {
-        const el = document.getElementById(id);
-        if (el) el.style.display = "";
+    // ══════════════════════════════════════════════════════════
+    // UTILITIES
+    // ══════════════════════════════════════════════════════════
+
+    function el(id) {
+        return document.getElementById(id);
     }
-    function hideEl(id) {
-        const el = document.getElementById(id);
-        if (el) el.style.display = "none";
+    function show(id) {
+        const e = el(id);
+        if (e) e.style.display = "";
     }
-    function csrfTokenExt() {
+    function hide(id) {
+        const e = el(id);
+        if (e) e.style.display = "none";
+    }
+
+    function csrf() {
         return document.querySelector('meta[name="csrf-token"]')?.content || "";
     }
-    function apiFetchExt(url) {
+    function apiFetch(url) {
         return fetch(url, {
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
@@ -592,18 +646,29 @@ document.addEventListener("DOMContentLoaded", function () {
             },
         });
     }
-    function escHtmlExt(str) {
+    function fetchJSON(method, url, body) {
+        const opts = {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrf(),
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        };
+        if (body) opts.body = JSON.stringify(body);
+        return fetch(url, opts);
+    }
+    function esc(str) {
         return String(str || "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
     }
-    function formatTanggalExt(str) {
+    function fmtDate(str) {
         if (!str) return "-";
         try {
-            const d = new Date(str);
-            return d.toLocaleDateString("id-ID", {
+            return new Date(str).toLocaleDateString("id-ID", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",

@@ -107,14 +107,7 @@ class LansiaController extends Controller
         ));
     }
 
-    // ============================================================
-    // MONITORING KESEHATAN
-    // ============================================================
-    public function monitoringKesehatan(Lansia $lansia)
-    {
-        return view('lansia.monitoringKesehatan', compact('lansia'));
-    }
-
+    
     
     // ============================================================
     // DETAIL SKRINING UTAMA — AJAX untuk modal
@@ -180,103 +173,116 @@ class LansiaController extends Controller
     // ============================================================
     // STORE – Tambah lansia baru
     // ============================================================
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nik'               => 'required|digits:16|unique:lansia,nik',
-            'nama_lansia'       => 'required|string|min:3|max:100',
-            'jenis_kelamin'     => 'required|in:L,P',
-            'tempat_lahir'      => 'nullable|string|max:50',
-            'tanggal_lahir'     => 'nullable|date',
-            'alamat'            => 'required|string|min:5',
-            'no_hp'             => 'nullable|digits_between:10,13',
-            'status_perkawinan' => 'nullable|string|max:20',
-            'riwayat_penyakit'  => 'nullable|string',
-            'tanggal_daftar'    => 'nullable|date',
-            'keterangan'        => 'nullable|string',
-            'email'             => 'nullable|email|max:100',
-            'keluarga'          => 'nullable|array',
-            'keluarga.*.nama_keluarga' => 'nullable|string|min:3|max:100',
-            'keluarga.*.no_sama' => 'nullable|string|max:15',
-            'keluarga.*.alamat' => 'nullable|string|max:255',
-        ]);
+                public function store(Request $request)
+                {
+                    $validated = $request->validate([
+                        'nik'               => 'required|digits:16|unique:lansia,nik',
+                        'nama_lansia'       => 'required|string|min:3|max:100',
+                        'jenis_kelamin'     => 'required|in:L,P',
+                        'tempat_lahir'      => 'nullable|string|max:50',
+                        'tanggal_lahir'     => 'nullable|date',
+                        'alamat'            => 'required|string|min:5',
+                        'no_hp'             => 'nullable|digits_between:10,13',
+                        'status_perkawinan' => 'nullable|string|max:20',
+                        'riwayat_penyakit'  => 'nullable|string',
+                        'tanggal_daftar'    => 'nullable|date',
+                        'keterangan'        => 'nullable|string',
+                        'email'             => 'nullable|email|max:100',
+                        'keluarga'          => 'nullable|array',
+                        'keluarga.*.nama_keluarga' => 'nullable|string|min:3|max:100',
+                        'keluarga.*.no_sama' => 'nullable|string|max:15',
+                        'keluarga.*.alamat' => 'nullable|string|max:255',
+                    ]);
 
-        // Validasi umur >= 40 tahun
-        if ($request->tanggal_lahir) {
-            $birthDate = Carbon::createFromFormat('Y-m-d', $request->tanggal_lahir);
-            $age = $birthDate->diffInYears(Carbon::now());
-            if ($age < 40) {
-                return redirect()->back()
-                    ->withErrors(['tanggal_lahir' => "Umur harus minimal 40 tahun (Saat ini umur Anda $age tahun)"])
-                    ->withInput();
-            }
-        }
-
-        DB::transaction(function () use ($validated, $request) {
-            $defaultPassword = $request->no_hp ?: $request->nik;
-
-            $user = \App\Models\User::create([
-                'email'    => $validated['email'] ?? null,
-                'whatsapp' => $request->no_hp ?? '',
-                'password' => bcrypt($defaultPassword),
-            ]);
-
-            $validated['id_user'] = $user->id;
-            $lansia = Lansia::create($validated);
-
-            // Simpan data keluarga jika ada
-            if (!empty($validated['keluarga'])) {
-                foreach ($validated['keluarga'] as $keluargaData) {
-                    // Hanya simpan jika nama_keluarga tidak kosong
-                    if (!empty($keluargaData['nama_keluarga'])) {
-                        Keluarga::create([
-                            'id_lansia' => $lansia->id_lansia,
-                            'nama_keluarga' => $keluargaData['nama_keluarga'],
-                            'no_sama' => $keluargaData['no_sama'] ?? null,
-                            'alamat' => $keluargaData['alamat'] ?? null,
-                        ]);
+                    // Validasi umur >= 40 tahun
+                    if ($request->tanggal_lahir) {
+                        $birthDate = Carbon::createFromFormat('Y-m-d', $request->tanggal_lahir);
+                        $age = $birthDate->diffInYears(Carbon::now());
+                        if ($age < 40) {
+                            return redirect()->back()
+                                ->withErrors(['tanggal_lahir' => "Umur harus minimal 40 tahun (Saat ini umur Anda $age tahun)"])
+                                ->withInput();
+                        }
                     }
-                }
-            }
-        });
 
-        return redirect()->route('data_lansia')
-            ->with('success', 'Data lansia berhasil ditambahkan.');
-    }
-    public function healthHistory(Lansia $lansia)
-    {
-        // Ambil semua skrining dengan relasi kunjungan dan utama
-        $skrinings = $lansia->skrinings()
-            ->with([
-                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan',
-                'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
-            ])
-            ->orderBy('tanggal_skrining')
-            ->get(['id_skrining', 'tanggal_skrining']);
+                    DB::transaction(function () use ($validated, $request) {
+                        $defaultPassword = $request->no_hp ?: $request->nik;
 
-        $data = $skrinings
-            ->filter(function ($s) {
-                // Hanya tampilkan jika ada minimal satu data (sistolik, diastolik, gula, atau kolesterol)
-                return $s->kunjungan?->td_sistolik || 
-                       $s->kunjungan?->td_diastolik || 
-                       $s->utama?->gula_darah || 
-                       $s->utama?->kolesterol;
-            })
-            ->map(function ($s) {
-                return [
-                    'tanggal'       => $s->tanggal_skrining,
-                    'td_sistolik'   => $s->kunjungan?->td_sistolik   ?? null,
-                    'td_diastolik'  => $s->kunjungan?->td_diastolik  ?? null,
-                    'berat_badan'   => $s->kunjungan?->berat_badan   ?? null,
-                    'gula_darah'    => $s->utama?->gula_darah        ?? null,
-                    'kolesterol'    => $s->utama?->kolesterol        ?? null,
-                ];
-            })
-            ->values();
+                        $user = \App\Models\User::create([
+                            'email'    => $validated['email'] ?? null,
+                            'whatsapp' => $request->no_hp ?? '',
+                            'password' => bcrypt($defaultPassword),
+                        ]);
 
-        return response()->json(['data' => $data]);
-    }
+                        $validated['id_user'] = $user->id;
+                        $lansia = Lansia::create($validated);
 
+                        // Simpan data keluarga jika ada
+                        if (!empty($validated['keluarga'])) {
+                            foreach ($validated['keluarga'] as $keluargaData) {
+                                // Hanya simpan jika nama_keluarga tidak kosong
+                                if (!empty($keluargaData['nama_keluarga'])) {
+                                    Keluarga::create([
+                                        'id_lansia' => $lansia->id_lansia,
+                                        'nama_keluarga' => $keluargaData['nama_keluarga'],
+                                        'no_sama' => $keluargaData['no_sama'] ?? null,
+                                        'alamat' => $keluargaData['alamat'] ?? null,
+                                    ]);
+                                }
+                            }
+                        }
+                    });
+
+                    return redirect()->route('data_lansia')
+                        ->with('success', 'Data lansia berhasil ditambahkan.');
+                }  
+
+
+
+            // ================================================================
+            // UPDATE method healthHistory() di LansiaController
+            // Tambahkan lingkar_perut ke dalam select dan map
+            // ================================================================
+
+            public function healthHistory(Lansia $lansia)
+            {
+                $skrinings = $lansia->skrinings()
+                    ->with([
+                        // Tambah lingkar_perut di sini
+                        'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,lingkar_perut',
+                        'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
+                    ])
+                    ->orderBy('tanggal_skrining')
+                    ->get(['id_skrining', 'tanggal_skrining']);
+
+                $data = $skrinings
+                    ->filter(function ($s) {
+                        return $s->kunjungan?->td_sistolik
+                            || $s->kunjungan?->td_diastolik
+                            || $s->kunjungan?->berat_badan
+                            || $s->kunjungan?->lingkar_perut
+                            || $s->utama?->gula_darah
+                            || $s->utama?->kolesterol;
+                    })
+                    ->map(function ($s) {
+                        return [
+                            'tanggal'       => $s->tanggal_skrining,   // format Y-m-d dari DB
+                            'td_sistolik'   => $s->kunjungan?->td_sistolik   ?? null,
+                            'td_diastolik'  => $s->kunjungan?->td_diastolik  ?? null,
+                            'berat_badan'   => $s->kunjungan?->berat_badan   ?? null,
+                            'lingkar_perut' => $s->kunjungan?->lingkar_perut ?? null,
+                            'gula_darah'    => $s->utama?->gula_darah        ?? null,
+                            'kolesterol'    => $s->utama?->kolesterol         ?? null,
+                        ];
+                    })
+                    ->values();
+
+                return response()->json(['data' => $data]);
+}
+
+// ================================================================
+// TIDAK ADA PERUBAHAN lain — method lain tetap sama
+// ================================================================
     public function keluhanHistory(Lansia $lansia)
     {
         $skrinings = $lansia->skrinings()
@@ -296,6 +302,11 @@ class LansiaController extends Controller
 
         return response()->json(['data' => $data]);
     }
+
+            public function monitoring(Lansia $lansia)
+            {
+            return view('lansia.monitoringKesehatan', compact('lansia'));
+            }
 
     // ============================================================
     // UPDATE – Perbarui data lansia
