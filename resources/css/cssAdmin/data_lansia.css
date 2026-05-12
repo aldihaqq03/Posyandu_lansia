@@ -93,6 +93,13 @@
     color: var(--text-main);
 }
 
+.stat-icon-fa {
+    font-size: 28px;
+    color: #cbd5e1;
+    opacity: 0.7;
+}
+
+
 .color-danger {
     color: var(--danger);
 }
@@ -107,6 +114,16 @@
 
 .border-success {
     border-left: 4px solid var(--success);
+}
+
+.color-warning {
+    color: #d97706;
+}
+.text-warning {
+    color: #d97706 !important;
+}
+.border-warning {
+    border-left: 4px solid #fbbf24;
 }
 
 /* Table Container */
@@ -164,26 +181,12 @@
     border-color: #cbd5e1;
 }
 
-/* Custom Table */
+/* Custom Table — base rule only, refinements below */
 .custom-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.custom-table th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    padding: 16px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.custom-table td {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-}
 
 /* User Cell Styling */
 .user-cell {
@@ -211,11 +214,12 @@
     color: var(--text-main);
 }
 
-.user-subtext,
-.sub-text {
+/* Sub text in user cell */
+.user-subtext {
     font-size: 12px;
     color: var(--text-muted);
 }
+
 
 /* Badges */
 .badge-pill {
@@ -317,20 +321,11 @@
     transform: translateX(4px);
 }
 
-/* Container Utama Ringkasan Detail */
-.detail-container {
-    margin-top: 30px;
-    padding: 30px;
-}
+/* Container Utama Ringkasan Detail — see enhanced rules below */
 
-.detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 20px;
-    margin-bottom: 25px;
-}
+
+/* detail-header — see enhanced rules below */
+
 
 .header-content {
     display: flex;
@@ -346,18 +341,8 @@
     gap: 24px;
 }
 
-/* Kolom Profil Kiri */
-.profile-side {
-    display: flex;
-    flex-direction: column;
-    justify-content: top; /* tengah vertikal */
-    align-items: center; /* tengah horizontal */
-    text-align: top;
-    gap: 12px;
+/* profile-side — see enhanced rules below */
 
-    border-right: 1px solid #f1f5f9;
-    padding-right: 20px;
-}
 .profile-photo {
     width: 120px;
     height: 120px;
@@ -382,17 +367,13 @@
     gap: 16px 24px;
 }
 
-.info-column h4 {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-}
+/* info-column h4 — see enhanced rules below */
+
 
 .data-item {
-    margin-bottom: 15px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
+
 
 .data-item label {
     font-size: 10px;
@@ -407,37 +388,7 @@
     color: #1e293b;
 }
 
-/* Health Cards (Tensi & Gula) */
-.health-cards {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.h-card {
-    flex: 1;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.h-card.red {
-    background: #fff5f5;
-    color: #ef4444;
-    border: 1px solid #fee2e2;
-}
-
-.h-card.blue {
-    background: #f0f9ff;
-    color: #0284c7;
-    border: 1px solid #dbeafe;
-}
-
-.h-card strong {
-    font-size: 22px;
-    display: block;
-    margin: 5px 0;
-}
+/* Old .health-cards and .h-card rules replaced by enhanced versions below */
 
 .medical-note {
     background: #f8fafc;
@@ -518,7 +469,9 @@
     background: var(--bg-card);
     border-radius: 16px;
     width: 100%;
-    max-width: 500px;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
     padding: 24px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transform: translateY(-20px);
@@ -629,20 +582,8 @@
     color: var(--primary);
 }
 
-/* ── Baris Table Bisa Diklik ──────────────────────────── */
-.selectable-row {
-    cursor: pointer;
-    transition:
-        background 0.15s ease,
-        box-shadow 0.15s ease;
-}
-.selectable-row:hover {
-    background: #f0f7ff;
-}
-.selectable-row.row-selected {
-    background: #eff6ff;
-    box-shadow: inset 4px 0 0 var(--primary);
-}
+/* selectable-row — see enhanced rules below */
+
 
 /* ── Badge Status Extra ───────────────────────────────── */
 .badge-status.high {
@@ -679,12 +620,200 @@
     border: 1px solid #ddd6fe;
 }
 
-/* Health cards di detail: biar wrap 2x2 */
+/* ── Risk Badges (Tabel Data Lansia) ─────────────────── */
+.risk-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+.risk-normal {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+.risk-waspada {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+.risk-tinggi {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* ── Table refinements ───────────────────────────────── */
+.custom-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--border-color);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+.custom-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    font-size: 13px;
+    color: var(--text-main);
+}
+.custom-table tbody tr {
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.custom-table tbody tr:hover {
+    background: #f8fafc;
+}
+.selectable-row:hover {
+    background: #f0f7ff !important;
+}
+.selectable-row.row-selected {
+    background: #eff6ff !important;
+    box-shadow: inset 4px 0 0 var(--primary);
+}
+
+.main-text {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-main);
+}
+.sub-text {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Health cards di detail: grid 2-3 kolom adaptif */
 .health-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 12px;
     margin-bottom: 16px;
+}
+
+/* ── Health Card – Enhanced ──────────────────────────── */
+.h-card {
+    padding: 16px 14px;
+    border-radius: 12px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.h-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.h-card-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+.h-card-value {
+    font-size: 24px;
+    font-weight: 800;
+    display: block;
+    margin: 4px 0;
+    color: #1e293b;
+    line-height: 1.2;
+}
+.h-card-unit {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Health card status colors (applied dynamically via JS) */
+.h-card.status-normal {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+.h-card.status-normal .h-card-value { color: #059669; }
+.h-card.status-normal .h-card-label { color: #059669; }
+
+.h-card.status-waspada {
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+.h-card.status-waspada .h-card-value { color: #d97706; }
+.h-card.status-waspada .h-card-label { color: #d97706; }
+
+.h-card.status-tinggi {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+.h-card.status-tinggi .h-card-value { color: #dc2626; }
+.h-card.status-tinggi .h-card-label { color: #dc2626; }
+
+/* ── Detail Panel Spacing ────────────────────────────── */
+.detail-container {
+    margin-top: 30px;
+    padding: 32px;
+}
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.detail-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.info-column h4 {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+.profile-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    border-right: 1px solid #f1f5f9;
+    padding-right: 24px;
+}
+.profile-side h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+.age-text {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.status-pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #eff6ff;
+    color: var(--primary);
+    border: 1px solid #bfdbfe;
 }
 
 /* ── Alert ───────────────────────────────────────────── */
@@ -733,3 +862,4 @@ td.empty-state {
     font-weight: bold;
     font-size: 24px;
 }
+

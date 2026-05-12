@@ -60,6 +60,7 @@ class AuthApiController extends Controller
             'message' => 'Logout berhasil'
         ]);
     }
+
     public function updateFcmToken(Request $request)
     {
         $request->validate([

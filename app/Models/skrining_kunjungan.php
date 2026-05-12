@@ -14,6 +14,7 @@ class Skrining_Kunjungan extends Model
         'id_skrining',
         'berat_badan',
         'tinggi_badan',
+        'imt',
         'lingkar_perut',
         'td_sistolik',
         'td_diastolik',

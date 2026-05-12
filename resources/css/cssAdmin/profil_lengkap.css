@@ -71,9 +71,11 @@
 .history-icon.blue {
     background: #2563eb;
 }
+
 .history-icon.red {
     background: #dc2626;
 }
+
 .history-icon.green {
     background: #16a34a;
 }
@@ -159,14 +161,17 @@
     background: #ede9fe;
     color: #7c3aed;
 }
+
 .badge-utama {
     background: #dbeafe;
     color: #1d4ed8;
 }
+
 .badge-ppok {
     background: #dcfce7;
     color: #16a34a;
 }
+
 .badge-muted {
     background: #f3f4f6;
     color: #6b7280;
@@ -229,14 +234,17 @@
     background: #dcfce7;
     color: #16a34a;
 }
+
 .badge-status.warning {
     background: #fef9c3;
     color: #a16207;
 }
+
 .badge-status.high {
     background: #fee2e2;
     color: #dc2626;
 }
+
 .badge-status.muted {
     background: #f3f4f6;
     color: #6b7280;

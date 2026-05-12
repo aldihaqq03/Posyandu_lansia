@@ -96,9 +96,9 @@
             </div> -->
 
             <a href="/skrining" class="nav-item {{ Request::is('skrining') ? 'active' : '' }}" title="Input Skrining">
-    <i class="fa-solid fa-notes-medical"></i>
-    <span class="nav-text">Input Skrining</span>
-</a>
+                <i class="fa-solid fa-notes-medical"></i>
+                <span class="nav-text">Input Skrining</span>
+            </a>
 
             @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
                 <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}" title="Laporan">

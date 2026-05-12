@@ -209,12 +209,10 @@
 
 /* ===================== SUMMARY CARD ===================== */
 .summary-card {
-    background: linear-gradient(
-        135deg,
-        #075c43 0%,
-        var(--primary-dark) 40%,
-        var(--primary) 100%
-    );
+    background: linear-gradient(135deg,
+            #075c43 0%,
+            var(--primary-dark) 40%,
+            var(--primary) 100%);
     border-radius: 16px;
     padding: 24px 28px;
     display: flex;
@@ -622,12 +620,15 @@
 }
 
 .badge-selesai {
-    background: var(--primary-light);
-    color: var(--primary-dark);
+    background: #dcfce7;
+    /* Hijau muda lembut untuk background */
+    color: #166534;
+    /* Hijau tua untuk teks agar terbaca jelas */
 }
 
 .badge-selesai::before {
-    background: var(--primary);
+    background: #22c55e;
+    /* Hijau terang untuk titik/ikon indikatornya */
 }
 
 .badge-batal {
@@ -640,6 +641,7 @@
 }
 
 @keyframes blink {
+
     0%,
     100% {
         opacity: 1;
@@ -1083,4 +1085,13 @@ textarea.form-control {
 
 .btn-add-kegiatan:hover {
     background: var(--primary-light);
+}
+
+.btn-selesai {
+    border-color: #059669;
+    color: #059669;
+}
+
+.btn-selesai:hover {
+    background: #d1fae5;
 }
