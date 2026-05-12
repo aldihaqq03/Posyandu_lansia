@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
             borderDash: [5, 4],
             pointRadius: 0,
             fill: false,
-            tension: 0,
+            tension: 1,
             parsing: false,
         };
     }

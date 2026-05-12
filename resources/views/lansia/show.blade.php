@@ -1,7 +1,8 @@
 @extends('layout.sidebar')
 
 @push('styles')
-    @vite(['resources/css/app.css', 'resources/css/cssAdmin/profil_lengkap.css'])
+    @vite(['resources/css/app.css', 'resources/css/cssAdmin/profil_lengkap.css', 'resources/css/cssAdmin/monitoring.css'])
+
 @endpush
 
 @section('title', 'Histori Skrining – ' . $lansia->nama_lansia)
@@ -32,27 +33,31 @@
             </header>
 
             {{-- ── INFO SINGKAT LANSIA ─────────────────────────────────── --}}
-            <section class="card lansia-info-card">
-                <div class="lansia-info-grid">
-                    <div class="info-item">
-                        <span class="info-label">NIK</span>
-                        <span class="info-val">{{ $lansia->nik }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Jenis Kelamin</span>
-                        <span class="info-val">{{ $lansia->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">No. HP</span>
-                        <span class="info-val">{{ $lansia->no_hp ?? '-' }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Riwayat Penyakit</span>
-                        <span class="info-val">{{ $lansia->riwayat_penyakit ?? '-' }}</span>
+            {{-- ── PROFIL LANSIA (sama dengan monitoring) ─────────────── --}}
+            <div class="mon-profile-card" style="margin-bottom: 1.5rem;">
+                <div class="mon-avatar">{{ strtoupper(substr($lansia->nama_lansia, 0, 2)) }}</div>
+                <div class="mon-profile-info">
+                    <h2 class="mon-profile-name">{{ $lansia->nama_lansia }}</h2>
+                    <div class="mon-profile-meta">
+                        <span><i class="fa-solid fa-id-card"></i> {{ $lansia->nik }}</span>
+                        <span><i class="fa-solid fa-cake-candles"></i>
+                            {{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }} tahun
+                        </span>
+                        <span>
+                            <i class="fa-solid fa-venus-mars"></i>
+                            {{ $lansia->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                        </span>
+                        @if($lansia->no_hp)
+                            <span><i class="fa-solid fa-phone"></i> {{ $lansia->no_hp }}</span>
+                        @endif
+                        @if($lansia->riwayat_penyakit)
+                            <span class="mon-riwayat">
+                                <i class="fa-solid fa-notes-medical"></i> {{ $lansia->riwayat_penyakit }}
+                            </span>
+                        @endif
                     </div>
                 </div>
-            </section>
-
+            </div>
             {{-- ═══════════════════════════════════════════════════════════ --}}
             {{-- TABEL 1 – SKRINING KUNJUNGAN --}}
             {{-- ═══════════════════════════════════════════════════════════ --}}
@@ -307,7 +312,7 @@
         </div>
     </main>
     {{-- ═══════════════════════════════════════════════════════════ --}}
-    {{-- MODAL DETAIL SKRINING (read-only)                          --}}
+    {{-- MODAL DETAIL SKRINING (read-only) --}}
     {{-- ═══════════════════════════════════════════════════════════ --}}
     <div class="modal-overlay" id="modal-detail-skrining">
         <div class="modal-box modal-lg">
@@ -332,249 +337,249 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
-    // ─────────────────────────────────────────────────────────────────────
-    // Data lansia (dari Blade, diteruskan ke JS)
-    // ─────────────────────────────────────────────────────────────────────
-    const LANSIA = {
-        id    : @json($lansia->id_lansia),
-        nama  : @json($lansia->nama_lansia),
-        nik   : @json($lansia->nik),
-        alamat: @json($lansia->alamat ?? '-'),
-        umur  : @json(\Carbon\Carbon::parse($lansia->tanggal_lahir)->age),
-    };
-    document.addEventListener('DOMContentLoaded', function () {
+        // ─────────────────────────────────────────────────────────────────────
+        // Data lansia (dari Blade, diteruskan ke JS)
+        // ─────────────────────────────────────────────────────────────────────
+        const LANSIA = {
+            id: @json($lansia->id_lansia),
+            nama: @json($lansia->nama_lansia),
+            nik: @json($lansia->nik),
+            alamat: @json($lansia->alamat ?? '-'),
+            umur: @json(\Carbon\Carbon::parse($lansia->tanggal_lahir)->age),
+        };
+        document.addEventListener('DOMContentLoaded', function () {
 
-        // ─── 1. Filter Bulan ───────────────────────────────────────
-        document.querySelectorAll('.filter-month').forEach(input => {
-            input.addEventListener('change', function () {
-                const tblId = this.dataset.target;
-                const val   = this.value;
-                document.querySelectorAll(`#${tblId} tbody tr`).forEach(tr => {
-                    tr.style.display = (!val || tr.dataset.bulan === val) ? '' : 'none';
+            // ─── 1. Filter Bulan ───────────────────────────────────────
+            document.querySelectorAll('.filter-month').forEach(input => {
+                input.addEventListener('change', function () {
+                    const tblId = this.dataset.target;
+                    const val = this.value;
+                    document.querySelectorAll(`#${tblId} tbody tr`).forEach(tr => {
+                        tr.style.display = (!val || tr.dataset.bulan === val) ? '' : 'none';
+                    });
                 });
             });
-        });
 
-        // ─── 2. Klik Baris → Buka Modal ───────────────────────────
-        // Tambahkan tooltip + cursor pada setiap baris (kecuali kolom aksi)
-        document.querySelectorAll('.history-table tbody tr').forEach(tr => {
-            tr.style.cursor = 'pointer';
-            tr.title = 'Klik untuk melihat detail';
-            tr.addEventListener('click', function (e) {
-                // Abaikan klik di kolom aksi
-                if (e.target.closest('.aksi-col')) return;
-                // Cari btn-detail di baris ini dan trigger klik
-                const btn = this.querySelector('.btn-detail');
-                if (btn) btn.click();
+            // ─── 2. Klik Baris → Buka Modal ───────────────────────────
+            // Tambahkan tooltip + cursor pada setiap baris (kecuali kolom aksi)
+            document.querySelectorAll('.history-table tbody tr').forEach(tr => {
+                tr.style.cursor = 'pointer';
+                tr.title = 'Klik untuk melihat detail';
+                tr.addEventListener('click', function (e) {
+                    // Abaikan klik di kolom aksi
+                    if (e.target.closest('.aksi-col')) return;
+                    // Cari btn-detail di baris ini dan trigger klik
+                    const btn = this.querySelector('.btn-detail');
+                    if (btn) btn.click();
+                });
             });
-        });
 
-        // ─── 3. Modal Detail ──────────────────────────────────────
-        const modal      = document.getElementById('modal-detail-skrining');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBadge = document.getElementById('modal-type-badge');
-        const modalBody  = document.getElementById('modal-body-content');
+            // ─── 3. Modal Detail ──────────────────────────────────────
+            const modal = document.getElementById('modal-detail-skrining');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBadge = document.getElementById('modal-type-badge');
+            const modalBody = document.getElementById('modal-body-content');
 
-        document.querySelectorAll('.btn-detail').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                // Salin semua dataset ke objek biasa agar tidak hilang saat async
-                const d = Object.assign({}, this.dataset);
-                const type = d.type;
+            document.querySelectorAll('.btn-detail').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    // Salin semua dataset ke objek biasa agar tidak hilang saat async
+                    const d = Object.assign({}, this.dataset);
+                    const type = d.type;
 
-                modalTitle.textContent = `Detail Skrining – ${d.tanggal}`;
+                    modalTitle.textContent = `Detail Skrining – ${d.tanggal}`;
 
-                const badgeMap = {
-                    kunjungan: { label: 'Kunjungan', cls: 'badge-kunjungan' },
-                    utama    : { label: 'Utama',     cls: 'badge-utama'     },
-                    ppok     : { label: 'PPOK',      cls: 'badge-ppok'      },
-                };
-                const badge = badgeMap[type] ?? { label: type, cls: '' };
-                modalBadge.textContent = badge.label;
-                modalBadge.className   = `modal-type-badge ${badge.cls}`;
+                    const badgeMap = {
+                        kunjungan: { label: 'Kunjungan', cls: 'badge-kunjungan' },
+                        utama: { label: 'Utama', cls: 'badge-utama' },
+                        ppok: { label: 'PPOK', cls: 'badge-ppok' },
+                    };
+                    const badge = badgeMap[type] ?? { label: type, cls: '' };
+                    modalBadge.textContent = badge.label;
+                    modalBadge.className = `modal-type-badge ${badge.cls}`;
 
-                if (type === 'kunjungan') {
-                    modalBody.innerHTML = renderInfoUmum(d) + renderKunjungan(d);
-                } else if (type === 'utama') {
-                    modalBody.innerHTML = renderInfoUmum(d) + renderLoading();
-                    fetchAndRenderUtama(d, modalBody);   // ✅ pass d langsung
-                } else if (type === 'ppok') {
-                    modalBody.innerHTML = renderInfoUmum(d) + renderLoading();
-                    fetchAndRenderPpok(d, modalBody);    // ✅ pass d langsung
-                } else {
-                    modalBody.innerHTML = '<p>Tipe skrining tidak dikenal.</p>';
-                }
-
-                modal.classList.add('active');
-            });
-        });
-
-        document.getElementById('btn-close-detail')
-            ?.addEventListener('click', () => modal.classList.remove('active'));
-        modal.addEventListener('click', e => {
-            if (e.target === modal) modal.classList.remove('active');
-        });
-
-        // ─── 4. PDF per record ─────────────────────────────────────
-        document.querySelectorAll('.btn-pdf').forEach(btn => {
-            btn.addEventListener('click', async function (e) {
-                e.stopPropagation();
-                const row       = this.closest('tr');
-                const detailBtn = row?.querySelector('.btn-detail');
-                if (!detailBtn) return;
-
-                // Salin dataset ke objek biasa
-                const d    = Object.assign({}, detailBtn.dataset);
-                const type = d.type;
-
-                const typeLabel = {
-                    kunjungan: 'Skrining Kunjungan',
-                    utama    : 'Skrining Utama',
-                    ppok     : 'Skrining PPOK'
-                };
-
-                if (type === 'kunjungan') {
-                    generatePdf(typeLabel[type], d.tanggal, buildPdfKunjungan(d));
-                } else if (type === 'utama' || type === 'ppok') {
-                    try {
-                        const endpoint = type === 'utama' ? 'skrining-utama' : 'skrining-ppok';
-                        const response = await fetch(`/lansia/${LANSIA.id}/${endpoint}/${d.skriningId}`);
-                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                        const apiData = await response.json();
-
-                        // ✅ Build rows langsung dari response API (label → value)
-                        const rows = [
-                            ['Petugas', d.petugas || '-'],
-                            ['Keluhan', d.keluhan || '-'],
-                        ];
-                        for (const [section, fields] of Object.entries(apiData)) {
-                            rows.push([`— ${section} —`, '']);
-                            fields.forEach(f => rows.push([f.label, String(f.value ?? '-')]));
-                        }
-                        generatePdf(typeLabel[type], d.tanggal, rows);
-                    } catch (err) {
-                        alert('Gagal generate PDF: ' + err.message);
+                    if (type === 'kunjungan') {
+                        modalBody.innerHTML = renderInfoUmum(d) + renderKunjungan(d);
+                    } else if (type === 'utama') {
+                        modalBody.innerHTML = renderInfoUmum(d) + renderLoading();
+                        fetchAndRenderUtama(d, modalBody);   // ✅ pass d langsung
+                    } else if (type === 'ppok') {
+                        modalBody.innerHTML = renderInfoUmum(d) + renderLoading();
+                        fetchAndRenderPpok(d, modalBody);    // ✅ pass d langsung
+                    } else {
+                        modalBody.innerHTML = '<p>Tipe skrining tidak dikenal.</p>';
                     }
-                }
+
+                    modal.classList.add('active');
+                });
             });
-        });
-    }); // end DOMContentLoaded
 
-    // ─── ASYNC FETCHERS (terima d sebagai parameter eksplisit) ────────────
-    async function fetchAndRenderUtama(d, modalBody) {
-        try {
-            const res = await fetch(`/lansia/${LANSIA.id}/skrining-utama/${d.skriningId}`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const apiData = await res.json();
-            let html = '';
-            for (const [section, fields] of Object.entries(apiData)) {
-                html += `<div class="modal-section">
-                    <h4 class="modal-section-title">${section}</h4>
-                    <div class="modal-grid-2">`;
-                fields.forEach(f => { html += row(f.label, f.value ?? '-'); });
-                html += `</div></div>`;
+            document.getElementById('btn-close-detail')
+                ?.addEventListener('click', () => modal.classList.remove('active'));
+            modal.addEventListener('click', e => {
+                if (e.target === modal) modal.classList.remove('active');
+            });
+
+            // ─── 4. PDF per record ─────────────────────────────────────
+            document.querySelectorAll('.btn-pdf').forEach(btn => {
+                btn.addEventListener('click', async function (e) {
+                    e.stopPropagation();
+                    const row = this.closest('tr');
+                    const detailBtn = row?.querySelector('.btn-detail');
+                    if (!detailBtn) return;
+
+                    // Salin dataset ke objek biasa
+                    const d = Object.assign({}, detailBtn.dataset);
+                    const type = d.type;
+
+                    const typeLabel = {
+                        kunjungan: 'Skrining Kunjungan',
+                        utama: 'Skrining Utama',
+                        ppok: 'Skrining PPOK'
+                    };
+
+                    if (type === 'kunjungan') {
+                        generatePdf(typeLabel[type], d.tanggal, buildPdfKunjungan(d));
+                    } else if (type === 'utama' || type === 'ppok') {
+                        try {
+                            const endpoint = type === 'utama' ? 'skrining-utama' : 'skrining-ppok';
+                            const response = await fetch(`/lansia/${LANSIA.id}/${endpoint}/${d.skriningId}`);
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            const apiData = await response.json();
+
+                            // ✅ Build rows langsung dari response API (label → value)
+                            const rows = [
+                                ['Petugas', d.petugas || '-'],
+                                ['Keluhan', d.keluhan || '-'],
+                            ];
+                            for (const [section, fields] of Object.entries(apiData)) {
+                                rows.push([`— ${section} —`, '']);
+                                fields.forEach(f => rows.push([f.label, String(f.value ?? '-')]));
+                            }
+                            generatePdf(typeLabel[type], d.tanggal, rows);
+                        } catch (err) {
+                            alert('Gagal generate PDF: ' + err.message);
+                        }
+                    }
+                });
+            });
+        }); // end DOMContentLoaded
+
+        // ─── ASYNC FETCHERS (terima d sebagai parameter eksplisit) ────────────
+        async function fetchAndRenderUtama(d, modalBody) {
+            try {
+                const res = await fetch(`/lansia/${LANSIA.id}/skrining-utama/${d.skriningId}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const apiData = await res.json();
+                let html = '';
+                for (const [section, fields] of Object.entries(apiData)) {
+                    html += `<div class="modal-section">
+                            <h4 class="modal-section-title">${section}</h4>
+                            <div class="modal-grid-2">`;
+                    fields.forEach(f => { html += row(f.label, f.value ?? '-'); });
+                    html += `</div></div>`;
+                }
+                modalBody.innerHTML = renderInfoUmum(d) + html;
+            } catch (err) {
+                modalBody.innerHTML = `<div class="alert-danger">Error: ${err.message}</div>`;
             }
-            modalBody.innerHTML = renderInfoUmum(d) + html;
-        } catch (err) {
-            modalBody.innerHTML = `<div class="alert-danger">Error: ${err.message}</div>`;
         }
-    }
 
-    async function fetchAndRenderPpok(d, modalBody) {
-        try {
-            const res = await fetch(`/lansia/${LANSIA.id}/skrining-ppok/${d.skriningId}`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const apiData = await res.json();
-            let html = '';
-            for (const [section, fields] of Object.entries(apiData)) {
-                html += `<div class="modal-section">
-                    <h4 class="modal-section-title">${section}</h4>
-                    <div class="modal-grid-2">`;
-                fields.forEach(f => { html += row(f.label, f.value ?? '-'); });
-                html += `</div></div>`;
+        async function fetchAndRenderPpok(d, modalBody) {
+            try {
+                const res = await fetch(`/lansia/${LANSIA.id}/skrining-ppok/${d.skriningId}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const apiData = await res.json();
+                let html = '';
+                for (const [section, fields] of Object.entries(apiData)) {
+                    html += `<div class="modal-section">
+                            <h4 class="modal-section-title">${section}</h4>
+                            <div class="modal-grid-2">`;
+                    fields.forEach(f => { html += row(f.label, f.value ?? '-'); });
+                    html += `</div></div>`;
+                }
+                modalBody.innerHTML = renderInfoUmum(d) + html;
+            } catch (err) {
+                modalBody.innerHTML = `<div class="alert-danger">Error: ${err.message}</div>`;
             }
-            modalBody.innerHTML = renderInfoUmum(d) + html;
-        } catch (err) {
-            modalBody.innerHTML = `<div class="alert-danger">Error: ${err.message}</div>`;
         }
-    }
 
-    // ─── PDF GENERATOR ────────────────────────────────────────────────────
-    function generatePdf(jenisLabel, tanggal, rows) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait' });
-        writePdfHeader(doc, jenisLabel, tanggal);
-        doc.autoTable({
-            head: [['Keterangan', 'Nilai']],
-            body: rows,
-            startY: 78,
-            styles: { fontSize: 9, cellPadding: 3 },
-            headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
-            alternateRowStyles: { fillColor: [248, 250, 252] },
-            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 70 } },
-        });
-        const fileName = `skrining_${jenisLabel.replace(/\s+/g,'_')}_${LANSIA.nama.replace(/\s+/g,'_')}_${tanggal.replace(/\s+/g,'_')}.pdf`;
-        doc.save(fileName);
-    }
+        // ─── PDF GENERATOR ────────────────────────────────────────────────────
+        function generatePdf(jenisLabel, tanggal, rows) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait' });
+            writePdfHeader(doc, jenisLabel, tanggal);
+            doc.autoTable({
+                head: [['Keterangan', 'Nilai']],
+                body: rows,
+                startY: 78,
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 70 } },
+            });
+            const fileName = `skrining_${jenisLabel.replace(/\s+/g, '_')}_${LANSIA.nama.replace(/\s+/g, '_')}_${tanggal.replace(/\s+/g, '_')}.pdf`;
+            doc.save(fileName);
+        }
 
-    // ─── RENDER HELPERS ───────────────────────────────────────────────────
-    function renderLoading() {
-        return `<div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</div>`;
-    }
-    function renderInfoUmum(d) {
-        return `<div class="modal-section-plain">
-            ${row('Tanggal', d.tanggal || '-')}
-            ${row('Petugas', d.petugas || '-')}
-            ${row('Keluhan', d.keluhan || '-')}
-        </div>`;
-    }
-    function renderKunjungan(d) {
-        return `<div class="modal-section">
-            <h4 class="modal-section-title"><i class="fa-solid fa-heart-pulse"></i> Data Kunjungan</h4>
-            <div class="modal-grid-2">
-                ${row('Tensi Sistolik',     d.sistolik  ? d.sistolik  + ' mmHg' : '-')}
-                ${row('Tensi Diastolik',    d.diastolik ? d.diastolik + ' mmHg' : '-')}
-                ${row('Berat Badan',        d.bb        ? d.bb        + ' kg'   : '-')}
-                ${row('Tinggi Badan',       d.tb        ? d.tb        + ' cm'   : '-')}
-                ${row('Lingkar Perut',      d.lp        ? d.lp        + ' cm'   : '-')}
-                ${row('Keluhan Kunjungan',  d.keluhanKunjungan || '-')}
-            </div>
-        </div>`;
-    }
-    function buildPdfKunjungan(d) {
-        return [
-            ['Petugas',           d.petugas    || '-'],
-            ['Keluhan',           d.keluhan    || '-'],
-            ['— Data Kunjungan —',''],
-            ['Tensi Sistolik',    d.sistolik   ? d.sistolik  + ' mmHg' : '-'],
-            ['Tensi Diastolik',   d.diastolik  ? d.diastolik + ' mmHg' : '-'],
-            ['Berat Badan',       d.bb         ? d.bb        + ' kg'   : '-'],
-            ['Tinggi Badan',      d.tb         ? d.tb        + ' cm'   : '-'],
-            ['Lingkar Perut',     d.lp         ? d.lp        + ' cm'   : '-'],
-            ['Keluhan Kunjungan', d.keluhanKunjungan || '-'],
-        ];
-    }
-    function row(label, value) {
-        return `<div class="modal-info-row">
-            <span class="modal-label">${label}</span>
-            <span>${value ?? '-'}</span>
-        </div>`;
-    }
-    function writePdfHeader(doc, jenisLabel, tanggal) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(16);
-        doc.text('SIMPEL – Posyandu Lansia', 14, 18);
-        doc.setFontSize(12);
-        doc.text(jenisLabel, 14, 26);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.text(`Nama    : ${LANSIA.nama}`,        14, 34);
-        doc.text(`NIK     : ${LANSIA.nik}`,         14, 40);
-        doc.text(`Umur    : ${LANSIA.umur} Tahun`,  14, 46);
-        doc.text(`Alamat  : ${LANSIA.alamat}`,       14, 52);
-        doc.text(`Tanggal : ${tanggal}`,             14, 58);
-        doc.text(`Dicetak : ${new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}`, 14, 64);
-        doc.line(14, 68, 196, 68);
-    }
+        // ─── RENDER HELPERS ───────────────────────────────────────────────────
+        function renderLoading() {
+            return `<div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</div>`;
+        }
+        function renderInfoUmum(d) {
+            return `<div class="modal-section-plain">
+                    ${row('Tanggal', d.tanggal || '-')}
+                    ${row('Petugas', d.petugas || '-')}
+                    ${row('Keluhan', d.keluhan || '-')}
+                </div>`;
+        }
+        function renderKunjungan(d) {
+            return `<div class="modal-section">
+                    <h4 class="modal-section-title"><i class="fa-solid fa-heart-pulse"></i> Data Kunjungan</h4>
+                    <div class="modal-grid-2">
+                        ${row('Tensi Sistolik', d.sistolik ? d.sistolik + ' mmHg' : '-')}
+                        ${row('Tensi Diastolik', d.diastolik ? d.diastolik + ' mmHg' : '-')}
+                        ${row('Berat Badan', d.bb ? d.bb + ' kg' : '-')}
+                        ${row('Tinggi Badan', d.tb ? d.tb + ' cm' : '-')}
+                        ${row('Lingkar Perut', d.lp ? d.lp + ' cm' : '-')}
+                        ${row('Keluhan Kunjungan', d.keluhanKunjungan || '-')}
+                    </div>
+                </div>`;
+        }
+        function buildPdfKunjungan(d) {
+            return [
+                ['Petugas', d.petugas || '-'],
+                ['Keluhan', d.keluhan || '-'],
+                ['— Data Kunjungan —', ''],
+                ['Tensi Sistolik', d.sistolik ? d.sistolik + ' mmHg' : '-'],
+                ['Tensi Diastolik', d.diastolik ? d.diastolik + ' mmHg' : '-'],
+                ['Berat Badan', d.bb ? d.bb + ' kg' : '-'],
+                ['Tinggi Badan', d.tb ? d.tb + ' cm' : '-'],
+                ['Lingkar Perut', d.lp ? d.lp + ' cm' : '-'],
+                ['Keluhan Kunjungan', d.keluhanKunjungan || '-'],
+            ];
+        }
+        function row(label, value) {
+            return `<div class="modal-info-row">
+                    <span class="modal-label">${label}</span>
+                    <span>${value ?? '-'}</span>
+                </div>`;
+        }
+        function writePdfHeader(doc, jenisLabel, tanggal) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('SIMPEL – Posyandu Lansia', 14, 18);
+            doc.setFontSize(12);
+            doc.text(jenisLabel, 14, 26);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text(`Nama    : ${LANSIA.nama}`, 14, 34);
+            doc.text(`NIK     : ${LANSIA.nik}`, 14, 40);
+            doc.text(`Umur    : ${LANSIA.umur} Tahun`, 14, 46);
+            doc.text(`Alamat  : ${LANSIA.alamat}`, 14, 52);
+            doc.text(`Tanggal : ${tanggal}`, 14, 58);
+            doc.text(`Dicetak : ${new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}`, 14, 64);
+            doc.line(14, 68, 196, 68);
+        }
     </script>
 @endpush
