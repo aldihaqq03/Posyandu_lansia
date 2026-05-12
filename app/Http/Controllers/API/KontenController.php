@@ -3,18 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Konten;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class KontenController extends Controller
 {
     public function index(Request $request)
     {
         try {
-            // Ambil semua data dari tabel konten
-            $konten = DB::table('konten')
-                ->orderBy('created_at', 'desc')
-                ->get();
+            // Menggunakan Model agar accessor full_url otomatis muncul
+            $konten = Konten::orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
@@ -23,17 +21,16 @@ class KontenController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil data konten'
+                'message' => 'Gagal mengambil data konten: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    // Optional: ambil berdasarkan tipe (video/artikel/pamflet)
+    // Ambil berdasarkan tipe (video/artikel/pamflet)
     public function getByTipe($tipe)
     {
         try {
-            $konten = DB::table('konten')
-                ->where('tipe_konten', $tipe)
+            $konten = Konten::where('tipe_konten', $tipe)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
