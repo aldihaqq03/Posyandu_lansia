@@ -6,9 +6,15 @@
             <button class="btn-close-modal" id="btn-close-edit-modal">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="form-edit-lansia" method="POST">
+            {{-- 
+                ⚠️ PENTING: action dan method diisi oleh JS saat tombol edit diklik.
+                @method('PUT') di sini harus ada agar Laravel tahu ini adalah PUT request.
+                JS akan set form.action = /lansia/{id}
+            --}}
+            <form id="form-edit-lansia" method="POST" action="">
                 @csrf
                 @method('PUT')
+
                 <div class="form-group" style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <label for="edit_nik">NIK</label>
@@ -17,8 +23,7 @@
                     </div>
                     <div style="flex: 1;">
                         <label for="edit_nama_lansia">Nama Lengkap</label>
-                        <input type="text" id="edit_nama_lansia" name="nama_lansia" placeholder="Masukkan Nama Lengkap"
-                            required>
+                        <input type="text" id="edit_nama_lansia" name="nama_lansia" placeholder="Masukkan Nama Lengkap" required>
                         <small id="error-edit_nama_lansia" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                     </div>
                 </div>
@@ -58,7 +63,6 @@
                             <option value="Cerai Mati">Cerai Mati</option>
                         </select>
                     </div>
-
                 </div>
                 <div class="form-group">
                     <label for="edit_riwayat_penyakit">Riwayat Penyakit</label>
@@ -67,14 +71,12 @@
                 </div>
                 <div class="form-group">
                     <label for="edit_alamat">Alamat</label>
-                    <textarea id="edit_alamat" name="alamat" rows="2" placeholder="Masukkan Alamat Lengkap"
-                        required></textarea>
+                    <textarea id="edit_alamat" name="alamat" rows="2" placeholder="Masukkan Alamat Lengkap" required></textarea>
                     <small id="error-edit_alamat" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                 </div>
                 <div class="form-group">
                     <label for="edit_keterangan">Keterangan</label>
-                    <textarea id="edit_keterangan" name="keterangan" rows="2"
-                        placeholder="Informasi Tambahan"></textarea>
+                    <textarea id="edit_keterangan" name="keterangan" rows="2" placeholder="Informasi Tambahan"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="edit_email">Email (Opsional)</label>
@@ -83,55 +85,26 @@
                 </div>
 
                 <!-- INFORMASI KELUARGA SECTION -->
-                            <!-- INFORMASI KELUARGA SECTION -->
                 <hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">
                 <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">
                     Informasi Keluarga <span style="color: #e74c3c;">*</span>
                 </h3>
 
                 <div id="edit-keluarga-container">
-                    <!-- Item pertama: WAJIB, tidak bisa dihapus -->
-                    <div class="keluarga-item-edit" data-index="0"
-                        style="padding:15px; background:#f9f9f9; border-radius:8px; margin-bottom:15px; border:1px solid #e0e0e0;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                            <h4 style="margin:0; color:#555;">Anggota Keluarga #1 <span style="color:#e74c3c; font-size:12px;">*Wajib</span></h4>
-                            {{-- Tidak ada tombol hapus untuk yang pertama --}}
-                        </div>
-                        <div class="form-group">
-                            <label>Nama Keluarga <span style="color:#e74c3c;">*</span></label>
-                            <input type="text" class="nama_keluarga_input"
-                                name="keluarga[0][nama_keluarga]"
-                                placeholder="Masukkan nama anggota keluarga"
-                                required>
-                            <small class="error-nama-keluarga-0" style="color:#e74c3c; font-size:12px; display:none;"></small>
-                        </div>
-                        <div class="form-group" style="display:flex; gap:10px;">
-                            <div style="flex:1;">
-                                <label>No Telepon (Opsional)</label>
-                                <input type="text" class="no_sama_input"
-                                    name="keluarga[0][no_sama]"
-                                    placeholder="Contoh: 081234567890">
-                            </div>
-                            <div style="flex:1;">
-                                <label>Alamat (Opsional)</label>
-                                <input type="text" class="alamat_keluarga_input"
-                                    name="keluarga[0][alamat]"
-                                    placeholder="Alamat anggota keluarga">
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Diisi secara dinamis oleh JavaScript -->
                 </div>
 
                 <button type="button" id="btn-tambah-keluarga-edit" class="btn-secondary"
                     style="margin-bottom: 15px; background-color: #f5f5f5; color: #333; border: 1px dashed #999; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">
                     + Tambah Anggota Keluarga
                 </button>
-            </form>
 
-        </div>
-        <div class="modal-footer">
-            <button type="button" id="btn-cancel-edit-modal" class="btn-secondary">Batal</button>
-            <button type="submit" form="form-edit-lansia" class="btn-primary">Simpan Perubahan</button>
+                {{-- ⚠️ PENTING: modal-footer di dalam form agar tombol submit terikat dengan form --}}
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancel-edit-modal" class="btn-secondary">Batal</button>
+                    <button type="submit" id="btn-submit-edit" class="btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

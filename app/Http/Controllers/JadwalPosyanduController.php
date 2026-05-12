@@ -10,6 +10,7 @@ class JadwalPosyanduController extends Controller
 {
     public function index()
     {
+        $this->autoUpdateStatus(); 
         $jadwalPosyandu = JadwalPosyandu::with('detailSkrining')
             ->orderBy('tanggal_pelaksanaan', 'desc')
             ->get();
@@ -45,9 +46,15 @@ class JadwalPosyanduController extends Controller
 
         DB::transaction(function () use ($request) {
             $idPetugas = auth()->user()?->petugas?->id_petugas ?? 1;
-$statusJadwal = ($request->tanggal_pelaksanaan == today()) 
-    ? JadwalPosyandu::STATUS_BERLANGSUNG  // Jika hari ini → Berlangsung (1)
-    : JadwalPosyandu::STATUS_TERJADWAL;
+            
+            // 1. Ambil tanggal hari ini versi WIB
+            $todayWIB = now('Asia/Jakarta')->format('Y-m-d');
+
+            // 2. Bandingkan sesama teks/string agar akurat
+            $statusJadwal = ($request->tanggal_pelaksanaan === $todayWIB) 
+                ? JadwalPosyandu::STATUS_BERLANGSUNG  // Jika hari ini → Berlangsung (1)
+                : JadwalPosyandu::STATUS_TERJADWAL;
+
             $jadwal = JadwalPosyandu::create([
                 'id_petugas'          => $idPetugas,
                 'tanggal_pelaksanaan' => $request->tanggal_pelaksanaan,
@@ -56,8 +63,6 @@ $statusJadwal = ($request->tanggal_pelaksanaan == today())
                 'kegiatan'            => $request->kegiatan ? json_encode($request->kegiatan) : null,
                 'keterangan'          => $request->keterangan,
                 'status'              => $statusJadwal,
-                 // 0
-                 
             ]);
 
             // Selalu sertakan Kunjungan Rutin (3), tambah pilihan user
@@ -190,7 +195,36 @@ $statusJadwal = ($request->tanggal_pelaksanaan == today())
 
         return redirect()->route('jadwal_posyandu.index')->with('success', 'Jadwal berhasil dihapus!');
     }
+   private function autoUpdateStatus()
+{
+    // Gunakan Asia/Jakarta agar sinkron dengan waktu Jember (WIB)
+    $today = now('Asia/Jakarta')->format('Y-m-d'); 
 
+    // Update yang sudah lewat menjadi Selesai
+    JadwalPosyandu::whereIn('status', [
+            JadwalPosyandu::STATUS_TERJADWAL, 
+            JadwalPosyandu::STATUS_BERLANGSUNG
+        ])
+        ->whereDate('tanggal_pelaksanaan', '<', $today)
+        ->update(['status' => JadwalPosyandu::STATUS_SELESAI]);
+
+    // Update hari ini menjadi Berlangsung
+    JadwalPosyandu::where('status', JadwalPosyandu::STATUS_TERJADWAL)
+        ->whereDate('tanggal_pelaksanaan', '=', $today)
+        ->update(['status' => JadwalPosyandu::STATUS_BERLANGSUNG]);
+}
+public function selesai(string $id)
+{
+    $jadwal = JadwalPosyandu::findOrFail($id);
+
+    if ($jadwal->status !== JadwalPosyandu::STATUS_BERLANGSUNG) {
+        return redirect()->back()->with('error', 'Hanya jadwal berlangsung yang bisa diselesaikan.');
+    }
+
+    $jadwal->update(['status' => JadwalPosyandu::STATUS_SELESAI]);
+
+    return redirect()->route('jadwal_posyandu.index')->with('success', 'Jadwal berhasil ditandai selesai.');
+}
     private function successResponse(Request $request, string $message)
     {
         if ($request->expectsJson()) {

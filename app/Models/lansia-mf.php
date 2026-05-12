@@ -10,4 +10,5 @@ class Lansia extends Model
     use HasFactory;
 
     protected $table = 'lansia';
+    
 }
