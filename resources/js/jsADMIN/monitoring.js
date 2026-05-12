@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
             setChartState(k, "loading"),
         );
 
-        let rows = [];
         try {
             const res = await apiFetch(`/lansia/${id}/health-history`);
             const json = await res.json();
@@ -70,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ────────────────────────────────────────────────────────
        HELPER: buat opsi Chart.js dengan time scale
     ──────────────────────────────────────────────────────── */
-    function makeOptions(labelCallback) {
+    function makeOptions(labelCallback, yMax = 300) {
         return {
             responsive: true,
             maintainAspectRatio: false,
@@ -88,7 +87,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             if (!items.length) return "";
                             const raw = items[0].raw?.x;
                             if (!raw) return "";
-                            return new Date(raw).toLocaleDateString("id-ID", {
+                            const d = raw instanceof Date ? raw : new Date(raw);
+                            return d.toLocaleDateString("id-ID", {
                                 day: "numeric",
                                 month: "long",
                                 year: "numeric",
@@ -102,15 +102,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 x: {
                     type: "time",
                     time: {
-                        unit: "month",
-                        displayFormats: { month: "MMM yyyy" },
+                        displayFormats: {
+                            day: "d MMM yy",
+                            week: "d MMM yy",
+                            month: "MMM yyyy",
+                            year: "yyyy",
+                        },
                     },
                     ticks: {
                         font: { size: 11 },
                         color: "#9ca3af",
-                        maxRotation: 0,
+                        maxRotation: 45,
                         autoSkip: true,
                         maxTicksLimit: 8,
+                        source: "auto",
                     },
                     grid: { color: "#f3f4f6" },
                     border: { color: "#e5e7eb" },
@@ -119,7 +124,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     ticks: { font: { size: 11 }, color: "#9ca3af" },
                     grid: { color: "#f3f4f6" },
                     border: { color: "#e5e7eb" },
-                    beginAtZero: false,
+                    beginAtZero: true,
+                    suggestedMax: yMax,
                 },
             },
         };
@@ -129,7 +135,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function pts(rows, key) {
         return rows
             .filter((r) => r[key] != null)
-            .map((r) => ({ x: new Date(r.tanggal), y: Number(r[key]) }));
+            .map((r) => ({
+                x: new Date(r.tanggal + "T00:00:00").getTime(),
+                y: Number(r[key]),
+            }))
+            .sort((a, b) => a.x - b.x);
     }
 
     /* ── Buat garis referensi horizontal ── */
@@ -137,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const validRows = rows.filter((r) => r[key] != null);
         if (validRows.length < 1) return null;
         const dates = validRows
-            .map((r) => new Date(r.tanggal))
+            .map((r) => new Date(r.tanggal + "T00:00:00").getTime())
             .sort((a, b) => a - b);
         return {
             label: `Ref ${value}`,
@@ -263,7 +273,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? "⚠️ Tinggi"
                             : "✅ Normal";
                 return `  ${lbl}: ${v} mmHg  ${st}`;
-            }),
+            }, 300),
         );
     }
 
@@ -302,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? "⚠️ Pra-DM"
                             : "✅ Normal";
                 return `  Gula Darah: ${v} mg/dL  ${st}`;
-            }),
+            }, 400),
         );
     }
 
@@ -341,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? "⚠️ Batas"
                             : "✅ Normal";
                 return `  Kolesterol: ${v} mg/dL  ${st}`;
-            }),
+            }, 350),
         );
     }
 
@@ -360,7 +370,6 @@ document.addEventListener("DOMContentLoaded", function () {
             { color: "#0891b2", label: "Berat Badan (kg)", dash: false },
         ]);
 
-        // Hitung rata-rata untuk context
         const avg = Math.round(data.reduce((s, d) => s + d.y, 0) / data.length);
 
         renderChart(
@@ -377,7 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? `↑ ${diff} kg dari rata-rata`
                             : `↓ ${Math.abs(diff)} kg dari rata-rata`;
                 return `  Berat Badan: ${v} kg  (${note})`;
-            }),
+            }, 150),
         );
     }
 
@@ -413,7 +422,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return null;
                 const st = v > limit ? "🔴 Berisiko" : "✅ Normal";
                 return `  Lingkar Perut: ${v} cm  ${st}`;
-            }),
+            }, 150),
         );
     }
 
@@ -449,13 +458,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
                 const st =
-                    (v >= 22 && v <= 27)
+                    v >= 22 && v <= 27
                         ? "✅ Normal"
-                        : ((v >= 18.5 && v < 22) || (v > 27 && v < 30))
+                        : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
                             ? "⚠️ Waspada"
                             : "🔴 Abnormal";
                 return `  IMT: ${v} kg/m²  ${st}`;
-            }),
+            }, 45),
         );
     }
 
@@ -542,7 +551,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     const v = r.imt;
                     let st = "-";
                     if (v != null) {
-                        st = (v >= 22 && v <= 27) ? '✅ Normal' : ((v >= 18.5 && v < 22) || (v > 27 && v < 30)) ? '⚠️ Waspada' : '❌ Abnormal';
+                        st =
+                            v >= 22 && v <= 27
+                                ? "✅ Normal"
+                                : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
+                                    ? "⚠️ Waspada"
+                                    : "❌ Abnormal";
                     }
                     return `<tr><td>${fmtDate(r.tanggal)}</td><td>${v || "-"}</td><td>${st}</td></tr>`;
                 };
@@ -555,7 +569,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (filteredData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px;">Tidak ada riwayat data.</td></tr>`;
         } else {
-            // Urutkan terbaru di atas
             const sorted = [...filteredData].sort(
                 (a, b) => new Date(b.tanggal) - new Date(a.tanggal),
             );
@@ -824,7 +837,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function fmtDate(str) {
         if (!str) return "-";
         try {
-            return new Date(str).toLocaleDateString("id-ID", {
+            return new Date(str + "T00:00:00").toLocaleDateString("id-ID", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 class SkriningController extends Controller
 {
     // ─── Index ────────────────────────────────────────────────────
+    // ─── Index ────────────────────────────────────────────────────
     public function index()
     {
         $jadwal = $this->getJadwalHariIni();
@@ -48,15 +49,26 @@ class SkriningController extends Controller
 
         $obat = Obat::where('stock', '>', 0)->orderBy('nama_obat')->get();
 
+        // 👇 TAMBAHKAN INI: Definisikan urutan langkah wizard
+        // (Pastikan nama-nama ini sesuai dengan ID <div class="step"> di file Blade Anda)
+        $stepIds = [
+            'step-lansia', 
+            'step-riwayat', 
+            'step-pemeriksaan', 
+            'step-keluhan', // Hapus ini jika di form Anda tidak ada tab keluhan tersendiri
+            'step-review'
+        ];
+
+        // 👇 TAMBAHKAN 'stepIds' ke dalam compact()
         return view('admin.skrining.index', compact(
             'jadwal',
             'aktifSkrining',
             'lansia',
             'sudahSkrining',
-            'obat'
+            'obat',
+            'stepIds' 
         ));
     }
-
     // ─── Store ────────────────────────────────────────────────────
     public function store(Request $request)
     {
@@ -334,15 +346,18 @@ class SkriningController extends Controller
     // ─── Helpers ──────────────────────────────────────────────────
     private function getJadwalHariIni(): ?JadwalPosyandu
     {
+        // 1. Paksa sistem membaca tanggal hari ini berdasarkan zona waktu WIB (Jakarta)
+        $today = now('Asia/Jakarta')->format('Y-m-d');
+
         return JadwalPosyandu::with('detailSkrining')
-            ->whereDate('tanggal_pelaksanaan', Carbon::today())
+            // 2. Gunakan variabel $today yang sudah di-format
+            ->whereDate('tanggal_pelaksanaan', $today)
             ->whereIn('status', [
                 JadwalPosyandu::STATUS_TERJADWAL,
                 JadwalPosyandu::STATUS_BERLANGSUNG,
             ])
             ->first();
     }
-
     private function errorBack(string $message)
     {
         if (request()->expectsJson()) {

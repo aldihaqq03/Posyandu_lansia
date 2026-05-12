@@ -76,6 +76,8 @@ Route::middleware('auth')->group(function () {
     // LAINNYA
     // ========================
     Route::resource('obat', ObatController::class);
+    Route::patch('jadwal_posyandu/{id}/selesai', [JadwalPosyanduController::class, 'selesai'])
+    ->name('jadwal_posyandu.selesai');
     Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
 
     Route::get('/skrining', [SkriningController::class, 'index'])->name('skrining.index');

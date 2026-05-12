@@ -903,6 +903,27 @@
 
                 if (targetId === 'step-review') buildReview();
             }
+            // ══════════════════════════════════════════════════════════════
+            //  LOCK LANSIA — setelah pindah dari step pertama, 
+            //  select lansia tidak bisa diubah lagi
+            // ══════════════════════════════════════════════════════════════
+            function lockLansia() {
+                const sel = document.getElementById('select-lansia');
+                if (sel) {
+                    sel.disabled = true;
+                    // Tambah hidden input agar value tetap terkirim saat form submit
+                    // (disabled field tidak ikut submit)
+                    const existing = document.getElementById('hidden-id-lansia');
+                    if (!existing) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'id_lansia';
+                        hidden.id = 'hidden-id-lansia';
+                        hidden.value = sel.value;
+                        sel.closest('form')?.appendChild(hidden);
+                    }
+                }
+            }
 
             // Bind tombol Next
             document.querySelectorAll('.btn-next').forEach(btn => {
@@ -926,31 +947,57 @@
             });
 
             // ── Validasi required fields pada step aktif ─────────────────
+            // ── Validasi required fields pada step aktif ─────────────────
             function validateCurrentStep() {
                 const panel = panels[currentPanelIndex()];
-                const required = panel.querySelectorAll('[required]');
+                const requiredFields = panel.querySelectorAll('[required]');
                 let ok = true;
 
-                required.forEach(el => {
-                    el.classList.remove('field-error');
-                    const isEmpty = el.tagName === 'SELECT'
-                        ? !el.value
-                        : !el.value.trim();
+                // 1. Bersihkan tanda error sebelumnya
+                panel.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+
+                requiredFields.forEach(el => {
+                    // 2. KUNCI PERBAIKAN OBAT: Lewati validasi jika elemen sedang disembunyikan (d-none)
+                    if (el.offsetParent === null) return;
+
+                    let isEmpty = false;
+
+                    // 3. KUNCI PERBAIKAN PPOK/UTAMA: Logika khusus untuk Radio Button / Checkbox
+                    if (el.type === 'radio' || el.type === 'checkbox') {
+                        // Cek apakah di dalam grup nama yang sama ada yang sudah dicentang
+                        const isChecked = panel.querySelector(`input[name="${el.name}"]:checked`);
+                        if (!isChecked) {
+                            isEmpty = true;
+                            // Berikan efek error pada div pembungkusnya agar kelihatan
+                            el.closest('.radio-group, .checkbox-grid')?.classList.add('field-error');
+                        }
+                    }
+                    // Logika untuk Dropdown Select
+                    else if (el.tagName === 'SELECT') {
+                        isEmpty = !el.value;
+                    }
+                    // Logika untuk Text/Number Input biasa
+                    else {
+                        isEmpty = !el.value.trim();
+                    }
+
+                    // Jika kosong, tandai error
                     if (isEmpty) {
-                        el.classList.add('field-error');
+                        if (el.type !== 'radio' && el.type !== 'checkbox') {
+                            el.classList.add('field-error');
+                        }
                         ok = false;
                     }
                 });
 
+                // Jika ada error, scroll layar ke letak error pertama
                 if (!ok) {
                     const first = panel.querySelector('.field-error');
                     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    first?.focus();
+                    if (first && typeof first.focus === 'function') first.focus();
                 }
                 return ok;
-            }
-
-            // ══════════════════════════════════════════════════════════════
+            } // ══════════════════════════════════════════════════════════════
             //  REVIEW SUMMARY
             // ══════════════════════════════════════════════════════════════
             function buildReview() {
@@ -1021,17 +1068,17 @@
 
             function reviewCard(icon, title, rows) {
                 const rowsHtml = rows.map(([k, v]) => `
-                <div class="review-row">
-                    <span class="review-key">${k}</span>
-                    <span class="review-val">${v}</span>
-                </div>`).join('');
+                                    <div class="review-row">
+                                        <span class="review-key">${k}</span>
+                                        <span class="review-val">${v}</span>
+                                    </div>`).join('');
                 return `
-                <div class="review-card">
-                    <div class="review-card-title">
-                        <i class="fa-solid ${icon}"></i> ${title}
-                    </div>
-                    ${rowsHtml}
-                </div>`;
+                                    <div class="review-card">
+                                        <div class="review-card-title">
+                                            <i class="fa-solid ${icon}"></i> ${title}
+                                        </div>
+                                        ${rowsHtml}
+                                    </div>`;
             }
 
             // ══════════════════════════════════════════════════════════════
@@ -1087,23 +1134,23 @@
                         saranSebelumnyaWrapper.style.display = 'none';
                     } else {
                         saranSebelumnyaList.innerHTML = data.map(s => `
-                        <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
-                            <div class="form-group" style="margin-bottom:12px;">
-                                <input type="text" class="form-control saran-edit-jenis"
-                                    value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
-                            </div>
-                            <div class="form-group" style="margin-bottom:12px;">
-                                <textarea class="form-control saran-edit-isi"
-                                    placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
-                            </div>
-                            <div style="display:flex;gap:8px;justify-content:flex-end;">
-                                <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}"
-                                    style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
-                                    <i class="fa-solid fa-trash"></i> Hapus
-                                </button>
-                            </div>
-                        </div>
-                    `).join('');
+                                            <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+                                                <div class="form-group" style="margin-bottom:12px;">
+                                                    <input type="text" class="form-control saran-edit-jenis"
+                                                        value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
+                                                </div>
+                                                <div class="form-group" style="margin-bottom:12px;">
+                                                    <textarea class="form-control saran-edit-isi"
+                                                        placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
+                                                </div>
+                                                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                                                    <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}"
+                                                        style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
+                                                        <i class="fa-solid fa-trash"></i> Hapus
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `).join('');
                         saranSebelumnyaList.querySelectorAll('.btn-delete-saran-lama').forEach(btn => {
                             btn.addEventListener('click', handleDeleteSaranLama);
                         });
@@ -1124,18 +1171,18 @@
 
             function saranRowHTML(i) {
                 return `
-                <div class="saran-row-inner" style="margin-bottom:10px;">
-                    <div class="saran-row-fields">
-                        <input type="text" name="saran[${i}][jenis_saran]" class="form-control"
-                            placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)" required>
-                        <textarea name="saran[${i}][isi_saran]" class="form-control"
-                            placeholder="Tulis isi saran untuk lansia..." rows="3" required></textarea>
-                    </div>
-                    <button type="button" class="btn-remove-resep btn-remove-saran" title="Hapus saran"
-                        style="margin-left:8px;flex-shrink:0;margin-top:2px;">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>`;
+                                    <div class="saran-row-inner" style="margin-bottom:10px;">
+                                        <div class="saran-row-fields">
+                                            <input type="text" name="saran[${i}][jenis_saran]" class="form-control"
+                                                placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)" required>
+                                            <textarea name="saran[${i}][isi_saran]" class="form-control"
+                                                placeholder="Tulis isi saran untuk lansia..." rows="3" required></textarea>
+                                        </div>
+                                        <button type="button" class="btn-remove-resep btn-remove-saran" title="Hapus saran"
+                                            style="margin-left:8px;flex-shrink:0;margin-top:2px;">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>`;
             }
 
             function escSaran(str) {
@@ -1166,7 +1213,17 @@
             const chkResep = document.getElementById('chk-ada-resep');
             const resepSection = document.getElementById('resep-section');
             chkResep?.addEventListener('change', () => {
-                resepSection.classList.toggle('d-none', !chkResep.checked);
+                const show = chkResep.checked;
+                resepSection.classList.toggle('d-none', !show);
+
+                // Tambah required saat dicentang, hapus saat tidak
+                resepSection.querySelectorAll('select.form-control, input.form-control').forEach(el => {
+                    const name = el.name || '';
+                    // Hanya field obat, dosis, frekuensi yang required — bukan keterangan
+                    if (name.includes('[id_obat]') || name.includes('[dosis]') || name.includes('[frekuensi]')) {
+                        el.required = show;
+                    }
+                });
             });
 
             // ── Tambah Baris Resep ───────────────────────────────────────
@@ -1191,23 +1248,22 @@
                 const options = @json($obat->map(fn($o) => ['id' => $o->id_obat, 'nama' => $o->nama_obat]));
                 const opts = options.map(o => `<option value="${o.id}">${o.nama}</option>`).join('');
                 return `
-                <div class="resep-row-inner">
-                    <select name="resep[${i}][id_obat]" class="form-control" required>
-                        <option value="">-- Pilih Obat --</option>
-                        ${opts}
-                    </select>
-                    <input type="text" name="resep[${i}][dosis]" class="form-control"
-                        placeholder="Dosis (cth: 500mg)" required>
-                    <input type="text" name="resep[${i}][frekuensi]" class="form-control"
-                        placeholder="Frekuensi (cth: 3x1)" required>
-                    <input type="text" name="resep[${i}][keterangan]" class="form-control"
-                        placeholder="Keterangan (opsional)">
-                    <button type="button" class="btn-remove-resep">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>`;
+            <div class="resep-row-inner">
+                <select name="resep[${i}][id_obat]" class="form-control">
+                    <option value="">-- Pilih Obat --</option>
+                    ${opts}
+                </select>
+                <input type="text" name="resep[${i}][dosis]" class="form-control"
+                    placeholder="Dosis (cth: 500mg)">
+                <input type="text" name="resep[${i}][frekuensi]" class="form-control"
+                    placeholder="Frekuensi (cth: 3x1)">
+                <input type="text" name="resep[${i}][keterangan]" class="form-control"
+                    placeholder="Keterangan (opsional)">
+                <button type="button" class="btn-remove-resep">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>`;
             }
-
             // ══════════════════════════════════════════════════════════════
             //  Toggle kondisional Merokok & Paparan
             // ══════════════════════════════════════════════════════════════
