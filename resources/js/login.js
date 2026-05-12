@@ -1,5 +1,4 @@
 window.togglePassword = function (id, icon) {
-
     const input = document.getElementById(id);
 
     if (input.type === "password") {
@@ -11,5 +10,4 @@ window.togglePassword = function (id, icon) {
         icon.classList.remove("fa-eye-slash");
         icon.classList.add("fa-eye");
     }
-
-}
+};

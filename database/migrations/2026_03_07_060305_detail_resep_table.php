@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('detail_resep', function (Blueprint $table) {
-        $table->id('id_detail_resep');
-        $table->unsignedBigInteger('id_resep');
-        $table->unsignedBigInteger('id_obat');
-        $table->string('dosis', 100);
-        $table->string('frekuensi', 100);
-        $table->text('keterangan')->nullable();
-        $table->timestamps();
+        Schema::create('detail_resep', function (Blueprint $table) {
+            $table->id('id_detail_resep');
+            $table->unsignedBigInteger('id_resep');
+            $table->string('id_obat', 20);
+            $table->string('dosis', 100);
+            $table->string('frekuensi', 100);
+            $table->text('keterangan')->nullable();
+            $table->timestamps();
 
-        $table->foreign('id_resep')->references('id_resep')->on('resep')->onDelete('cascade');
-        $table->foreign('id_obat')->references('id_obat')->on('obat')->onDelete('cascade');
-    });
+            $table->foreign('id_resep')->references('id_resep')->on('resep')->onDelete('cascade');
+            $table->foreign('id_obat')->references('id_obat')->on('obat')->onDelete('cascade');
+        });
     }
 
     /**

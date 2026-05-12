@@ -2,114 +2,86 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Petugas;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-
-    public function register()
-    {
-        return view('simpel.register');
-    }
-
-<<<<<<< HEAD
-=======
-    public function login()
-    {
-        return view('simpel.login'); // pastikan ada file resources/views/simpel/login.blade.php
-    }
-
->>>>>>> Rifki
-    public function proses_register(Request $request)
-    {
-        User::create([
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'nik' => $request->nik,
-            'whatsapp' => $request->whatsapp,
-            'jabatan' => $request->jabatan,
-            'wilayah_kerja' => $request->wilayah_kerja,
-            'password' => Hash::make($request->password)
-        ]);
-
-<<<<<<< HEAD
-        return redirect('/berhasil');
-    }
-
-    public function login()
+    /**
+     * Display the login view.
+     */
+    public function login(): View
     {
         return view('simpel.login');
     }
 
-    public function proses_login(Request $request)
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function proses_login(LoginRequest $request): RedirectResponse
     {
+        $request->authenticate();
 
-        $credentials = $request->only('email','password');
+        $request->session()->regenerate();
 
-        if(Auth::attempt($credentials)){
-
-            return redirect('/dashboard');
+        if (auth()->user()->jabatan === 'lansia') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect('/login')->withErrors(['email' => 'Akun lansia hanya dapat diakses melalui aplikasi mobile.']);
         }
 
-        return back()->with('error','Email atau Password salah');
+        return redirect()->intended('/dashboard');
     }
 
-    public function logout()
+    /**
+     * Display the registration view.
+     */
+    public function register(): View
+    {
+        return view('simpel.register');
+    }
+
+    /**
+     * Handle an incoming registration request.
+     */
+    public function proses_register(RegisterRequest $request): RedirectResponse
+    {
+        $user = User::create([
+            'email' => $request->email,
+            'whatsapp' => $request->whatsapp,
+            'password' => $request->password,
+        ]);
+
+        Petugas::create([
+            'id_user' => $user->id,
+            'nama' => $request->nama,
+            'nik' => $request->nik,
+            'jabatan' => $request->jabatan,
+            'status' => 'pending',
+        ]);
+
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
-        return redirect('/login');
-    }
 
-}
-=======
-        return redirect('/login');
-    }
-
-
-    public function proses_login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-
-            $request->session()->regenerate(); // penting untuk keamanan
-
-            // Redirect sesuai jabatan
-            $jabatan = Auth::user()->jabatan;
-
-            if ($jabatan == 'admin') {
-                return redirect('/admin/dashboard');
-
-            }
-
-            //els ini nyalain kalo front end kepala kader udah ada
-            //  elseif ($jabatan == 'kader') {
-            //     return redirect('/admin/dashboard');
-
-            // } 
-
-            // default jika jabatan tidak terdeteksi
-            return redirect('/dashboard');
-        }
-
-        return back()->with('error', 'Email atau Password salah');
-    }
-    public function logout(Request $request)
-    {
-        // Logout user
-        Auth::logout();
-
-        // Hapus session Laravel
         $request->session()->invalidate();
 
-        // Buat token CSRF baru
         $request->session()->regenerateToken();
 
-        // Hapus cookie laravel_session (opsional)
-        return redirect('/login')->withCookie(cookie()->forget('laravel_session'));
+        return redirect('/');
     }
 
 
@@ -117,17 +89,4 @@ class AuthController extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 }
-
->>>>>>> Rifki

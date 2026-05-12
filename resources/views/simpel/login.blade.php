@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <title>Login SIMPEL</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     @vite([
         'resources/css/login.css',
@@ -19,61 +21,40 @@
 <div class="login-wrapper">
         
 <div class="login-card">
-            
-                <div class="logo">
-            <img src="{{ asset('images/logo_posyandu.png') }}" alt="logo">
+
+<div class="logo">
+<x-logo style="width: 80px; height: 80px; color: #0ea5e9; margin: 0 auto; display: block;" />
 </div>
 
-<<<<<<< HEAD
-            <!-- JUDUL DI DALAM CARD -->
-            <h2 class="title-main">SIMPEL</h2>
-                <h4 class="title">SISTEM INFORMASI PEDULI LANSIA</h3>
-
-
-                    <form>
-
-                    <label>Nama Lengkap</label>
-                        <input type="text" placeholder="Masukkan nama lengkap">
-
-                    <label>Kata Sandi</label>
-                        <input type="password" placeholder="********">
-                    
- <i class="fa fa-eye toggle-password"
-        onclick="togglePassword('password',this)"></i>
-</div>
-        
-            <button type="submit" class="btn-login">
-        Masuk
-</button>
-        
-            <div class="auth-link">
-            Belum punya akun?
-        <a href="{{ route('register') }}">Daftar</a>
-</div>
-        
-</form>
-    
-</div>
-    
-=======
 <h2 class="title-main">SIMPEL</h2>
 <p class="subtitle">SISTEM INFORMASI PEDULI LANSIA</p>
 
-<form>
+<form method="POST" action="{{ route('proses_login') }}">
+@csrf
 
-<label>Nama Lengkap</label>
+<label>Email</label>
 <div class="input-group">
-<i class="fa fa-user"></i>
-<input type="text" placeholder="Masukkan nama lengkap">
+<i class="fa fa-envelope"></i>
+<input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
 </div>
+@error('email')
+    <span class="error-message" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+        <i class="fa fa-exclamation-circle"></i> {{ $message }}
+    </span>
+@enderror
 
-<label>Kata Sandi</label>
+<label style="margin-top: 1rem;">Kata Sandi</label>
 <div class="input-group">
 <i class="fa fa-lock"></i>
-<input type="password" id="password" placeholder="********">
+<input type="password" id="password" name="password" placeholder="********" required>
 <i class="fa fa-eye toggle-password"
 onclick="togglePassword('password',this)"></i>
 </div>
+@error('password')
+    <span class="error-message" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+        <i class="fa fa-exclamation-circle"></i> {{ $message }}
+    </span>
+@enderror
 
 <button type="submit" class="btn-login">
 Masuk
@@ -86,9 +67,28 @@ Belum punya akun?
 <a href="{{ route('register') }}">Daftar</a>
 </div>
 
->>>>>>> Rifki
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Gagal',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonColor: '#0ea5e9'
+        });
+    @endif
+</script>
 </body>
 </html>
