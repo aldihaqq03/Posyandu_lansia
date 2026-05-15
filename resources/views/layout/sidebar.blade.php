@@ -113,6 +113,12 @@
                 <span class="nav-text">Jadwal Posyandu</span>
             </a>
 
+            <a href="/konten" class="nav-item {{ Request::is('konten*') ? 'active' : '' }}"
+                title="Konten">
+                <i class="fa-solid fa-photo-film"></i>
+                <span class="nav-text">Konten</span>
+            </a>
+
         </nav>
 
         <!-- PENGATURAN -->

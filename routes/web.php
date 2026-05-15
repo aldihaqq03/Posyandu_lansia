@@ -89,6 +89,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/pengaturan/profil', [\App\Http\Controllers\PengaturanController::class, 'updateProfil'])->name('pengaturan.profil');
     Route::post('/pengaturan/password', [\App\Http\Controllers\PengaturanController::class, 'updatePassword'])->name('pengaturan.password');
 
+    // ========================
+    // KONTEN
+    // ========================
+    Route::resource('konten', \App\Http\Controllers\KontenController::class);
+
 });
 
 
