@@ -96,12 +96,28 @@ $minggu_ini = lansia::whereBetween('created_at', [
 
 $tahun_ini = lansia::whereYear('created_at', Carbon::now()->year)->count();
 
+// DATA TABEL LAPORAN
+$laporan = DB::table('kunjungan')
+    ->join('lansia', 'kunjungan.id_lansia', '=', 'lansia.id_lansia')
+   ->select(
+    'lansia.nama_lansia',
+    'kunjungan.tanggal_kunjungan'
+)
+    ->latest('kunjungan.tanggal_kunjungan')
+    ->get();
+
         $summary = [
             'hari_ini' => $hari_ini,
             'minggu_ini' => $minggu_ini,
             'tahun_ini' => $tahun_ini,
         ];
 
-        return view('admin.laporan', compact('harian', 'mingguan', 'tahunan', 'summary'));
+        return view('admin.laporan', compact(
+    'harian',
+    'mingguan',
+    'tahunan',
+    'summary',
+    'laporan'
+));
     }
 }
