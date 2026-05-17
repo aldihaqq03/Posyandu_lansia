@@ -82,6 +82,7 @@
                 <!-- INFORMASI KELUARGA SECTION -->
                 <hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">
                 <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">Informasi Keluarga <span style="color: #e74c3c;">*</span></h3>
+                <small id="error-keluarga" style="color: #e74c3c; font-size: 12px; display: none; margin-bottom: 10px; display: block;"></small>
 
                 <div id="keluarga-container">
                     <div class="keluarga-item" data-first="true" style="padding: 15px; background-color: #f9f9f9; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0;">
@@ -92,6 +93,7 @@
                         <div class="form-group">
                             <label>Nama Keluarga <span style="color:#e74c3c">*</span></label>
                             <input type="text" class="nama_keluarga_input" name="keluarga[0][nama_keluarga]" placeholder="Masukkan nama anggota keluarga" required>
+                            <small id="error-keluarga-nama-0" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                         </div>
                         <div class="form-group" style="display: flex; gap: 10px;">
                             <div style="flex: 1;">

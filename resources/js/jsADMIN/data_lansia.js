@@ -300,39 +300,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Pasang event listener validasi real-time form tambah
     if (formTambah) {
-        document.getElementById("nik")?.addEventListener("blur", function () {
+        // NIK validation
+        const nikEl = document.getElementById("nik");
+        nikEl?.addEventListener("blur", function () {
             showTambahError("nik", validateNIK(this.value));
             updateTambahSubmitBtn();
         });
-        document
-            .getElementById("nama_lansia")
-            ?.addEventListener("blur", function () {
-                showTambahError("nama_lansia", validateNama(this.value));
-                updateTambahSubmitBtn();
-            });
-        document
-            .getElementById("tanggal_lahir")
-            ?.addEventListener("change", function () {
-                showTambahError(
-                    "tanggal_lahir",
-                    validateTanggalLahir(this.value),
-                );
-                updateTambahSubmitBtn();
-            });
-        document.getElementById("no_hp")?.addEventListener("blur", function () {
+        nikEl?.addEventListener("input", function () {
+            updateTambahSubmitBtn();
+        });
+        
+        // Nama validation
+        const namaEl = document.getElementById("nama_lansia");
+        namaEl?.addEventListener("blur", function () {
+            showTambahError("nama_lansia", validateNama(this.value));
+            updateTambahSubmitBtn();
+        });
+        namaEl?.addEventListener("input", function () {
+            updateTambahSubmitBtn();
+        });
+        
+        // Tanggal Lahir validation - both change dan input untuk responsif
+        const tanggalEl = document.getElementById("tanggal_lahir");
+        tanggalEl?.addEventListener("change", function () {
+            showTambahError(
+                "tanggal_lahir",
+                validateTanggalLahir(this.value),
+            );
+            updateTambahSubmitBtn();
+        });
+        tanggalEl?.addEventListener("input", function () {
+            updateTambahSubmitBtn();
+        });
+        
+        // No HP validation
+        const noHpEl = document.getElementById("no_hp");
+        noHpEl?.addEventListener("blur", function () {
             showTambahError("no_hp", validateNoHP(this.value));
             updateTambahSubmitBtn();
         });
-        document.getElementById("email")?.addEventListener("blur", function () {
+        noHpEl?.addEventListener("input", function () {
+            updateTambahSubmitBtn();
+        });
+        
+        // Email validation
+        const emailEl = document.getElementById("email");
+        emailEl?.addEventListener("blur", function () {
             showTambahError("email", validateEmail(this.value));
             updateTambahSubmitBtn();
         });
-        document
-            .getElementById("alamat")
-            ?.addEventListener("blur", function () {
-                showTambahError("alamat", validateAlamat(this.value));
-                updateTambahSubmitBtn();
-            });
+        emailEl?.addEventListener("input", function () {
+            updateTambahSubmitBtn();
+        });
+        
+        // Alamat validation
+        const alamatEl = document.getElementById("alamat");
+        alamatEl?.addEventListener("blur", function () {
+            showTambahError("alamat", validateAlamat(this.value));
+            updateTambahSubmitBtn();
+        });
+        alamatEl?.addEventListener("input", function () {
+            updateTambahSubmitBtn();
+        });
 
         // Submit handler form tambah
         formTambah.addEventListener("submit", function (e) {
@@ -364,8 +393,69 @@ document.addEventListener("DOMContentLoaded", function () {
                 validateAlamat(document.getElementById("alamat")?.value),
             );
 
-            if (!isTambahFormValid()) {
+            // Validasi minimal satu keluarga dengan nama terisi
+            const keluargaContainer = document.getElementById("keluarga-container");
+            const errorKeluargaEl = document.getElementById("error-keluarga");
+            let hasValidKeluarga = false;
+            if (keluargaContainer) {
+                const keluargaItems = keluargaContainer.querySelectorAll(".keluarga-item");
+                keluargaItems.forEach(item => {
+                    const namaInput = item.querySelector(".nama_keluarga_input");
+                    if (namaInput && namaInput.value && namaInput.value.trim().length >= 3) {
+                        hasValidKeluarga = true;
+                    }
+                });
+            }
+            
+            if (!hasValidKeluarga) {
+                const firstKeluargaItem = keluargaContainer?.querySelector(".keluarga-item");
+                if (firstKeluargaItem) {
+                    const namaInput = firstKeluargaItem.querySelector(".nama_keluarga_input");
+                    const errorNameEl = firstKeluargaItem.querySelector(".error-keluarga-nama-0");
+                    if (namaInput) {
+                        namaInput.style.borderColor = "#e74c3c";
+                        namaInput.style.borderWidth = "2px";
+                        // Show error message
+                        if (errorNameEl) {
+                            errorNameEl.textContent = "Minimal nama anggota keluarga pertama minimal 3 karakter.";
+                            errorNameEl.style.display = "block";
+                        }
+                        // Scroll to first keluarga
+                        namaInput.focus();
+                        namaInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                }
+                if (errorKeluargaEl) {
+                    errorKeluargaEl.textContent = "Minimal satu anggota keluarga harus diisi.";
+                    errorKeluargaEl.style.display = "block";
+                }
+                console.warn("⚠️ Form submit prevented: No valid keluarga found");
                 e.preventDefault();
+                return;
+            } else {
+                // Clear error styling from keluarga
+                const firstKeluargaItem = keluargaContainer?.querySelector(".keluarga-item");
+                if (firstKeluargaItem) {
+                    const namaInput = firstKeluargaItem.querySelector(".nama_keluarga_input");
+                    const errorNameEl = firstKeluargaItem.querySelector(".error-keluarga-nama-0");
+                    if (namaInput) {
+                        namaInput.style.borderColor = "";
+                        namaInput.style.borderWidth = "";
+                    }
+                    if (errorNameEl) {
+                        errorNameEl.style.display = "none";
+                    }
+                }
+                if (errorKeluargaEl) {
+                    errorKeluargaEl.style.display = "none";
+                }
+            }
+
+            if (!isTambahFormValid()) {
+                console.warn("⚠️ Form submit prevented: Form validation failed");
+                e.preventDefault();
+            } else {
+                console.log("✓ Form submission allowed");
             }
         });
 
@@ -409,10 +499,18 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
             container.appendChild(newItem);
+            
+            // Add listener untuk input baru agar update button state
+            const namaInput = newItem.querySelector(".nama_keluarga_input");
+            namaInput?.addEventListener("input", function () {
+                updateTambahSubmitBtn();
+            });
+            
             newItem
                 .querySelector(".btn-remove-keluarga")
                 .addEventListener("click", function () {
                     newItem.remove();
+                    updateTambahSubmitBtn();
                 });
         });
 
@@ -422,6 +520,16 @@ document.addEventListener("DOMContentLoaded", function () {
         .forEach((btn) => {
             btn.addEventListener("click", function () {
                 this.closest(".keluarga-item").remove();
+                updateTambahSubmitBtn();
+            });
+        });
+    
+    // Pasang listener input untuk item pertama keluarga
+    document
+        .querySelectorAll("#keluarga-container .nama_keluarga_input")
+        .forEach((inp) => {
+            inp.addEventListener("input", function () {
+                updateTambahSubmitBtn();
             });
         });
 
@@ -441,6 +549,18 @@ document.addEventListener("DOMContentLoaded", function () {
             ].forEach((f) => showTambahError(f, ""));
             // Reset submit button state
             if (submitBtnTambah) submitBtnTambah.disabled = true;
+            // Reset keluarga styling
+            const keluargaContainer = document.getElementById("keluarga-container");
+            if (keluargaContainer) {
+                const firstKeluargaItem = keluargaContainer.querySelector(".keluarga-item");
+                if (firstKeluargaItem) {
+                    const namaInput = firstKeluargaItem.querySelector(".nama_keluarga_input");
+                    if (namaInput) {
+                        namaInput.style.borderColor = "";
+                        namaInput.style.borderWidth = "";
+                    }
+                }
+            }
             modalTambah?.classList.add("active");
         });
 
