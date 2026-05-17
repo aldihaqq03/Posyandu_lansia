@@ -4,65 +4,112 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\lansia;
+use App\Models\Lansia;
 use Illuminate\Support\Facades\Auth;
 
 class MonitoringApiController extends Controller
 {
     public function index(Request $request)
     {
-        // Mendapatkan user yang sedang login
         $user = Auth::user();
-        
-        // Memastikan user adalah lansia atau memiliki data lansia yang terhubung
-        $lansia = lansia::where('user_id', $user->id)
+
+        $lansia = Lansia::where('id_user', $user->id)
             ->with([
-                'skrinings' => function($query) {
-                    $query->orderBy('tanggal_skrining', 'desc')->take(10); // Ambil 10 data terakhir
+                'skrinings' => function ($query) {
+                    $query->orderBy('tanggal_skrining', 'desc')
+                          ->with([
+                              'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut',
+                              'utama:id_skrining_utama,id_skrining,gula_darah,kolesterol',
+                          ]);
                 },
-                'skrinings.utama',
-                'sarans' => function($query) {
-                    $query->orderBy('created_at', 'desc')->take(5);
+                'sarans' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
                 }
             ])->first();
 
         if (!$lansia) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Data lansia tidak ditemukan',
             ], 404);
         }
 
-        // Format data kesehatan (monitoring)
-        $monitoringData = $lansia->skrinings->map(function ($skrining) {
-            return [
-                'tanggal' => $skrining->tanggal_skrining,
-                'sistolik' => $skrining->utama ? $skrining->utama->td_sistolik : null,
-                'diastolik' => $skrining->utama ? $skrining->utama->td_diastolik : null,
-                'gula_darah' => $skrining->utama ? $skrining->utama->gula_darah : null,
-                'kolesterol' => $skrining->utama ? $skrining->utama->kolesterol : null,
-            ];
-        });
+        // ── Data pemeriksaan terakhir ─────────────────────────────────
+        $latest     = $lansia->skrinings->first();
+        $latestData = null;
 
-        // Format data saran
-        $saranData = $lansia->sarans->map(function ($saran) {
-            return [
-                'tanggal' => $saran->created_at->format('Y-m-d'),
-                'isi_saran' => $saran->isi_saran
+        if ($latest) {
+            $latestData = [
+                'tanggal'       => $latest->tanggal_skrining,
+                'sistolik'      => $latest->kunjungan?->td_sistolik,
+                'diastolik'     => $latest->kunjungan?->td_diastolik,
+                'berat_badan'   => $latest->kunjungan?->berat_badan,
+                'tinggi_badan'  => $latest->kunjungan?->tinggi_badan,
+                'imt'           => $latest->kunjungan?->imt,
+                'lingkar_perut' => $latest->kunjungan?->lingkar_perut,
+                'gula_darah'    => $latest->utama?->gula_darah,
+                'kolesterol'    => $latest->utama?->kolesterol,
             ];
-        });
+        }
+
+        // ── Riwayat per indikator (tanggal mengikuti data di DB) ─────
+
+        $historyTekananDarah = $lansia->skrinings
+            ->filter(fn($s) => $s->kunjungan?->td_sistolik !== null)
+            ->map(fn($s) => [
+                'tanggal'   => $s->tanggal_skrining,
+                'sistolik'  => $s->kunjungan->td_sistolik,
+                'diastolik' => $s->kunjungan->td_diastolik,
+            ])->values();
+
+        $historyBeratBadan = $lansia->skrinings
+            ->filter(fn($s) => $s->kunjungan?->berat_badan !== null)
+            ->map(fn($s) => [
+                'tanggal'     => $s->tanggal_skrining,
+                'berat_badan' => $s->kunjungan->berat_badan,
+            ])->values();
+
+        $historyGulaDarah = $lansia->skrinings
+            ->filter(fn($s) => $s->utama?->gula_darah !== null)
+            ->map(fn($s) => [
+                'tanggal'    => $s->tanggal_skrining,
+                'gula_darah' => $s->utama->gula_darah,
+            ])->values();
+
+        $historyKolesterol = $lansia->skrinings
+            ->filter(fn($s) => $s->utama?->kolesterol !== null)
+            ->map(fn($s) => [
+                'tanggal'    => $s->tanggal_skrining,
+                'kolesterol' => $s->utama->kolesterol,
+            ])->values();
+
+        // ── Saran ─────────────────────────────────────────────────────
+        $saranData = $lansia->sarans->map(fn($s) => [
+            'id'          => $s->id_saran,
+            'tanggal'     => $s->created_at->format('Y-m-d'),
+            'jenis_saran' => $s->jenis_saran,
+            'isi_saran'   => $s->isi_saran,
+        ])->values();
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Data monitoring kesehatan berhasil diambil',
-            'data' => [
+            'status'  => 'success',
+            'message' => 'Data monitoring berhasil diambil',
+            'data'    => [
                 'lansia' => [
-                    'nama' => $user->name,
-                    'nik' => $lansia->nik,
+                    'nama'          => $lansia->nama_lansia,
+                    'nik'           => $lansia->nik,
+                    'jenis_kelamin' => $lansia->jenis_kelamin,
+                    'umur'          => \Carbon\Carbon::parse($lansia->tanggal_lahir)->age,
                 ],
-                'monitoring' => $monitoringData,
+                'latest_monitoring'  => $latestData,
+                'monitoring_history' => [
+                    'tekanan_darah' => $historyTekananDarah,
+                    'berat_badan'   => $historyBeratBadan,
+                    'gula_darah'    => $historyGulaDarah,
+                    'kolesterol'    => $historyKolesterol,
+                ],
                 'saran' => $saranData,
-            ]
+            ],
         ], 200);
     }
 }
