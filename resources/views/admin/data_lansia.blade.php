@@ -10,18 +10,6 @@
 @section('content')
 <main class="main-content">
 
-    {{-- Flash & Validasi Errors --}}
-    @if ($errors->any())
-        <div class="alert-error">
-            <strong>Terjadi Kesalahan:</strong>
-            <ul>@foreach ($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul>
-        </div>
-    @endif
-
-    @if (session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
-    @endif
-
     <div class="container">
 
         {{-- ── HEADER ─────────────────────────────────────────────── --}}
@@ -40,6 +28,24 @@
                 <span>Tambah Lansia</span>
             </button>
         </header>
+
+        {{-- Flash & Validasi Errors --}}
+        @if ($errors->any())
+            <div class="alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                    <strong>Terjadi Kesalahan:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">@foreach ($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul>
+                </div>
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                {{ session('success') }}
+            </div>
+        @endif
 
         {{-- ── STATISTIK ───────────────────────────────────────────── --}}
         <section class="stats-grid" aria-label="Statistik Lansia">

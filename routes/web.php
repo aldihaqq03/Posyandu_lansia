@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('lansia', LansiaController::class)
+        ->parameters(['lansia' => 'lansia'])
         ->except(['show']); // ❗ penting
 
     // ========================
