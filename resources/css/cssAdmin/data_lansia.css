@@ -66,65 +66,113 @@
 }
 
 .stat-card {
-    background: var(--bg-card);
-    padding: 24px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
     border-radius: 16px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+    padding: 16px 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
 }
 
 .stat-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 1px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #15181e;
+
+    margin: 0;
 }
 
 .stat-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+
+    gap: 12px;
 }
 
+
 .stat-number {
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--text-main);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .stat-icon-fa {
-    font-size: 28px;
-    color: #cbd5e1;
-    opacity: 0.7;
+    font-size: 20px;
+    color: #3b82f6;
 }
 
+.icon-wrapper {
+    width: 42px;
+    height: 42px;
 
-.color-danger {
-    color: var(--danger);
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eff6ff;
+
+    flex-shrink: 0;
 }
-
-.color-success {
-    color: var(--success);
-}
-
-.border-danger {
-    border-left: 4px solid var(--danger);
-}
-
 .border-success {
     border-left: 4px solid var(--success);
 }
-
-.color-warning {
-    color: #d97706;
+.icon-wrapper.success{
+    background: #ecfdf3;
 }
-.text-warning {
+.color-success {
+    color: #10b981 !important;
+}
+.text-success {
+    color: #10b981 !important;
+}
+
+.icon-wrapper.warning{
+    background: #fff7ed;
+}
+.color-warning {
     color: #d97706 !important;
 }
 .border-warning {
     border-left: 4px solid #fbbf24;
 }
+.text-warning {
+    color: #d97706 !important;
+}
+
+.icon-wrapper.danger{
+    background: #fef2f2;
+}
+.color-danger {
+     color: #ef4444 !important;
+}
+.border-danger {
+    border-left: 4px solid var(--danger);
+}
+.text-danger {
+    color: #ef4444 !important;
+}
+
+.icon-wrapper.primary{
+    background: #eff6ff;
+}
+.color-primary {
+    color: #3b82f6 !important;
+}
+.border-primary {
+    border-left: 4px solid #3b82f6;
+}
+.text-primary {
+    color: #3b82f6 !important;
+}
+
+
+
 
 /* Table Container */
 .card {
