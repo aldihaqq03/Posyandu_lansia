@@ -40,10 +40,14 @@ class ResepApiController extends Controller
 
         // Map semua detail obat — bisa lebih dari satu
         $obatList = $resep->detailResep->map(fn($detail) => [
-            'nama_obat'  => $detail->obat?->nama_obat ?? '-',
-            'dosis'      => $detail->dosis,
-            'frekuensi'  => $detail->frekuensi,
-            'keterangan' => $detail->keterangan,
+            'nama_obat'     => $detail->obat?->nama_obat ?? '-',
+            'dosis'         => $detail->dosis,
+            'jenis_jadwal'  => $detail->jenis_jadwal,
+            'frekuensi'     => $detail->frekuensi,
+            'durasi_hari'   => $detail->durasi_hari,
+            'hari_konsumsi' => $detail->hari_konsumsi,
+            'jumlah_obat'   => $detail->jumlah_obat,
+            'keterangan'    => $detail->keterangan,
         ])->values()->toArray();
 
         return response()->json([

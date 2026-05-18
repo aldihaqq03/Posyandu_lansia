@@ -65,11 +65,24 @@ class DashboardApiController extends Controller
                 ->select(
                     'obat.nama_obat',
                     'detail_resep.dosis',
+                    'detail_resep.jenis_jadwal',
                     'detail_resep.frekuensi as aturan_pakai',
+                    'detail_resep.hari_konsumsi',
+                    'detail_resep.durasi_hari',
+                    'detail_resep.jumlah_obat',
                     'detail_resep.keterangan'
                 )
                 ->orderBy('resep.created_at', 'desc')
                 ->get();
+        }
+        
+        if (!empty($resep_obat)) {
+            $resep_obat = $resep_obat->map(function ($item) {
+                if (!empty($item->hari_konsumsi)) {
+                    $item->hari_konsumsi = json_decode($item->hari_konsumsi);
+                }
+                return $item;
+            });
         }
 
         return response()->json([

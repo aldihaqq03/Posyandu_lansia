@@ -16,8 +16,18 @@ class DetailResep extends Model
         'id_resep',
         'id_obat',
         'dosis',
+        'jenis_jadwal',
         'frekuensi',
+        'hari_konsumsi',
+        'durasi_hari',
+        'jumlah_obat',
         'keterangan',
+    ];
+
+    protected $casts = [
+        'hari_konsumsi' => 'array',
+        'frekuensi' => 'integer',
+        'jumlah_obat' => 'integer',
     ];
 
     // ─── Relationships ────────────────────────────────────────────────

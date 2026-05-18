@@ -33,7 +33,7 @@ class SkriningController extends Controller
             : [];
 
         // ── Ambil semua lansia ──────────────────────────────────────
-        $semua = Lansia::orderBy('nama_lansia')->get(['id_lansia', 'nama_lansia']);
+        $semua = Lansia::orderBy('nama_lansia')->get(['id_lansia', 'nama_lansia', 'nik', 'jenis_kelamin']);
 
         // ── ID lansia yang sudah skrining di jadwal hari ini ────────
         $sudahSkriningIds = [];
@@ -46,6 +46,19 @@ class SkriningController extends Controller
         // ── Pisahkan: belum vs sudah ────────────────────────────────
         $lansia       = $semua->whereNotIn('id_lansia', $sudahSkriningIds)->values();
         $sudahSkrining = $semua->whereIn('id_lansia', $sudahSkriningIds)->values();
+
+        // Ambil tinggi badan terakhir untuk lansia yang belum skrining hari ini
+        $lansiaIds = $lansia->pluck('id_lansia')->toArray();
+        $tbTerakhir = \App\Models\skrining_kunjungan::join('skrining', 'skrining.id_skrining', '=', 'skrining_kunjungan.id_skrining')
+            ->whereIn('skrining.id_lansia', $lansiaIds)
+            ->whereNotNull('skrining_kunjungan.tinggi_badan')
+            ->select('skrining.id_lansia', 'skrining_kunjungan.tinggi_badan', 'skrining.created_at')
+            ->orderBy('skrining.created_at', 'desc')
+            ->get()
+            ->groupBy('id_lansia')
+            ->map(function ($items) {
+                return $items->first()->tinggi_badan;
+            });
 
         $obat = Obat::where('stock', '>', 0)->orderBy('nama_obat')->get();
 
@@ -66,7 +79,8 @@ class SkriningController extends Controller
             'lansia',
             'sudahSkrining',
             'obat',
-            'stepIds' 
+            'stepIds',
+            'tbTerakhir'
         ));
     }
     // ─── Store ────────────────────────────────────────────────────
@@ -112,9 +126,13 @@ class SkriningController extends Controller
         // ── Validasi Resep (opsional) ──────────────────────────────
         if ($request->filled('ada_resep')) {
             $request->validate([
-                'resep.*.id_obat'   => 'required|exists:obat,id_obat',
-                'resep.*.dosis'     => 'required|string|max:100',
-                'resep.*.frekuensi' => 'required|string|max:100',
+                'resep.*.id_obat'      => 'required|exists:obat,id_obat',
+                'resep.*.dosis'        => 'required|string|max:100',
+                'resep.*.jenis_jadwal' => 'required|in:harian,hari_tertentu',
+                'resep.*.frekuensi'    => 'required|integer|min:1',
+                'resep.*.hari_konsumsi' => 'required_if:resep.*.jenis_jadwal,hari_tertentu|array',
+                'resep.*.hari_konsumsi.*' => 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu',
+                'resep.*.jumlah_obat'  => 'required|integer|min:1',
             ]);
         }
 
@@ -159,14 +177,52 @@ class SkriningController extends Controller
                         'catatan'     => $request->catatan_resep,
                     ]);
 
+                    $hariOrder = ['senin'=>1,'selasa'=>2,'rabu'=>3,'kamis'=>4,'jumat'=>5,'sabtu'=>6,'minggu'=>7];
                     foreach ($request->resep as $r) {
+                        $hariKonsumsi = null;
+                        if (($r['jenis_jadwal'] ?? 'harian') === 'hari_tertentu') {
+                            $rawHari = $r['hari_konsumsi'] ?? [];
+                            $rawHari = array_map('strtolower', $rawHari);
+                            usort($rawHari, function($a, $b) use ($hariOrder) {
+                                return ($hariOrder[$a] ?? 99) <=> ($hariOrder[$b] ?? 99);
+                            });
+                            $hariKonsumsi = array_values(array_unique($rawHari));
+                        }
+
+                        $jumlahObat = $r['jumlah_obat'] ?? 1;
+                        $obat = \App\Models\Obat::find($r['id_obat']);
+                        
+                        if ($obat && $obat->stock < $jumlahObat) {
+                            throw \Illuminate\Validation\ValidationException::withMessages([
+                                'stok' => ["Stok obat {$obat->nama_obat} tidak mencukupi (Sisa: {$obat->stock})."]
+                            ]);
+                        }
+                        
+                        if ($obat) {
+                            $obat->decrement('stock', $jumlahObat);
+                        }
+
                         DetailResep::create([
-                            'id_resep'   => $resep->id_resep,
-                            'id_obat'    => $r['id_obat'],
-                            'dosis'      => $r['dosis'],
-                            'frekuensi'  => $r['frekuensi'],
-                            'keterangan' => $r['keterangan'] ?? null,
+                            'id_resep'      => $resep->id_resep,
+                            'id_obat'       => $r['id_obat'],
+                            'dosis'         => $r['dosis'],
+                            'jenis_jadwal'  => $r['jenis_jadwal'] ?? 'harian',
+                            'frekuensi'     => $r['frekuensi'],
+                            'durasi_hari'   => $r['durasi_hari'] ?? null,
+                            'hari_konsumsi' => $hariKonsumsi,
+                            'jumlah_obat'   => $jumlahObat,
+                            'keterangan'    => $r['keterangan'] ?? null,
                         ]);
+
+                        if ($obat) {
+                            \App\Models\MutasiStokObat::create([
+                                'id_obat' => $obat->id_obat,
+                                'id_resep' => $resep->id_resep,
+                                'tipe' => 'keluar',
+                                'jumlah' => $jumlahObat,
+                                'keterangan' => 'Resep obat (Skrining)',
+                            ]);
+                        }
                     }
                 }
             }

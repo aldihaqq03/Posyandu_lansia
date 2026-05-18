@@ -58,28 +58,7 @@
             <div class="alert-success"><i class="fa-solid fa-circle-check"></i> {{ session('success') }}</div>
         @endif
 
-        {{-- ══════════════════════════════════════════
-        SUDAH SKRINING — INFO BOX
-        ══════════════════════════════════════════ --}}
-        @if($jadwal && $sudahSkrining->count() > 0)
-            <div class="sudah-skrining-box">
-                <div class="sudah-skrining-header">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>Sudah Skrining Hari Ini ({{ $sudahSkrining->count() }} lansia)</span>
-                    <button type="button" class="btn-toggle-sudah" id="btn-toggle-sudah">
-                        <i class="fa-solid fa-chevron-down" id="icon-toggle-sudah"></i>
-                    </button>
-                </div>
-                <div class="sudah-skrining-list" id="sudah-skrining-list" style="display:none;">
-                    @foreach($sudahSkrining as $ss)
-                        <span class="sudah-chip">
-                            <i class="fa-solid fa-check"></i>
-                            {{ $ss->nama_lansia }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-        @endif
+
 
         {{-- ══════════════════════════════════════════
         WIZARD STEPS INDICATOR
@@ -137,9 +116,17 @@
 
                 {{-- ── Bagian: Pilih Lansia ── --}}
                 <div class="form-section">
-                    <div class="section-header">
-                        <i class="fa-solid fa-person-cane"></i>
-                        <span>Data Lansia</span>
+                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <i class="fa-solid fa-person-cane"></i>
+                            <span>Data Lansia</span>
+                        </div>
+                        @if($sudahSkrining->isNotEmpty())
+                            <button type="button" onclick="openModalSudahSkrining()"
+                                style="font-size: 12px; background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; padding: 4px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-list-check"></i> Sudah Skrining ({{ $sudahSkrining->count() }})
+                            </button>
+                        @endif
                     </div>
 
                     <div class="form-group">
@@ -844,10 +831,73 @@
 
         </form>
     </div>
+
+    <!-- Modal Sudah Skrining -->
+    @if($sudahSkrining->isNotEmpty())
+        <div id="modalSudahSkrining"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+            <div
+                style="background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
+                <div
+                    style="padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Lansia yang Sudah Skrining Hari Ini</h2>
+                    <button onclick="closeModalSudahSkrining()" type="button"
+                        style="background: none; border: none; font-size: 20px; cursor: pointer; color: #999;">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div style="padding: 0; flex: 1; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead style="background: #F9FAFB; position: sticky; top: 0;">
+                            <tr>
+                                <th style="padding: 12px 20px; text-align: left; border-bottom: 1px solid #E5E7EB;">NAMA / NIK
+                                </th>
+                                <th
+                                    style="padding: 12px 20px; text-align: left; border-bottom: 1px solid #E5E7EB; width: 150px;">
+                                    JENIS KELAMIN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($sudahSkrining as $l)
+                                <tr>
+                                    <td style="padding: 12px 20px; border-bottom: 1px solid #E5E7EB;">
+                                        <div style="font-weight: 600; color: #111827;">{{ $l->nama_lansia }}</div>
+                                        <div style="font-size: 11px; color: #6B7280; margin-top: 2px;">NIK: {{ $l->nik ?? '-' }}
+                                        </div>
+                                    </td>
+                                    <td style="padding: 12px 20px; border-bottom: 1px solid #E5E7EB;">
+                                        @if($l->jenis_kelamin == 'L')
+                                            <span
+                                                style="color: #2563EB; background: #DBEAFE; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">Laki-laki</span>
+                                        @else
+                                            <span
+                                                style="color: #DB2777; background: #FCE7F3; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">Perempuan</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @push('scripts')
     <script>
+        function openModalSudahSkrining() {
+            document.getElementById('modalSudahSkrining').style.display = 'flex';
+        }
+        function closeModalSudahSkrining() {
+            document.getElementById('modalSudahSkrining').style.display = 'none';
+        }
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('modalSudahSkrining');
+            if (e.target === modal) {
+                closeModalSudahSkrining();
+            }
+        });
         document.addEventListener('DOMContentLoaded', () => {
 
             // ══════════════════════════════════════════════════════════════
@@ -1068,17 +1118,17 @@
 
             function reviewCard(icon, title, rows) {
                 const rowsHtml = rows.map(([k, v]) => `
-                                    <div class="review-row">
-                                        <span class="review-key">${k}</span>
-                                        <span class="review-val">${v}</span>
-                                    </div>`).join('');
+                                        <div class="review-row">
+                                            <span class="review-key">${k}</span>
+                                            <span class="review-val">${v}</span>
+                                        </div>`).join('');
                 return `
-                                    <div class="review-card">
-                                        <div class="review-card-title">
-                                            <i class="fa-solid ${icon}"></i> ${title}
-                                        </div>
-                                        ${rowsHtml}
-                                    </div>`;
+                                        <div class="review-card">
+                                            <div class="review-card-title">
+                                                <i class="fa-solid ${icon}"></i> ${title}
+                                            </div>
+                                            ${rowsHtml}
+                                        </div>`;
             }
 
             // ══════════════════════════════════════════════════════════════
@@ -1110,8 +1160,20 @@
             const saranBaruList = document.getElementById('saran-baru-list');
             let saranIdx = 0;
 
+            const tbTerakhirMap = @json($tbTerakhir ?? []);
+
             selectLansia?.addEventListener('change', async function () {
                 const id = this.value;
+
+                // Set Tinggi Badan otomatis
+                if (id && tbTerakhirMap[id]) {
+                    const tbInputEl = document.querySelector('[name="tinggi_badan"]');
+                    if (tbInputEl && !tbInputEl.value) {
+                        tbInputEl.value = tbTerakhirMap[id];
+                        hitungIMT(); // recalculate IMT if needed
+                    }
+                }
+
                 saranSebelumnyaWrapper.style.display = 'none';
                 saranSebelumnyaList.innerHTML = '';
                 saranBaruList.innerHTML = '';
@@ -1134,23 +1196,23 @@
                         saranSebelumnyaWrapper.style.display = 'none';
                     } else {
                         saranSebelumnyaList.innerHTML = data.map(s => `
-                                            <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
-                                                <div class="form-group" style="margin-bottom:12px;">
-                                                    <input type="text" class="form-control saran-edit-jenis"
-                                                        value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
+                                                <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+                                                    <div class="form-group" style="margin-bottom:12px;">
+                                                        <input type="text" class="form-control saran-edit-jenis"
+                                                            value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
+                                                    </div>
+                                                    <div class="form-group" style="margin-bottom:12px;">
+                                                        <textarea class="form-control saran-edit-isi"
+                                                            placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
+                                                    </div>
+                                                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                                                        <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}"
+                                                            style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
+                                                            <i class="fa-solid fa-trash"></i> Hapus
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <div class="form-group" style="margin-bottom:12px;">
-                                                    <textarea class="form-control saran-edit-isi"
-                                                        placeholder="Isi saran..." rows="3">${escSaran(s.isi_saran)}</textarea>
-                                                </div>
-                                                <div style="display:flex;gap:8px;justify-content:flex-end;">
-                                                    <button type="button" class="btn-delete-saran-lama" data-id="${s.id_saran}"
-                                                        style="padding:6px 12px;background:#ef4444;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;">
-                                                        <i class="fa-solid fa-trash"></i> Hapus
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        `).join('');
+                                            `).join('');
                         saranSebelumnyaList.querySelectorAll('.btn-delete-saran-lama').forEach(btn => {
                             btn.addEventListener('click', handleDeleteSaranLama);
                         });
@@ -1171,18 +1233,18 @@
 
             function saranRowHTML(i) {
                 return `
-                                    <div class="saran-row-inner" style="margin-bottom:10px;">
-                                        <div class="saran-row-fields">
-                                            <input type="text" name="saran[${i}][jenis_saran]" class="form-control"
-                                                placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)" required>
-                                            <textarea name="saran[${i}][isi_saran]" class="form-control"
-                                                placeholder="Tulis isi saran untuk lansia..." rows="3" required></textarea>
-                                        </div>
-                                        <button type="button" class="btn-remove-resep btn-remove-saran" title="Hapus saran"
-                                            style="margin-left:8px;flex-shrink:0;margin-top:2px;">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-                                    </div>`;
+                                        <div class="saran-row-inner" style="margin-bottom:10px;">
+                                            <div class="saran-row-fields">
+                                                <input type="text" name="saran[${i}][jenis_saran]" class="form-control"
+                                                    placeholder="Judul saran (cth: Pola Makan, Aktivitas Fisik...)" required>
+                                                <textarea name="saran[${i}][isi_saran]" class="form-control"
+                                                    placeholder="Tulis isi saran untuk lansia..." rows="3" required></textarea>
+                                            </div>
+                                            <button type="button" class="btn-remove-resep btn-remove-saran" title="Hapus saran"
+                                                style="margin-left:8px;flex-shrink:0;margin-top:2px;">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>`;
             }
 
             function escSaran(str) {
@@ -1232,45 +1294,120 @@
                 const list = document.getElementById('resep-list');
                 const row = document.createElement('div');
                 row.className = 'resep-row';
+                row.style.marginBottom = '12px';
+                row.style.borderBottom = '1px dashed #ccc';
+                row.style.paddingBottom = '12px';
                 row.innerHTML = resepRowHTML(resepIdx);
                 list.appendChild(row);
                 resepIdx++;
                 bindRemoveResep(row);
+                bindJenisJadwal(row);
 
                 if (chkResep?.checked) {
-        row.querySelectorAll('select.form-control, input.form-control').forEach(el => {
-            const name = el.name || '';
-            if (name.includes('[id_obat]') || name.includes('[dosis]') || name.includes('[frekuensi]')) {
-                el.required = true;
-            }
-        });
-    }
+                    row.querySelectorAll('select.form-control, input.form-control').forEach(el => {
+                        const name = el.name || '';
+                        if (name.includes('[id_obat]') || name.includes('[dosis]') || name.includes('[frekuensi]') || name.includes('[jumlah_obat]')) {
+                            el.required = true;
+                        }
+                    });
+                }
             });
 
-            document.querySelectorAll('#resep-list .resep-row').forEach(bindRemoveResep);
+            document.querySelectorAll('#resep-list .resep-row').forEach(row => {
+                bindRemoveResep(row);
+                bindJenisJadwal(row);
+            });
 
             function bindRemoveResep(row) {
                 row.querySelector('.btn-remove-resep')?.addEventListener('click', () => row.remove());
             }
 
+            function bindJenisJadwal(row) {
+                const select = row.querySelector('.select-jenis-jadwal');
+                const group = row.querySelector('.hari-konsumsi-group');
+                const checkboxes = group?.querySelectorAll('input[type="checkbox"]');
+                const frekuensiInput = row.querySelector('.input-frekuensi');
+                if (select && group) {
+                    select.addEventListener('change', () => {
+                        if (select.value === 'hari_tertentu') {
+                            group.style.display = 'flex';
+                            if (frekuensiInput) {
+                                frekuensiInput.placeholder = 'Frq/mgg';
+                            }
+                        } else {
+                            group.style.display = 'none';
+                            if (checkboxes) checkboxes.forEach(cb => cb.checked = false);
+                            if (frekuensiInput) {
+                                frekuensiInput.placeholder = 'Frq/hari';
+                            }
+                        }
+                    });
+                    // Trigger initial change
+                    select.dispatchEvent(new Event('change'));
+                }
+            }
+
             function resepRowHTML(i) {
                 const options = @json($obat->map(fn($o) => ['id' => $o->id_obat, 'nama' => $o->nama_obat]));
                 const opts = options.map(o => `<option value="${o.id}">${o.nama}</option>`).join('');
-                return `
-            <div class="resep-row-inner">
-                <select name="resep[${i}][id_obat]" class="form-control">
-                    <option value="">-- Pilih Obat --</option>
-                    ${opts}
-                </select>
-                <input type="text" name="resep[${i}][dosis]" class="form-control"
-                    placeholder="Dosis (cth: 500mg)">
-                <input type="text" name="resep[${i}][frekuensi]" class="form-control"
-                    placeholder="Frekuensi (cth: 3x1)">
-                <input type="text" name="resep[${i}][keterangan]" class="form-control"
-                    placeholder="Keterangan (opsional)">
-                <button type="button" class="btn-remove-resep">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+        return `
+            <div class="resep-row-inner" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; align-items: flex-end;">
+                <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Pilih Obat</label>
+                    <select name="resep[${i}][id_obat]" class="form-control" style="width: 100%;">
+                        <option value="">-- Pilih Obat --</option>
+                        ${opts}
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Dosis</label>
+                    <input type="text" name="resep[${i}][dosis]" class="form-control" placeholder="cth: 500mg" style="width: 100%;">
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Frekuensi</label>
+                    <input type="number" min="1" name="resep[${i}][frekuensi]" class="form-control input-frekuensi" placeholder="Jml" style="width: 100%;">
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Durasi Hari</label>
+                    <input type="number" min="1" name="resep[${i}][durasi_hari]" class="form-control" placeholder="Hari" style="width: 100%;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Jenis Jadwal</label>
+                    <select name="resep[${i}][jenis_jadwal]" class="form-control select-jenis-jadwal" style="width: 100%;">
+                        <option value="harian">Harian</option>
+                        <option value="hari_tertentu">Hari Tertentu</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Jml Obat</label>
+                    <input type="number" min="1" name="resep[${i}][jumlah_obat]" class="form-control" placeholder="Jml" value="1" style="width: 100%;">
+                </div>
+                
+                <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 11px; margin-bottom: 4px; color: #666; font-weight: 600;">Keterangan</label>
+                    <input type="text" name="resep[${i}][keterangan]" class="form-control" placeholder="Opsional" style="width: 100%;">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                    <button type="button" class="btn-remove-resep" style="padding: 8px 10px; background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 6px; cursor: pointer; width: 100%;">
+                        <i class="fa-solid fa-trash"></i> Hapus Baris
+                    </button>
+                </div>
+            </div>
+
+            <div class="hari-konsumsi-group" style="display: none; gap: 10px; margin-top: 10px; flex-wrap: wrap; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <div style="width: 100%; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px;">Pilih Hari Konsumsi:</div>
+                ${['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'].map(h => `
+                    <label class="checkbox-item" style="font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                        <input type="checkbox" name="resep[${i}][hari_konsumsi][]" value="${h}" class="chk-hari">
+                        ${h.charAt(0).toUpperCase() + h.slice(1)}
+                    </label>
+                `).join('')}
             </div>`;
             }
             // ══════════════════════════════════════════════════════════════

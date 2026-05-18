@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Obat;
+use App\Models\MutasiStokObat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ObatController extends Controller
 {
@@ -56,11 +58,61 @@ class ObatController extends Controller
         ]);
 
         try {
-            Obat::create($validated);
+            DB::transaction(function () use ($validated) {
+                $obat = Obat::create($validated);
+                
+                MutasiStokObat::create([
+                    'id_obat' => $obat->id_obat,
+                    'tipe' => 'masuk',
+                    'jumlah' => $obat->stock,
+                    'keterangan' => 'stok awal obat',
+                ]);
+            });
             return redirect()->route('obat.index')->with('success', 'Data obat berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menambah data obat')->withInput();
         }
+    }
+
+    /**
+     * Restock obat
+     */
+    public function restock(Request $request, string $id)
+    {
+        $request->validate([
+            'jumlah' => 'required|integer|min:1|max:999999',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $id) {
+                $obat = Obat::findOrFail($id);
+                $obat->increment('stock', $request->jumlah);
+
+                MutasiStokObat::create([
+                    'id_obat' => $obat->id_obat,
+                    'tipe' => 'masuk',
+                    'jumlah' => $request->jumlah,
+                    'keterangan' => $request->keterangan ?: 'Restock obat',
+                ]);
+            });
+
+            return redirect()->route('obat.index')->with('success', 'Restock obat berhasil dilakukan');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal melakukan restock obat');
+        }
+    }
+
+    /**
+     * Get mutasi stok API
+     */
+    public function mutasiStokApi($id)
+    {
+        $mutasi = MutasiStokObat::where('id_obat', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return response()->json($mutasi);
     }
 
     /**

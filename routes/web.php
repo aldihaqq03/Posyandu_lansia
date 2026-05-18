@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
     // ========================
     // LAINNYA
     // ========================
+    Route::get('/obat/{id}/mutasi-stok', [ObatController::class, 'mutasiStokApi'])->name('obat.mutasi_stok_api');
+    Route::post('/obat/{obat}/restock', [ObatController::class, 'restock'])->name('obat.restock');
     Route::resource('obat', ObatController::class);
     Route::patch('jadwal_posyandu/{id}/selesai', [JadwalPosyanduController::class, 'selesai'])
     ->name('jadwal_posyandu.selesai');
