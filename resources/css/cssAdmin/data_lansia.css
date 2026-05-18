@@ -844,6 +844,90 @@
     justify-content: center;
 }
 
+/* Override Laravel Tailwind pagination — pastikan semua tombol konsisten */
+.pagination-wrapper nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Info teks "Showing X to Y of Z results" */
+.pagination-wrapper nav > div:first-child p,
+.pagination-wrapper nav > div:first-child {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* Container tombol */
+.pagination-wrapper nav > div:last-child,
+.pagination-wrapper span[role="navigation"],
+.pagination-wrapper .flex {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Semua elemen anchor & span dalam pagination */
+.pagination-wrapper nav a,
+.pagination-wrapper nav span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    transition: background 0.2s, color 0.2s, border-color 0.2s !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: var(--text-main) !important;
+}
+
+/* Halaman aktif */
+.pagination-wrapper nav span[aria-current="page"],
+.pagination-wrapper nav span.font-bold,
+.pagination-wrapper nav a[aria-current="page"] {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
+}
+
+/* Hover */
+.pagination-wrapper nav a:hover {
+    background: #f0f7ff !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+/* Disabled (dots / ellipsis / disabled prev-next) */
+.pagination-wrapper nav span[aria-disabled="true"],
+.pagination-wrapper nav span.cursor-default {
+    background: #f8fafc !important;
+    color: #cbd5e1 !important;
+    border-color: #f1f5f9 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+/* SVG icon di tombol prev / next */
+.pagination-wrapper nav a svg,
+.pagination-wrapper nav span svg {
+    width: 14px !important;
+    height: 14px !important;
+    flex-shrink: 0 !important;
+}
+
 /* ── Empty state di tabel ────────────────────────────── */
 td.empty-state {
     text-align: center;

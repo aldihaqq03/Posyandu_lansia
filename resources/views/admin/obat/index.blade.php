@@ -9,13 +9,6 @@
 @section('content')
     <main class="main-content">
 
-        <!-- Tampilkan Success Message -->
-        @if (session('success'))
-            <div style="background: #E6F4FF; border: 1px solid rgba(13, 110, 253, 0.3); border-radius: 6px; padding: 15px; margin-bottom: 20px; margin-left: auto; margin-right: auto; max-width: 1200px;">
-                <h4 style="color: #0d6efd; margin-bottom: 5px;">Berhasil!</h4>
-                <p style="color: #0d6efd; margin: 0; font-size: 14px;">{{ session('success') }}</p>
-            </div>
-        @endif
 
         <div class="container">
             <header class="page-header">

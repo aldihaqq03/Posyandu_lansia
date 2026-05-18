@@ -23,11 +23,6 @@
             </div>
         @endif
 
-        @if(session('error'))
-            <div class="alert-danger" style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
-                {{ session('error') }}
-            </div>
-        @endif
 
         <form action="{{ route('skrining_utama.store') }}" method="POST">
             @csrf

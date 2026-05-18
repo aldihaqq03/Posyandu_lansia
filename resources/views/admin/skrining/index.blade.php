@@ -50,13 +50,6 @@
             </div>
         @endif
 
-        {{-- Flash Messages --}}
-        @if(session('error'))
-            <div class="alert-error"><i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}</div>
-        @endif
-        @if(session('success'))
-            <div class="alert-success"><i class="fa-solid fa-circle-check"></i> {{ session('success') }}</div>
-        @endif
 
 
 

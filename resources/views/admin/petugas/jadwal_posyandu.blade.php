@@ -24,13 +24,7 @@
             </button>
         </header>
 
-        {{-- FLASH MESSAGE --}}
-        @if(session('success'))
-            <div class="alert-success">
-                <i class="fa-solid fa-circle-check"></i>
-                {{ session('success') }}
-            </div>
-        @endif
+
 
         {{-- SUMMARY CARD --}}
         <section class="summary-card" aria-label="Ringkasan Jadwal">
