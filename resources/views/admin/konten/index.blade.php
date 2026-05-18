@@ -258,7 +258,12 @@
                             {{ $types[$item->tipe_konten] ?? 'Konten' }}
                         </span>
                         <span style="font-size: 0.75rem; color: #94a3b8;">
-                            <i class="fa-regular fa-clock"></i> {{ $item->created_at->diffForHumans() }}
+                            <i class="fa-regular fa-clock"></i> 
+                            @if($item->created_at)
+                                {{ $item->created_at->diffForHumans() }}
+                            @else
+                                Tanggal tidak tersedia
+                            @endif
                         </span>
                     </div>
                     <h3>{{ $item->judul }}</h3>
@@ -266,7 +271,12 @@
                 </div>
                 <div class="card-footer">
                     <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">
-                        <i class="fa-regular fa-calendar-alt"></i> {{ $item->created_at->format('d M Y') }}
+                        <i class="fa-regular fa-calendar-alt"></i> 
+                        @if($item->created_at)
+                            {{ $item->created_at->format('d M Y') }}
+                        @else
+                            -
+                        @endif
                     </span>
                     <div class="card-actions">
                         <a href="{{ route('konten.edit', $item->id_konten) }}" class="btn-icon btn-edit" title="Edit">

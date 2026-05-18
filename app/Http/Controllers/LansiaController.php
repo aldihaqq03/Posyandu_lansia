@@ -325,7 +325,7 @@ class LansiaController extends Controller
                         'nama_lansia'       => 'required|string|min:3|max:100',
                         'jenis_kelamin'     => 'required|in:L,P',
                         'tempat_lahir'      => 'nullable|string|max:50',
-                        'tanggal_lahir'     => 'nullable|date',
+                        'tanggal_lahir'     => 'required|date',
                         'alamat'            => 'required|string|min:5',
                         'no_hp'             => 'nullable|digits_between:10,13|unique:lansia,no_hp',
                         'status_perkawinan' => 'nullable|string|max:20',
