@@ -131,6 +131,9 @@
 }
 
 .close-modal{
+    position:absolute;
+    top:16px;
+    right:16px;
     width:38px;
     height:38px;
     border:none;
@@ -138,6 +141,9 @@
     background:#f1f5f9;
     cursor:pointer;
     font-size:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     transition:.2s;
 }
 
@@ -319,6 +325,9 @@
         padding:24px;
         position:relative;
     ">
+    <button class="close-modal" onclick="closeModalModal()">
+    &times;
+</button>
 
         <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
             Detail Kehadiran
@@ -339,10 +348,6 @@
     </button>
 
 </div>
-
-        <button onclick="closeModal()">
-            Tutup
-        </button>
 
     </div>
 </div>
@@ -376,9 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
-</script>
 
-<script>
 document.addEventListener("DOMContentLoaded", () => {
 
     const counters = document.querySelectorAll('.stat-value');
@@ -428,6 +431,11 @@ closeModal.addEventListener('click', () => {
     modal.style.display = 'none';
 
 });
+function closeModalModal() {
+
+    modal.style.display = 'none';
+
+}
 </script>
 
 @endpush
