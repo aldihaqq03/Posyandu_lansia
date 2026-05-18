@@ -77,6 +77,15 @@
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </button>
 
+                                        <!-- Tombol Restock -->
+                                        <button type="button" 
+                                            onclick="openModalRestock('{{ $item->id_obat }}', '{{ $item->nama_obat }}')" 
+                                            title="Lihat histori restock"
+                                            class="btn-outline tooltip" 
+                                            style="padding: 6px 12px; font-size: 12px; background: white; color: #EAB308; border: 1px solid #EAB308; cursor: pointer; border-radius: 4px;">
+                                            <i class="fa-solid fa-boxes-packing"></i> Restock
+                                        </button>
+
                                         <!-- Tombol Hapus -->
                                         <form action="{{ route('obat.destroy', $item->id_obat) }}" method="POST" style="display:inline;">
                                             @csrf
@@ -108,6 +117,7 @@
     <!-- Include Modals -->
     @include('admin.obat.modal_create')
     @include('admin.obat.modal_edit')
+    @include('admin.obat.modal_restock')
 
     <script>
         // Search functionality

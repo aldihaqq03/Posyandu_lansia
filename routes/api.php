@@ -19,6 +19,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/item-jadwal', [ItemJadwalController::class, 'index']);
     Route::get('/kontak-keluarga', [\App\Http\Controllers\Api\KeluargaApiController::class, 'index']);
     Route::get('/skrining', [\App\Http\Controllers\Api\SkriningApiController::class, 'index']);
+    Route::get('/monitoring', [\App\Http\Controllers\Api\MonitoringApiController::class, 'index']);
+    Route::get('/resep', [\App\Http\Controllers\Api\ResepApiController::class, 'index']);
     Route::post('/update-password', [ProfilApiController::class, 'updatePassword']);
     Route::post('/update-fcm-token', [AuthApiController::class, 'updateFcmToken']);
     Route::post('/logout-lansia', [AuthApiController::class, 'logout']);
