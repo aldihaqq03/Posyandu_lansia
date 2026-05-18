@@ -161,9 +161,9 @@
             <thead>
                <tr>
     <th>No</th>
-    <th>Nama Lansia</th>
     <th>Tanggal Kunjungan</th>
-    <th>Status Kehadiran</th>
+    <th>Nama Kegiatan</th>
+    <th>Aksi</th>
 </tr>
             </thead>
 
@@ -172,26 +172,16 @@
                     <tr>
     <td>{{ $loop->iteration }}</td>
 
-    <td>{{ $item->nama_lansia }}</td>
-
     <td>
         {{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}
     </td>
 
-    <td>
-        @if($item->risk_level == 'normal')
-            <span class="badge-normal">Normal</span>
-
-        @elseif($item->risk_level == 'waspada')
-            <span class="badge-warning">Waspada</span>
-
-        @else
-            <span class="badge-danger">Perlu Perhatian</span>
-        @endif
-    </td>
+    <td>Posyandu Lansia Bulanan</td>
 
     <td>
-        <span class="badge-hadir">Hadir</span>
+        <button class="filter-btn">
+            Detail
+        </button>
     </td>
 </tr>
                 @empty
