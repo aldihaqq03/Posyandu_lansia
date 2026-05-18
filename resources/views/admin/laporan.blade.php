@@ -173,10 +173,12 @@
     <td>{{ $loop->iteration }}</td>
 
     <td>
-        {{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}
-    </td>
+    {{ \Carbon\Carbon::parse($item->tanggal_skrining)->format('d M Y') }}
+</td>
 
-    <td>Posyandu Lansia Bulanan</td>
+<td>
+    {{ $item->tema }}
+</td>
 
     <td>
         <button class="filter-btn">
@@ -198,6 +200,97 @@
 </div>
     </div>
 </div>
+
+<!-- MODAL DETAIL -->
+<div id="modalDetail" class="modal-detail">
+
+    <div class="modal-detail-content">
+
+        <div class="modal-header">
+            <h3>Detail Laporan</h3>
+
+            <button class="close-modal">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="detail-item">
+                <span>Status Kehadiran</span>
+                <strong>Hadir</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Petugas</span>
+                <strong>Bu Sinta</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Obat Keluar</span>
+                <strong>Paracetamol</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+</div>
+</div>
+
+{{-- MODAL DETAIL --}}
+<div id="modalDetail"
+    style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:999;
+    justify-content:center;
+    align-items:center;
+">
+
+    <div style="
+        background:white;
+        width:450px;
+        border-radius:16px;
+        padding:24px;
+        position:relative;
+    ">
+
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
+            Detail Kehadiran
+        </h3>
+
+        <div style="display:flex; flex-direction:column; gap:14px;">
+
+    <button class="filter-btn">
+        Status Kehadiran
+    </button>
+
+    <button class="filter-btn">
+        Petugas
+    </button>
+
+    <button class="filter-btn">
+        Obat Keluar
+    </button>
+
+</div>
+
+        <button onclick="closeModal()">
+            Tutup
+        </button>
+
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -228,4 +321,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const counters = document.querySelectorAll('.stat-value');
+
+    counters.forEach(counter => {
+
+        const updateCount = () => {
+
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+            const inc = target / 30;
+
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 30);
+            } else {
+                counter.innerText = target.toLocaleString('id-ID');
+            }
+        };
+
+        updateCount();
+
+    });
+
+});
+
+
+/* MODAL */
+const modal = document.getElementById('modalDetail');
+
+const detailButtons = document.querySelectorAll('.filter-btn');
+
+const closeModal = document.querySelector('.close-modal');
+
+detailButtons.forEach(button => {
+
+    button.addEventListener('click', () => {
+
+        modal.style.display = 'flex';
+
+    });
+
+});
+
+closeModal.addEventListener('click', () => {
+
+    modal.style.display = 'none';
+
+});
+</script>
+
 @endpush
