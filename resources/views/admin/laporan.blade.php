@@ -257,6 +257,21 @@
         transform:translateY(0);
     }
 }
+.btn-detail-action{
+    border:none;
+    background:#eff6ff;
+    color:#2563eb;
+    padding:10px 18px;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+    font-size:14px;
+}
+
+.btn-detail-action:hover{
+    background:#dbeafe;
+}
 
     </style>
 @endpush
@@ -362,14 +377,9 @@
         
         <div class="chart-container-wrapper">
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="font-size:18px; font-weight:700;">Tabel Laporan Kehadiran</h3>
-
-        <button class="filter-btn">
-            <i class="fa-solid fa-download"></i>
-            Export
-        </button>
-    </div>
+    <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
+    Tabel Laporan Kehadiran
+</h3>
 
     <div class="table-responsive">
         <table class="laporan-table">
@@ -400,7 +410,7 @@
 </td>
 
     <td>
-        <button class="filter-btn btn-detail">
+        <button class="btn-detail-action btn-detail">
     Detail
 </button>
     </td>
@@ -426,27 +436,10 @@
 </div>
 
 {{-- MODAL DETAIL --}}
-<div id="modalDetail"
-    style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.5);
-    z-index:999;
-    justify-content:center;
-    align-items:center;
-">
+<div id="modalDetail" class="modal-detail">
 
-    <div style="
-        background:white;
-        width:450px;
-        border-radius:16px;
-        padding:24px;
-        position:relative;
-    ">
+   <div class="modal-detail-content">
+
     <button class="close-modal" onclick="closeModalModal()">
     &times;
 </button>
@@ -455,7 +448,7 @@
             Detail Kehadiran
         </h3>
 
-        <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="modal-body">
 
     <button class="filter-btn">
         Status Kehadiran
@@ -504,31 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    const counters = document.querySelectorAll('.stat-value');
-
-    counters.forEach(counter => {
-
-        const updateCount = () => {
-
-            const target = +counter.getAttribute('data-target');
-            const count = +counter.innerText;
-            const inc = target / 30;
-
-            if (count < target) {
-                counter.innerText = Math.ceil(count + inc);
-                setTimeout(updateCount, 30);
-            } else {
-                counter.innerText = target.toLocaleString('id-ID');
-            }
-        };
-
-        updateCount();
-
-    });
-
-});
 
 
 /* MODAL */
