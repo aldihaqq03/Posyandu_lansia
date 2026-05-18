@@ -1236,6 +1236,15 @@
                 list.appendChild(row);
                 resepIdx++;
                 bindRemoveResep(row);
+
+                if (chkResep?.checked) {
+        row.querySelectorAll('select.form-control, input.form-control').forEach(el => {
+            const name = el.name || '';
+            if (name.includes('[id_obat]') || name.includes('[dosis]') || name.includes('[frekuensi]')) {
+                el.required = true;
+            }
+        });
+    }
             });
 
             document.querySelectorAll('#resep-list .resep-row').forEach(bindRemoveResep);

@@ -621,14 +621,11 @@
 
 .badge-selesai {
     background: #dcfce7;
-    /* Hijau muda lembut untuk background */
     color: #166534;
-    /* Hijau tua untuk teks agar terbaca jelas */
-}
 
+}
 .badge-selesai::before {
     background: #22c55e;
-    /* Hijau terang untuk titik/ikon indikatornya */
 }
 
 .badge-batal {
