@@ -133,7 +133,6 @@
                         <span class="month-divider-text">{{ $bulanIni }}</span>
                         <span class="month-divider-line"></span>
                     </div>
-<<<<<<< Updated upstream
                     @php $bulanSekarang = $bulanIni; @endphp
                 @endif
 
@@ -156,22 +155,16 @@
                             <span>
                                 <i class="fa-solid fa-location-dot"></i>
                                 {{ $item->lokasi }}
-=======
-                    <div class="jadwal-tags">
-                        @foreach($kegiatan as $k)
-                            <span class="tag">
-                                @if(is_object($k))
-                                    {{ $k->nama }}{{ !empty($k->jam) ? ' ' . $k->jam : '' }}
-                                @else
-                                    {{ $k }}
-                                @endif
->>>>>>> Stashed changes
                             </span>
                         </div>
                         <div class="jadwal-tags">
                             @foreach($kegiatan as $k)
                                 <span class="tag">
-                                    {{ $k->nama }}{{ !empty($k->jam) ? ' ' . $k->jam : '' }}
+                                    @if(is_object($k))
+                                        {{ $k->nama }}{{ !empty($k->jam) ? ' ' . $k->jam : '' }}
+                                    @else
+                                        {{ $k }}
+                                    @endif
                                 </span>
                             @endforeach
                             @if(empty($kegiatan))

@@ -215,8 +215,6 @@
                     <select name="tipe_konten" class="form-control" required>
                         <option value="1" {{ $konten->tipe_konten == 1 ? 'selected' : '' }}>Video</option>
                         <option value="2" {{ $konten->tipe_konten == 2 ? 'selected' : '' }}>Gambar</option>
-                        <option value="3" {{ $konten->tipe_konten == 3 ? 'selected' : '' }}>Artikel</option>
-                        <option value="4" {{ $konten->tipe_konten == 4 ? 'selected' : '' }}>Audio</option>
                     </select>
                 </div>
                 <div class="form-group">

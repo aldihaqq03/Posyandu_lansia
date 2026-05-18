@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailSkrining;
 use App\Models\JadwalPosyandu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class JadwalPosyanduController extends Controller
@@ -45,7 +46,7 @@ class JadwalPosyanduController extends Controller
         }
 
         DB::transaction(function () use ($request) {
-            $idPetugas = auth()->user()?->petugas?->id_petugas ?? 1;
+            $idPetugas = Auth::user()?->petugas?->id_petugas ?? 1;
             
             // 1. Ambil tanggal hari ini versi WIB
             $todayWIB = now('Asia/Jakarta')->format('Y-m-d');
@@ -107,17 +108,17 @@ class JadwalPosyanduController extends Controller
         return $this->successResponse($request, 'Jadwal berhasil ditambahkan!');
     }
 
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $jadwal = JadwalPosyandu::with('detailSkrining')->find($id);
 
         if (! $jadwal) {
-            return $this->errorResponse(request(), 'Jadwal tidak ditemukan', 404);
+            return $this->errorResponse($request, 'Jadwal tidak ditemukan', 404);
         }
 
         $jadwal->kegiatan = $jadwal->kegiatan ? json_decode($jadwal->kegiatan) : [];
 
-        if (request()->expectsJson()) {
+        if ($request->expectsJson()) {
             return response()->json($jadwal);
         }
 

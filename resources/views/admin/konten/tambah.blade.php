@@ -202,8 +202,6 @@
                         <option value="" disabled selected>Pilih Tipe...</option>
                         <option value="1">Video</option>
                         <option value="2">Gambar</option>
-                        <option value="3">Artikel</option>
-                        <option value="4">Audio</option>
                     </select>
                 </div>
                 <div class="form-group">
