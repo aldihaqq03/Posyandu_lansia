@@ -97,16 +97,13 @@ $minggu_ini = lansia::whereBetween('created_at', [
 $tahun_ini = lansia::whereYear('created_at', Carbon::now()->year)->count();
 
 // DATA TABEL LAPORAN
-$laporan = DB::table('skrining')
-    ->join('jadwal_posyandu', 'skrining.id_jadwal_posyandu', '=', 'jadwal_posyandu.id_jadwal_posyandu')
-
+$laporan = DB::table('jadwal_posyandu')
     ->select(
-        'skrining.id_skrining',
-        'skrining.tanggal_skrining',
-        'jadwal_posyandu.tema'
+        'id_jadwal_posyandu',
+        'tanggal_pelaksanaan',
+        'tema'
     )
-
-    ->latest('skrining.tanggal_skrining')
+    ->latest('tanggal_pelaksanaan')
     ->get();
 
         $summary = [

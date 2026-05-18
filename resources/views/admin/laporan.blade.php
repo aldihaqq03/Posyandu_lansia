@@ -264,7 +264,7 @@
     <td>{{ $loop->iteration }}</td>
 
     <td>
-    {{ \Carbon\Carbon::parse($item->tanggal_skrining)->format('d M Y') }}
+    {{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('d M Y') }}
 </td>
 
 <td>
@@ -292,41 +292,6 @@
     </div>
 </div>
 
-<!-- MODAL DETAIL -->
-<div id="modalDetail" class="modal-detail">
-
-    <div class="modal-detail-content">
-
-        <div class="modal-header">
-            <h3>Detail Laporan</h3>
-
-            <button class="close-modal">
-                &times;
-            </button>
-        </div>
-
-        <div class="modal-body">
-
-            <div class="detail-item">
-                <span>Status Kehadiran</span>
-                <strong>Hadir</strong>
-            </div>
-
-            <div class="detail-item">
-                <span>Petugas</span>
-                <strong>Bu Sinta</strong>
-            </div>
-
-            <div class="detail-item">
-                <span>Obat Keluar</span>
-                <strong>Paracetamol</strong>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 
 </div>
 </div>
