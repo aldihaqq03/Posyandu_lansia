@@ -237,10 +237,31 @@
     <!-- TABLE AREA -->
     <div style="margin-top:24px;">
         <div class="filter-tabs">
-            <button class="filter-btn active" onclick="updateChart('harian', this)">Harian (7 Hari)</button>
-            <button class="filter-btn" onclick="updateChart('mingguan', this)">Mingguan (Bulan Ini)</button>
-            <button class="filter-btn" onclick="updateChart('tahunan', this)">Tahunan (Tahun Ini)</button>
-        </div>
+
+    <select class="filter-btn" id="filterBulan">
+        <option value="">Pilih Bulan</option>
+        <option value="1">Januari</option>
+        <option value="2">Februari</option>
+        <option value="3">Maret</option>
+        <option value="4">April</option>
+        <option value="5">Mei</option>
+        <option value="6">Juni</option>
+        <option value="7">Juli</option>
+        <option value="8">Agustus</option>
+        <option value="9">September</option>
+        <option value="10">Oktober</option>
+        <option value="11">November</option>
+        <option value="12">Desember</option>
+    </select>
+
+    <select class="filter-btn" id="filterTahun">
+        <option value="">Pilih Tahun</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+    </select>
+
+</div>
         
         <div class="chart-container-wrapper">
 
@@ -266,7 +287,11 @@
 
             <tbody id="laporan-body">
                 @forelse($laporan as $item)
-                    <tr>
+
+<tr
+    data-bulan="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('m') }}"
+    data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}"
+>
     <td>{{ $loop->iteration }}</td>
 
     <td>
@@ -278,9 +303,9 @@
 </td>
 
     <td>
-        <button class="filter-btn">
-            Detail
-        </button>
+        <button class="filter-btn btn-detail">
+    Detail
+</button>
     </td>
 </tr>
                 @empty
@@ -412,7 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* MODAL */
 const modal = document.getElementById('modalDetail');
 
-const detailButtons = document.querySelectorAll('.filter-btn');
+const detailButtons = document.querySelectorAll('.btn-detail');
 
 const closeModal = document.querySelector('.close-modal');
 
@@ -436,6 +461,38 @@ function closeModalModal() {
     modal.style.display = 'none';
 
 }
-</script>
+const filterBulan = document.getElementById('filterBulan');
+const filterTahun = document.getElementById('filterTahun');
 
+const rows = document.querySelectorAll('#laporan-body tr');
+
+function filterLaporan() {
+
+    const bulan = filterBulan.value;
+    const tahun = filterTahun.value;
+
+    rows.forEach(row => {
+
+        const rowBulan = row.getAttribute('data-bulan');
+        const rowTahun = row.getAttribute('data-tahun');
+
+        let show = true;
+
+        if (bulan && rowBulan !== bulan.padStart(2, '0')) {
+            show = false;
+        }
+
+        if (tahun && rowTahun !== tahun) {
+            show = false;
+        }
+
+        row.style.display = show ? '' : 'none';
+
+    });
+
+}
+
+filterBulan.addEventListener('change', filterLaporan);
+filterTahun.addEventListener('change', filterLaporan);
+</script>
 @endpush
