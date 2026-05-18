@@ -91,6 +91,75 @@
         .table-responsive{
             overflow-x:auto;
         }
+        .filter-laporan-card{
+    background:#ffffff;
+    border:1px solid #e2e8f0;
+    border-radius:24px;
+    padding:24px;
+    margin-bottom:24px;
+}
+
+.filter-title{
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#64748b;
+    margin-bottom:24px;
+}
+
+.filter-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr 320px;
+    gap:20px;
+    align-items:end;
+}
+
+.filter-group{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.filter-group label{
+    font-size:15px;
+    font-weight:600;
+    color:#0f172a;
+}
+
+.filter-input{
+    width:100%;
+    height:52px;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    padding:0 16px;
+    font-size:15px;
+    outline:none;
+    background:#f8fafc;
+}
+
+.filter-input:focus{
+    border-color:#3b82f6;
+    background:#fff;
+}
+
+.export-btn{
+    height:52px;
+    border:none;
+    border-radius:14px;
+    background:#2563eb;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:.2s;
+}
+
+.export-btn:hover{
+    background:#1d4ed8;
+}
 
         .modal-detail{
     display:none;
@@ -236,30 +305,58 @@
 
     <!-- TABLE AREA -->
     <div style="margin-top:24px;">
-        <div class="filter-tabs">
+       <div class="filter-laporan-card">
 
-    <select class="filter-btn" id="filterBulan">
-        <option value="">Pilih Bulan</option>
-        <option value="1">Januari</option>
-        <option value="2">Februari</option>
-        <option value="3">Maret</option>
-        <option value="4">April</option>
-        <option value="5">Mei</option>
-        <option value="6">Juni</option>
-        <option value="7">Juli</option>
-        <option value="8">Agustus</option>
-        <option value="9">September</option>
-        <option value="10">Oktober</option>
-        <option value="11">November</option>
-        <option value="12">Desember</option>
-    </select>
+    <h3 class="filter-title">
+        FILTER LAPORAN
+    </h3>
 
-    <select class="filter-btn" id="filterTahun">
-        <option value="">Pilih Tahun</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-        <option value="2026">2026</option>
-    </select>
+    <div class="filter-grid">
+
+        {{-- BULAN --}}
+        <div class="filter-group">
+            <label>Bulan</label>
+
+            <select id="filterBulan" class="filter-input">
+                <option value="">Semua Bulan</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
+        </div>
+
+        {{-- TAHUN --}}
+        <div class="filter-group">
+            <label>Tahun</label>
+
+            <select id="filterTahun" class="filter-input">
+                <option value="">Semua Tahun</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+            </select>
+        </div>
+
+        {{-- EXPORT --}}
+        <div class="filter-group">
+            <label>Export Laporan</label>
+
+            <button class="export-btn">
+                <i class="fa-solid fa-download"></i>
+                Export Laporan
+            </button>
+        </div>
+
+    </div>
 
 </div>
         
