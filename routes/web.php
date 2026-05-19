@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/data_lansia', [LansiaController::class, 'index'])->name('data_lansia');
 
     Route::prefix('lansia')->name('lansia.')->group(function () {
+        Route::get('/check-unique', [LansiaController::class, 'checkUnique'])->name('check-unique');
         Route::get('/{lansia}/histori-skrining', [LansiaController::class, 'historiSkrining'])->name('histori');
         Route::get('/{lansia}/monitoring', [LansiaController::class, 'monitoring'])->name('monitoring');
         Route::get('/{lansia}/health-summary', [LansiaController::class, 'healthSummary'])->name('health-summary');

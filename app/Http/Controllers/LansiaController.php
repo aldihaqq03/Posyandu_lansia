@@ -15,6 +15,31 @@ use Carbon\Carbon;
 class LansiaController extends Controller
 {
     // ============================================================
+    // CEK DATA UNIQUE (AJAX)
+    // ============================================================
+    public function checkUnique(Request $request)
+    {
+        $field = $request->query('field');
+        $value = $request->query('value');
+        $ignoreId = $request->query('ignore_id');
+
+        if (!in_array($field, ['nik', 'no_hp', 'email'])) {
+            return response()->json(['exists' => false]);
+        }
+
+        if (empty($value)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $query = Lansia::where($field, $value);
+        if ($ignoreId) {
+            $query->where('id_lansia', '!=', $ignoreId);
+        }
+
+        return response()->json(['exists' => $query->exists()]);
+    }
+
+    // ============================================================
     // INDEX – Daftar lansia (tabel ringkas)
     // ============================================================
     public function index()

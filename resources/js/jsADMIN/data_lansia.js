@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const tanggal = this.dataset.formatTanggal || "-";
             const status = this.dataset.statusPerkawinan || "-";
             const keterangan = this.dataset.keterangan || "-";
+            const kodeUnik = this.dataset.kodeUnik || "";
 
             detailPanel.style.opacity = "0";
             detailPanel.style.display = "block";
@@ -83,6 +84,21 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-alamat", alamat);
             setText("d-riwayat", riwayat);
             setText("d-keterangan", keterangan);
+
+            // Update QR Code Telegram
+            const qrTelegramEl = document.getElementById("detail-qr-telegram");
+            const kodeTelegramEl = document.getElementById("detail-kode-telegram");
+            if (qrTelegramEl && kodeTelegramEl) {
+                if (kodeUnik) {
+                    qrTelegramEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://t.me/simpell_bot?start=${kodeUnik}`;
+                    qrTelegramEl.style.display = "block";
+                    kodeTelegramEl.innerText = `Kode: ${kodeUnik}`;
+                } else {
+                    qrTelegramEl.src = "";
+                    qrTelegramEl.style.display = "none";
+                    kodeTelegramEl.innerText = "Belum memiliki kode unik Telegram";
+                }
+            }
 
             const btnMonitoring = document.getElementById(
                 "btn-monitoring-kesehatan",
@@ -252,6 +268,23 @@ document.addEventListener("DOMContentLoaded", function () {
         return "";
     }
 
+    // Helper for checking uniqueness via AJAX
+    async function checkUniqueField(fieldId, dbField, value, isEdit, ignoreId = null) {
+        if (!value.trim()) return false; // let format validator handle empty
+        try {
+            let url = `/lansia/check-unique?field=${dbField}&value=${encodeURIComponent(value)}`;
+            if (ignoreId) url += `&ignore_id=${ignoreId}`;
+            
+            const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+            if (!res.ok) return false;
+            const data = await res.json();
+            return data.exists;
+        } catch (err) {
+            console.error("Gagal cek keunikan", err);
+            return false;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────
     // 4. MODAL TAMBAH LANSIA
     // ─────────────────────────────────────────────────────────────
@@ -282,6 +315,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function isTambahFormValid() {
+        // Prevent submit if there's an active uniqueness error
+        const checkErr = (id) => {
+            const el = document.getElementById(`error-${id}`);
+            return el && el.style.display === "block" && el.textContent.includes("sudah terdaftar");
+        };
+        if (checkErr("nik") || checkErr("no_hp") || checkErr("email")) return false;
+
         return (
             !validateNIK(document.getElementById("nik")?.value) &&
             !validateNama(document.getElementById("nama_lansia")?.value) &&
@@ -302,8 +342,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (formTambah) {
         // NIK validation
         const nikEl = document.getElementById("nik");
-        nikEl?.addEventListener("blur", function () {
-            showTambahError("nik", validateNIK(this.value));
+        nikEl?.addEventListener("blur", async function () {
+            let err = validateNIK(this.value);
+            if (!err) {
+                const exists = await checkUniqueField("nik", "nik", this.value, false);
+                if (exists) err = "NIK ini sudah terdaftar.";
+            }
+            showTambahError("nik", err);
             updateTambahSubmitBtn();
         });
         nikEl?.addEventListener("input", function () {
@@ -335,8 +380,13 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // No HP validation
         const noHpEl = document.getElementById("no_hp");
-        noHpEl?.addEventListener("blur", function () {
-            showTambahError("no_hp", validateNoHP(this.value));
+        noHpEl?.addEventListener("blur", async function () {
+            let err = validateNoHP(this.value);
+            if (!err && this.value.trim()) {
+                const exists = await checkUniqueField("no_hp", "no_hp", this.value, false);
+                if (exists) err = "No HP ini sudah terdaftar.";
+            }
+            showTambahError("no_hp", err);
             updateTambahSubmitBtn();
         });
         noHpEl?.addEventListener("input", function () {
@@ -345,8 +395,13 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Email validation
         const emailEl = document.getElementById("email");
-        emailEl?.addEventListener("blur", function () {
-            showTambahError("email", validateEmail(this.value));
+        emailEl?.addEventListener("blur", async function () {
+            let err = validateEmail(this.value);
+            if (!err && this.value.trim()) {
+                const exists = await checkUniqueField("email", "email", this.value, false);
+                if (exists) err = "Email ini sudah terdaftar.";
+            }
+            showTambahError("email", err);
             updateTambahSubmitBtn();
         });
         emailEl?.addEventListener("input", function () {
@@ -456,6 +511,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 e.preventDefault();
             } else {
                 console.log("✓ Form submission allowed");
+                const loader = document.getElementById('global-loading-overlay');
+                if (loader) loader.style.display = 'flex';
+                // Avoid double click
+                if (submitBtnTambah) {
+                    submitBtnTambah.style.pointerEvents = 'none';
+                    submitBtnTambah.innerText = 'Menyimpan...';
+                }
             }
         });
 
@@ -644,6 +706,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function isEditFormValid() {
+        // Prevent submit if there's an active uniqueness error
+        const checkErr = (id) => {
+            const el = document.getElementById(`error-edit_${id}`);
+            return el && el.style.display === "block" && el.textContent.includes("sudah terdaftar");
+        };
+        if (checkErr("nik") || checkErr("no_hp") || checkErr("email")) return false;
+
         return (
             !validateNIK(document.getElementById("edit_nik")?.value) &&
             !validateNama(document.getElementById("edit_nama_lansia")?.value) &&
@@ -665,8 +734,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (editForm) {
         document
             .getElementById("edit_nik")
-            ?.addEventListener("blur", function () {
-                showEditError("nik", validateNIK(this.value));
+            ?.addEventListener("blur", async function () {
+                let err = validateNIK(this.value);
+                if (!err) {
+                    const lansiaId = editForm.action.match(/\/lansia\/(\d+)/)?.[1];
+                    const exists = await checkUniqueField("edit_nik", "nik", this.value, true, lansiaId);
+                    if (exists) err = "NIK ini sudah terdaftar.";
+                }
+                showEditError("nik", err);
                 updateEditSubmitBtn();
             });
         document
@@ -686,14 +761,26 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         document
             .getElementById("edit_no_hp")
-            ?.addEventListener("blur", function () {
-                showEditError("no_hp", validateNoHP(this.value));
+            ?.addEventListener("blur", async function () {
+                let err = validateNoHP(this.value);
+                if (!err && this.value.trim()) {
+                    const lansiaId = editForm.action.match(/\/lansia\/(\d+)/)?.[1];
+                    const exists = await checkUniqueField("edit_no_hp", "no_hp", this.value, true, lansiaId);
+                    if (exists) err = "No HP ini sudah terdaftar.";
+                }
+                showEditError("no_hp", err);
                 updateEditSubmitBtn();
             });
         document
             .getElementById("edit_email")
-            ?.addEventListener("blur", function () {
-                showEditError("email", validateEmail(this.value));
+            ?.addEventListener("blur", async function () {
+                let err = validateEmail(this.value);
+                if (!err && this.value.trim()) {
+                    const lansiaId = editForm.action.match(/\/lansia\/(\d+)/)?.[1];
+                    const exists = await checkUniqueField("edit_email", "email", this.value, true, lansiaId);
+                    if (exists) err = "Email ini sudah terdaftar.";
+                }
+                showEditError("email", err);
                 updateEditSubmitBtn();
             });
         document
@@ -778,6 +865,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!isEditFormValid()) {
                 e.preventDefault();
+            } else {
+                console.log("✓ Form Edit submission allowed");
+                const loader = document.getElementById('global-loading-overlay');
+                if (loader) loader.style.display = 'flex';
+                if (editSubmitBtn) {
+                    editSubmitBtn.style.pointerEvents = 'none';
+                    editSubmitBtn.innerText = 'Menyimpan...';
+                }
             }
         });
     }
@@ -1032,6 +1127,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             modalHapus?.classList.add("active");
         });
+    });
+
+    // Form Hapus trigger loading overlay
+    formHapus?.addEventListener("submit", () => {
+        const loader = document.getElementById('global-loading-overlay');
+        if (loader) loader.style.display = 'flex';
+        const submitBtn = formHapus.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.style.pointerEvents = 'none';
+            submitBtn.innerText = 'Menghapus...';
+        }
     });
 
     document

@@ -50,7 +50,30 @@ class KontenController extends Controller
             $data['path_konten'] = $path; // Simpan ke path utama untuk Flutter
         }
 
-        Konten::create($data);
+        $konten = Konten::create($data);
+
+        // --- Kirim Notifikasi FCM ---
+        try {
+            $tokens = \App\Models\User::role('lansia')
+                ->whereNotNull('fcm_token')
+                ->pluck('fcm_token')
+                ->toArray();
+            
+            $tipeLabel = $konten->tipe_konten == 1 ? 'Video' : ($konten->tipe_konten == 2 ? 'Foto' : 'Artikel');
+            $title = 'Edukasi Baru!';
+            $body = 'Petugas baru saja mengunggah ' . $tipeLabel . ' baru: ' . $konten->judul;
+            
+            foreach ($tokens as $token) {
+                \App\Services\FcmService::sendNotification($token, $title, $body, [
+                    'category' => 'Info',
+                    'id' => (string) $konten->id_konten,
+                    'action' => 'Buka Konten',
+                    'content_url' => $konten->full_url ?? ''
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Konten Store Error: " . $e->getMessage());
+        }
 
         return redirect()->route('konten.index')->with('success', 'Konten berhasil ditambahkan!');
     }
