@@ -214,15 +214,31 @@ class SkriningController extends Controller
                             'keterangan'    => $r['keterangan'] ?? null,
                         ]);
 
-                        if ($obat) {
-                            \App\Models\MutasiStokObat::create([
-                                'id_obat' => $obat->id_obat,
-                                'id_resep' => $resep->id_resep,
-                                'tipe' => 'keluar',
-                                'jumlah' => $jumlahObat,
-                                'keterangan' => 'Resep obat (Skrining)',
-                            ]);
-                        }
+                        $mutasi = \App\Models\MutasiStokObat::whereDate('created_at', now())
+    ->where('id_obat', $obat->id_obat)
+    ->where('tipe', 'keluar')
+    ->first();
+
+if ($mutasi) {
+
+    $mutasi->jumlah += $jumlahObat;
+
+    // optional update resep terakhir
+    $mutasi->id_resep = $resep->id_resep;
+
+    $mutasi->save();
+
+} else {
+
+    \App\Models\MutasiStokObat::create([
+        'id_obat' => $obat->id_obat,
+        'id_resep' => $resep->id_resep,
+        'tipe' => 'keluar',
+        'jumlah' => $jumlahObat,
+        'keterangan' => 'Resep obat (Skrining)',
+    ]);
+
+}
                     }
                 }
             }
