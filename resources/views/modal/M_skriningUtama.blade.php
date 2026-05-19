@@ -109,8 +109,8 @@
 
             <div class="section-title"><i class="fa-solid fa-notes-medical"></i> Riwayat Penyakit</div>
             @php
-                $penyakit = ['DM', 'Hipertensi', 'Jantung', 'Stroke', 'Asma', 'Kanker', 'Kolesterol', 'PPOK', 'Talasemia', 'Lupus', 'G. Penglihatan'];
-                $penyakitValues = ['dm', 'hipertensi', 'jantung', 'stroke', 'asma', 'kanker', 'kolesterol', 'ppok', 'talasemia', 'lupus', 'g_penglihatan'];
+                $penyakit = ['Diabetes', 'Hipertensi', 'Jantung', 'Stroke', 'Asma', 'Kanker', 'Kolesterol', 'PPOK', 'Talasemia', 'Lupus', 'Gangguan Penglihatan'];
+                $penyakitValues = ['diabetes', 'hipertensi', 'jantung', 'stroke', 'asma', 'kanker', 'kolesterol', 'ppok', 'talasemia', 'lupus', 'gangguan_penglihatan'];
             @endphp
 
             <div class="form-group" style="margin-bottom: 20px;">

@@ -145,11 +145,13 @@
 
                                 {{-- Aksi --}}
                                 <td class="aksi" onclick="event.stopPropagation()">
-                                    <button class="btn-icon edit-btn" title="Edit">
-                                        <i class="fa-solid fa-pen"></i>
+                                    <button class="edit-btn" title="Edit"
+                                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background: white; color: #0F766E; border: 1px solid #0F766E; cursor: pointer; border-radius: 4px;">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
-                                    <button class="btn-icon delete-btn" title="Hapus">
-                                        <i class="fa-solid fa-trash"></i>
+                                    <button class="delete-btn" title="Hapus"
+                                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px;">
+                                        <i class="fa-solid fa-trash"></i> Hapus
                                     </button>
                                 </td>
                             </tr>
@@ -211,7 +213,7 @@
 
                         {{-- Data Pribadi --}}
                         <div class="info-column">
-                            <h4>👤 DATA PRIBADI</h4>
+                            <h4>DATA PRIBADI</h4>
 
                             <div class="data-grid">
 
@@ -251,7 +253,7 @@
                         </div>
                         {{-- Data Kesehatan Terakhir --}}
                         <div class="info-column">
-                            <h4>📈 KESEHATAN TERAKHIR</h4>
+                            <h4>KESEHATAN TERAKHIR</h4>
                             <div class="health-cards">
                                 <div class="h-card" id="hcard-sistolik">
                                     <span class="h-card-label">TENSI SISTOLIK</span>
@@ -286,7 +288,7 @@
 
                 {{-- Informasi Keluarga Section --}}
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
-                    <h4 style="margin-bottom: 15px; color: #333;">👨‍👩‍👧‍👦 Informasi Keluarga</h4>
+                    <h4 style="margin-bottom: 15px; color: #333;">Informasi Keluarga</h4>
                     <div id="keluarga-info-section">
                         <p style="color: #999; text-align: center; padding: 20px;">Tidak ada data keluarga</p>
                     </div>

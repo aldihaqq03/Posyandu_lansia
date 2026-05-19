@@ -358,7 +358,7 @@
                         <div class="subsection-label">Riwayat Penyakit Keluarga</div>
                         @php
                             $penyakitKeluarga = [
-                                'dm' => 'Diabetes',
+                                'diabetes' => 'Diabetes',
                                 'hipertensi' => 'Hipertensi',
                                 'jantung' => 'Jantung',
                                 'stroke' => 'Stroke',
@@ -368,7 +368,7 @@
                                 'ppok' => 'PPOK',
                                 'talasemia' => 'Talasemia',
                                 'lupus' => 'Lupus',
-                                'g_penglihatan' => 'Gangguan Penglihatan'
+                                'gangguan_penglihatan' => 'Gangguan Penglihatan'
                             ];
                         @endphp
                         <div class="checkbox-grid">
@@ -383,7 +383,7 @@
                         <div class="subsection-label">Riwayat Penyakit Sendiri</div>
                         @php
                             $penyakitSendiri = [
-                                'dm' => 'Diabetes',
+                                'diabetes' => 'Diabetes',
                                 'hipertensi' => 'Hipertensi',
                                 'jantung' => 'Jantung',
                                 'stroke' => 'Stroke',
@@ -393,7 +393,7 @@
                                 'ppok' => 'PPOK',
                                 'talasemia' => 'Talasemia',
                                 'lupus' => 'Lupus',
-                                'g_penglihatan' => 'Gangguan Penglihatan'
+                                'gangguan_penglihatan' => 'Gangguan Penglihatan'
                             ];
                         @endphp
                         <div class="checkbox-grid">
