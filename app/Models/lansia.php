@@ -17,6 +17,7 @@ class Lansia extends Model
         'nik',
         'nama_lansia',
         'jenis_kelamin',
+        'pekerjaan',
         'tempat_lahir',
         'tanggal_lahir',
         'alamat',
