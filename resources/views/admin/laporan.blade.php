@@ -48,6 +48,11 @@ font-weight:600;
         cursor: pointer;
         transition: all 0.3s ease;
     }
+    .filter-btn.active{
+    background:#2563eb;
+    color:white;
+    border-color:#2563eb;
+}
 
     /* CSS BARU TARUH SINI */
     .laporan-table{
@@ -471,17 +476,69 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
 
     <div class="modal-body">
 
-<button class="filter-btn">
-    Status Kehadiran
-</button>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
 
-<button class="filter-btn">
-    Petugas
-</button>
+        <button class="filter-btn" id="btnStatus" onclick="showStatusTable()">
+            Status Kehadiran
+        </button>
 
-<button class="filter-btn">
-    Obat Keluar
-</button>
+        <button class="filter-btn">
+            Petugas
+        </button>
+
+        <button class="filter-btn">
+            Obat Keluar
+        </button>
+
+    </div>
+
+    {{-- TABLE STATUS --}}
+    <div id="statusTable" style="display:none;">
+
+        <div class="table-responsive">
+
+            <table class="laporan-table">
+
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Lansia</th>
+                        <th>Jenis Kelamin</th>
+                        <th>Status Kehadiran</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>1</td>
+                        <td>Siti Aminah</td>
+                        <td>Perempuan</td>
+                        <td>
+                            <span class="badge-normal">
+                                Hadir
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>Budi Santoso</td>
+                        <td>Laki-laki</td>
+                        <td>
+                            <span class="badge-danger">
+                                Tidak Hadir
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -548,6 +605,30 @@ function closeModalModal() {
 modal.style.display = 'none';
 
 }
+function showStatusTable() {
+
+    const table = document.getElementById('statusTable');
+
+    const button = document.getElementById('btnStatus');
+
+    if (table.style.display === 'none') {
+
+        table.style.display = 'block';
+
+        button.classList.add('active');
+
+    } else {
+
+        table.style.display = 'none';
+
+        button.classList.remove('active');
+
+    }
+
+}
+
+
+
 const filterBulan = document.getElementById('filterBulan');
 const filterTahun = document.getElementById('filterTahun');
 
