@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\lansia;
 
 class LaporanController extends Controller
 {
@@ -85,11 +86,25 @@ class LaporanController extends Controller
         ];
 
         // 4. Summary Atas
-        $hari_ini = (clone $kunjunganQuery)->whereDate('kunjungan.tanggal_kunjungan', Carbon::today())->count();
-        $minggu_ini = (clone $kunjunganQuery)
-            ->whereBetween('kunjungan.tanggal_kunjungan', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
-        $tahun_ini = (clone $kunjunganQuery)->whereYear('kunjungan.tanggal_kunjungan', Carbon::now()->year)->count();
+        // 4. Summary Atas
+$hari_ini = lansia::whereDate('created_at', Carbon::today())->count();
+
+$minggu_ini = lansia::whereBetween('created_at', [
+    Carbon::now()->startOfWeek(),
+    Carbon::now()->endOfWeek()
+])->count();
+
+$tahun_ini = lansia::whereYear('created_at', Carbon::now()->year)->count();
+
+// DATA TABEL LAPORAN
+$laporan = DB::table('jadwal_posyandu')
+    ->select(
+        'id_jadwal_posyandu',
+        'tanggal_pelaksanaan',
+        'tema'
+    )
+    ->latest('tanggal_pelaksanaan')
+    ->get();
 
         $summary = [
             'hari_ini' => $hari_ini,
@@ -97,6 +112,12 @@ class LaporanController extends Controller
             'tahun_ini' => $tahun_ini,
         ];
 
-        return view('admin.laporan', compact('harian', 'mingguan', 'tahunan', 'summary'));
+        return view('admin.laporan', compact(
+    'harian',
+    'mingguan',
+    'tahunan',
+    'summary',
+    'laporan'
+));
     }
 }

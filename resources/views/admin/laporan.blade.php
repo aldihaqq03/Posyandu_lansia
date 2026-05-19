@@ -3,12 +3,40 @@
 @push('styles')
     @vite('resources/css/cssAdmin/dashboard.css')
     <style>
+        .badge-normal{
+    background:#dcfce7;
+    color:#16a34a;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge-warning{
+    background:#fef3c7;
+    color:#d97706;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge-danger{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+}
+
         .filter-tabs {
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
+
         .filter-btn {
             background-color: white;
             color: var(--text-muted);
@@ -20,25 +48,231 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .filter-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+
+        /* CSS BARU TARUH SINI */
+        .laporan-table{
+            width:100%;
+            border-collapse: collapse;
         }
-        .filter-btn.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+
+        .laporan-table thead{
+            background:#f8fafc;
         }
-        .chart-container-wrapper {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            height: 400px; /* Fixed height for beautiful canvas container */
-            position: relative;
+
+        .laporan-table th{
+            padding:14px;
+            font-size:13px;
+            font-weight:700;
+            color:#475569;
+            border-bottom:1px solid #e2e8f0;
+            text-align:left;
         }
+
+        .laporan-table td{
+            padding:14px;
+            border-bottom:1px solid #f1f5f9;
+            font-size:14px;
+            color:#334155;
+        }
+
+        .laporan-table tr:hover{
+            background:#f8fafc;
+        }
+
+        .badge-hadir{
+            background:#dcfce7;
+            color:#16a34a;
+            padding:6px 12px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:600;
+        }
+
+        .table-responsive{
+            overflow-x:auto;
+        }
+        .filter-laporan-card{
+    background:#ffffff;
+    border:1px solid #e2e8f0;
+    border-radius:24px;
+    padding:24px;
+    margin-bottom:24px;
+}
+
+.filter-title{
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#64748b;
+    margin-bottom:24px;
+}
+
+.filter-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr 320px;
+    gap:20px;
+    align-items:end;
+}
+
+.filter-group{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.filter-group label{
+    font-size:15px;
+    font-weight:600;
+    color:#0f172a;
+}
+
+.filter-input{
+    width:100%;
+    height:52px;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    padding:0 16px;
+    font-size:15px;
+    outline:none;
+    background:#f8fafc;
+}
+
+.filter-input:focus{
+    border-color:#3b82f6;
+    background:#fff;
+}
+
+.export-btn{
+    height:52px;
+    border:none;
+    border-radius:14px;
+    background:#2563eb;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:.2s;
+}
+
+.export-btn:hover{
+    background:#1d4ed8;
+}
+
+        .modal-detail{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(15,23,42,0.55);
+    z-index:999;
+    justify-content:center;
+    align-items:center;
+    backdrop-filter: blur(4px);
+    padding:20px;
+}
+
+.modal-detail-content{
+    width:100%;
+    max-width:480px;
+    background:#ffffff;
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 25px 50px rgba(0,0,0,0.15);
+    animation: modalFade .25s ease;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+}
+
+.modal-header h3{
+    font-size:22px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.close-modal{
+    position:absolute;
+    top:16px;
+    right:16px;
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:12px;
+    background:#f1f5f9;
+    cursor:pointer;
+    font-size:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.2s;
+}
+
+.close-modal:hover{
+    background:#e2e8f0;
+}
+
+.modal-body{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.detail-item{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:16px;
+}
+
+.detail-item span{
+    display:block;
+    font-size:13px;
+    color:#64748b;
+    margin-bottom:6px;
+}
+
+.detail-item strong{
+    font-size:16px;
+    color:#0f172a;
+    font-weight:700;
+}
+
+@keyframes modalFade{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+.btn-detail-action{
+    border:none;
+    background:#eff6ff;
+    color:#2563eb;
+    padding:10px 18px;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+    font-size:14px;
+}
+
+.btn-detail-action:hover{
+    background:#dbeafe;
+}
+
     </style>
 @endpush
 
@@ -84,166 +318,247 @@
         </div>
     </div>
 
-    <!-- CHART AREA -->
+    <!-- TABLE AREA -->
     <div style="margin-top:24px;">
-        <div class="filter-tabs">
-            <button class="filter-btn active" onclick="updateChart('harian', this)">Harian (7 Hari)</button>
-            <button class="filter-btn" onclick="updateChart('mingguan', this)">Mingguan (Bulan Ini)</button>
-            <button class="filter-btn" onclick="updateChart('tahunan', this)">Tahunan (Tahun Ini)</button>
+       <div class="filter-laporan-card">
+
+    <h3 class="filter-title">
+        FILTER LAPORAN
+    </h3>
+
+    <div class="filter-grid">
+
+        {{-- BULAN --}}
+        <div class="filter-group">
+            <label>Bulan</label>
+
+            <select id="filterBulan" class="filter-input">
+                <option value="">Semua Bulan</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
         </div>
+
+        {{-- TAHUN --}}
+        <div class="filter-group">
+            <label>Tahun</label>
+
+            <select id="filterTahun" class="filter-input">
+                <option value="">Semua Tahun</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+            </select>
+        </div>
+
+        {{-- EXPORT --}}
+        <div class="filter-group">
+            <label>Export Laporan</label>
+
+            <button class="export-btn">
+                <i class="fa-solid fa-download"></i>
+                Export Laporan
+            </button>
+        </div>
+
+    </div>
+
+</div>
         
         <div class="chart-container-wrapper">
-            <canvas id="laporanChart"></canvas>
-        </div>
+
+    <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
+    Tabel Laporan Kehadiran
+</h3>
+
+    <div class="table-responsive">
+        <table class="laporan-table">
+            <thead>
+               <tr>
+    <th>No</th>
+    <th>Tanggal Kunjungan</th>
+    <th>Nama Kegiatan</th>
+    <th>Aksi</th>
+</tr>
+            </thead>
+
+            <tbody id="laporan-body">
+                @forelse($laporan as $item)
+
+<tr
+    data-bulan="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('m') }}"
+    data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}"
+>
+    <td>{{ $loop->iteration }}</td>
+
+    <td>
+    {{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('d M Y') }}
+</td>
+
+<td>
+    {{ $item->tema }}
+</td>
+
+    <td>
+        <button class="btn-detail-action btn-detail">
+    Detail
+</button>
+    </td>
+</tr>
+                @empty
+                    <tr>
+                        <td colspan="5" style="text-align:center;">
+                            Tidak ada data laporan
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+</div>
     </div>
 </div>
+
+
+</div>
+</div>
+</div>
+
+{{-- MODAL DETAIL --}}
+<div id="modalDetail" class="modal-detail">
+
+   <div class="modal-detail-content">
+
+    <button class="close-modal" onclick="closeModalModal()">
+    &times;
+</button>
+
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
+            Detail Kehadiran
+        </h3>
+
+        <div class="modal-body">
+
+    <button class="filter-btn">
+        Status Kehadiran
+    </button>
+
+    <button class="filter-btn">
+        Petugas
+    </button>
+
+    <button class="filter-btn">
+        Obat Keluar
+    </button>
+
+</div>
+
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Interaktif Counter Angka
-        const counters = document.querySelectorAll('.stat-value');
+document.addEventListener("DOMContentLoaded", () => {
 
-        counters.forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const inc = target / 30; 
+    const counters = document.querySelectorAll('.stat-value');
 
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 30);
-                } else {
-                    counter.innerText = target.toLocaleString('id-ID');
-                }
-            };
+    counters.forEach(counter => {
 
-            const observer = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    updateCount();
-                    observer.disconnect();
-                }
-            });
+        const updateCount = () => {
 
-            observer.observe(counter);
-        });
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+            const inc = target / 30;
 
-        // INIT CHART.JS
-        const ctx = document.getElementById('laporanChart').getContext('2d');
-        
-        // Data Dummy dari Controller
-        const chartData = {
-            harian: @json($harian),
-            mingguan: @json($mingguan),
-            tahunan: @json($tahunan)
-        };
-
-        // Konfigurasi Chart Utama (Base)
-        let laporanChart = new Chart(ctx, {
-            type: 'line', // default
-            data: {
-                labels: chartData.harian.labels,
-                datasets: [{
-                    label: 'Jumlah Kehadiran',
-                    data: chartData.harian.data,
-                    backgroundColor: 'rgba(14, 165, 233, 0.2)',
-                    borderColor: '#0ea5e9',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#0ea5e9',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#1e293b',
-                        padding: 12,
-                        titleFont: { size: 14, family: 'Inter' },
-                        bodyFont: { size: 14, family: 'Inter' },
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + ' Orang Lansia';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#f1f5f9',
-                            drawBorder: false,
-                        },
-                        ticks: {
-                            font: { family: 'Inter' },
-                            color: '#64748b',
-                            stepSize: 10
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false,
-                            drawBorder: false,
-                        },
-                        ticks: {
-                            font: { family: 'Inter' },
-                            color: '#64748b'
-                        }
-                    }
-                }
-            }
-        });
-
-        // GLOBAL METHOD UNTUK UPDATE CHART DINAMIS
-        window.updateChart = function(periode, element) {
-            // Ubah class active di tombol
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-
-            // Ambil data yang sesuai
-            const selectedData = chartData[periode];
-
-            // Tentukan tipe grafik: Semua menggunakan Line Chart untuk konsistensi
-            laporanChart.config.type = 'line';
-            
-            if (periode === 'mingguan') {
-                laporanChart.data.datasets[0].backgroundColor = 'rgba(16, 185, 129, 0.2)'; // green
-                laporanChart.data.datasets[0].borderColor = '#10b981';
-                laporanChart.data.datasets[0].pointBorderColor = '#10b981';
-                laporanChart.data.datasets[0].fill = true;
-            } else if (periode === 'tahunan') {
-                laporanChart.data.datasets[0].backgroundColor = 'rgba(139, 92, 246, 0.2)'; // purple
-                laporanChart.data.datasets[0].borderColor = '#8b5cf6';
-                laporanChart.data.datasets[0].pointBorderColor = '#8b5cf6';
-                laporanChart.data.datasets[0].fill = true;
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 30);
             } else {
-                // harian
-                laporanChart.data.datasets[0].backgroundColor = 'rgba(14, 165, 233, 0.2)'; // blue
-                laporanChart.data.datasets[0].borderColor = '#0ea5e9';
-                laporanChart.data.datasets[0].pointBorderColor = '#0ea5e9';
-                laporanChart.data.datasets[0].fill = true;
+                counter.innerText = target.toLocaleString('id-ID');
             }
-
-            // Update Label & Data
-            laporanChart.data.labels = selectedData.labels;
-            laporanChart.data.datasets[0].data = selectedData.data;
-
-            // Animate Update
-            laporanChart.update();
         };
+
+        updateCount();
+
     });
+
+});
+
+
+
+
+/* MODAL */
+const modal = document.getElementById('modalDetail');
+
+const detailButtons = document.querySelectorAll('.btn-detail');
+
+const closeModal = document.querySelector('.close-modal');
+
+detailButtons.forEach(button => {
+
+    button.addEventListener('click', () => {
+
+        modal.style.display = 'flex';
+
+    });
+
+});
+
+closeModal.addEventListener('click', () => {
+
+    modal.style.display = 'none';
+
+});
+function closeModalModal() {
+
+    modal.style.display = 'none';
+
+}
+const filterBulan = document.getElementById('filterBulan');
+const filterTahun = document.getElementById('filterTahun');
+
+const rows = document.querySelectorAll('#laporan-body tr');
+
+function filterLaporan() {
+
+    const bulan = filterBulan.value;
+    const tahun = filterTahun.value;
+
+    rows.forEach(row => {
+
+        const rowBulan = row.getAttribute('data-bulan');
+        const rowTahun = row.getAttribute('data-tahun');
+
+        let show = true;
+
+        if (bulan && rowBulan !== bulan.padStart(2, '0')) {
+            show = false;
+        }
+
+        if (tahun && rowTahun !== tahun) {
+            show = false;
+        }
+
+        row.style.display = show ? '' : 'none';
+
+    });
+
+}
+
+filterBulan.addEventListener('change', filterLaporan);
+filterTahun.addEventListener('change', filterLaporan);
 </script>
 @endpush
