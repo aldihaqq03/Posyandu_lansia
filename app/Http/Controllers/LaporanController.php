@@ -120,4 +120,18 @@ $laporan = DB::table('jadwal_posyandu')
     'laporan'
 ));
     }
+    public function detail($id)
+{
+    $data = DB::table('kunjungan')
+        ->join('lansia', 'kunjungan.id_lansia', '=', 'lansia.id_lansia')
+        ->where('kunjungan.id_jadwal_posyandu', $id)
+        ->select(
+            'lansia.nama',
+            'lansia.jenis_kelamin',
+            'kunjungan.status_kehadiran'
+        )
+        ->get();
+
+    return response()->json($data);
+}
 }

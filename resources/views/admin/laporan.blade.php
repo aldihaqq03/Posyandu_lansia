@@ -430,9 +430,12 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
 
 <td style="display:flex; gap:10px;">
 
-    <button class="btn-detail-action btn-detail">
-        Detail
-    </button>
+    <button 
+    class="btn-detail-action btn-detail"
+    data-id="{{ $item->id_jadwal_posyandu }}"
+>
+    Detail
+</button>
 
     <button class="export-btn-table">
         <i class="fa-solid fa-download"></i>
@@ -508,31 +511,7 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
                     </tr>
                 </thead>
 
-                <tbody>
-
-                    <tr>
-                        <td>1</td>
-                        <td>Siti Aminah</td>
-                        <td>Perempuan</td>
-                        <td>
-                            <span class="badge-normal">
-                                Hadir
-                            </span>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>2</td>
-                        <td>Budi Santoso</td>
-                        <td>Laki-laki</td>
-                        <td>
-                            <span class="badge-danger">
-                                Tidak Hadir
-                            </span>
-                        </td>
-                    </tr>
-
-                </tbody>
+           
 
             </table>
 
@@ -587,11 +566,42 @@ const closeModal = document.querySelector('.close-modal');
 
 detailButtons.forEach(button => {
 
-button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
 
-    modal.style.display = 'flex';
+        modal.style.display = 'flex';
 
-});
+        const id = button.dataset.id;
+
+        const response = await fetch(`/laporan/detail/${id}`);
+
+        const data = await response.json();
+
+        const tbody = document.querySelector('#statusTable tbody');
+
+        tbody.innerHTML = '';
+
+        data.forEach((item, index) => {
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nama}</td>
+                    <td>${item.jenis_kelamin}</td>
+                    <td>
+                        <span class="${
+                            item.status_kehadiran == 'Hadir'
+                            ? 'badge-normal'
+                            : 'badge-danger'
+                        }">
+                            ${item.status_kehadiran}
+                        </span>
+                    </td>
+                </tr>
+            `;
+
+        });
+
+    });
 
 });
 

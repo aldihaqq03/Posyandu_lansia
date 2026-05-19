@@ -9,6 +9,7 @@ use App\Http\Controllers\ObatController;
 use App\Http\Controllers\SkriningController;
 use App\Http\Controllers\SaranController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes (Guest)
@@ -120,6 +121,7 @@ Route::middleware('auth')->group(function () {
 
         // Rute Laporan (Hanya Admin)
         Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
+        Route::get('/laporan/detail/{id}', [\App\Http\Controllers\LaporanController::class, 'detail']);
     });
 
 
