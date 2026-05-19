@@ -25,9 +25,11 @@
                 @csrf
                 @method('PUT')
 
+                <input type="hidden" id="edit_obat_id" name="obat_id_edit" value="{{ old('obat_id_edit') }}">
+
                 <div style="margin-bottom: 15px;">
                     <label for="edit_nama_obat" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Nama Obat *</label>
-                    <input type="text" id="edit_nama_obat" name="nama_obat" 
+                    <input type="text" id="edit_nama_obat" name="nama_obat" value="{{ old('nama_obat') }}"
                         placeholder="Masukkan nama obat" 
                         style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
                         required>
@@ -40,18 +42,9 @@
                         required>
                         <option value="">-- Pilih Tipe Obat --</option>
                         @foreach ($tipeObat as $tipe)
-                            <option value="{{ $tipe }}">{{ $tipe }}</option>
+                            <option value="{{ $tipe }}" {{ old('tipe_obat') == $tipe ? 'selected' : '' }}>{{ $tipe }}</option>
                         @endforeach
                     </select>
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label for="edit_stock" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Stok *</label>
-                    <input type="number" id="edit_stock" name="stock" 
-                        placeholder="Masukkan jumlah stok" 
-                        min="0"
-                        style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
-                        required>
                 </div>
 
                 <div style="margin-bottom: 15px;">
@@ -59,7 +52,7 @@
                     <textarea id="edit_keterangan" name="keterangan" 
                         placeholder="Masukkan keterangan obat (opsional)" 
                         rows="3"
-                        style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; box-sizing: border-box;"></textarea>
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; box-sizing: border-box;">{{ old('keterangan') }}</textarea>
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
@@ -75,37 +68,3 @@
     </div>
 </div>
 
-<script>
-function openModalEditObat(obatId, namaObat, tipeObat, stock, keterangan) {
-    document.getElementById('modalEditObat').style.display = 'flex';
-    document.getElementById('edit_nama_obat').value = namaObat;
-    document.getElementById('edit_tipe_obat').value = tipeObat;
-    document.getElementById('edit_stock').value = stock;
-    document.getElementById('edit_keterangan').value = keterangan || '';
-    
-    // Set form action ke route update
-    document.getElementById('formEditObat').action = '/obat/' + obatId;
-}
-
-function closeModalEditObat() {
-    document.getElementById('modalEditObat').style.display = 'none';
-}
-
-// Close modal saat klik di luar
-document.addEventListener('click', function(event) {
-    const modal = document.getElementById('modalEditObat');
-    if (event.target === modal) {
-        closeModalEditObat();
-    }
-});
-
-// Open modal jika ada error PUT
-@if ($errors->any() && session('_method') == 'PUT')
-    window.addEventListener('load', function() {
-        // Ambil dari session atau dari input tersembunyi
-        const obatId = document.querySelector('[name="obat_id_edit"]')?.value || '';
-        if (obatId) openModalEditObat(obatId, '', '', '', '');
-        document.getElementById('modalEditObat').style.display = 'flex';
-    });
-@endif
-</script>

@@ -456,3 +456,359 @@
         flex-direction: column;
     }
 }
+
+/* ============================================================
+   MODAL MODERN - HEALTH DASHBOARD STYLE
+   ============================================================ */
+
+/* Modal Overlay */
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal Box Modern */
+.modal-box.modern-modal {
+    width: 90%;
+    max-width: 1100px;
+    max-height: 85vh;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sticky Header Gradient */
+.modal-modern-header {
+    background: linear-gradient(135deg, #0f2b3d 0%, #1a4a6f 100%);
+    padding: 1.5rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.health-icon-lg {
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header-title h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.header-title .skrining-date {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 0.25rem;
+}
+
+.badge-modern {
+    padding: 0.5rem 1rem;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.badge-modern.kunjungan {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: none;
+}
+
+.badge-modern.utama {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+}
+
+.badge-modern.ppok {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+}
+
+.btn-close-modern {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 40px;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-modern:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: rotate(90deg);
+}
+
+/* Scroll Area */
+.modal-modern-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    scrollbar-width: thin;
+}
+
+.modal-modern-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-modern-body::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.modal-modern-body::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 10px;
+}
+
+/* Health Card Section */
+.health-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.health-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.card-header-modern {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fefce8;
+}
+
+.card-header-modern i {
+    font-size: 1.25rem;
+    color: #3b82f6;
+}
+
+.card-header-modern h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    color: #0f172a;
+}
+
+.card-body-grid {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+/* Info Item Modern */
+.info-item-modern {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.info-icon {
+    width: 32px;
+    color: #64748b;
+    font-size: 1rem;
+    margin-top: 2px;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-label-modern {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #475569;
+    margin-bottom: 0.25rem;
+}
+
+.info-value-modern {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+/* Chip / Tag */
+.chip {
+    display: inline-block;
+    background: #f1f5f9;
+    padding: 0.25rem 0.75rem;
+    border-radius: 40px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.chip-warning {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.chip-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.chip-success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.chip-info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Metric Highlight */
+.metric-highlight {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.metric-unit {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.metric-status {
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* Progress Bar Simpel */
+.progress-bg {
+    background: #e2e8f0;
+    border-radius: 20px;
+    height: 8px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    background: #3b82f6;
+    height: 100%;
+    border-radius: 20px;
+    width: 0%;
+}
+
+/* Placeholder */
+.placeholder-modern {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 0.875rem;
+}
+
+/* Loading */
+.modal-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #2563eb;
+}
+
+/* Alert */
+.alert-danger {
+    background: #fef2f2;
+    border-left: 4px solid #dc2626;
+    padding: 1rem;
+    border-radius: 12px;
+    color: #991b1b;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .modal-box.modern-modal {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-modern-header {
+        padding: 1rem;
+    }
+
+    .card-body-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+
+    .health-icon-lg {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+    }
+}

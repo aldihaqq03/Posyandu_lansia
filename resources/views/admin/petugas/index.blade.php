@@ -124,8 +124,9 @@
                 <td class="aksi">
 
                     <!-- EDIT -->
-                   <a href="{{ route('petugas.edit', ['id' => $p->id_petugas]) }}" class="btn-icon">
-                        <i class="fa fa-edit"></i>
+                   <a href="{{ route('petugas.edit', ['id' => $p->id_petugas]) }}" 
+                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background: white; color: #0F766E; border: 1px solid #0F766E; cursor: pointer; border-radius: 4px; text-decoration: none;">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
                     </a>
 
                     <!-- DELETE -->
@@ -133,8 +134,9 @@
                         @csrf
                         @method('DELETE')
 
-                        <button class="btn-icon" onclick="return confirm('Hapus data petugas?')">
-                            <i class="fa fa-trash"></i>
+                        <button onclick="return confirm('Hapus data petugas?')" 
+                            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px;">
+                            <i class="fa-solid fa-trash"></i> Hapus
                         </button>
                     </form>
 

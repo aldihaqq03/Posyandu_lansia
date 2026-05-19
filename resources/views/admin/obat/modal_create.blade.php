@@ -74,29 +74,3 @@
     </div>
 </div>
 
-<script>
-function openModalTambahObat() {
-    document.getElementById('modalTambahObat').style.display = 'flex';
-    // Reset form
-    document.getElementById('formTambahObat').reset();
-}
-
-function closeModalTambahObat() {
-    document.getElementById('modalTambahObat').style.display = 'none';
-}
-
-// Close modal saat klik di luar
-document.addEventListener('click', function(event) {
-    const modal = document.getElementById('modalTambahObat');
-    if (event.target === modal) {
-        closeModalTambahObat();
-    }
-});
-
-// Open modal jika ada error
-@if ($errors->any() && (session('_method') == 'POST' || is_null(session('_method'))))
-    window.addEventListener('load', function() {
-        openModalTambahObat();
-    });
-@endif
-</script>

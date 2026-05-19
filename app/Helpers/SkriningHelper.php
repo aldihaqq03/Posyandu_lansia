@@ -692,7 +692,8 @@ class SkriningHelper
         // Label per key sesuai DB comment
         $labels = [
             // Utama: keluarga & sendiri
-            'dm'                   => 'Diabetes Melitus',
+            'diabetes'             => 'Diabetes',
+            'dm'                   => 'Diabetes',
             'hipertensi'           => 'Hipertensi',
             'jantung'              => 'Jantung',
             'stroke'               => 'Stroke',
@@ -702,10 +703,10 @@ class SkriningHelper
             'ppok'                 => 'PPOK',
             'talasemia'            => 'Talasemia',
             'lupus'                => 'Lupus',
+            'gangguan_penglihatan' => 'Gangguan Penglihatan',
             'g_penglihatan'        => 'Gangguan Penglihatan',
             // PPOK sendiri (tambahan)
             'kolesterol_tinggi'    => 'Kolesterol Tinggi',
-            'gangguan_penglihatan' => 'Gangguan Penglihatan',
             'gangguan_pendengaran' => 'Gangguan Pendengaran',
             'disabilitas'          => 'Disabilitas',
         ];

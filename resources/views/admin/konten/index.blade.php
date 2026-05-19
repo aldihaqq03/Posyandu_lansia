@@ -212,12 +212,6 @@
         </a>
     </div>
 
-    @if(session('success'))
-        <div style="background: #ecfdf5; color: #065f46; padding: 1.25rem; border-radius: 1rem; margin-bottom: 2rem; border-left: 5px solid #10b981; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-            <i class="fa-solid fa-circle-check"></i>
-            <span style="font-weight: 600;">{{ session('success') }}</span>
-        </div>
-    @endif
 
     <div class="konten-grid">
         @forelse($konten as $item)

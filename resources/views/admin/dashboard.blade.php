@@ -28,18 +28,7 @@
             </div>
         </div>
 
-        @if(session('success'))
-            <div
-                style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
-                <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div
-                style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
-                <i class="fa-solid fa-circle-xmark"></i> {{ session('error') }}
-            </div>
-        @endif
+
 
         <!-- STATS GRID -->
         <div class="stats-grid">
