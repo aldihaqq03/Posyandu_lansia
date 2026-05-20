@@ -627,14 +627,14 @@ detailButtons.forEach(button => {
                     <td>${item.nama_lansia}</td>
                     <td>${item.jenis_kelamin}</td>
                     <td>
-                        <span class="${
-                            item.status_kehadiran == 'Hadir'
-                            ? 'badge-normal'
-                            : 'badge-danger'
-                        }">
-                            ${item.status_kehadiran}
-                        </span>
-                    </td>
+    <span class="${
+        item.status_kehadiran == 'Hadir'
+        ? 'badge-normal'
+        : 'badge-danger'
+    }">
+        ${item.status_kehadiran}
+    </span>
+</td>
                 </tr>
             `;
 

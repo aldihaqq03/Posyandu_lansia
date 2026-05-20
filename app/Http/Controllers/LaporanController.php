@@ -128,32 +128,73 @@ $laporan = DB::table('jadwal_posyandu')
     }
    public function detail($id)
 {
-    $data = DB::table('skrining_kunjungan')
-        ->join('skrining', 'skrining_kunjungan.id_skrining', '=', 'skrining.id_skrining')
-        ->join('lansia', 'skrining.id_lansia', '=', 'lansia.id_lansia')
-        ->where('skrining.id_jadwal_posyandu', $id)
-        ->select(
-            'lansia.nama_lansia',
-            'lansia.jenis_kelamin',
-            DB::raw("'Hadir' as status_kehadiran")
-        )
-        ->get();
+    // ambil data jadwal
+    $jadwal = DB::table('jadwal_posyandu')
+        ->where('id_jadwal_posyandu', $id)
+        ->first();
+
+    // cek apakah jadwal sudah lewat
+    $isSelesai = Carbon::parse($jadwal->tanggal_pelaksanaan)->isPast();
+
+    // =========================
+    // STATUS KEHADIRAN
+    // =========================
+
+    if ($isSelesai) {
+
+        // tampilkan semua lansia
+        $data = DB::table('lansia')
+            ->leftJoin('skrining', function ($join) use ($id) {
+
+                $join->on('lansia.id_lansia', '=', 'skrining.id_lansia')
+                    ->where('skrining.id_jadwal_posyandu', '=', $id);
+
+            })
+            ->select(
+                'lansia.nama_lansia',
+                'lansia.jenis_kelamin',
+                DB::raw("
+                    CASE
+                        WHEN skrining.id_skrining IS NOT NULL
+                        THEN 'Hadir'
+                        ELSE 'Tidak Hadir'
+                    END as status_kehadiran
+                ")
+            )
+            ->get();
+
+    } else {
+
+        // kalau belum selesai → tampil hadir aja
+        $data = DB::table('skrining_kunjungan')
+            ->join('skrining', 'skrining_kunjungan.id_skrining', '=', 'skrining.id_skrining')
+            ->join('lansia', 'skrining.id_lansia', '=', 'lansia.id_lansia')
+            ->where('skrining.id_jadwal_posyandu', $id)
+            ->select(
+                'lansia.nama_lansia',
+                'lansia.jenis_kelamin',
+                DB::raw("'Hadir' as status_kehadiran")
+            )
+            ->get();
+    }
+
+    // =========================
+    // PETUGAS
+    // =========================
 
     $petugas = DB::table('skrining')
-    ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
-    ->where('skrining.id_jadwal_posyandu', $id)
-    ->select(
-        'petugas.nama',
-        DB::raw('count(skrining.id_lansia) as jumlah_lansia')
-    )
-    ->groupBy('petugas.nama')
-    ->get();
+        ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->select(
+            'petugas.nama',
+            DB::raw('count(skrining.id_lansia) as jumlah_lansia')
+        )
+        ->groupBy('petugas.nama')
+        ->get();
 
     return response()->json([
         'status' => $data,
         'petugas' => $petugas
     ]);
-
 }
 }
-
