@@ -87,14 +87,20 @@ class LaporanController extends Controller
 
         // 4. Summary Atas
         // 4. Summary Atas
-$hari_ini = lansia::whereDate('created_at', Carbon::today())->count();
+$hari_ini = DB::table('skrining_kunjungan')
+    ->whereDate('created_at', now()->toDateString())
+    ->count();
 
-$minggu_ini = lansia::whereBetween('created_at', [
-    Carbon::now()->startOfWeek(),
-    Carbon::now()->endOfWeek()
-])->count();
+$minggu_ini = DB::table('skrining_kunjungan')
+    ->whereBetween('created_at', [
+        Carbon::now()->startOfWeek(),
+        Carbon::now()->endOfWeek()
+    ])
+    ->count();
 
-$tahun_ini = lansia::whereYear('created_at', Carbon::now()->year)->count();
+$tahun_ini = DB::table('skrining_kunjungan')
+    ->whereYear('created_at', Carbon::now()->year)
+    ->count();
 
 // DATA TABEL LAPORAN
 $laporan = DB::table('jadwal_posyandu')
@@ -120,30 +126,34 @@ $laporan = DB::table('jadwal_posyandu')
     'laporan'
 ));
     }
-    public function detail($id)
+   public function detail($id)
 {
-    $data = DB::table('kunjungan')
-        ->join('lansia', 'kunjungan.id_lansia', '=', 'lansia.id_lansia')
-        ->where('kunjungan.id_jadwal_posyandu', $id)
+    $data = DB::table('skrining_kunjungan')
+        ->join('skrining', 'skrining_kunjungan.id_skrining', '=', 'skrining.id_skrining')
+        ->join('lansia', 'skrining.id_lansia', '=', 'lansia.id_lansia')
+        ->where('skrining.id_jadwal_posyandu', $id)
         ->select(
-            'lansia.nama',
+            'lansia.nama_lansia',
             'lansia.jenis_kelamin',
-            'kunjungan.status_kehadiran'
+            DB::raw("'Hadir' as status_kehadiran")
         )
         ->get();
-        $petugas = DB::table('skrining')
-    ->join('users', 'skrining.id_user', '=', 'users.id')
+
+    $petugas = DB::table('skrining')
+    ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
     ->where('skrining.id_jadwal_posyandu', $id)
     ->select(
-        'users.name as nama_petugas',
+        'petugas.nama',
         DB::raw('count(skrining.id_lansia) as jumlah_lansia')
     )
-    ->groupBy('users.name')
+    ->groupBy('petugas.nama')
     ->get();
 
     return response()->json([
-    'status' => $data,
-    'petugas' => $petugas
-]);
+        'status' => $data,
+        'petugas' => $petugas
+    ]);
+
 }
 }
+

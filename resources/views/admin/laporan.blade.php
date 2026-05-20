@@ -602,54 +602,63 @@ detailButtons.forEach(button => {
 
         modal.style.display = 'flex';
 
+        // tampil default status
+        showStatusTable();
+
         const id = button.dataset.id;
 
         const response = await fetch(`/laporan/detail/${id}`);
 
         const data = await response.json();
 
-       const tbody = document.getElementById('statusBody');
+        /* =========================
+           STATUS KEHADIRAN
+        ========================== */
 
-tbody.innerHTML = '';
+        const tbody = document.getElementById('statusBody');
 
-data.status.forEach((item, index) => {
+        tbody.innerHTML = '';
 
-    tbody.innerHTML += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${item.nama}</td>
-            <td>${item.jenis_kelamin}</td>
-            <td>
-                <span class="${
-                    item.status_kehadiran == 'Hadir'
-                    ? 'badge-normal'
-                    : 'badge-danger'
-                }">
-                    ${item.status_kehadiran}
-                </span>
-            </td>
-        </tr>
-    `;
+        data.status.forEach((item, index) => {
 
-});
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nama_lansia}</td>
+                    <td>${item.jenis_kelamin}</td>
+                    <td>
+                        <span class="${
+                            item.status_kehadiran == 'Hadir'
+                            ? 'badge-normal'
+                            : 'badge-danger'
+                        }">
+                            ${item.status_kehadiran}
+                        </span>
+                    </td>
+                </tr>
+            `;
 
+        });
 
+        /* =========================
+           PETUGAS
+        ========================== */
 
-const petugasBody = document.getElementById('petugasBody');
+        const petugasBody = document.getElementById('petugasBody');
 
-petugasBody.innerHTML = '';
+        petugasBody.innerHTML = '';
 
-data.petugas.forEach((item, index) => {
+        data.petugas.forEach((item, index) => {
 
-    petugasBody.innerHTML += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${item.nama_petugas}</td>
-            <td>${item.jumlah_lansia} Lansia</td>
-        </tr>
-    `;
+            petugasBody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nama}</td>
+                    <td>${item.jumlah_lansia} Lansia</td>
+                </tr>
+            `;
 
-});
+        });
 
     });
 
@@ -667,44 +676,32 @@ modal.style.display = 'none';
 }
 function showStatusTable() {
 
-    const table = document.getElementById('statusTable');
+    const statusTable = document.getElementById('statusTable');
+    const petugasTable = document.getElementById('petugasTable');
 
-    const button = document.getElementById('btnStatus');
+    const btnStatus = document.getElementById('btnStatus');
+    const btnPetugas = document.getElementById('btnPetugas');
 
-    if (table.style.display === 'none') {
+    statusTable.style.display = 'block';
+    petugasTable.style.display = 'none';
 
-        table.style.display = 'block';
-
-        button.classList.add('active');
-
-    } else {
-
-        table.style.display = 'none';
-
-        button.classList.remove('active');
-
-    }
+    btnStatus.classList.add('active');
+    btnPetugas.classList.remove('active');
 
 }
 function showPetugasTable() {
 
-    const table = document.getElementById('petugasTable');
+    const statusTable = document.getElementById('statusTable');
+    const petugasTable = document.getElementById('petugasTable');
 
-    const button = document.getElementById('btnPetugas');
+    const btnStatus = document.getElementById('btnStatus');
+    const btnPetugas = document.getElementById('btnPetugas');
 
-    if (table.style.display === 'none') {
+    petugasTable.style.display = 'block';
+    statusTable.style.display = 'none';
 
-        table.style.display = 'block';
-
-        button.classList.add('active');
-
-    } else {
-
-        table.style.display = 'none';
-
-        button.classList.remove('active');
-
-    }
+    btnPetugas.classList.add('active');
+    btnStatus.classList.remove('active');
 
 }
 
