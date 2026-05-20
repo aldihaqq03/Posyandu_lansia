@@ -485,9 +485,13 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
             Status Kehadiran
         </button>
 
-        <button class="filter-btn">
-            Petugas
-        </button>
+        <button 
+    class="filter-btn"
+    id="btnPetugas"
+    onclick="showPetugasTable()"
+>
+    Petugas
+</button>
 
         <button class="filter-btn">
             Obat Keluar
@@ -511,6 +515,10 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
                     </tr>
                 </thead>
 
+               <tbody id="statusBody">
+
+               </tbody>
+
            
 
             </table>
@@ -518,11 +526,35 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
         </div>
 
     </div>
+    {{-- TABLE PETUGAS --}}
+<div id="petugasTable" style="display:none;">
+
+    <div class="table-responsive">
+
+        <table class="laporan-table">
+
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Petugas</th>
+                    <th>Jumlah Lansia</th>
+                </tr>
+            </thead>
+
+            <tbody id="petugasBody">
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
 
 </div>
+
 </div>
+</div>
+
 
 @endsection
 
@@ -576,30 +608,48 @@ detailButtons.forEach(button => {
 
         const data = await response.json();
 
-        const tbody = document.querySelector('#statusTable tbody');
+       const tbody = document.getElementById('statusBody');
 
-        tbody.innerHTML = '';
+tbody.innerHTML = '';
 
-        data.forEach((item, index) => {
+data.status.forEach((item, index) => {
 
-            tbody.innerHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.nama}</td>
-                    <td>${item.jenis_kelamin}</td>
-                    <td>
-                        <span class="${
-                            item.status_kehadiran == 'Hadir'
-                            ? 'badge-normal'
-                            : 'badge-danger'
-                        }">
-                            ${item.status_kehadiran}
-                        </span>
-                    </td>
-                </tr>
-            `;
+    tbody.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama}</td>
+            <td>${item.jenis_kelamin}</td>
+            <td>
+                <span class="${
+                    item.status_kehadiran == 'Hadir'
+                    ? 'badge-normal'
+                    : 'badge-danger'
+                }">
+                    ${item.status_kehadiran}
+                </span>
+            </td>
+        </tr>
+    `;
 
-        });
+});
+
+
+
+const petugasBody = document.getElementById('petugasBody');
+
+petugasBody.innerHTML = '';
+
+data.petugas.forEach((item, index) => {
+
+    petugasBody.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama_petugas}</td>
+            <td>${item.jumlah_lansia} Lansia</td>
+        </tr>
+    `;
+
+});
 
     });
 
@@ -620,6 +670,27 @@ function showStatusTable() {
     const table = document.getElementById('statusTable');
 
     const button = document.getElementById('btnStatus');
+
+    if (table.style.display === 'none') {
+
+        table.style.display = 'block';
+
+        button.classList.add('active');
+
+    } else {
+
+        table.style.display = 'none';
+
+        button.classList.remove('active');
+
+    }
+
+}
+function showPetugasTable() {
+
+    const table = document.getElementById('petugasTable');
+
+    const button = document.getElementById('btnPetugas');
 
     if (table.style.display === 'none') {
 

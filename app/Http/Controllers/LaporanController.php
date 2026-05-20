@@ -131,7 +131,19 @@ $laporan = DB::table('jadwal_posyandu')
             'kunjungan.status_kehadiran'
         )
         ->get();
+        $petugas = DB::table('skrining')
+    ->join('users', 'skrining.id_user', '=', 'users.id')
+    ->where('skrining.id_jadwal_posyandu', $id)
+    ->select(
+        'users.name as nama_petugas',
+        DB::raw('count(skrining.id_lansia) as jumlah_lansia')
+    )
+    ->groupBy('users.name')
+    ->get();
 
-    return response()->json($data);
+    return response()->json([
+    'status' => $data,
+    'petugas' => $petugas
+]);
 }
 }
