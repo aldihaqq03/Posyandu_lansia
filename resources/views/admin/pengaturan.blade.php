@@ -13,26 +13,7 @@
         <p>Kelola informasi profil dan keamanan akun Anda</p>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success">
-            <i class="fa-solid fa-circle-check"></i>
-            {{ session('success') }}
-        </div>
-    @endif
 
-    @if(session('error'))
-        <div class="alert alert-error">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert alert-error">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            Terdapat kesalahan pada isian form Anda. Mohon periksa kembali.
-        </div>
-    @endif
 
     <!-- TABS -->
     <div class="tabs">

@@ -1,8 +1,9 @@
 @extends('layout.sidebar')
 
 @push('styles')
-    @vite(['resources/css/app.css', 'resources/css/cssAdmin/profil_lengkap.css', 'resources/css/cssAdmin/monitoring.css'])
-
+    @vite(['resources/css/app.css', 'resources/css/cssAdmin/profil_lengkap.css', 'resources/css/cssAdmin/monitoring.css', 'resources/css/cssAdmin/histori_skrining.css'])
+        {{-- Jika Anda menaruh CSS modal modern di file terpisah, tambahkan juga --}}
+        {{-- <link rel="stylesheet" href="{{ asset('css/modal-modern.css') }}"> --}}
 @endpush
 
 @section('title', 'Histori Skrining – ' . $lansia->nama_lansia)
@@ -11,7 +12,7 @@
     <main class="main-content">
         <div class="container">
 
-            {{-- ── BREADCRUMB & HEADER ─────────────────────────────────── --}}
+            {{-- BREADCRUMB & HEADER --}}
             <header class="page-header">
                 <div class="header-info">
                     <nav class="breadcrumb">
@@ -32,8 +33,7 @@
                 </a>
             </header>
 
-            {{-- ── INFO SINGKAT LANSIA ─────────────────────────────────── --}}
-            {{-- ── PROFIL LANSIA (sama dengan monitoring) ─────────────── --}}
+            {{-- INFO SINGKAT LANSIA (sama seperti monitoring) --}}
             <div class="mon-profile-card" style="margin-bottom: 1.5rem;">
                 <div class="mon-avatar">{{ strtoupper(substr($lansia->nama_lansia, 0, 2)) }}</div>
                 <div class="mon-profile-info">
@@ -58,9 +58,8 @@
                     </div>
                 </div>
             </div>
-            {{-- ═══════════════════════════════════════════════════════════ --}}
+
             {{-- TABEL 1 – SKRINING KUNJUNGAN --}}
-            {{-- ═══════════════════════════════════════════════════════════ --}}
             <section class="card history-section">
                 <div class="history-header">
                     <div class="history-title">
@@ -81,37 +80,19 @@
                     <div class="table-scroll">
                         <table class="history-table" id="tbl-kunjungan">
                             <thead>
-                                <tr>
-                                    <th>Tanggal</th>
-                                    <th>Petugas</th>
-                                    <th>Tensi</th>
-                                    <th>Berat Badan</th>
-                                    <th>Tinggi Badan</th>
-                                    <th>Lingkar Perut</th>
-                                    <th>Keluhan</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
+                                <tr><th>Tanggal</th><th>Petugas</th><th>Tensi</th><th>Berat Badan</th><th>Tinggi Badan</th><th>Lingkar Perut</th><th>Keluhan</th><th class="text-center">Aksi</th></tr>
                             </thead>
                             <tbody>
                                 @foreach($kunjungans as $s)
                                     <tr data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}">
                                         <td>{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}</td>
                                         <td>{{ $s->petugas?->nama ?? '-' }}</td>
-                                        <td>
-                                            @if($s->kunjungan?->td_sistolik)
-                                                <span
-                                                    class="val-badge red">{{ $s->kunjungan->td_sistolik }}/{{ $s->kunjungan->td_diastolik }}
-                                                    mmHg</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
+                                        <td>@if($s->kunjungan?->td_sistolik)<span class="val-badge red">{{ $s->kunjungan->td_sistolik }}/{{ $s->kunjungan->td_diastolik }} mmHg</span>@else-@endif</td>
                                         <td>{{ $s->kunjungan?->berat_badan ? $s->kunjungan->berat_badan . ' kg' : '-' }}</td>
                                         <td>{{ $s->kunjungan?->tinggi_badan ? $s->kunjungan->tinggi_badan . ' cm' : '-' }}</td>
                                         <td>{{ $s->kunjungan?->lingkar_perut ? $s->kunjungan->lingkar_perut . ' cm' : '-' }}</td>
                                         <td>{{ $s->kunjungan?->keluhan ?? $s->keluhan ?? '-' }}</td>
                                         <td class="text-center aksi-col" onclick="event.stopPropagation()">
-                                            {{-- ✅ Unified class: btn-detail + data-type="kunjungan" --}}
                                             <button class="btn-icon btn-detail" data-type="kunjungan" title="Lihat Detail"
                                                 data-skrining-id="{{ $s->id_skrining }}"
                                                 data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
@@ -125,7 +106,6 @@
                                                 data-keluhan-kunjungan="{{ $s->kunjungan?->keluhan ?? '' }}">
                                                 <i class="fa-solid fa-eye"></i>
                                             </button>
-                                            {{-- ✅ Unified class: btn-pdf --}}
                                             <button class="btn-icon btn-pdf" data-type="kunjungan" title="Download PDF"
                                                 data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}">
                                                 <i class="fa-solid fa-file-pdf"></i>
@@ -139,68 +119,32 @@
                 @endif
             </section>
 
-            {{-- ═══════════════════════════════════════════════════════════ --}}
             {{-- TABEL 2 – SKRINING UTAMA --}}
-            {{-- ═══════════════════════════════════════════════════════════ --}}
             <section class="card history-section">
                 <div class="history-header">
                     <div class="history-title">
                         <div class="history-icon blue"><i class="fa-solid fa-vial"></i></div>
-                        <div>
-                            <h3>Skrining Utama</h3>
-                            <p>Gula darah, kolesterol, IMT, SRQ-20, dan faktor risiko lainnya</p>
-                        </div>
+                        <div><h3>Skrining Utama</h3><p>Gula darah, kolesterol, IMT, SRQ-20, dan faktor risiko lainnya</p></div>
                     </div>
-                    <div class="history-actions">
-                        <input type="month" class="filter-month" data-target="tbl-utama" title="Filter bulan">
-                    </div>
+                    <div class="history-actions"><input type="month" class="filter-month" data-target="tbl-utama" title="Filter bulan"></div>
                 </div>
-
                 @if($utamas->isEmpty())
                     <div class="empty-state">Belum ada data skrining utama.</div>
                 @else
                     <div class="table-scroll">
                         <table class="history-table" id="tbl-utama">
-                            <thead>
-                                <tr>
-                                    <th>Tanggal</th>
-                                    <th>Petugas</th>
-                                    <th>Gula Darah</th>
-                                    <th>Kategori GD</th>
-                                    <th>Kolesterol</th>
-                                    <th>Kategori Kol.</th>
-                                    <th>IMT</th>
-                                    <th>SRQ-20</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>Tanggal</th><th>Petugas</th><th>Gula Darah</th><th>Kategori GD</th><th>Kolesterol</th><th>Kategori Kol.</th><th>IMT</th><th>SRQ-20</th><th class="text-center">Aksi</th></tr></thead>
                             <tbody>
-                                @php
-                                    $katLabel = [1 => 'Normal', 2 => 'Waspada', 3 => 'Tinggi'];
-                                    $katClass = [1 => 'success', 2 => 'warning', 3 => 'high'];
-                                @endphp
+                                @php $katLabel = [1 => 'Normal', 2 => 'Waspada', 3 => 'Tinggi'];
+                                $katClass = [1 => 'success', 2 => 'warning', 3 => 'high']; @endphp
                                 @foreach($utamas as $s)
                                     <tr data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}">
                                         <td>{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}</td>
                                         <td>{{ $s->petugas?->nama ?? '-' }}</td>
                                         <td>{{ $s->utama?->gula_darah ? $s->utama->gula_darah . ' mg/dL' : '-' }}</td>
-                                        <td>
-                                            @if($s->utama?->gula_darah_kategori)
-                                                <span class="badge-status {{ $katClass[$s->utama->gula_darah_kategori] ?? 'muted' }}">
-                                                    {{ $katLabel[$s->utama->gula_darah_kategori] ?? '-' }}
-                                                </span>
-                                            @else -
-                                            @endif
-                                        </td>
+                                        <td>@if($s->utama?->gula_darah_kategori)<span class="badge-status {{ $katClass[$s->utama->gula_darah_kategori] ?? 'muted' }}">{{ $katLabel[$s->utama->gula_darah_kategori] ?? '-' }}</span>@else-@endif</td>
                                         <td>{{ $s->utama?->kolesterol ? $s->utama->kolesterol . ' mg/dL' : '-' }}</td>
-                                        <td>
-                                            @if($s->utama?->kolesterol_kategori)
-                                                <span class="badge-status {{ $katClass[$s->utama->kolesterol_kategori] ?? 'muted' }}">
-                                                    {{ $katLabel[$s->utama->kolesterol_kategori] ?? '-' }}
-                                                </span>
-                                            @else -
-                                            @endif
-                                        </td>
+                                        <td>@if($s->utama?->kolesterol_kategori)<span class="badge-status {{ $katClass[$s->utama->kolesterol_kategori] ?? 'muted' }}">{{ $katLabel[$s->utama->kolesterol_kategori] ?? '-' }}</span>@else-@endif</td>
                                         <td>{{ $s->utama?->imt ?? '-' }}</td>
                                         <td>{{ $s->utama?->srq_total ?? '-' }}</td>
                                         <td class="text-center aksi-col" onclick="event.stopPropagation()">
@@ -224,68 +168,30 @@
                 @endif
             </section>
 
-            {{-- ═══════════════════════════════════════════════════════════ --}}
             {{-- TABEL 3 – SKRINING PPOK --}}
-            {{-- ═══════════════════════════════════════════════════════════ --}}
             <section class="card history-section">
                 <div class="history-header">
                     <div class="history-title">
                         <div class="history-icon green"><i class="fa-solid fa-lungs"></i></div>
-                        <div>
-                            <h3>Skrining PPOK</h3>
-                            <p>PUMA score, spirometri, dan faktor risiko paru</p>
-                        </div>
+                        <div><h3>Skrining PPOK</h3><p>PUMA score, spirometri, dan faktor risiko paru</p></div>
                     </div>
-                    <div class="history-actions">
-                        <input type="month" class="filter-month" data-target="tbl-ppok" title="Filter bulan">
-                    </div>
+                    <div class="history-actions"><input type="month" class="filter-month" data-target="tbl-ppok" title="Filter bulan"></div>
                 </div>
-
                 @if($ppoks->isEmpty())
                     <div class="empty-state">Belum ada data skrining PPOK.</div>
                 @else
                     <div class="table-scroll">
                         <table class="history-table" id="tbl-ppok">
-                            <thead>
-                                <tr>
-                                    <th>Tanggal</th>
-                                    <th>Petugas</th>
-                                    <th>Skor PUMA</th>
-                                    <th>Hasil PUMA</th>
-                                    <th>Merokok</th>
-                                    <th>Kadar CO</th>
-                                    <th>Hasil Spirometri</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>Tanggal</th><th>Petugas</th><th>Skor PUMA</th><th>Hasil PUMA</th><th>Merokok</th><th>Kadar CO</th><th>Hasil Spirometri</th><th class="text-center">Aksi</th></tr></thead>
                             <tbody>
                                 @foreach($ppoks as $s)
-                                    @php
-                                        $pumaHasil = match ($s->ppok?->puma_kategori_hasil) {
-                                            0 => 'Edukasi Gaya Hidup',
-                                            1 => 'Risiko PPOK',
-                                            default => '-',
-                                        };
-                                    @endphp
+                                    @php $pumaHasil = match ($s->ppok?->puma_kategori_hasil) { 0 => 'Edukasi Gaya Hidup', 1 => 'Risiko PPOK', default => '-', }; @endphp
                                     <tr data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}">
                                         <td>{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}</td>
                                         <td>{{ $s->petugas?->nama ?? '-' }}</td>
                                         <td>{{ $s->ppok?->puma_total_skor ?? '-' }}</td>
-                                        <td>
-                                            @if($s->ppok?->puma_kategori_hasil !== null)
-                                                <span
-                                                    class="badge-status {{ $s->ppok->puma_kategori_hasil === 1 ? 'high' : 'success' }}">
-                                                    {{ $pumaHasil }}
-                                                </span>
-                                            @else -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(isset($s->ppok->merokok))
-                                                {{ $s->ppok->merokok ? 'Ya' : 'Tidak' }}
-                                            @else -
-                                            @endif
-                                        </td>
+                                        <td>@if($s->ppok?->puma_kategori_hasil !== null)<span class="badge-status {{ $s->ppok->puma_kategori_hasil === 1 ? 'high' : 'success' }}">{{ $pumaHasil }}</span>@else-@endif</td>
+                                        <td>@if(isset($s->ppok->merokok)) {{ $s->ppok->merokok ? 'Ya' : 'Tidak' }} @else - @endif</td>
                                         <td>{{ $s->ppok?->kadar_co_ppm ? $s->ppok->kadar_co_ppm . ' ppm' : '-' }}</td>
                                         <td>{{ $s->ppok?->hasil_spirometri ?? '-' }}</td>
                                         <td class="text-center aksi-col" onclick="event.stopPropagation()">
@@ -308,38 +214,35 @@
                     </div>
                 @endif
             </section>
-
         </div>
     </main>
-    {{-- ═══════════════════════════════════════════════════════════ --}}
-    {{-- MODAL DETAIL SKRINING (read-only) --}}
-    {{-- ═══════════════════════════════════════════════════════════ --}}
+
+    {{-- MODAL DETAIL MODERN --}}
     <div class="modal-overlay" id="modal-detail-skrining">
-        <div class="modal-box modal-lg">
-            <div class="modal-header">
-                <div class="modal-header-left">
-                    <span class="modal-type-badge" id="modal-type-badge">-</span>
-                    <h3 id="modal-title">Detail Skrining</h3>
+        <div class="modal-box modern-modal">
+            <div class="modal-modern-header">
+                <div class="header-left">
+                    <div class="health-icon-lg" id="modal-icon">❤️</div>
+                    <div class="header-title">
+                        <h3 id="modal-title">Detail Skrining</h3>
+                        <div class="skrining-date" id="modal-date">-</div>
+                    </div>
+                    <span class="badge-modern" id="modal-type-badge">-</span>
                 </div>
-                <button class="btn-close-modal" id="btn-close-detail">
+                <button class="btn-close-modern" id="btn-close-detail">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body" id="modal-body-content">
-                {{-- Diisi dinamis via JS --}}
+            <div class="modal-modern-body" id="modal-body-content">
+                {{-- Dinamis via JS --}}
             </div>
         </div>
     </div>
-
 @endsection
-
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
-        // ─────────────────────────────────────────────────────────────────────
-        // Data lansia (dari Blade, diteruskan ke JS)
-        // ─────────────────────────────────────────────────────────────────────
         const LANSIA = {
             id: @json($lansia->id_lansia),
             nama: @json($lansia->nama_lansia),
@@ -347,9 +250,202 @@
             alamat: @json($lansia->alamat ?? '-'),
             umur: @json(\Carbon\Carbon::parse($lansia->tanggal_lahir)->age),
         };
-        document.addEventListener('DOMContentLoaded', function () {
 
-            // ─── 1. Filter Bulan ───────────────────────────────────────
+        // ========== FORMAT VALUE (array / JSON) ==========
+        function formatValue(value) {
+            if (value === null || value === undefined || value === '') return '-';
+            if (Array.isArray(value)) return value.join(', ');
+            if (typeof value === 'string' && value.startsWith('[') && value.endsWith(']')) {
+                try {
+                    const parsed = JSON.parse(value);
+                    if (Array.isArray(parsed)) return parsed.join(', ');
+                } catch(e) {}
+            }
+            return value;
+        }
+
+        // ========== TENTUKAN WARNA BERDASARKAN KATEGORI ==========
+        function getColorForKategori(kategori) {
+            if (!kategori) return 'black';
+            const k = String(kategori).toLowerCase();
+            if (k.includes('normal')) return '#10b981'; // hijau
+            if (k.includes('waspada')) return '#f59e0b'; // kuning
+            if (k.includes('tinggi') || k.includes('risiko')) return '#ef4444'; // merah
+            return 'black';
+        }
+
+        function getColorForTensi(sistolik) {
+            const s = parseInt(sistolik);
+            if (isNaN(s)) return 'black';
+            if (s >= 140) return '#ef4444';
+            if (s >= 120) return '#f59e0b';
+            return '#10b981';
+        }
+
+        // ========== RENDER ROW DENGAN WARNA (opsional) ==========
+        function renderInfoRow(label, value, color = 'black') {
+            const formatted = formatValue(value);
+            const display = formatted !== '-' ? formatted : '-';
+            return `<div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: 600; color: #64748b;">${label}</div>
+                        <div style="font-size: 1rem; color: ${color}; font-weight: 500;">${display}</div>
+                    </div>`;
+        }
+
+        function renderMetric(label, value, unit = '', color = 'black') {
+            const formatted = formatValue(value);
+            const display = formatted !== '-' ? `${formatted} ${unit}` : '-';
+            return `<div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: 600; color: #64748b;">${label}</div>
+                        <div style="font-size: 1rem; color: ${color}; font-weight: 500;">${display}</div>
+                    </div>`;
+        }
+
+        // ========== RENDER MODAL ==========
+        function renderInfoUmum(d) {
+            return `<div class="health-card" style="background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 1.75rem;">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; background: #f8fafc;">
+                            <h4 style="margin:0; font-size:1.125rem; font-weight:600;">Informasi Umum</h4>
+                        </div>
+                        <div style="padding:1.5rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem;">
+                            ${renderInfoRow('Tanggal Skrining', d.tanggal)}
+                            ${renderInfoRow('Petugas', d.petugas)}
+                            ${renderInfoRow('Keluhan', d.keluhan || '-')}
+                        </div>
+                    </div>`;
+        }
+
+        function renderKunjungan(d) {
+            const tensiColor = getColorForTensi(d.sistolik);
+            const tensiDisplay = (d.sistolik && d.diastolik) ? `${d.sistolik}/${d.diastolik}` : '-';
+            return `<div class="health-card" style="background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 1.75rem;">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; background: #f8fafc;">
+                            <h4 style="margin:0; font-size:1.125rem; font-weight:600;">Pemeriksaan Fisik & Antropometri</h4>
+                        </div>
+                        <div style="padding:1.5rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem;">
+                            ${renderMetric('Tekanan Darah', tensiDisplay, 'mmHg', tensiColor)}
+                            ${renderMetric('Berat Badan', d.bb, 'kg')}
+                            ${renderMetric('Tinggi Badan', d.tb, 'cm')}
+                            ${renderMetric('Lingkar Perut', d.lp, 'cm')}
+                            ${renderInfoRow('Keluhan Kunjungan', d.keluhanKunjungan)}
+                        </div>
+                    </div>`;
+        }
+
+        async function fetchAndRenderUtama(d, modalBody) {
+            try {
+                const res = await fetch(`/lansia/${LANSIA.id}/skrining-utama/${d.skriningId}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                let html = renderInfoUmum(d);
+                for (const [section, fields] of Object.entries(data)) {
+                    html += `<div class="health-card" style="background:white; border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.05); margin-bottom:1.75rem;">
+                                <div style="padding:1rem 1.5rem; border-bottom:1px solid #f1f5f9; background:#f8fafc;">
+                                    <h4 style="margin:0;">${section}</h4>
+                                </div>
+                                <div style="padding:1.5rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem;">`;
+                    fields.forEach(f => {
+                        let color = 'black';
+                        const labelLow = f.label.toLowerCase();
+                        if (labelLow.includes('gula darah') || labelLow.includes('kolesterol')) {
+                            const kategori = fields.find(f2 => f2.label.toLowerCase().includes('kategori'))?.value;
+                            if (kategori) color = getColorForKategori(kategori);
+                        }
+                        html += renderInfoRow(f.label, f.value, color);
+                    });
+                    html += `</div></div>`;
+                }
+                modalBody.innerHTML = html;
+            } catch (err) {
+                modalBody.innerHTML = `<div style="background:#fef2f2; border-left:4px solid #dc2626; padding:1rem;">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function fetchAndRenderPpok(d, modalBody) {
+            try {
+                const res = await fetch(`/lansia/${LANSIA.id}/skrining-ppok/${d.skriningId}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                let html = renderInfoUmum(d);
+                for (const [section, fields] of Object.entries(data)) {
+                    html += `<div class="health-card" style="background:white; border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.05); margin-bottom:1.75rem;">
+                                <div style="padding:1rem 1.5rem; border-bottom:1px solid #f1f5f9; background:#f8fafc;">
+                                    <h4 style="margin:0;">${section}</h4>
+                                </div>
+                                <div style="padding:1.5rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem;">`;
+                    fields.forEach(f => {
+                        let color = 'black';
+                        if (f.label.toLowerCase().includes('risiko') || f.label.toLowerCase().includes('hasil puma')) {
+                            const val = String(f.value).toLowerCase();
+                            if (val.includes('risiko')) color = '#ef4444';
+                            else if (val.includes('edukasi')) color = '#10b981';
+                        }
+                        html += renderInfoRow(f.label, f.value, color);
+                    });
+                    html += `</div></div>`;
+                }
+                modalBody.innerHTML = html;
+            } catch (err) {
+                modalBody.innerHTML = `<div style="background:#fef2f2; border-left:4px solid #dc2626; padding:1rem;">Error: ${err.message}</div>`;
+            }
+        }
+
+        // ========== PDF GENERATOR (tetap polos) ==========
+        function sanitizePdfText(str) {
+            if (!str) return '-';
+            return String(str).replace(/[^\x00-\xFF]/g, '?');
+        }
+
+        async function generatePdf(jenisLabel, tanggal, rows, type, detailData = null) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait' });
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('SIMPEL – Posyandu Lansia', 14, 18);
+            doc.setFontSize(12);
+            doc.text(jenisLabel, 14, 26);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text(`Nama    : ${sanitizePdfText(LANSIA.nama)}`, 14, 34);
+            doc.text(`NIK     : ${sanitizePdfText(LANSIA.nik)}`, 14, 40);
+            doc.text(`Umur    : ${LANSIA.umur} Tahun`, 14, 46);
+            doc.text(`Alamat  : ${sanitizePdfText(LANSIA.alamat)}`, 14, 52);
+            doc.text(`Tanggal : ${sanitizePdfText(tanggal)}`, 14, 58);
+            doc.text(`Dicetak : ${new Date().toLocaleDateString('id-ID')}`, 14, 64);
+            doc.line(14, 68, 196, 68);
+
+            let bodyRows = [];
+            if (type === 'kunjungan') {
+                bodyRows = [
+                    ['Informasi Umum', ''],
+                    ['Tanggal Skrining', sanitizePdfText(detailData.tanggal)],
+                    ['Petugas', sanitizePdfText(detailData.petugas)],
+                    ['Keluhan', sanitizePdfText(detailData.keluhan)],
+                    ['— Pemeriksaan Fisik —', ''],
+                    ['Tekanan Darah', (detailData.sistolik && detailData.diastolik) ? `${detailData.sistolik}/${detailData.diastolik} mmHg` : '-'],
+                    ['Berat Badan', detailData.bb ? `${detailData.bb} kg` : '-'],
+                    ['Tinggi Badan', detailData.tb ? `${detailData.tb} cm` : '-'],
+                    ['Lingkar Perut', detailData.lp ? `${detailData.lp} cm` : '-'],
+                    ['Keluhan Kunjungan', sanitizePdfText(detailData.keluhanKunjungan)],
+                ];
+            } else {
+                bodyRows = rows;
+            }
+            doc.autoTable({
+                head: [['Keterangan', 'Nilai']],
+                body: bodyRows,
+                startY: 78,
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 70 } },
+            });
+            doc.save(`skrining_${jenisLabel.replace(/\s+/g, '_')}_${LANSIA.nama.replace(/\s+/g, '_')}_${tanggal.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // ========== EVENT LISTENER ==========
+        document.addEventListener('DOMContentLoaded', function () {
+            // Filter bulan
             document.querySelectorAll('.filter-month').forEach(input => {
                 input.addEventListener('change', function () {
                     const tblId = this.dataset.target;
@@ -360,226 +456,91 @@
                 });
             });
 
-            // ─── 2. Klik Baris → Buka Modal ───────────────────────────
-            // Tambahkan tooltip + cursor pada setiap baris (kecuali kolom aksi)
+            // Klik baris buka modal
             document.querySelectorAll('.history-table tbody tr').forEach(tr => {
                 tr.style.cursor = 'pointer';
-                tr.title = 'Klik untuk melihat detail';
                 tr.addEventListener('click', function (e) {
-                    // Abaikan klik di kolom aksi
                     if (e.target.closest('.aksi-col')) return;
-                    // Cari btn-detail di baris ini dan trigger klik
                     const btn = this.querySelector('.btn-detail');
                     if (btn) btn.click();
                 });
             });
 
-            // ─── 3. Modal Detail ──────────────────────────────────────
             const modal = document.getElementById('modal-detail-skrining');
             const modalTitle = document.getElementById('modal-title');
+            const modalDate = document.getElementById('modal-date');
             const modalBadge = document.getElementById('modal-type-badge');
+            const modalIcon = document.getElementById('modal-icon');
             const modalBody = document.getElementById('modal-body-content');
+
+            if (modalIcon) modalIcon.style.display = 'none';
 
             document.querySelectorAll('.btn-detail').forEach(btn => {
                 btn.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    // Salin semua dataset ke objek biasa agar tidak hilang saat async
                     const d = Object.assign({}, this.dataset);
                     const type = d.type;
-
-                    modalTitle.textContent = `Detail Skrining – ${d.tanggal}`;
-
-                    const badgeMap = {
-                        kunjungan: { label: 'Kunjungan', cls: 'badge-kunjungan' },
-                        utama: { label: 'Utama', cls: 'badge-utama' },
-                        ppok: { label: 'PPOK', cls: 'badge-ppok' },
-                    };
-                    const badge = badgeMap[type] ?? { label: type, cls: '' };
-                    modalBadge.textContent = badge.label;
-                    modalBadge.className = `modal-type-badge ${badge.cls}`;
+                    modalTitle.textContent = 'Detail Skrining';
+                    modalDate.textContent = d.tanggal || '-';
+                    const badgeMap = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining Utama', ppok: 'Skrining PPOK' };
+                    modalBadge.textContent = badgeMap[type] || type;
+                    modalBadge.className = `badge-modern ${type}`;
 
                     if (type === 'kunjungan') {
                         modalBody.innerHTML = renderInfoUmum(d) + renderKunjungan(d);
                     } else if (type === 'utama') {
-                        modalBody.innerHTML = renderInfoUmum(d) + renderLoading();
-                        fetchAndRenderUtama(d, modalBody);   // ✅ pass d langsung
+                        modalBody.innerHTML = renderInfoUmum(d) + '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</div>';
+                        fetchAndRenderUtama(d, modalBody);
                     } else if (type === 'ppok') {
-                        modalBody.innerHTML = renderInfoUmum(d) + renderLoading();
-                        fetchAndRenderPpok(d, modalBody);    // ✅ pass d langsung
-                    } else {
-                        modalBody.innerHTML = '<p>Tipe skrining tidak dikenal.</p>';
+                        modalBody.innerHTML = renderInfoUmum(d) + '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</div>';
+                        fetchAndRenderPpok(d, modalBody);
                     }
-
                     modal.classList.add('active');
                 });
             });
 
-            document.getElementById('btn-close-detail')
-                ?.addEventListener('click', () => modal.classList.remove('active'));
-            modal.addEventListener('click', e => {
-                if (e.target === modal) modal.classList.remove('active');
-            });
+            document.getElementById('btn-close-detail')?.addEventListener('click', () => modal.classList.remove('active'));
+            modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
 
-            // ─── 4. PDF per record ─────────────────────────────────────
+            // PDF
             document.querySelectorAll('.btn-pdf').forEach(btn => {
                 btn.addEventListener('click', async function (e) {
                     e.stopPropagation();
                     const row = this.closest('tr');
                     const detailBtn = row?.querySelector('.btn-detail');
                     if (!detailBtn) return;
-
-                    // Salin dataset ke objek biasa
                     const d = Object.assign({}, detailBtn.dataset);
                     const type = d.type;
-
-                    const typeLabel = {
-                        kunjungan: 'Skrining Kunjungan',
-                        utama: 'Skrining Utama',
-                        ppok: 'Skrining PPOK'
-                    };
+                    const typeLabel = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining Utama', ppok: 'Skrining PPOK' };
 
                     if (type === 'kunjungan') {
-                        generatePdf(typeLabel[type], d.tanggal, buildPdfKunjungan(d));
-                    } else if (type === 'utama' || type === 'ppok') {
+                        generatePdf(typeLabel[type], d.tanggal, null, 'kunjungan', d);
+                    } else {
                         try {
                             const endpoint = type === 'utama' ? 'skrining-utama' : 'skrining-ppok';
-                            const response = await fetch(`/lansia/${LANSIA.id}/${endpoint}/${d.skriningId}`);
-                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                            const apiData = await response.json();
-
-                            // ✅ Build rows langsung dari response API (label → value)
-                            const rows = [
-                                ['Petugas', d.petugas || '-'],
-                                ['Keluhan', d.keluhan || '-'],
+                            const res = await fetch(`/lansia/${LANSIA.id}/${endpoint}/${d.skriningId}`);
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const apiData = await res.json();
+                            let rows = [
+                                ['Informasi Umum', ''],
+                                ['Tanggal Skrining', sanitizePdfText(d.tanggal)],
+                                ['Petugas', sanitizePdfText(d.petugas)],
+                                ['Keluhan', sanitizePdfText(d.keluhan)],
                             ];
                             for (const [section, fields] of Object.entries(apiData)) {
-                                rows.push([`— ${section} —`, '']);
-                                fields.forEach(f => rows.push([f.label, String(f.value ?? '-')]));
+                                rows.push([`-- ${section} --`, '']);
+                                fields.forEach(f => {
+                                    rows.push([sanitizePdfText(f.label), sanitizePdfText(formatValue(f.value))]);
+                                });
                             }
-                            generatePdf(typeLabel[type], d.tanggal, rows);
+                            generatePdf(typeLabel[type], d.tanggal, rows, 'other');
                         } catch (err) {
                             alert('Gagal generate PDF: ' + err.message);
                         }
                     }
                 });
             });
-        }); // end DOMContentLoaded
-
-        // ─── ASYNC FETCHERS (terima d sebagai parameter eksplisit) ────────────
-        async function fetchAndRenderUtama(d, modalBody) {
-            try {
-                const res = await fetch(`/lansia/${LANSIA.id}/skrining-utama/${d.skriningId}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const apiData = await res.json();
-                let html = '';
-                for (const [section, fields] of Object.entries(apiData)) {
-                    html += `<div class="modal-section">
-                            <h4 class="modal-section-title">${section}</h4>
-                            <div class="modal-grid-2">`;
-                    fields.forEach(f => { html += row(f.label, f.value ?? '-'); });
-                    html += `</div></div>`;
-                }
-                modalBody.innerHTML = renderInfoUmum(d) + html;
-            } catch (err) {
-                modalBody.innerHTML = `<div class="alert-danger">Error: ${err.message}</div>`;
-            }
-        }
-
-        async function fetchAndRenderPpok(d, modalBody) {
-            try {
-                const res = await fetch(`/lansia/${LANSIA.id}/skrining-ppok/${d.skriningId}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const apiData = await res.json();
-                let html = '';
-                for (const [section, fields] of Object.entries(apiData)) {
-                    html += `<div class="modal-section">
-                            <h4 class="modal-section-title">${section}</h4>
-                            <div class="modal-grid-2">`;
-                    fields.forEach(f => { html += row(f.label, f.value ?? '-'); });
-                    html += `</div></div>`;
-                }
-                modalBody.innerHTML = renderInfoUmum(d) + html;
-            } catch (err) {
-                modalBody.innerHTML = `<div class="alert-danger">Error: ${err.message}</div>`;
-            }
-        }
-
-        // ─── PDF GENERATOR ────────────────────────────────────────────────────
-        function generatePdf(jenisLabel, tanggal, rows) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'portrait' });
-            writePdfHeader(doc, jenisLabel, tanggal);
-            doc.autoTable({
-                head: [['Keterangan', 'Nilai']],
-                body: rows,
-                startY: 78,
-                styles: { fontSize: 9, cellPadding: 3 },
-                headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
-                alternateRowStyles: { fillColor: [248, 250, 252] },
-                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 70 } },
-            });
-            const fileName = `skrining_${jenisLabel.replace(/\s+/g, '_')}_${LANSIA.nama.replace(/\s+/g, '_')}_${tanggal.replace(/\s+/g, '_')}.pdf`;
-            doc.save(fileName);
-        }
-
-        // ─── RENDER HELPERS ───────────────────────────────────────────────────
-        function renderLoading() {
-            return `<div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</div>`;
-        }
-        function renderInfoUmum(d) {
-            return `<div class="modal-section-plain">
-                    ${row('Tanggal', d.tanggal || '-')}
-                    ${row('Petugas', d.petugas || '-')}
-                    ${row('Keluhan', d.keluhan || '-')}
-                </div>`;
-        }
-        function renderKunjungan(d) {
-            return `<div class="modal-section">
-                    <h4 class="modal-section-title"><i class="fa-solid fa-heart-pulse"></i> Data Kunjungan</h4>
-                    <div class="modal-grid-2">
-                        ${row('Tensi Sistolik', d.sistolik ? d.sistolik + ' mmHg' : '-')}
-                        ${row('Tensi Diastolik', d.diastolik ? d.diastolik + ' mmHg' : '-')}
-                        ${row('Berat Badan', d.bb ? d.bb + ' kg' : '-')}
-                        ${row('Tinggi Badan', d.tb ? d.tb + ' cm' : '-')}
-                        ${row('Lingkar Perut', d.lp ? d.lp + ' cm' : '-')}
-                        ${row('Keluhan Kunjungan', d.keluhanKunjungan || '-')}
-                    </div>
-                </div>`;
-        }
-        function buildPdfKunjungan(d) {
-            return [
-                ['Petugas', d.petugas || '-'],
-                ['Keluhan', d.keluhan || '-'],
-                ['— Data Kunjungan —', ''],
-                ['Tensi Sistolik', d.sistolik ? d.sistolik + ' mmHg' : '-'],
-                ['Tensi Diastolik', d.diastolik ? d.diastolik + ' mmHg' : '-'],
-                ['Berat Badan', d.bb ? d.bb + ' kg' : '-'],
-                ['Tinggi Badan', d.tb ? d.tb + ' cm' : '-'],
-                ['Lingkar Perut', d.lp ? d.lp + ' cm' : '-'],
-                ['Keluhan Kunjungan', d.keluhanKunjungan || '-'],
-            ];
-        }
-        function row(label, value) {
-            return `<div class="modal-info-row">
-                    <span class="modal-label">${label}</span>
-                    <span>${value ?? '-'}</span>
-                </div>`;
-        }
-        function writePdfHeader(doc, jenisLabel, tanggal) {
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(16);
-            doc.text('SIMPEL – Posyandu Lansia', 14, 18);
-            doc.setFontSize(12);
-            doc.text(jenisLabel, 14, 26);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.text(`Nama    : ${LANSIA.nama}`, 14, 34);
-            doc.text(`NIK     : ${LANSIA.nik}`, 14, 40);
-            doc.text(`Umur    : ${LANSIA.umur} Tahun`, 14, 46);
-            doc.text(`Alamat  : ${LANSIA.alamat}`, 14, 52);
-            doc.text(`Tanggal : ${tanggal}`, 14, 58);
-            doc.text(`Dicetak : ${new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}`, 14, 64);
-            doc.line(14, 68, 196, 68);
-        }
+        });
     </script>
+
 @endpush

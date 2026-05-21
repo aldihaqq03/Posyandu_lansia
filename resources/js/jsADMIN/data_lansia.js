@@ -1,8 +1,8 @@
-/* resources/js/jsAdmin/data_lansia.js */
+﻿/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 1. Animasi Angka Statistik
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.querySelectorAll(".stat-number").forEach((el) => {
         const target = parseInt(el.innerText.replace(/\D/g, ""));
         if (isNaN(target) || target === 0) return;
@@ -16,9 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
         tick();
     });
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 2. Pencarian Real-time
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const searchInput = document.getElementById("main-search");
     const tableRows = document.querySelectorAll(".custom-table tbody tr");
 
@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ─────────────────────────────────────────────────────────────
-    // 3. Klik Baris → Tampilkan Detail Panel
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // 3. Klik Baris â†’ Tampilkan Detail Panel
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const detailPanel = document.getElementById("detail-panel");
 
     document.querySelectorAll(".selectable-row").forEach((row) => {
@@ -57,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const tanggal = this.dataset.formatTanggal || "-";
             const status = this.dataset.statusPerkawinan || "-";
             const keterangan = this.dataset.keterangan || "-";
-            const kodeUnik = this.dataset.kodeUnik || "";
 
             detailPanel.style.opacity = "0";
             detailPanel.style.display = "block";
@@ -122,6 +121,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // â”€â”€ Restore selected lansia saat kembali dari halaman lain â”€â”€
+    const lastId = sessionStorage.getItem("lastSelectedLansiaId");
+    if (lastId) {
+        const targetRow = document.querySelector(
+            `.selectable-row[data-id="${lastId}"]`
+        );
+        if (targetRow) {
+            // Trigger click tanpa scroll animasi â€” langsung render panel
+            targetRow.click();
+        } else {
+            // ID tidak ada di halaman ini (misal pindah halaman paginator) â€” hapus state
+            sessionStorage.removeItem("lastSelectedLansiaId");
+        }
+    }
+
+
+
     function setText(id, val) {
         const el = document.getElementById(id);
         if (el) el.innerText = val;
@@ -129,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function fetchHealthSummary(id) {
         ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol", "d-imt"].forEach((k) =>
-            setText(k, "…"),
+            setText(k, "--"),
         );
         // Reset card status colors
         ["hcard-sistolik", "hcard-diastolik", "hcard-gula", "hcard-kolesterol", "hcard-imt"].forEach(id => {
@@ -219,9 +235,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // SHARED VALIDATION FUNCTIONS (dipakai oleh tambah & edit)
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function validateNIK(value) {
         if (!value || !value.trim()) return "NIK tidak boleh kosong";
@@ -274,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             let url = `/lansia/check-unique?field=${dbField}&value=${encodeURIComponent(value)}`;
             if (ignoreId) url += `&ignore_id=${ignoreId}`;
-            
+
             const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
             if (!res.ok) return false;
             const data = await res.json();
@@ -285,12 +301,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 4. MODAL TAMBAH LANSIA
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const modalTambah = document.getElementById("modal-tambah-lansia");
     const formTambah = document.getElementById("form-tambah-lansia");
-    // ⚠️ FIX: cari submitBtn di dalam form, bukan di luar
+    // âš ï¸ FIX: cari submitBtn di dalam form, bukan di luar
     const submitBtnTambah = formTambah?.querySelector('button[type="submit"]');
 
     // Helper show/hide error untuk form tambah
@@ -354,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nikEl?.addEventListener("input", function () {
             updateTambahSubmitBtn();
         });
-        
+
         // Nama validation
         const namaEl = document.getElementById("nama_lansia");
         namaEl?.addEventListener("blur", function () {
@@ -364,7 +380,7 @@ document.addEventListener("DOMContentLoaded", function () {
         namaEl?.addEventListener("input", function () {
             updateTambahSubmitBtn();
         });
-        
+
         // Tanggal Lahir validation - both change dan input untuk responsif
         const tanggalEl = document.getElementById("tanggal_lahir");
         tanggalEl?.addEventListener("change", function () {
@@ -377,7 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tanggalEl?.addEventListener("input", function () {
             updateTambahSubmitBtn();
         });
-        
+
         // No HP validation
         const noHpEl = document.getElementById("no_hp");
         noHpEl?.addEventListener("blur", async function () {
@@ -392,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
         noHpEl?.addEventListener("input", function () {
             updateTambahSubmitBtn();
         });
-        
+
         // Email validation
         const emailEl = document.getElementById("email");
         emailEl?.addEventListener("blur", async function () {
@@ -407,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
         emailEl?.addEventListener("input", function () {
             updateTambahSubmitBtn();
         });
-        
+
         // Alamat validation
         const alamatEl = document.getElementById("alamat");
         alamatEl?.addEventListener("blur", function () {
@@ -461,7 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 });
             }
-            
+
             if (!hasValidKeluarga) {
                 const firstKeluargaItem = keluargaContainer?.querySelector(".keluarga-item");
                 if (firstKeluargaItem) {
@@ -484,7 +500,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     errorKeluargaEl.textContent = "Minimal satu anggota keluarga harus diisi.";
                     errorKeluargaEl.style.display = "block";
                 }
-                console.warn("⚠️ Form submit prevented: No valid keluarga found");
+                console.warn("âš ï¸ Form submit prevented: No valid keluarga found");
                 e.preventDefault();
                 return;
             } else {
@@ -507,17 +523,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (!isTambahFormValid()) {
-                console.warn("⚠️ Form submit prevented: Form validation failed");
+                console.warn("âš ï¸ Form submit prevented: Form validation failed");
                 e.preventDefault();
             } else {
                 console.log("✓ Form submission allowed");
-                const loader = document.getElementById('global-loading-overlay');
-                if (loader) loader.style.display = 'flex';
-                // Avoid double click
-                if (submitBtnTambah) {
-                    submitBtnTambah.style.pointerEvents = 'none';
-                    submitBtnTambah.innerText = 'Menyimpan...';
-                }
             }
         });
 
@@ -543,7 +552,7 @@ document.addEventListener("DOMContentLoaded", function () {
             newItem.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h4 style="margin: 0; color: #555;">Anggota Keluarga #${keluargaCount}</h4>
-                <button type="button" class="btn-remove-keluarga" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 18px; padding: 0;">✕</button>
+                <button type="button" class="btn-remove-keluarga" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 18px; padding: 0;">âœ•</button>
             </div>
             <div class="form-group">
                 <label>Nama Keluarga</label>
@@ -561,13 +570,13 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
             container.appendChild(newItem);
-            
+
             // Add listener untuk input baru agar update button state
             const namaInput = newItem.querySelector(".nama_keluarga_input");
             namaInput?.addEventListener("input", function () {
                 updateTambahSubmitBtn();
             });
-            
+
             newItem
                 .querySelector(".btn-remove-keluarga")
                 .addEventListener("click", function () {
@@ -585,7 +594,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateTambahSubmitBtn();
             });
         });
-    
+
     // Pasang listener input untuk item pertama keluarga
     document
         .querySelectorAll("#keluarga-container .nama_keluarga_input")
@@ -631,18 +640,18 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("btn-cancel-modal"),
     ]);
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 5. MODAL EDIT LANSIA
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const modalEdit = document.getElementById("modal-edit-lansia");
     const editForm = document.getElementById("form-edit-lansia");
-    // ⚠️ FIX: cari submitBtn di dalam form edit langsung
+    // âš ï¸ FIX: cari submitBtn di dalam form edit langsung
     const editSubmitBtn = editForm?.querySelector('button[type="submit"]');
 
     if (!editForm) {
-        console.error("❌ editForm (form-edit-lansia) NOT FOUND in DOM");
+        console.error("âŒ editForm (form-edit-lansia) NOT FOUND in DOM");
     } else {
-        console.log("✓ editForm found at initialization");
+        console.log("âœ“ editForm found at initialization");
     }
 
     // Helper show/hide error untuk form edit
@@ -812,7 +821,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Submit handler edit form
         editForm.addEventListener("submit", function (e) {
-            console.log("📝 Edit form submitted!");
+            console.log("ðŸ“ Edit form submitted!");
             console.log("  - Form action:", this.action);
 
             // Safety check: pastikan action sudah berisi ID yang valid
@@ -822,12 +831,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 !this.action.match(/\/lansia\/\d+/)
             ) {
                 console.error(
-                    "❌ ABORT: Form action tidak valid:",
+                    "âŒ ABORT: Form action tidak valid:",
                     this.action,
                 );
                 e.preventDefault();
                 alert(
-                    "❌ Kesalahan: Form tidak siap. Coba tutup dan buka kembali modal edit.",
+                    "âŒ Kesalahan: Form tidak siap. Coba tutup dan buka kembali modal edit.",
                 );
                 return;
             }
@@ -877,9 +886,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // EDIT KELUARGA — helpers
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // EDIT KELUARGA â€” helpers
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let editKeluargaCount = 0;
 
     function escapeHtml(str) {
@@ -896,7 +905,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ? ""
             : `<button type="button" class="btn-remove-keluarga-edit"
             style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:18px; padding:0;"
-            title="Hapus anggota keluarga ini">✕</button>`;
+            title="Hapus anggota keluarga ini">âœ•</button>`;
         const labelWajib = isFirst
             ? `<span style="color:#e74c3c; font-size:11px; margin-left:6px; font-weight:400;">*Wajib</span>`
             : "";
@@ -1034,21 +1043,21 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.addEventListener("click", async function () {
             const row = btn.closest("tr");
             if (!row) {
-                console.error("❌ Row not found!");
+                console.error("âŒ Row not found!");
                 return;
             }
 
             const lansiaId = row.dataset.id;
-            console.log("✓ Edit clicked, Lansia ID:", lansiaId);
+            console.log("âœ“ Edit clicked, Lansia ID:", lansiaId);
 
             if (!editForm) {
-                console.error("❌ editForm is null!");
+                console.error("âŒ editForm is null!");
                 return;
             }
 
-            // ⚠️ FIX UTAMA: Set form action dengan ID yang benar
+            // âš ï¸ FIX UTAMA: Set form action dengan ID yang benar
             editForm.action = `/lansia/${lansiaId}`;
-            console.log("✓ Form action set:", editForm.action);
+            console.log("âœ“ Form action set:", editForm.action);
 
             // Isi semua field
             setVal("edit_nama_lansia", row.dataset.nama);
@@ -1111,9 +1120,9 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("btn-cancel-edit-modal"),
     ]);
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 6. Modal Hapus Lansia
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const modalHapus = document.getElementById("modal-hapus-lansia");
     const formHapus = modalHapus?.querySelector("form");
     let rowToDelete = null;
@@ -1154,9 +1163,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setupModalClose(modalHapus, [document.getElementById("btn-cancel-hapus")]);
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 7. Modal Filter
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const modalFilter = document.getElementById("modal-filter-lansia");
     const formFilter = modalFilter?.querySelector("form");
 
@@ -1178,9 +1187,9 @@ document.addEventListener("DOMContentLoaded", function () {
         modalFilter.classList.remove("active");
     });
 
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // HELPERS
-    // ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function setVal(id, val) {
         const el = document.getElementById(id);
         if (el) el.value = val ?? "";

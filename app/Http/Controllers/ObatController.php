@@ -38,7 +38,7 @@ class ObatController extends Controller
      */
     public function create()
     {
-        return view('admin.obat.create');
+        return redirect()->route('obat.index');
     }
 
     /**
@@ -128,9 +128,7 @@ class ObatController extends Controller
      */
     public function edit(string $id)
     {
-        $obat = Obat::findOrFail($id);
-        $tipeObat = self::TIPE_OBAT;
-        return view('admin.obat.edit', compact('obat', 'tipeObat'));
+        return redirect()->route('obat.index');
     }
 
     /**
@@ -143,12 +141,10 @@ class ObatController extends Controller
         $validated = $request->validate([
             'nama_obat' => 'required|string|max:150|unique:obat,nama_obat,' . $id . ',id_obat',
             'tipe_obat' => 'required|in:' . implode(',', self::TIPE_OBAT),
-            'stock' => 'required|integer|min:0|max:999999',
             'keterangan' => 'nullable|string|max:500',
         ], [
             'nama_obat.unique' => 'Nama obat sudah terdaftar, gunakan nama yang berbeda.',
             'tipe_obat.in' => 'Tipe obat tidak valid.',
-            'stock.max' => 'Stok tidak boleh lebih dari 999999.',
         ]);
 
         try {

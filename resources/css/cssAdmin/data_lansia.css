@@ -66,113 +66,64 @@
 }
 
 .stat-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-card);
+    padding: 24px;
     border-radius: 16px;
-
-    padding: 16px 18px;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .stat-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #15181e;
-
-    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
 }
 
 .stat-content {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-
-    gap: 12px;
+    margin-top: 10px;
 }
 
-
 .stat-number {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-main);
 }
 
 .stat-icon-fa {
-    font-size: 20px;
-    color: #3b82f6;
+    font-size: 28px;
+    color: #cbd5e1;
+    opacity: 0.7;
 }
 
-.icon-wrapper {
-    width: 42px;
-    height: 42px;
-
-    border-radius: 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #eff6ff;
-
-    flex-shrink: 0;
+.color-danger {
+    color: var(--danger);
 }
+
+.color-success {
+    color: var(--success);
+}
+
+.border-danger {
+    border-left: 4px solid var(--danger);
+}
+
 .border-success {
     border-left: 4px solid var(--success);
 }
-.icon-wrapper.success{
-    background: #ecfdf3;
-}
-.color-success {
-    color: #10b981 !important;
-}
-.text-success {
-    color: #10b981 !important;
-}
 
-.icon-wrapper.warning{
-    background: #fff7ed;
-}
 .color-warning {
+    color: #d97706;
+}
+.text-warning {
     color: #d97706 !important;
 }
 .border-warning {
     border-left: 4px solid #fbbf24;
 }
-.text-warning {
-    color: #d97706 !important;
-}
-
-.icon-wrapper.danger{
-    background: #fef2f2;
-}
-.color-danger {
-     color: #ef4444 !important;
-}
-.border-danger {
-    border-left: 4px solid var(--danger);
-}
-.text-danger {
-    color: #ef4444 !important;
-}
-
-.icon-wrapper.primary{
-    background: #eff6ff;
-}
-.color-primary {
-    color: #3b82f6 !important;
-}
-.border-primary {
-    border-left: 4px solid #3b82f6;
-}
-.text-primary {
-    color: #3b82f6 !important;
-}
-
-
-
 
 /* Table Container */
 .card {
@@ -235,7 +186,6 @@
     border-collapse: collapse;
 }
 
-
 /* User Cell Styling */
 .user-cell {
     display: flex;
@@ -267,7 +217,6 @@
     font-size: 12px;
     color: var(--text-muted);
 }
-
 
 /* Badges */
 .badge-pill {
@@ -371,9 +320,7 @@
 
 /* Container Utama Ringkasan Detail — see enhanced rules below */
 
-
 /* detail-header — see enhanced rules below */
-
 
 .header-content {
     display: flex;
@@ -417,11 +364,9 @@
 
 /* info-column h4 — see enhanced rules below */
 
-
 .data-item {
     margin-bottom: 8px;
 }
-
 
 .data-item label {
     font-size: 10px;
@@ -480,16 +425,39 @@
     color: #2563eb;
 }
 
+.edit-btn {
+    background: white;
+    border: 1px solid #0F766E !important;
+    color: #0F766E;
+}
+
+.edit-btn i {
+    color: #0F766E;
+}
+
+.edit-btn:hover {
+    background: #0F766E;
+}
+
 .edit-btn:hover i {
-    color: #16a34a;
+    color: #fff;
+}
+
+.delete-btn {
+    background: #FEE2E2;
+    border: 1px solid #FCA5A5 !important;
+}
+
+.delete-btn i {
+    color: #DC2626;
 }
 
 .delete-btn:hover {
-    background: #fee2e2;
+    background: #DC2626;
 }
 
 .delete-btn:hover i {
-    color: #ef4444;
+    color: #fff;
 }
 
 /* Modal Styling */
@@ -632,7 +600,6 @@
 
 /* selectable-row — see enhanced rules below */
 
-
 /* ── Badge Status Extra ───────────────────────────────── */
 .badge-status.high {
     background: #fee2e2;
@@ -714,7 +681,9 @@
     color: var(--text-main);
 }
 .custom-table tbody tr {
-    transition: background 0.15s ease, box-shadow 0.15s ease;
+    transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease;
 }
 .custom-table tbody tr:hover {
     background: #f8fafc;
@@ -755,7 +724,9 @@
     text-align: center;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 .h-card:hover {
     transform: translateY(-2px);
@@ -789,22 +760,34 @@
     background: #ecfdf5;
     border-color: #a7f3d0;
 }
-.h-card.status-normal .h-card-value { color: #059669; }
-.h-card.status-normal .h-card-label { color: #059669; }
+.h-card.status-normal .h-card-value {
+    color: #059669;
+}
+.h-card.status-normal .h-card-label {
+    color: #059669;
+}
 
 .h-card.status-waspada {
     background: #fffbeb;
     border-color: #fde68a;
 }
-.h-card.status-waspada .h-card-value { color: #d97706; }
-.h-card.status-waspada .h-card-label { color: #d97706; }
+.h-card.status-waspada .h-card-value {
+    color: #d97706;
+}
+.h-card.status-waspada .h-card-label {
+    color: #d97706;
+}
 
 .h-card.status-tinggi {
     background: #fef2f2;
     border-color: #fecaca;
 }
-.h-card.status-tinggi .h-card-value { color: #dc2626; }
-.h-card.status-tinggi .h-card-label { color: #dc2626; }
+.h-card.status-tinggi .h-card-value {
+    color: #dc2626;
+}
+.h-card.status-tinggi .h-card-label {
+    color: #dc2626;
+}
 
 /* ── Detail Panel Spacing ────────────────────────────── */
 .detail-container {
@@ -892,6 +875,93 @@
     justify-content: center;
 }
 
+/* Override Laravel Tailwind pagination — pastikan semua tombol konsisten */
+.pagination-wrapper nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Info teks "Showing X to Y of Z results" */
+.pagination-wrapper nav > div:first-child p,
+.pagination-wrapper nav > div:first-child {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* Container tombol */
+.pagination-wrapper nav > div:last-child,
+.pagination-wrapper span[role="navigation"],
+.pagination-wrapper .flex {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Semua elemen anchor & span dalam pagination */
+.pagination-wrapper nav a,
+.pagination-wrapper nav span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    transition:
+        background 0.2s,
+        color 0.2s,
+        border-color 0.2s !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: var(--text-main) !important;
+}
+
+/* Halaman aktif */
+.pagination-wrapper nav span[aria-current="page"],
+.pagination-wrapper nav span.font-bold,
+.pagination-wrapper nav a[aria-current="page"] {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
+}
+
+/* Hover */
+.pagination-wrapper nav a:hover {
+    background: #f0f7ff !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+/* Disabled (dots / ellipsis / disabled prev-next) */
+.pagination-wrapper nav span[aria-disabled="true"],
+.pagination-wrapper nav span.cursor-default {
+    background: #f8fafc !important;
+    color: #cbd5e1 !important;
+    border-color: #f1f5f9 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+/* SVG icon di tombol prev / next */
+.pagination-wrapper nav a svg,
+.pagination-wrapper nav span svg {
+    width: 14px !important;
+    height: 14px !important;
+    flex-shrink: 0 !important;
+}
+
 /* ── Empty state di tabel ────────────────────────────── */
 td.empty-state {
     text-align: center;
@@ -910,4 +980,3 @@ td.empty-state {
     font-weight: bold;
     font-size: 24px;
 }
-
