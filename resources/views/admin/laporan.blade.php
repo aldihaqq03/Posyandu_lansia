@@ -232,7 +232,7 @@ background:#e2e8f0;
 .modal-body{
 display:flex;
 flex-direction:column;
-gap:16px;
+gap:10px;
 }
 
 .detail-item{
@@ -492,7 +492,7 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
     <strong id="detailTema">-</strong>
 </div>
 
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
+    <div style="display:flex; gap:10px; margin-bottom:8px;">
 
         <button class="filter-btn" id="btnStatus" onclick="showStatusTable()">
             Status Kehadiran
@@ -515,6 +515,15 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
 </button>
 
     </div>
+    <div id="exportObatWrapper" 
+style="display:none; margin-top:0; margin-bottom:16px;">
+
+    <button class="export-btn-table">
+        <i class="fa-solid fa-download"></i>
+        Export Obat Keluar
+    </button>
+
+</div>
 
     {{-- TABLE STATUS --}}
     <div id="statusTable" style="display:none;">
@@ -757,6 +766,8 @@ function showStatusTable() {
     petugasTable.style.display = 'none';
     obatTable.style.display = 'none';
 
+    document.getElementById('exportObatWrapper').style.display = 'none';
+
     btnStatus.classList.add('active');
     btnPetugas.classList.remove('active');
     btnObat.classList.remove('active');
@@ -776,6 +787,8 @@ function showPetugasTable() {
     petugasTable.style.display = 'block';
     obatTable.style.display = 'none';
 
+    document.getElementById('exportObatWrapper').style.display = 'none';
+
     btnStatus.classList.remove('active');
     btnPetugas.classList.add('active');
     btnObat.classList.remove('active');
@@ -794,6 +807,8 @@ function showObatTable() {
     statusTable.style.display = 'none';
     petugasTable.style.display = 'none';
     obatTable.style.display = 'block';
+
+    document.getElementById('exportObatWrapper').style.display = 'block';
 
     btnStatus.classList.remove('active');
     btnPetugas.classList.remove('active');
