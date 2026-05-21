@@ -57,6 +57,24 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <label for="pekerjaan">Pekerjaan</label>
+                        <select id="pekerjaan" name="pekerjaan">
+                            <option value="">Pilih Pekerjaan</option>
+                            <option value="1">TNI/POLRI</option>
+                            <option value="2">PNS</option>
+                            <option value="3">Karyawan Swasta</option>
+                            <option value="4">Buruh</option>
+                            <option value="5">Petani/Nelayan</option>
+                            <option value="6">Tidak Bekerja / IRT</option>
+                            <option value="7">Lainnya</option>
+                        </select>
+                        <small id="error-pekerjaan" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
+                    </div>
+                </div>
+
+                <!-- Note: custom 'Lainnya' will be edited inline in the select via JS -->
                 <div class="form-group">
                     <label for="riwayat_penyakit">Riwayat Penyakit</label>
                     <input type="text" id="riwayat_penyakit" name="riwayat_penyakit"

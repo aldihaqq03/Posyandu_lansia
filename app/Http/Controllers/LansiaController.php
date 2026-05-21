@@ -337,6 +337,7 @@ class LansiaController extends Controller
                         'keluarga.*.nama_keluarga' => 'nullable|string|min:3|max:100',
                         'keluarga.*.no_sama' => 'nullable|string|max:15',
                         'keluarga.*.alamat' => 'nullable|string|max:255',
+                        'pekerjaan'         => 'required|string|max:255',
                     ]);
 
                     // Validasi umur >= 40 tahun
@@ -439,6 +440,7 @@ class LansiaController extends Controller
             'keluarga.*.nama_keluarga'       => 'nullable|string|min:3|max:100',
             'keluarga.*.no_sama'             => 'nullable|string|max:15',
             'keluarga.*.alamat'              => 'nullable|string|max:255',
+            'pekerjaan'                      => 'required|string|max:255',
         ], [
             'keluarga.0.nama_keluarga.required' => 'Nama anggota keluarga pertama wajib diisi.',
             'keluarga.required'                 => 'Minimal satu anggota keluarga wajib diisi.',

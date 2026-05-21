@@ -33,7 +33,7 @@ class SkriningController extends Controller
             : [];
 
         // ── Ambil semua lansia ──────────────────────────────────────
-        $semua = Lansia::orderBy('nama_lansia')->get(['id_lansia', 'nama_lansia', 'nik', 'jenis_kelamin']);
+        $semua = Lansia::orderBy('nama_lansia')->get(['id_lansia', 'nama_lansia', 'nik', 'jenis_kelamin', 'tanggal_lahir']);
 
         // ── ID lansia yang sudah skrining di jadwal hari ini ────────
         $sudahSkriningIds = [];
@@ -112,6 +112,9 @@ class SkriningController extends Controller
             'keluhan'   => 'nullable|string|max:1000',
         ]);
 
+        $lansiaTerpilih = Lansia::select('id_lansia', 'pekerjaan', 'tanggal_lahir')
+            ->findOrFail($request->id_lansia);
+
         // ── Validasi Kunjungan Rutin ───────────────────────────────
         if (in_array(DetailSkrining::KUNJUNGAN_RUTIN, $aktifSkrining)) {
             $request->validate([
@@ -136,7 +139,7 @@ class SkriningController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($request, $jadwal, $aktifSkrining) {
+        DB::transaction(function () use ($request, $jadwal, $aktifSkrining, $lansiaTerpilih) {
 
             $idPetugas = auth()->user()?->petugas?->id_petugas;
 
@@ -214,31 +217,31 @@ class SkriningController extends Controller
                             'keterangan'    => $r['keterangan'] ?? null,
                         ]);
 
-                        $mutasi = \App\Models\MutasiStokObat::whereDate('created_at', now())
-    ->where('id_obat', $obat->id_obat)
-    ->where('tipe', 'keluar')
-    ->first();
+                    $mutasi = \App\Models\MutasiStokObat::whereDate('created_at', now())
+                        ->where('id_obat', $obat->id_obat)
+                        ->where('tipe', 'keluar')
+                        ->first();
 
-if ($mutasi) {
+                        if ($mutasi) {
 
-    $mutasi->jumlah += $jumlahObat;
+                            $mutasi->jumlah += $jumlahObat;
 
-    // optional update resep terakhir
-    $mutasi->id_resep = $resep->id_resep;
+                            // optional update resep terakhir
+                            $mutasi->id_resep = $resep->id_resep;
 
-    $mutasi->save();
+                            $mutasi->save();
 
-} else {
+                        } else {
 
-    \App\Models\MutasiStokObat::create([
-        'id_obat' => $obat->id_obat,
-        'id_resep' => $resep->id_resep,
-        'tipe' => 'keluar',
-        'jumlah' => $jumlahObat,
-        'keterangan' => 'Resep obat (Skrining)',
-    ]);
+                            \App\Models\MutasiStokObat::create([
+                                'id_obat' => $obat->id_obat,
+                                'id_resep' => $resep->id_resep,
+                                'tipe' => 'keluar',
+                                'jumlah' => $jumlahObat,
+                                'keterangan' => 'Resep obat (Skrining)',
+                            ]);
 
-}
+                        }
                     }
                 }
             }
@@ -319,9 +322,24 @@ if ($mutasi) {
                     default                                         => 2,
                 };
 
+                // Compute puma_kategori_usia from lansia DOB if not provided
+                $computedKategori = null;
+                if (!empty($lansiaTerpilih->tanggal_lahir)) {
+                    try {
+                        $age = Carbon::parse($lansiaTerpilih->tanggal_lahir)->age;
+                        if ($age >= 60) $computedKategori = 2;
+                        elseif ($age >= 50) $computedKategori = 1;
+                        elseif ($age >= 40) $computedKategori = 0;
+                    } catch (\Exception $e) {
+                        $computedKategori = null;
+                    }
+                }
+
+                $pumaKategori = $request->filled('puma_kategori_usia') ? (int) $request->puma_kategori_usia : $computedKategori;
+
                 $pumaSkor = 0;
                 $pumaSkor += (int) ($request->puma_jenis_kelamin    ?? 0);
-                $pumaSkor += (int) ($request->puma_kategori_usia    ?? 0);
+                $pumaSkor += (int) ($pumaKategori    ?? 0);
                 $pumaSkor += (int) $skorMerokok;
                 $pumaSkor += (int) ($request->puma_napas_pendek     ?? 0);
                 $pumaSkor += (int) ($request->puma_sulit_dahak      ?? 0);
@@ -340,7 +358,7 @@ if ($mutasi) {
 
                 SkriningPPOK::create([
                     'id_skrining'              => $skrining->id_skrining,
-                    'pekerjaan'                => $request->pekerjaan,
+                    'pekerjaan'                => $lansiaTerpilih->pekerjaan,
                     'status_vaksinasi_covid'   => $request->status_vaksinasi_covid,
                     'kurang_aktivitas_fisik'   => $request->kurang_aktivitas_fisik,
                     'kurang_sayur_buah'        => $request->kurang_sayur_buah,
@@ -356,7 +374,7 @@ if ($mutasi) {
                     'td_sistolik'              => $tds,
                     'td_diastolik'             => $tdd,
                     'puma_jenis_kelamin'       => $request->puma_jenis_kelamin,
-                    'puma_kategori_usia'       => $request->puma_kategori_usia,
+                    'puma_kategori_usia'       => $pumaKategori,
                     'puma_tidak_merokok'       => ($rph === 0) ? 1 : 0,
                     'puma_rokok_per_hari'      => $rph,
                     'puma_lama_merokok_tahun'  => $lmt,

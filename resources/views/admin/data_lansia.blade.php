@@ -99,6 +99,7 @@
                                 data-riwayat-penyakit="{{ $lansia->riwayat_penyakit }}"
                                 data-tanggal-daftar="{{ $lansia->tanggal_daftar }}" data-keterangan="{{ $lansia->keterangan }}"
                                 data-email="{{ $lansia->email }}" data-kode-unik="{{ $lansia->kode_unik ?? '' }}"
+                                data-pekerjaan="{{ $lansia->pekerjaan ?? '' }}"
                                 data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
                                 data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
                                 data-risk-level="{{ $lansia->risk_level ?? 'normal' }}">
@@ -226,6 +227,9 @@
 
                                 <div class="data-item"><label>Email</label>
                                     <p id="d-email">-</p>
+                                </div>
+                                <div class="data-item"><label>Pekerjaan</label>
+                                    <p id="d-pekerjaan">-</p>
                                 </div>
                                 <div class="data-item"><label>Status</label>
                                     <p id="d-status">-</p>

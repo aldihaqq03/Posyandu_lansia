@@ -134,7 +134,11 @@
                                 required>
                                 <option value="">-- Pilih Lansia --</option>
                                 @foreach($lansia as $l)
-                                    <option value="{{ $l->id_lansia }}" {{ old('id_lansia') == $l->id_lansia ? 'selected' : '' }}>
+                                    <option value="{{ $l->id_lansia }}"
+                                        data-pekerjaan="{{ $l->pekerjaan ?? '' }}"
+                                        data-tanggal-lahir="{{ $l->tanggal_lahir ?? '' }}"
+                                        data-umur="{{ $l->tanggal_lahir ? \Carbon\Carbon::parse($l->tanggal_lahir)->age : ($l->umur ?? '') }}"
+                                        {{ old('id_lansia') == $l->id_lansia ? 'selected' : '' }}>
                                         {{ $l->nama_lansia }}
                                     </option>
                                 @endforeach
@@ -519,16 +523,10 @@
                         <div class="subsection-label">Profil</div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Pekerjaan</label>
-                                <select name="pekerjaan" class="form-control">
-                                    <option value="">-- Pilih --</option>
-                                    <option value="1" {{ old('pekerjaan') == '1' ? 'selected' : '' }}>TNI/POLRI</option>
-                                    <option value="2" {{ old('pekerjaan') == '2' ? 'selected' : '' }}>PNS</option>
-                                    <option value="3" {{ old('pekerjaan') == '3' ? 'selected' : '' }}>Karyawan Swasta</option>
-                                    <option value="4" {{ old('pekerjaan') == '4' ? 'selected' : '' }}>Buruh</option>
-                                    <option value="5" {{ old('pekerjaan') == '5' ? 'selected' : '' }}>Petani/Nelayan</option>
-                                    <option value="6" {{ old('pekerjaan') == '6' ? 'selected' : '' }}>Tidak Bekerja/IRT</option>
-                                </select>
+                                <label class="form-label">Pekerjaan Lansia</label>
+                                <input type="text" id="ppok-pekerjaan-display" class="form-control" readonly
+                                    placeholder="Pilih lansia terlebih dahulu" style="background:#e5e7eb;">
+                                <input type="hidden" name="pekerjaan" id="ppok-pekerjaan-hidden" value="{{ old('pekerjaan') }}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Status Vaksinasi COVID-19</label>
@@ -661,15 +659,8 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Kategori Usia</label>
-                                <select name="puma_kategori_usia" class="form-control">
-                                    <option value="">-- Pilih --</option>
-                                    <option value="0" {{ old('puma_kategori_usia') === '0' ? 'selected' : '' }}>40–49 tahun (skor
-                                        0)</option>
-                                    <option value="1" {{ old('puma_kategori_usia') == '1' ? 'selected' : '' }}>50–59 tahun (skor
-                                        1)</option>
-                                    <option value="2" {{ old('puma_kategori_usia') == '2' ? 'selected' : '' }}>≥ 60 tahun (skor 2)
-                                    </option>
-                                </select>
+                                <input type="text" id="puma-kategori-display" class="form-control" readonly placeholder="Pilih lansia terlebih dahulu" style="background:#e5e7eb;">
+                                <input type="hidden" name="puma_kategori_usia" id="puma-kategori-hidden" value="{{ old('puma_kategori_usia') }}">
                             </div>
                         </div>
 
@@ -1051,6 +1042,7 @@
                 const lansiaName = lansiaEl
                     ? lansiaEl.options[lansiaEl.selectedIndex]?.text
                     : '—';
+                const pekerjaanDisplay = document.getElementById('ppok-pekerjaan-display')?.value || '—';
 
                 const bb = document.querySelector('[name="berat_badan"]')?.value;
                 const tb = document.querySelector('[name="tinggi_badan"]')?.value;
@@ -1075,6 +1067,7 @@
                 html += reviewCard('fa-person-cane', 'Data Lansia', [
                     ['Nama', lansiaName],
                     ['Keluhan', keluhan || '—'],
+                    ['Pekerjaan', pekerjaanDisplay],
                 ]);
 
                 // Kunjungan Rutin (selalu ada)
@@ -1155,8 +1148,80 @@
 
             const tbTerakhirMap = @json($tbTerakhir ?? []);
 
+            function decodePekerjaan(value) {
+                const map = {
+                    '1': 'TNI/POLRI',
+                    '2': 'PNS',
+                    '3': 'Karyawan Swasta',
+                    '4': 'Buruh',
+                    '5': 'Petani/Nelayan',
+                    '6': 'Tidak Bekerja/IRT',
+                };
+                if (!value) return '';
+                if (map[String(value)]) return map[String(value)];
+                return String(value);
+            }
+
+            function computePumaCategoryFromLansiaData(dobStr, ageVal) {
+                // Prefer explicit age if provided by dataset
+                let age = null;
+                if (ageVal !== undefined && ageVal !== null && String(ageVal).trim() !== '') {
+                    const parsed = parseInt(ageVal, 10);
+                    if (!isNaN(parsed)) age = parsed;
+                }
+
+                // If no explicit age, try DOB parse
+                if (age === null) {
+                    if (!dobStr) return { cat: null, label: 'Umur tidak tersedia' };
+                    const d = new Date(dobStr);
+                    if (isNaN(d)) return { cat: null, label: 'Tanggal lahir tidak valid' };
+                    const today = new Date();
+                    age = today.getFullYear() - d.getFullYear();
+                    const m = today.getMonth() - d.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+                }
+
+                if (age >= 60) return { cat: 2, label: '≥ 60 tahun (skor 2) — umur ' + age + ' th' };
+                if (age >= 50) return { cat: 1, label: '50–59 tahun (skor 1) — umur ' + age + ' th' };
+                if (age >= 40) return { cat: 0, label: '40–49 tahun (skor 0) — umur ' + age + ' th' };
+                return { cat: null, label: age + ' tahun (di bawah 40)' };
+            }
+
+            function syncPekerjaanFromLansia(id) {
+                const selectEl = document.getElementById('select-lansia');
+                const pekerjaanDisplay = document.getElementById('ppok-pekerjaan-display');
+                const pekerjaanHidden = document.getElementById('ppok-pekerjaan-hidden');
+
+                const opt = selectEl?.selectedOptions?.[0];
+                const raw = opt?.dataset.pekerjaan || '';
+                const label = decodePekerjaan(raw);
+
+                if (pekerjaanDisplay) {
+                    pekerjaanDisplay.value = label;
+                }
+                if (pekerjaanHidden) {
+                    pekerjaanHidden.value = raw;
+                }
+            }
+
             selectLansia?.addEventListener('change', async function () {
                 const id = this.value;
+
+                syncPekerjaanFromLansia(id);
+
+                // Auto-calc PUMA kategori usia from lansia tanggal lahir
+                try {
+                    const opt = this.selectedOptions?.[0];
+                    const dob = opt?.dataset?.tanggalLahir || opt?.dataset?.tanggal_lahir || opt?.dataset?.tanggal || '';
+                    const age = opt?.dataset?.umur || opt?.dataset?.age || '';
+                    const res = computePumaCategoryFromLansiaData(dob, age);
+                    const displayEl = document.getElementById('puma-kategori-display');
+                    const hiddenEl = document.getElementById('puma-kategori-hidden');
+                    if (displayEl) displayEl.value = res.label || '';
+                    if (hiddenEl) hiddenEl.value = (res.cat !== null && res.cat !== undefined) ? res.cat : '';
+                } catch (err) {
+                    // ignore
+                }
 
                 // Set Tinggi Badan otomatis
                 if (id && tbTerakhirMap[id]) {
@@ -1335,6 +1400,9 @@
                             }
                         }
                     });
+
+                    // Initialize pekerjaan preview if lansia is already selected
+                    syncPekerjaanFromLansia(selectLansia?.value);
                     // Trigger initial change
                     select.dispatchEvent(new Event('change'));
                 }
@@ -1528,6 +1596,9 @@
                     mkInput(`saran_edit[${id}][isi_saran]`, isi);
                 });
             });
+
+            // Trigger initial change so UI (pekerjaan, PUMA kategori) is populated if lansia already selected
+            selectLansia?.dispatchEvent(new Event('change'));
 
         });
     </script>
