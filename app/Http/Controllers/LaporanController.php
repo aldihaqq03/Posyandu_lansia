@@ -196,9 +196,26 @@ $laporan = DB::table('jadwal_posyandu')
     ->where('id_jadwal_posyandu', $id)
     ->first();
 
+    // =========================
+// OBAT KELUAR
+// =========================
+
+$obat = DB::table('detail_resep')
+    ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+    ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+    ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+    ->where('skrining.id_jadwal_posyandu', $id)
+    ->select(
+        'obat.nama_obat',
+        'detail_resep.jumlah_obat as jumlah_keluar'
+    )
+    ->get();
+
     return response()->json([
     'status' => $data,
     'petugas' => $petugas,
+    'obat' => $obat,
+
     'jadwal' => [
         'tanggal' => $jadwal
             ? Carbon::parse($jadwal->tanggal_pelaksanaan)
