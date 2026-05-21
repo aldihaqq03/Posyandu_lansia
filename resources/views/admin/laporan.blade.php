@@ -506,9 +506,13 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
     Petugas
 </button>
 
-        <button class="filter-btn">
-            Obat Keluar
-        </button>
+<button 
+    class="filter-btn"
+    id="btnObat"
+    onclick="showObatTable()"
+>
+    Obat Keluar
+</button>
 
     </div>
 
@@ -563,6 +567,29 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
 
 </div>
 
+    {{-- TABLE OBAT --}}
+<div id="obatTable" style="display:none;">
+
+    <div class="table-responsive">
+
+        <table class="laporan-table">
+
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Obat</th>
+                    <th>Jumlah Keluar</th>
+                </tr>
+            </thead>
+
+            <tbody id="obatBody">
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 </div>
 
 </div>
@@ -681,6 +708,25 @@ document.getElementById('detailTema').innerText =
             `;
 
         });
+        /* =========================
+   OBAT KELUAR
+========================= */
+
+const obatBody = document.getElementById('obatBody');
+
+obatBody.innerHTML = '';
+
+data.obat.forEach((item, index) => {
+
+    obatBody.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama_obat}</td>
+            <td>${item.jumlah_keluar}</td>
+        </tr>
+    `;
+
+});
 
     });
 
@@ -700,31 +746,57 @@ function showStatusTable() {
 
     const statusTable = document.getElementById('statusTable');
     const petugasTable = document.getElementById('petugasTable');
+    const obatTable = document.getElementById('obatTable');
 
     const btnStatus = document.getElementById('btnStatus');
     const btnPetugas = document.getElementById('btnPetugas');
+    const btnObat = document.getElementById('btnObat');
 
     statusTable.style.display = 'block';
     petugasTable.style.display = 'none';
+    obatTable.style.display = 'none';
 
     btnStatus.classList.add('active');
     btnPetugas.classList.remove('active');
-
+    btnObat.classList.remove('active');
 }
+
 function showPetugasTable() {
 
     const statusTable = document.getElementById('statusTable');
     const petugasTable = document.getElementById('petugasTable');
+    const obatTable = document.getElementById('obatTable');
 
     const btnStatus = document.getElementById('btnStatus');
     const btnPetugas = document.getElementById('btnPetugas');
+    const btnObat = document.getElementById('btnObat');
 
-    petugasTable.style.display = 'block';
     statusTable.style.display = 'none';
+    petugasTable.style.display = 'block';
+    obatTable.style.display = 'none';
 
-    btnPetugas.classList.add('active');
     btnStatus.classList.remove('active');
+    btnPetugas.classList.add('active');
+    btnObat.classList.remove('active');
+}
 
+function showObatTable() {
+
+    const statusTable = document.getElementById('statusTable');
+    const petugasTable = document.getElementById('petugasTable');
+    const obatTable = document.getElementById('obatTable');
+
+    const btnStatus = document.getElementById('btnStatus');
+    const btnPetugas = document.getElementById('btnPetugas');
+    const btnObat = document.getElementById('btnObat');
+
+    statusTable.style.display = 'none';
+    petugasTable.style.display = 'none';
+    obatTable.style.display = 'block';
+
+    btnStatus.classList.remove('active');
+    btnPetugas.classList.remove('active');
+    btnObat.classList.add('active');
 }
 
 
