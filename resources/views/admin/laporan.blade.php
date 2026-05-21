@@ -478,7 +478,7 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
 </button>
 
     <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
-        Detail Kehadiran
+        Detail 
     </h3>
 
     <div class="modal-body">
