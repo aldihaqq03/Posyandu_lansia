@@ -183,12 +183,16 @@ padding:20px;
 
 .modal-detail-content{
 width:100%;
-max-width:480px;
+max-width:520px;
 background:#ffffff;
 border-radius:24px;
-padding:28px;
+padding:24px;
 box-shadow:0 25px 50px rgba(0,0,0,0.15);
 animation: modalFade .25s ease;
+
+/* tambahan */
+max-height:90vh;
+overflow-y:auto;
 }
 
 .modal-header{
@@ -234,21 +238,21 @@ gap:16px;
 .detail-item{
 background:#f8fafc;
 border:1px solid #e2e8f0;
-border-radius:16px;
-padding:16px;
+border-radius:14px;
+padding:12px 14px;
 }
 
 .detail-item span{
 display:block;
-font-size:13px;
+font-size:12px;
 color:#64748b;
-margin-bottom:6px;
+margin-bottom:4px;
 }
 
 .detail-item strong{
-font-size:16px;
+font-size:14px;
 color:#0f172a;
-font-weight:700;
+font-weight:600;
 }
 
 @keyframes modalFade{
@@ -478,6 +482,15 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
     </h3>
 
     <div class="modal-body">
+        <div class="detail-item" style="margin-top:10px;">
+    <span>Tanggal Posyandu</span>
+    <strong id="detailTanggal">-</strong>
+</div>
+
+<div class="detail-item">
+    <span>Tema Kegiatan</span>
+    <strong id="detailTema">-</strong>
+</div>
 
     <div style="display:flex; gap:10px; margin-bottom:20px;">
 
@@ -610,6 +623,15 @@ detailButtons.forEach(button => {
         const response = await fetch(`/laporan/detail/${id}`);
 
         const data = await response.json();
+         /* =========================
+   DETAIL JADWAL
+========================= */
+
+document.getElementById('detailTanggal').innerText =
+    data.jadwal.tanggal;
+
+document.getElementById('detailTema').innerText =
+    data.jadwal.tema;
 
         /* =========================
            STATUS KEHADIRAN

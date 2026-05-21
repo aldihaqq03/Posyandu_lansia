@@ -192,9 +192,23 @@ $laporan = DB::table('jadwal_posyandu')
         ->groupBy('petugas.nama')
         ->get();
 
+        $jadwal = DB::table('jadwal_posyandu')
+    ->where('id_jadwal_posyandu', $id)
+    ->first();
+
     return response()->json([
-        'status' => $data,
-        'petugas' => $petugas
-    ]);
+    'status' => $data,
+    'petugas' => $petugas,
+    'jadwal' => [
+        'tanggal' => $jadwal
+            ? Carbon::parse($jadwal->tanggal_pelaksanaan)
+                ->translatedFormat('d F Y')
+            : '-',
+
+        'tempat' => $jadwal->tempat ?? '-',
+
+        'tema' => $jadwal->tema ?? '-'
+    ]
+]);
 }
 }
