@@ -1,4 +1,4 @@
-﻿/* resources/js/jsAdmin/data_lansia.js */
+/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 1. Animasi Angka Statistik
@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const tanggal = this.dataset.formatTanggal || "-";
             const status = this.dataset.statusPerkawinan || "-";
             const keterangan = this.dataset.keterangan || "-";
+            const kodeUnik = this.dataset.kodeUnik || "";
 
             detailPanel.style.opacity = "0";
             detailPanel.style.display = "block";

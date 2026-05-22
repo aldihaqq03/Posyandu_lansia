@@ -148,3 +148,16 @@ Route::middleware('auth')->group(function () {
 */
 
 Route::view('/berhasil', 'simpel.berhasil')->name('berhasil');
+
+Route::get('/set-telegram-webhook', function () {
+    $token = env('TELEGRAM_BOT_TOKEN');
+    $url = url('/api/telegram/webhook');
+    
+    if (!$token) {
+        return "TELEGRAM_BOT_TOKEN belum diset di .env";
+    }
+
+    $response = Illuminate\Support\Facades\Http::get("https://api.telegram.org/bot{$token}/setWebhook?url={$url}");
+    
+    return $response->json();
+});

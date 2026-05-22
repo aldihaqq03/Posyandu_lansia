@@ -385,6 +385,7 @@ class LansiaController extends Controller
                         ]);
 
                         $validated['id_user'] = $user->id;
+                        $validated['kode_unik'] = strtoupper(\Illuminate\Support\Str::random(8));
                         $lansia = Lansia::create($validated);
 
                         // Simpan data keluarga jika ada
@@ -485,6 +486,11 @@ class LansiaController extends Controller
         $idLansia = $lansia->id_lansia; // Simpan ID sebelum transaksi
 
         DB::transaction(function () use ($lansiaData, $keluargaData, $lansia, $idLansia) {
+            // Generate kode_unik if empty
+            if (empty($lansia->kode_unik)) {
+                $lansiaData['kode_unik'] = strtoupper(\Illuminate\Support\Str::random(8));
+            }
+
             // Update data lansia
             $lansia->update($lansiaData);
 
