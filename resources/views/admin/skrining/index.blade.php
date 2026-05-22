@@ -129,6 +129,12 @@
                                 <i class="fa-solid fa-circle-check" style="color:var(--green-500)"></i>
                                 Semua lansia terdaftar sudah menyelesaikan skrining hari ini.
                             </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Diagnosis</label>
+                        <textarea name="diagnosa_masuk" class="form-control" rows="2"
+                            placeholder="Contoh: hipertensi, DM, atau diagnosis awal lainnya">{{ old('diagnosis') }}</textarea>
+                    </div>
                         @else
                             <select name="id_lansia" id="select-lansia" class="form-control" {{ !$jadwal ? 'disabled' : '' }}
                                 required>
@@ -215,6 +221,12 @@
                             <input type="number" name="td_diastolik" class="form-control" placeholder="80"
                                 value="{{ old('td_diastolik') }}" required>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Diagnosis</label>
+                        <textarea name="diagnosis" class="form-control" rows="2"
+                            placeholder="Contoh: hipertensi, DM, atau diagnosis awal lainnya">{{ old('diagnosis') }}</textarea>
                     </div>
 
                     {{-- RESEP OBAT --}}

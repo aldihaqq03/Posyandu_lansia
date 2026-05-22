@@ -311,7 +311,16 @@
                         <span class="keluhan-date" id="kl-tanggal">-</span>
                         <span class="keluhan-badge">Terbaru</span>
                     </div>
-                    <p class="keluhan-text" id="kl-isi">-</p>
+                    <div class="keluhan-latest-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+                        <div>
+                            <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:#6b7280; font-weight:700; margin-bottom:6px;">Keluhan</div>
+                            <p class="keluhan-text" id="kl-isi" style="margin:0;">-</p>
+                        </div>
+                        <div>
+                            <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:#6b7280; font-weight:700; margin-bottom:6px;">Diagnosis</div>
+                            <p class="keluhan-text" id="kl-diagnosis" style="margin:0;">-</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="keluhan-all-wrapper" style="display:none; margin-top:16px;">

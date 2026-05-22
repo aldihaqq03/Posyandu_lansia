@@ -110,6 +110,7 @@ class SkriningController extends Controller
         $request->validate([
             'id_lansia' => 'required|exists:lansia,id_lansia',
             'keluhan'   => 'nullable|string|max:1000',
+            'diagnosis' => 'nullable|string|max:1000',
         ]);
 
         $lansiaTerpilih = Lansia::select('id_lansia', 'pekerjaan', 'tanggal_lahir')
@@ -171,6 +172,7 @@ class SkriningController extends Controller
                     'td_sistolik'   => $tds,
                     'td_diastolik'  => $tdd,
                     'keluhan'       => $request->keluhan,
+                    'diagnosis'     => $request->diagnosis,
                 ]);
 
                 if ($request->filled('ada_resep') && ! empty($request->resep)) {

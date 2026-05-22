@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('skrining_kunjungan', function (Blueprint $table) {
             $table->decimal('imt', 5, 2)->nullable()->after('tinggi_badan');
+            $table->text('diagnosa_masuk')->nullable()->after('keluhan');
         });
     }
 
@@ -22,6 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('skrining_kunjungan', function (Blueprint $table) {
+            $table->dropColumn('diagnosa_masuk');
             $table->dropColumn('imt');
         });
     }
