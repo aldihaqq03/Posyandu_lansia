@@ -57,6 +57,23 @@ document.addEventListener("DOMContentLoaded", function () {
             const tanggal = this.dataset.formatTanggal || "-";
             const status = this.dataset.statusPerkawinan || "-";
             const keterangan = this.dataset.keterangan || "-";
+            const kodeUnik = this.dataset.kodeUnik || "";
+            const pekerjaanRaw = this.dataset.pekerjaan || "-";
+            function decodePekerjaan(v) {
+                if (!v || v === "-") return "-";
+                const m = String(v);
+                const map = {
+                    1: "TNI/POLRI",
+                    2: "PNS",
+                    3: "Karyawan Swasta",
+                    4: "Buruh",
+                    5: "Petani/Nelayan",
+                    6: "Tidak Bekerja / IRT",
+                    7: "Lainnya",
+                };
+                if (/^\d+$/.test(m) && map[m]) return map[m];
+                return v;
+            }
 
             // â”€â”€ Simpan state ke sessionStorage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             sessionStorage.setItem("lastSelectedLansiaId", id);
@@ -86,6 +103,25 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-alamat", alamat);
             setText("d-riwayat", riwayat);
             setText("d-keterangan", keterangan);
+            setText("d-pekerjaan", decodePekerjaan(pekerjaanRaw));
+
+            // Update QR Code Telegram
+            const qrTelegramEl = document.getElementById("detail-qr-telegram");
+            const kodeTelegramEl = document.getElementById(
+                "detail-kode-telegram",
+            );
+            if (qrTelegramEl && kodeTelegramEl) {
+                if (kodeUnik) {
+                    qrTelegramEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://t.me/simpell_bot?start=${kodeUnik}`;
+                    qrTelegramEl.style.display = "block";
+                    kodeTelegramEl.innerText = `Kode: ${kodeUnik}`;
+                } else {
+                    qrTelegramEl.src = "";
+                    qrTelegramEl.style.display = "none";
+                    kodeTelegramEl.innerText =
+                        "Belum memiliki kode unik Telegram";
+                }
+            }
 
             const btnMonitoring = document.getElementById(
                 "btn-monitoring-kesehatan",
@@ -113,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const lastId = sessionStorage.getItem("lastSelectedLansiaId");
     if (lastId) {
         const targetRow = document.querySelector(
-            `.selectable-row[data-id="${lastId}"]`
+            `.selectable-row[data-id="${lastId}"]`,
         );
         if (targetRow) {
             // Trigger click tanpa scroll animasi â€” langsung render panel
@@ -124,19 +160,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
-
     function setText(id, val) {
         const el = document.getElementById(id);
         if (el) el.innerText = val;
     }
 
     async function fetchHealthSummary(id) {
-        ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol", "d-imt"].forEach((k) =>
-            setText(k, "--"),
-        );
+        [
+            "d-sistolik",
+            "d-diastolik",
+            "d-gula",
+            "d-kolesterol",
+            "d-imt",
+        ].forEach((k) => setText(k, "--"));
         // Reset card status colors
-        ["hcard-sistolik", "hcard-diastolik", "hcard-gula", "hcard-kolesterol", "hcard-imt"].forEach(id => {
+        [
+            "hcard-sistolik",
+            "hcard-diastolik",
+            "hcard-gula",
+            "hcard-kolesterol",
+            "hcard-imt",
+        ].forEach((id) => {
             const el = document.getElementById(id);
             if (el) el.className = "h-card";
         });
@@ -153,21 +197,44 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-imt", data.imt ?? "-");
 
             // Apply status colors to health cards based on elderly parameters
-            applyCardStatus("hcard-sistolik", data.sistolik, v => v < 130 ? 'normal' : v <= 139 ? 'waspada' : 'tinggi');
-            applyCardStatus("hcard-diastolik", data.diastolik, v => v < 85 ? 'normal' : v <= 89 ? 'waspada' : 'tinggi');
-            applyCardStatus("hcard-gula", data.gula_darah, v => (v >= 70 && v <= 100) ? 'normal' : v <= 125 ? 'waspada' : 'tinggi');
-            applyCardStatus("hcard-kolesterol", data.kolesterol, v => v < 200 ? 'normal' : v <= 239 ? 'waspada' : 'tinggi');
-            applyCardStatus("hcard-imt", data.imt, v => (v >= 22 && v <= 27) ? 'normal' : ((v >= 18.5 && v < 22) || (v > 27 && v < 30)) ? 'waspada' : 'tinggi');
-        } catch {
-            ["d-sistolik", "d-diastolik", "d-gula", "d-kolesterol", "d-imt"].forEach(
-                (k) => setText(k, "-"),
+            applyCardStatus("hcard-sistolik", data.sistolik, (v) =>
+                v < 130 ? "normal" : v <= 139 ? "waspada" : "tinggi",
             );
+            applyCardStatus("hcard-diastolik", data.diastolik, (v) =>
+                v < 85 ? "normal" : v <= 89 ? "waspada" : "tinggi",
+            );
+            applyCardStatus("hcard-gula", data.gula_darah, (v) =>
+                v >= 70 && v <= 100
+                    ? "normal"
+                    : v <= 125
+                      ? "waspada"
+                      : "tinggi",
+            );
+            applyCardStatus("hcard-kolesterol", data.kolesterol, (v) =>
+                v < 200 ? "normal" : v <= 239 ? "waspada" : "tinggi",
+            );
+            applyCardStatus("hcard-imt", data.imt, (v) =>
+                v >= 22 && v <= 27
+                    ? "normal"
+                    : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
+                      ? "waspada"
+                      : "tinggi",
+            );
+        } catch {
+            [
+                "d-sistolik",
+                "d-diastolik",
+                "d-gula",
+                "d-kolesterol",
+                "d-imt",
+            ].forEach((k) => setText(k, "-"));
         }
     }
 
     function applyCardStatus(cardId, value, classifier) {
         const el = document.getElementById(cardId);
-        if (!el || value === null || value === undefined || value === "-") return;
+        if (!el || value === null || value === undefined || value === "-")
+            return;
         const v = parseFloat(value);
         if (isNaN(v) || v <= 0) return;
         const status = classifier(v);
@@ -272,6 +339,90 @@ document.addEventListener("DOMContentLoaded", function () {
         return "";
     }
 
+    // Helper for checking uniqueness via AJAX
+    async function checkUniqueField(
+        fieldId,
+        dbField,
+        value,
+        isEdit,
+        ignoreId = null,
+    ) {
+        if (!value.trim()) return false; // let format validator handle empty
+        try {
+            let url = `/lansia/check-unique?field=${dbField}&value=${encodeURIComponent(value)}`;
+            if (ignoreId) url += `&ignore_id=${ignoreId}`;
+
+            const res = await fetch(url, {
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+            });
+            if (!res.ok) return false;
+            const data = await res.json();
+            return data.exists;
+        } catch (err) {
+            console.error("Gagal cek keunikan", err);
+            return false;
+        }
+    }
+
+    function validatePekerjaan(value) {
+        if (!value || !String(value).trim())
+            return "Pilih pekerjaan terlebih dahulu";
+        const v = String(value).trim();
+        if (/^\d+$/.test(v)) return ""; // numeric option selected
+        if (v.length < 3)
+            return "Masukkan pekerjaan lainnya minimal 3 karakter";
+        return ""; // custom text OK
+    }
+
+    function isNumericString(v) {
+        return /^\d+$/.test(String(v));
+    }
+
+    function transformSelectToInput(selectEl, initialValue) {
+        if (!selectEl || selectEl.tagName !== "SELECT") return null;
+        const parent = selectEl.parentNode;
+        const origHtml = selectEl.innerHTML;
+        // create input to replace select
+        const input = document.createElement("input");
+        input.type = "text";
+        input.id = selectEl.id;
+        input.name = selectEl.name;
+        input.className = selectEl.className;
+        input.placeholder =
+            selectEl.getAttribute("data-placeholder") ||
+            "Masukkan pekerjaan lainnya";
+        input.value = initialValue || "";
+        // mark original options to restore later
+        input.dataset._origOptions = origHtml;
+        input.dataset._wasSelect = "1";
+        parent.replaceChild(input, selectEl);
+        return input;
+    }
+
+    function transformInputToSelect(inputEl) {
+        if (
+            !inputEl ||
+            inputEl.tagName !== "INPUT" ||
+            !inputEl.dataset._wasSelect
+        )
+            return null;
+        const parent = inputEl.parentNode;
+        const select = document.createElement("select");
+        select.id = inputEl.id;
+        select.name = inputEl.name;
+        select.className = inputEl.className;
+        try {
+            select.innerHTML =
+                inputEl.dataset._origOptions ||
+                "<option value=''>Pilih</option>";
+        } catch (e) {
+            select.innerHTML = "<option value=''>Pilih</option>";
+        }
+
+        parent.replaceChild(select, inputEl);
+        return select;
+    }
+
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 4. MODAL TAMBAH LANSIA
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -302,6 +453,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function isTambahFormValid() {
+        // Prevent submit if there's an active uniqueness error
+        const checkErr = (id) => {
+            const el = document.getElementById(`error-${id}`);
+            return (
+                el &&
+                el.style.display === "block" &&
+                el.textContent.includes("sudah terdaftar")
+            );
+        };
+        if (checkErr("nik") || checkErr("no_hp") || checkErr("email"))
+            return false;
+
         return (
             !validateNIK(document.getElementById("nik")?.value) &&
             !validateNama(document.getElementById("nama_lansia")?.value) &&
@@ -310,7 +473,8 @@ document.addEventListener("DOMContentLoaded", function () {
             ) &&
             !validateNoHP(document.getElementById("no_hp")?.value) &&
             !validateEmail(document.getElementById("email")?.value) &&
-            !validateAlamat(document.getElementById("alamat")?.value)
+            !validateAlamat(document.getElementById("alamat")?.value) &&
+            !validatePekerjaan(document.getElementById("pekerjaan")?.value)
         );
     }
 
@@ -322,8 +486,18 @@ document.addEventListener("DOMContentLoaded", function () {
     if (formTambah) {
         // NIK validation
         const nikEl = document.getElementById("nik");
-        nikEl?.addEventListener("blur", function () {
-            showTambahError("nik", validateNIK(this.value));
+        nikEl?.addEventListener("blur", async function () {
+            let err = validateNIK(this.value);
+            if (!err) {
+                const exists = await checkUniqueField(
+                    "nik",
+                    "nik",
+                    this.value,
+                    false,
+                );
+                if (exists) err = "NIK ini sudah terdaftar.";
+            }
+            showTambahError("nik", err);
             updateTambahSubmitBtn();
         });
         nikEl?.addEventListener("input", function () {
@@ -343,10 +517,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Tanggal Lahir validation - both change dan input untuk responsif
         const tanggalEl = document.getElementById("tanggal_lahir");
         tanggalEl?.addEventListener("change", function () {
-            showTambahError(
-                "tanggal_lahir",
-                validateTanggalLahir(this.value),
-            );
+            showTambahError("tanggal_lahir", validateTanggalLahir(this.value));
             updateTambahSubmitBtn();
         });
         tanggalEl?.addEventListener("input", function () {
@@ -355,8 +526,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // No HP validation
         const noHpEl = document.getElementById("no_hp");
-        noHpEl?.addEventListener("blur", function () {
-            showTambahError("no_hp", validateNoHP(this.value));
+        noHpEl?.addEventListener("blur", async function () {
+            let err = validateNoHP(this.value);
+            if (!err && this.value.trim()) {
+                const exists = await checkUniqueField(
+                    "no_hp",
+                    "no_hp",
+                    this.value,
+                    false,
+                );
+                if (exists) err = "No HP ini sudah terdaftar.";
+            }
+            showTambahError("no_hp", err);
             updateTambahSubmitBtn();
         });
         noHpEl?.addEventListener("input", function () {
@@ -365,8 +546,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Email validation
         const emailEl = document.getElementById("email");
-        emailEl?.addEventListener("blur", function () {
-            showTambahError("email", validateEmail(this.value));
+        emailEl?.addEventListener("blur", async function () {
+            let err = validateEmail(this.value);
+            if (!err && this.value.trim()) {
+                const exists = await checkUniqueField(
+                    "email",
+                    "email",
+                    this.value,
+                    false,
+                );
+                if (exists) err = "Email ini sudah terdaftar.";
+            }
+            showTambahError("email", err);
             updateTambahSubmitBtn();
         });
         emailEl?.addEventListener("input", function () {
@@ -382,6 +573,41 @@ document.addEventListener("DOMContentLoaded", function () {
         alamatEl?.addEventListener("input", function () {
             updateTambahSubmitBtn();
         });
+
+        // Pekerjaan validation: make 'Lainnya' editable inline (swap select -> input)
+        let pekerjaanEl = document.getElementById("pekerjaan");
+        if (pekerjaanEl) {
+            pekerjaanEl.addEventListener("change", function () {
+                if (this.value === "7") {
+                    // replace select with input inline
+                    const input = transformSelectToInput(this, "");
+                    if (input) {
+                        input.addEventListener("blur", function () {
+                            showTambahError(
+                                "pekerjaan",
+                                validatePekerjaan(this.value),
+                            );
+                            updateTambahSubmitBtn();
+                        });
+                        input.addEventListener("input", function () {
+                            updateTambahSubmitBtn();
+                        });
+                    }
+                    // initial validation state
+                    showTambahError(
+                        "pekerjaan",
+                        validatePekerjaan(input?.value),
+                    );
+                } else {
+                    showTambahError("pekerjaan", validatePekerjaan(this.value));
+                }
+                updateTambahSubmitBtn();
+            });
+            pekerjaanEl.addEventListener("blur", function () {
+                showTambahError("pekerjaan", validatePekerjaan(this.value));
+                updateTambahSubmitBtn();
+            });
+        }
 
         // Submit handler form tambah
         formTambah.addEventListener("submit", function (e) {
@@ -412,52 +638,81 @@ document.addEventListener("DOMContentLoaded", function () {
                 "alamat",
                 validateAlamat(document.getElementById("alamat")?.value),
             );
+            showTambahError(
+                "pekerjaan",
+                validatePekerjaan(document.getElementById("pekerjaan")?.value),
+            );
 
             // Validasi minimal satu keluarga dengan nama terisi
-            const keluargaContainer = document.getElementById("keluarga-container");
+            const keluargaContainer =
+                document.getElementById("keluarga-container");
             const errorKeluargaEl = document.getElementById("error-keluarga");
             let hasValidKeluarga = false;
             if (keluargaContainer) {
-                const keluargaItems = keluargaContainer.querySelectorAll(".keluarga-item");
-                keluargaItems.forEach(item => {
-                    const namaInput = item.querySelector(".nama_keluarga_input");
-                    if (namaInput && namaInput.value && namaInput.value.trim().length >= 3) {
+                const keluargaItems =
+                    keluargaContainer.querySelectorAll(".keluarga-item");
+                keluargaItems.forEach((item) => {
+                    const namaInput = item.querySelector(
+                        ".nama_keluarga_input",
+                    );
+                    if (
+                        namaInput &&
+                        namaInput.value &&
+                        namaInput.value.trim().length >= 3
+                    ) {
                         hasValidKeluarga = true;
                     }
                 });
             }
 
             if (!hasValidKeluarga) {
-                const firstKeluargaItem = keluargaContainer?.querySelector(".keluarga-item");
+                const firstKeluargaItem =
+                    keluargaContainer?.querySelector(".keluarga-item");
                 if (firstKeluargaItem) {
-                    const namaInput = firstKeluargaItem.querySelector(".nama_keluarga_input");
-                    const errorNameEl = firstKeluargaItem.querySelector(".error-keluarga-nama-0");
+                    const namaInput = firstKeluargaItem.querySelector(
+                        ".nama_keluarga_input",
+                    );
+                    const errorNameEl = firstKeluargaItem.querySelector(
+                        ".error-keluarga-nama-0",
+                    );
                     if (namaInput) {
                         namaInput.style.borderColor = "#e74c3c";
                         namaInput.style.borderWidth = "2px";
                         // Show error message
                         if (errorNameEl) {
-                            errorNameEl.textContent = "Minimal nama anggota keluarga pertama minimal 3 karakter.";
+                            errorNameEl.textContent =
+                                "Minimal nama anggota keluarga pertama minimal 3 karakter.";
                             errorNameEl.style.display = "block";
                         }
                         // Scroll to first keluarga
                         namaInput.focus();
-                        namaInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                        namaInput.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                        });
                     }
                 }
                 if (errorKeluargaEl) {
-                    errorKeluargaEl.textContent = "Minimal satu anggota keluarga harus diisi.";
+                    errorKeluargaEl.textContent =
+                        "Minimal satu anggota keluarga harus diisi.";
                     errorKeluargaEl.style.display = "block";
                 }
-                console.warn("âš ï¸ Form submit prevented: No valid keluarga found");
+                console.warn(
+                    "âš ï¸ Form submit prevented: No valid keluarga found",
+                );
                 e.preventDefault();
                 return;
             } else {
                 // Clear error styling from keluarga
-                const firstKeluargaItem = keluargaContainer?.querySelector(".keluarga-item");
+                const firstKeluargaItem =
+                    keluargaContainer?.querySelector(".keluarga-item");
                 if (firstKeluargaItem) {
-                    const namaInput = firstKeluargaItem.querySelector(".nama_keluarga_input");
-                    const errorNameEl = firstKeluargaItem.querySelector(".error-keluarga-nama-0");
+                    const namaInput = firstKeluargaItem.querySelector(
+                        ".nama_keluarga_input",
+                    );
+                    const errorNameEl = firstKeluargaItem.querySelector(
+                        ".error-keluarga-nama-0",
+                    );
                     if (namaInput) {
                         namaInput.style.borderColor = "";
                         namaInput.style.borderWidth = "";
@@ -472,10 +727,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (!isTambahFormValid()) {
-                console.warn("âš ï¸ Form submit prevented: Form validation failed");
+                console.warn(
+                    "âš ï¸ Form submit prevented: Form validation failed",
+                );
                 e.preventDefault();
             } else {
-                console.log("âœ“ Form submission allowed");
+                console.log("✓ Form submission allowed");
             }
         });
 
@@ -567,14 +824,58 @@ document.addEventListener("DOMContentLoaded", function () {
                 "email",
                 "alamat",
             ].forEach((f) => showTambahError(f, ""));
+            // Reset pekerjaan fields: ensure select is present
+            showTambahError("pekerjaan", "");
+            let pj = document.getElementById("pekerjaan");
+            if (pj && pj.tagName === "INPUT" && pj.dataset._wasSelect) {
+                pj = transformInputToSelect(pj);
+            }
+            if (pj) {
+                pj.value = "";
+                if (pj.tagName === "SELECT") {
+                    pj.addEventListener("change", function () {
+                        if (this.value === "7") {
+                            const input = transformSelectToInput(this, "");
+                            if (input) {
+                                input.addEventListener("blur", function () {
+                                    showTambahError(
+                                        "pekerjaan",
+                                        validatePekerjaan(this.value),
+                                    );
+                                    updateTambahSubmitBtn();
+                                });
+                                input.addEventListener("input", function () {
+                                    updateTambahSubmitBtn();
+                                });
+                            }
+                        }
+                        showTambahError(
+                            "pekerjaan",
+                            validatePekerjaan(this.value),
+                        );
+                        updateTambahSubmitBtn();
+                    });
+                    pj.addEventListener("blur", function () {
+                        showTambahError(
+                            "pekerjaan",
+                            validatePekerjaan(this.value),
+                        );
+                        updateTambahSubmitBtn();
+                    });
+                }
+            }
             // Reset submit button state
             if (submitBtnTambah) submitBtnTambah.disabled = true;
             // Reset keluarga styling
-            const keluargaContainer = document.getElementById("keluarga-container");
+            const keluargaContainer =
+                document.getElementById("keluarga-container");
             if (keluargaContainer) {
-                const firstKeluargaItem = keluargaContainer.querySelector(".keluarga-item");
+                const firstKeluargaItem =
+                    keluargaContainer.querySelector(".keluarga-item");
                 if (firstKeluargaItem) {
-                    const namaInput = firstKeluargaItem.querySelector(".nama_keluarga_input");
+                    const namaInput = firstKeluargaItem.querySelector(
+                        ".nama_keluarga_input",
+                    );
                     if (namaInput) {
                         namaInput.style.borderColor = "";
                         namaInput.style.borderWidth = "";
@@ -664,6 +965,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function isEditFormValid() {
+        // Prevent submit if there's an active uniqueness error
+        const checkErr = (id) => {
+            const el = document.getElementById(`error-edit_${id}`);
+            return (
+                el &&
+                el.style.display === "block" &&
+                el.textContent.includes("sudah terdaftar")
+            );
+        };
+        if (checkErr("nik") || checkErr("no_hp") || checkErr("email"))
+            return false;
+
         return (
             !validateNIK(document.getElementById("edit_nik")?.value) &&
             !validateNama(document.getElementById("edit_nama_lansia")?.value) &&
@@ -673,7 +986,8 @@ document.addEventListener("DOMContentLoaded", function () {
             !validateNoHP(document.getElementById("edit_no_hp")?.value) &&
             !validateEmail(document.getElementById("edit_email")?.value) &&
             !validateAlamat(document.getElementById("edit_alamat")?.value) &&
-            validateKeluargaPertama()
+            validateKeluargaPertama() &&
+            !validatePekerjaan(document.getElementById("edit_pekerjaan")?.value)
         );
     }
 
@@ -685,8 +999,21 @@ document.addEventListener("DOMContentLoaded", function () {
     if (editForm) {
         document
             .getElementById("edit_nik")
-            ?.addEventListener("blur", function () {
-                showEditError("nik", validateNIK(this.value));
+            ?.addEventListener("blur", async function () {
+                let err = validateNIK(this.value);
+                if (!err) {
+                    const lansiaId =
+                        editForm.action.match(/\/lansia\/(\d+)/)?.[1];
+                    const exists = await checkUniqueField(
+                        "edit_nik",
+                        "nik",
+                        this.value,
+                        true,
+                        lansiaId,
+                    );
+                    if (exists) err = "NIK ini sudah terdaftar.";
+                }
+                showEditError("nik", err);
                 updateEditSubmitBtn();
             });
         document
@@ -706,14 +1033,40 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         document
             .getElementById("edit_no_hp")
-            ?.addEventListener("blur", function () {
-                showEditError("no_hp", validateNoHP(this.value));
+            ?.addEventListener("blur", async function () {
+                let err = validateNoHP(this.value);
+                if (!err && this.value.trim()) {
+                    const lansiaId =
+                        editForm.action.match(/\/lansia\/(\d+)/)?.[1];
+                    const exists = await checkUniqueField(
+                        "edit_no_hp",
+                        "no_hp",
+                        this.value,
+                        true,
+                        lansiaId,
+                    );
+                    if (exists) err = "No HP ini sudah terdaftar.";
+                }
+                showEditError("no_hp", err);
                 updateEditSubmitBtn();
             });
         document
             .getElementById("edit_email")
-            ?.addEventListener("blur", function () {
-                showEditError("email", validateEmail(this.value));
+            ?.addEventListener("blur", async function () {
+                let err = validateEmail(this.value);
+                if (!err && this.value.trim()) {
+                    const lansiaId =
+                        editForm.action.match(/\/lansia\/(\d+)/)?.[1];
+                    const exists = await checkUniqueField(
+                        "edit_email",
+                        "email",
+                        this.value,
+                        true,
+                        lansiaId,
+                    );
+                    if (exists) err = "Email ini sudah terdaftar.";
+                }
+                showEditError("email", err);
                 updateEditSubmitBtn();
             });
         document
@@ -722,6 +1075,35 @@ document.addEventListener("DOMContentLoaded", function () {
                 showEditError("alamat", validateAlamat(this.value));
                 updateEditSubmitBtn();
             });
+
+        // Edit pekerjaan handlers: inline swap select -> input for 'Lainnya'
+        const editPekerjaanEl = document.getElementById("edit_pekerjaan");
+        if (editPekerjaanEl) {
+            editPekerjaanEl.addEventListener("change", function () {
+                if (this.value === "7") {
+                    const input = transformSelectToInput(this, "");
+                    if (input) {
+                        input.addEventListener("blur", function () {
+                            showEditError(
+                                "pekerjaan",
+                                validatePekerjaan(this.value),
+                            );
+                            updateEditSubmitBtn();
+                        });
+                        input.addEventListener("input", function () {
+                            updateEditSubmitBtn();
+                        });
+                    }
+                } else {
+                    showEditError("pekerjaan", validatePekerjaan(this.value));
+                }
+                updateEditSubmitBtn();
+            });
+            editPekerjaanEl.addEventListener("blur", function () {
+                showEditError("pekerjaan", validatePekerjaan(this.value));
+                updateEditSubmitBtn();
+            });
+        }
 
         // Validasi realtime nama keluarga pertama (event delegation)
         document
@@ -794,10 +1176,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 "alamat",
                 validateAlamat(document.getElementById("edit_alamat")?.value),
             );
+            showEditError(
+                "pekerjaan",
+                validatePekerjaan(
+                    document.getElementById("edit_pekerjaan")?.value,
+                ),
+            );
             validateKeluargaPertama();
 
             if (!isEditFormValid()) {
                 e.preventDefault();
+            } else {
+                console.log("✓ Form Edit submission allowed");
+                const loader = document.getElementById(
+                    "global-loading-overlay",
+                );
+                if (loader) loader.style.display = "flex";
+                if (editSubmitBtn) {
+                    editSubmitBtn.style.pointerEvents = "none";
+                    editSubmitBtn.innerText = "Menyimpan...";
+                }
             }
         });
     }
@@ -987,6 +1385,31 @@ document.addEventListener("DOMContentLoaded", function () {
             setVal("edit_riwayat_penyakit", row.dataset.riwayatPenyakit);
             setVal("edit_keterangan", row.dataset.keterangan);
             setVal("edit_email", row.dataset.email);
+            // Set pekerjaan field; if dataset contains custom text, swap select -> input
+            setVal("edit_pekerjaan", row.dataset.pekerjaan);
+            const editPjEl = document.getElementById("edit_pekerjaan");
+            if (
+                row.dataset.pekerjaan &&
+                !isNumericString(row.dataset.pekerjaan)
+            ) {
+                // replace select with input and set custom value
+                const input = transformSelectToInput(
+                    editPjEl,
+                    row.dataset.pekerjaan,
+                );
+                if (input) {
+                    input.addEventListener("blur", function () {
+                        showEditError(
+                            "pekerjaan",
+                            validatePekerjaan(this.value),
+                        );
+                        updateEditSubmitBtn();
+                    });
+                    input.addEventListener("input", function () {
+                        updateEditSubmitBtn();
+                    });
+                }
+            }
 
             // Reset semua pesan error
             [
@@ -997,6 +1420,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 "email",
                 "alamat",
             ].forEach((f) => showEditError(f, ""));
+
+            // If edit_pekerjaan is still a select, trigger change to wire listeners
+            setTimeout(() => {
+                const el = document.getElementById("edit_pekerjaan");
+                if (el && el.tagName === "SELECT")
+                    el.dispatchEvent(new Event("change"));
+            }, 50);
 
             // Load data keluarga
             await loadKeluargaForEdit(lansiaId);
@@ -1052,6 +1482,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             modalHapus?.classList.add("active");
         });
+    });
+
+    // Form Hapus trigger loading overlay
+    formHapus?.addEventListener("submit", () => {
+        const loader = document.getElementById("global-loading-overlay");
+        if (loader) loader.style.display = "flex";
+        const submitBtn = formHapus.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.style.pointerEvents = "none";
+            submitBtn.innerText = "Menghapus...";
+        }
     });
 
     document

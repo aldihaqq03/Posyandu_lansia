@@ -1,5 +1,3 @@
-/* resources/js/jsAdmin/monitoring.js */
-
 document.addEventListener("DOMContentLoaded", function () {
     const lansiaId = document.getElementById("lansia-id")?.value;
     const gender = document.getElementById("lansia-gender")?.value || "L"; // L atau P
@@ -10,16 +8,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let saranNewIdx = 0;
-    let healthHistoryData = []; // Simpan data riwayat untuk modal
 
-    // ── Inisiasi lingkar perut zone label sesuai gender ──────
-    const lpLimit = gender === "P" ? 80 : 90;
+    // ========== VARIABEL UNTUK FILTER ==========
+    let fullHealthHistoryData = []; // data asli dari server
+    let filteredHealthHistoryData = []; // data setelah filter
+    let chartInstances = {}; // menyimpan objek Chart.js untuk di-destroy
+    const lpLimit = gender === "P" ? 80 : 90; // batas lingkar perut sesuai gender
+
+    // ── Inisiasi lingkar perut zone label sesuai gender ──
     document.getElementById("zone-lp").innerHTML = `
         <span class="mz mz-normal">Normal ≤${lpLimit} cm</span>
         <span class="mz mz-bahaya">Berisiko &gt;${lpLimit} cm</span>
     `;
 
-    // ── Tabs Logic ────────────────────────────────────────────
+    // ── Tabs Logic ──
     const tabBtns = document.querySelectorAll(".mon-tab-btn");
     const tabContents = document.querySelectorAll(".mon-tab-content");
 
@@ -27,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.addEventListener("click", () => {
             tabBtns.forEach((b) => b.classList.remove("active"));
             tabContents.forEach((p) => p.classList.remove("active"));
-
             btn.classList.add("active");
             const tabId = btn.getAttribute("data-tab");
             const pane = document.getElementById(`tab-${tabId}`);
@@ -35,45 +36,169 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ── Boot ──────────────────────────────────────────────────
-    loadCharts(lansiaId);
-    loadKeluhan(lansiaId);
-    loadSaran(lansiaId);
-
-    // ══════════════════════════════════════════════════════════
-    // GRAFIK — ambil data lalu build masing-masing chart
-    // ══════════════════════════════════════════════════════════
-
-    async function loadCharts(id) {
-        // Set semua ke loading awal
-        ["tensi", "gula", "kolesterol", "bb", "lp", "imt"].forEach((k) =>
-            setChartState(k, "loading"),
-        );
-
+    // ========== FUNGSI-FUNGSI HELPER ==========
+    function el(id) {
+        return document.getElementById(id);
+    }
+    function show(id) {
+        const e = el(id);
+        if (e) e.style.display = "";
+    }
+    function hide(id) {
+        const e = el(id);
+        if (e) e.style.display = "none";
+    }
+    function csrf() {
+        return document.querySelector('meta[name="csrf-token"]')?.content || "";
+    }
+    function apiFetch(url) {
+        return fetch(url, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                Accept: "application/json",
+            },
+        });
+    }
+    function fetchJSON(method, url, body) {
+        const opts = {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrf(),
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        };
+        if (body) opts.body = JSON.stringify(body);
+        return fetch(url, opts);
+    }
+    function esc(str) {
+        return String(str || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+    function fmtDate(str) {
+        if (!str) return "-";
         try {
-            const res = await apiFetch(`/lansia/${id}/health-history`);
-            const json = await res.json();
-            healthHistoryData = json.data || [];
-        } catch (e) {
-            console.error("Gagal mengambil data health-history:", e);
+            return new Date(str + "T00:00:00").toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            });
+        } catch {
+            return str;
         }
-
-        buildTensiChart(healthHistoryData);
-        buildGulaChart(healthHistoryData);
-        buildKolesterolChart(healthHistoryData);
-        buildBBChart(healthHistoryData);
-        buildLPChart(healthHistoryData, lpLimit);
-        buildIMTChart(healthHistoryData);
     }
 
-    /* ────────────────────────────────────────────────────────
-       HELPER: buat opsi Chart.js dengan time scale
-    ──────────────────────────────────────────────────────── */
+    // Format bulan-tahun untuk info filter
+    function formatMonthYear(date) {
+        if (!date) return "";
+        return date.toLocaleDateString("id-ID", {
+            month: "short",
+            year: "numeric",
+        });
+    }
+
+    // Helper: dapatkan tanggal mundur (bulan)
+    function getRelativeDate(monthsAgo) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - monthsAgo);
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
+    // ========== STATE CHART ==========
+    function setChartState(key, state) {
+        const loading = document.getElementById(`loading-${key}`);
+        const empty = document.getElementById(`empty-${key}`);
+        const wrap = document.getElementById(`wrap-${key}`);
+        if (loading)
+            loading.style.display = state === "loading" ? "block" : "none";
+        if (empty) empty.style.display = state === "empty" ? "flex" : "none";
+        if (wrap) wrap.style.display = state === "chart" ? "block" : "none";
+    }
+
+    // ========== FUNGSI CHART (menerima parameter rows) ==========
+    function pts(rows, key) {
+        return rows
+            .filter((r) => r[key] != null)
+            .map((r) => ({
+                x: new Date(r.tanggal + "T00:00:00").getTime(),
+                y: Number(r[key]),
+            }))
+            .sort((a, b) => a.x - b.x);
+    }
+
+    function refLine(rows, key, value, color) {
+        const validRows = rows.filter((r) => r[key] != null);
+        if (validRows.length < 1) return null;
+        const dates = validRows
+            .map((r) => new Date(r.tanggal + "T00:00:00").getTime())
+            .sort((a, b) => a - b);
+        return {
+            label: `Ref ${value}`,
+            data: [
+                { x: dates[0], y: value },
+                { x: dates[dates.length - 1], y: value },
+            ],
+            borderColor: color,
+            borderWidth: 1.2,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            fill: false,
+            tension: 1,
+            parsing: false,
+        };
+    }
+
+    function lineset(data, color, label) {
+        return {
+            label,
+            data,
+            borderColor: color,
+            backgroundColor: color + "18",
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: color,
+            pointBorderColor: "#fff",
+            pointBorderWidth: 1.5,
+            fill: false,
+            tension: 0.2,
+            spanGaps: true,
+            parsing: false,
+        };
+    }
+
+    function renderLegend(elId, items) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.innerHTML = items
+            .map(
+                (i) =>
+                    `<span><span style="width:18px;height:2.5px;border-radius:2px;background:${i.dash ? `repeating-linear-gradient(90deg,${i.color} 0,${i.color} 5px,transparent 5px,transparent 9px)` : i.color};display:inline-block;vertical-align:middle;margin-right:4px;"></span> ${i.label}</span>`,
+            )
+            .join("");
+    }
+
+    function renderChart(canvasId, datasets, options) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        const ctx = canvas.getContext("2d");
+        chartInstances[canvasId] = new Chart(ctx, {
+            type: "line",
+            data: { datasets },
+            options,
+        });
+    }
+
     function makeOptions(labelCallback, yMax = 300) {
         return {
             responsive: true,
             maintainAspectRatio: false,
-            parsing: false, // data sudah {x, y}
+            parsing: false,
             interaction: { mode: "index", intersect: false },
             plugins: {
                 legend: { display: false },
@@ -131,99 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    /* ── Buat dataset titik utama ── */
-    function pts(rows, key) {
-        return rows
-            .filter((r) => r[key] != null)
-            .map((r) => ({
-                x: new Date(r.tanggal + "T00:00:00").getTime(),
-                y: Number(r[key]),
-            }))
-            .sort((a, b) => a.x - b.x);
-    }
-
-    /* ── Buat garis referensi horizontal ── */
-    function refLine(rows, key, value, color) {
-        const validRows = rows.filter((r) => r[key] != null);
-        if (validRows.length < 1) return null;
-        const dates = validRows
-            .map((r) => new Date(r.tanggal + "T00:00:00").getTime())
-            .sort((a, b) => a - b);
-        return {
-            label: `Ref ${value}`,
-            data: [
-                { x: dates[0], y: value },
-                { x: dates[dates.length - 1], y: value },
-            ],
-            borderColor: color,
-            borderWidth: 1.2,
-            borderDash: [5, 4],
-            pointRadius: 0,
-            fill: false,
-            tension: 1,
-            parsing: false,
-        };
-    }
-
-    /* ── Dataset garis data ── */
-    function lineset(data, color, label) {
-        return {
-            label,
-            data,
-            borderColor: color,
-            backgroundColor: color + "18",
-            borderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            pointBackgroundColor: color,
-            pointBorderColor: "#fff",
-            pointBorderWidth: 1.5,
-            fill: false,
-            tension: 0.2,
-            spanGaps: true,
-            parsing: false,
-        };
-    }
-
-    /* ── Render legend ── */
-    function renderLegend(elId, items) {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        el.innerHTML = items
-            .map(
-                (i) =>
-                    `<span>
-                <span style="width:18px;height:2.5px;border-radius:2px;background:${i.dash
-                        ? `repeating-linear-gradient(90deg,${i.color} 0,${i.color} 5px,transparent 5px,transparent 9px)`
-                        : i.color
-                    };display:inline-block;vertical-align:middle;margin-right:4px;"></span>
-                ${i.label}
-            </span>`,
-            )
-            .join("");
-    }
-
-    /* ── State chart (loading / chart / empty) ── */
-    function setChartState(key, state) {
-        const loading = document.getElementById(`loading-${key}`);
-        const empty = document.getElementById(`empty-${key}`);
-        const wrap = document.getElementById(`wrap-${key}`);
-        if (loading)
-            loading.style.display = state === "loading" ? "block" : "none";
-        if (empty) empty.style.display = state === "empty" ? "flex" : "none";
-        if (wrap) wrap.style.display = state === "chart" ? "block" : "none";
-    }
-
-    /* ── Render chart ── */
-    function renderChart(canvasId, datasets, options) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-        new Chart(canvas, { type: "line", data: { datasets }, options });
-    }
-
-    /* ════════════════════════════════════════════
-       1. TENSI
-    ════════════════════════════════════════════ */
+    // ========== BUILD CHART (menggunakan parameter rows) ==========
     function buildTensiChart(rows) {
         const sisPts = pts(rows, "td_sistolik");
         const diasPts = pts(rows, "td_diastolik");
@@ -233,17 +266,14 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("tensi", "chart");
-
         renderLegend("legend-tensi", [
             { color: "#3b82f6", label: "Sistolik", dash: false },
             { color: "#f97316", label: "Diastolik", dash: true },
             { color: "#10b981", label: "Batas normal", dash: true },
             { color: "#f59e0b", label: "Batas waspada", dash: true },
         ]);
-
         const ZONES_SIS = { normal: 120, waspada: 130 };
         const ZONES_DIAS = { normal: 80 };
-
         const datasets = [
             lineset(sisPts, "#3b82f6", "Sistolik"),
             lineset(diasPts, "#f97316", "Diastolik"),
@@ -251,7 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
             refLine(rows, "td_sistolik", ZONES_SIS.waspada, "#f59e0b"),
             refLine(rows, "td_diastolik", ZONES_DIAS.normal, "#10b981"),
         ].filter(Boolean);
-
         renderChart(
             "chart-tensi",
             datasets,
@@ -265,21 +294,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? v > 130
                         ? "🔴 Berbahaya"
                         : v > 120
-                            ? "⚠️ Tinggi"
-                            : "✅ Normal"
+                          ? "⚠️ Tinggi"
+                          : "✅ Normal"
                     : v > 90
-                        ? "🔴 Berbahaya"
-                        : v > 80
-                            ? "⚠️ Tinggi"
-                            : "✅ Normal";
+                      ? "🔴 Berbahaya"
+                      : v > 80
+                        ? "⚠️ Tinggi"
+                        : "✅ Normal";
                 return `  ${lbl}: ${v} mmHg  ${st}`;
             }, 300),
         );
     }
 
-    /* ════════════════════════════════════════════
-       2. GULA DARAH
-    ════════════════════════════════════════════ */
     function buildGulaChart(rows) {
         const data = pts(rows, "gula_darah");
         if (!data.length) {
@@ -287,13 +313,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("gula", "chart");
-
         renderLegend("legend-gula", [
             { color: "#2563eb", label: "Gula Darah", dash: false },
             { color: "#10b981", label: "Batas normal (100)", dash: true },
             { color: "#f59e0b", label: "Batas diabetes (126)", dash: true },
         ]);
-
         renderChart(
             "chart-gula",
             [
@@ -309,16 +333,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 126
                         ? "🔴 Diabetes"
                         : v >= 100
-                            ? "⚠️ Pra-DM"
-                            : "✅ Normal";
+                          ? "⚠️ Pra-DM"
+                          : "✅ Normal";
                 return `  Gula Darah: ${v} mg/dL  ${st}`;
             }, 400),
         );
     }
 
-    /* ════════════════════════════════════════════
-       3. KOLESTEROL
-    ════════════════════════════════════════════ */
     function buildKolesterolChart(rows) {
         const data = pts(rows, "kolesterol");
         if (!data.length) {
@@ -326,13 +347,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("kolesterol", "chart");
-
         renderLegend("legend-kolesterol", [
             { color: "#7c3aed", label: "Kolesterol", dash: false },
             { color: "#10b981", label: "Batas normal (200)", dash: true },
             { color: "#f59e0b", label: "Batas tinggi (240)", dash: true },
         ]);
-
         renderChart(
             "chart-kolesterol",
             [
@@ -348,16 +367,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 240
                         ? "🔴 Tinggi"
                         : v >= 200
-                            ? "⚠️ Batas"
-                            : "✅ Normal";
+                          ? "⚠️ Batas"
+                          : "✅ Normal";
                 return `  Kolesterol: ${v} mg/dL  ${st}`;
             }, 350),
         );
     }
 
-    /* ════════════════════════════════════════════
-       4. BERAT BADAN
-    ════════════════════════════════════════════ */
     function buildBBChart(rows) {
         const data = pts(rows, "berat_badan");
         if (!data.length) {
@@ -365,13 +381,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("bb", "chart");
-
         renderLegend("legend-bb", [
             { color: "#0891b2", label: "Berat Badan (kg)", dash: false },
         ]);
-
         const avg = Math.round(data.reduce((s, d) => s + d.y, 0) / data.length);
-
         renderChart(
             "chart-bb",
             [lineset(data, "#0891b2", "Berat Badan")],
@@ -383,16 +396,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     Math.abs(diff) < 2
                         ? "Stabil"
                         : diff > 0
-                            ? `↑ ${diff} kg dari rata-rata`
-                            : `↓ ${Math.abs(diff)} kg dari rata-rata`;
+                          ? `↑ ${diff} kg dari rata-rata`
+                          : `↓ ${Math.abs(diff)} kg dari rata-rata`;
                 return `  Berat Badan: ${v} kg  (${note})`;
             }, 150),
         );
     }
 
-    /* ════════════════════════════════════════════
-       5. LINGKAR PERUT
-    ════════════════════════════════════════════ */
     function buildLPChart(rows, limit) {
         const data = pts(rows, "lingkar_perut");
         if (!data.length) {
@@ -400,7 +410,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("lp", "chart");
-
         renderLegend("legend-lp", [
             { color: "#0d9488", label: "Lingkar Perut (cm)", dash: false },
             {
@@ -409,7 +418,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 dash: true,
             },
         ]);
-
         renderChart(
             "chart-lp",
             [
@@ -426,9 +434,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    /* ════════════════════════════════════════════
-       6. IMT
-    ════════════════════════════════════════════ */
     function buildIMTChart(rows) {
         const data = pts(rows, "imt");
         if (!data.length) {
@@ -436,14 +441,16 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("imt", "chart");
-
         renderLegend("legend-imt", [
             { color: "#e11d48", label: "IMT (kg/m²)", dash: false },
             { color: "#10b981", label: "Batas normal bawah (22)", dash: true },
             { color: "#10b981", label: "Batas normal atas (27)", dash: true },
-            { color: "#f59e0b", label: "Batas waspada (18.5 / 30)", dash: true },
+            {
+                color: "#f59e0b",
+                label: "Batas waspada (18.5 / 30)",
+                dash: true,
+            },
         ]);
-
         renderChart(
             "chart-imt",
             [
@@ -461,72 +468,221 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 22 && v <= 27
                         ? "✅ Normal"
                         : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
-                            ? "⚠️ Waspada"
-                            : "🔴 Abnormal";
+                          ? "⚠️ Waspada"
+                          : "🔴 Abnormal";
                 return `  IMT: ${v} kg/m²  ${st}`;
             }, 45),
         );
     }
 
-    // ══════════════════════════════════════════════════════════
-    // MODAL DETAIL DATA
-    // ══════════════════════════════════════════════════════════
-    const modalDetail = document.getElementById("detail-modal");
+    // ========== FILTER LOGIC ==========
+    function renderAllCharts() {
+        ["tensi", "gula", "kolesterol", "bb", "lp", "imt"].forEach((k) =>
+            setChartState(k, "loading"),
+        );
+        Object.values(chartInstances).forEach((chart) => {
+            if (chart && typeof chart.destroy === "function") chart.destroy();
+        });
+        chartInstances = {};
+        buildTensiChart(filteredHealthHistoryData);
+        buildGulaChart(filteredHealthHistoryData);
+        buildKolesterolChart(filteredHealthHistoryData);
+        buildBBChart(filteredHealthHistoryData);
+        buildLPChart(filteredHealthHistoryData, lpLimit);
+        buildIMTChart(filteredHealthHistoryData);
+    }
 
+    function updateFilterInfo(start, end) {
+        const span = document.getElementById("filter-range-text");
+        if (!span) return;
+        if (!start && !end) span.innerText = "Semua data";
+        else if (start && end)
+            span.innerText = `${formatMonthYear(start)} - ${formatMonthYear(end)}`;
+        else if (start) span.innerText = `Sejak ${formatMonthYear(start)}`;
+        else if (end) span.innerText = `Sampai ${formatMonthYear(end)}`;
+    }
+
+    function applyFilter(startDate, endDate) {
+        if (!fullHealthHistoryData.length) {
+            filteredHealthHistoryData = [];
+            renderAllCharts();
+            updateFilterInfo(startDate, endDate);
+            return;
+        }
+        let filtered = [...fullHealthHistoryData];
+        if (startDate) {
+            const startTs = startDate.getTime();
+            filtered = filtered.filter(
+                (r) => new Date(r.tanggal + "T00:00:00").getTime() >= startTs,
+            );
+        }
+        if (endDate) {
+            const endTs = endDate.getTime();
+            filtered = filtered.filter(
+                (r) => new Date(r.tanggal + "T00:00:00").getTime() <= endTs,
+            );
+        }
+        filteredHealthHistoryData = filtered;
+        renderAllCharts();
+        updateFilterInfo(startDate, endDate);
+    }
+
+    function applyDefaultFilter() {
+        const today = new Date();
+        const oneYearAgo = getRelativeDate(12);
+        applyFilter(oneYearAgo, today);
+    }
+
+    function initFilters() {
+        const presetBtns = document.querySelectorAll(".mon-filter-btn");
+        const customBtn = document.getElementById("apply-custom-filter");
+        const startInput = document.getElementById("filter-start-month");
+        const endInput = document.getElementById("filter-end-month");
+
+        presetBtns.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                presetBtns.forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+                const filterVal = btn.getAttribute("data-filter");
+                if (filterVal === "all") applyFilter(null, null);
+                else {
+                    const months = parseInt(filterVal, 10);
+                    applyFilter(getRelativeDate(months), new Date());
+                }
+                if (startInput) startInput.value = "";
+                if (endInput) endInput.value = "";
+            });
+        });
+
+        customBtn?.addEventListener("click", () => {
+            let startDate = null,
+                endDate = null;
+            if (startInput?.value)
+                startDate = new Date(startInput.value + "-01");
+            if (endInput?.value) {
+                const [year, month] = endInput.value.split("-");
+                const nextMonth = new Date(parseInt(year), parseInt(month), 1);
+                endDate = new Date(nextMonth - 86400000);
+            }
+            applyFilter(startDate, endDate);
+            presetBtns.forEach((b) => b.classList.remove("active"));
+        });
+    }
+
+    // ========== LOAD DATA ==========
+    async function loadCharts(id) {
+        ["tensi", "gula", "kolesterol", "bb", "lp", "imt"].forEach((k) =>
+            setChartState(k, "loading"),
+        );
+        try {
+            const res = await apiFetch(`/lansia/${id}/health-history`);
+            const json = await res.json();
+            fullHealthHistoryData = json.data || [];
+            applyDefaultFilter();
+        } catch (e) {
+            console.error("Gagal mengambil data health-history:", e);
+            fullHealthHistoryData = [];
+            applyDefaultFilter();
+        }
+    }
+
+    // ========== MODAL DETAIL DATA (menggunakan filteredHealthHistoryData) ==========
+    const modalDetail = document.getElementById("detail-modal");
     window.closeDetailModal = function () {
         if (modalDetail) modalDetail.style.display = "none";
     };
-
     modalDetail?.addEventListener("click", (e) => {
         if (e.target === modalDetail) closeDetailModal();
     });
 
     window.openDetailModal = function (type) {
         if (!modalDetail) return;
-
+        const dataSource = filteredHealthHistoryData.length
+            ? filteredHealthHistoryData
+            : fullHealthHistoryData;
         const titleEl = document.getElementById("modal-title");
         const thead = document.getElementById("detail-thead");
         const tbody = document.getElementById("detail-tbody");
-
-        let title = "";
-        let thHTML = "";
-        let tdBuilder = (r) => "";
+        let title = "",
+            thHTML = "",
+            tdBuilder = (r) => "";
+        let filteredData = [];
 
         const hasData = (r, keys) => keys.some((k) => r[k] != null);
-        let filteredData = [];
+
+        // Fungsi bantu untuk memberi warna teks
+        function colorText(value, condition) {
+            if (condition === "normal")
+                return `<span style="color: #10b981; font-weight:500;">${value}</span>`;
+            if (condition === "waspada")
+                return `<span style="color: #f59e0b; font-weight:500;">${value}</span>`;
+            if (condition === "bahaya")
+                return `<span style="color: #ef4444; font-weight:500;">${value}</span>`;
+            return value;
+        }
+
+        // Status untuk tensi
+        function getTensiStatus(sis, dias) {
+            let sisStatus = "normal",
+                diasStatus = "normal";
+            if (sis >= 130) sisStatus = "bahaya";
+            else if (sis >= 120) sisStatus = "waspada";
+            if (dias >= 90) diasStatus = "bahaya";
+            else if (dias >= 80) diasStatus = "waspada";
+            return { sisStatus, diasStatus };
+        }
 
         switch (type) {
             case "tensi":
                 title = "Detail Tekanan Darah";
-                thHTML = `<th>Tanggal</th><th>Sistolik (mmHg)</th><th>Diastolik (mmHg)</th>`;
-                filteredData = healthHistoryData.filter((r) =>
+                thHTML =
+                    "<th>Tanggal</th><th>Sistolik (mmHg)</th><th>Diastolik (mmHg)</th>";
+                filteredData = dataSource.filter((r) =>
                     hasData(r, ["td_sistolik", "td_diastolik"]),
                 );
-                tdBuilder = (r) =>
-                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.td_sistolik || "-"}</td><td>${r.td_diastolik || "-"}</td></tr>`;
+                tdBuilder = (r) => {
+                    const sis = r.td_sistolik;
+                    const dias = r.td_diastolik;
+                    const { sisStatus, diasStatus } = getTensiStatus(sis, dias);
+                    const sisHtml = sis ? colorText(sis, sisStatus) : "-";
+                    const diasHtml = dias ? colorText(dias, diasStatus) : "-";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${sisHtml}</td><td>${diasHtml}</td></tr>`;
+                };
                 break;
             case "gula":
                 title = "Detail Gula Darah";
-                thHTML = `<th>Tanggal</th><th>Gula Darah (mg/dL)</th>`;
-                filteredData = healthHistoryData.filter((r) =>
+                thHTML = "<th>Tanggal</th><th>Gula Darah (mg/dL)</th>";
+                filteredData = dataSource.filter((r) =>
                     hasData(r, ["gula_darah"]),
                 );
-                tdBuilder = (r) =>
-                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.gula_darah || "-"}</td></tr>`;
+                tdBuilder = (r) => {
+                    let val = r.gula_darah;
+                    let status = "normal";
+                    if (val >= 126) status = "bahaya";
+                    else if (val >= 100) status = "waspada";
+                    const valHtml = val ? colorText(val, status) : "-";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                };
                 break;
             case "kolesterol":
                 title = "Detail Kolesterol";
-                thHTML = `<th>Tanggal</th><th>Kolesterol (mg/dL)</th>`;
-                filteredData = healthHistoryData.filter((r) =>
+                thHTML = "<th>Tanggal</th><th>Kolesterol (mg/dL)</th>";
+                filteredData = dataSource.filter((r) =>
                     hasData(r, ["kolesterol"]),
                 );
-                tdBuilder = (r) =>
-                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.kolesterol || "-"}</td></tr>`;
+                tdBuilder = (r) => {
+                    let val = r.kolesterol;
+                    let status = "normal";
+                    if (val >= 240) status = "bahaya";
+                    else if (val >= 200) status = "waspada";
+                    const valHtml = val ? colorText(val, status) : "-";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                };
                 break;
             case "bb":
                 title = "Detail Berat Badan";
-                thHTML = `<th>Tanggal</th><th>Berat Badan (kg)</th>`;
-                filteredData = healthHistoryData.filter((r) =>
+                thHTML = "<th>Tanggal</th><th>Berat Badan (kg)</th>";
+                filteredData = dataSource.filter((r) =>
                     hasData(r, ["berat_badan"]),
                 );
                 tdBuilder = (r) =>
@@ -534,31 +690,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 break;
             case "lp":
                 title = "Detail Lingkar Perut";
-                thHTML = `<th>Tanggal</th><th>Lingkar Perut (cm)</th>`;
-                filteredData = healthHistoryData.filter((r) =>
+                thHTML = "<th>Tanggal</th><th>Lingkar Perut (cm)</th>";
+                filteredData = dataSource.filter((r) =>
                     hasData(r, ["lingkar_perut"]),
                 );
-                tdBuilder = (r) =>
-                    `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.lingkar_perut || "-"}</td></tr>`;
+                tdBuilder = (r) => {
+                    let val = r.lingkar_perut;
+                    let status = val > lpLimit ? "bahaya" : "normal";
+                    const valHtml = val ? colorText(val, status) : "-";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                };
                 break;
             case "imt":
                 title = "Detail IMT";
-                thHTML = `<th>Tanggal</th><th>IMT (kg/m²)</th><th>Status</th>`;
-                filteredData = healthHistoryData.filter((r) =>
-                    hasData(r, ["imt"]),
-                );
+                // HAPUS kolom status, hanya tanggal dan nilai IMT
+                thHTML = "<th>Tanggal</th><th>IMT (kg/m²)</th>";
+                filteredData = dataSource.filter((r) => hasData(r, ["imt"]));
                 tdBuilder = (r) => {
-                    const v = r.imt;
-                    let st = "-";
-                    if (v != null) {
-                        st =
-                            v >= 22 && v <= 27
-                                ? "✅ Normal"
-                                : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
-                                    ? "⚠️ Waspada"
-                                    : "❌ Abnormal";
+                    let val = r.imt;
+                    let status = "normal";
+                    if (val != null) {
+                        if ((val >= 18.5 && val < 22) || (val > 27 && val < 30))
+                            status = "waspada";
+                        else if (val < 18.5 || val >= 30) status = "bahaya";
+                        else status = "normal";
                     }
-                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${v || "-"}</td><td>${st}</td></tr>`;
+                    const valHtml = val ? colorText(val, status) : "-";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
                 };
                 break;
         }
@@ -566,64 +724,50 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEl.textContent = title;
         thead.innerHTML = thHTML;
 
-        if (filteredData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px;">Tidak ada riwayat data.</td></tr>`;
+        if (!filteredData.length) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">Tidak ada riwayat data.</td></tr>`;
         } else {
             const sorted = [...filteredData].sort(
                 (a, b) => new Date(b.tanggal) - new Date(a.tanggal),
             );
             tbody.innerHTML = sorted.map(tdBuilder).join("");
         }
-
         modalDetail.style.display = "flex";
     };
 
-    // ══════════════════════════════════════════════════════════
-    // KELUHAN
-    // ══════════════════════════════════════════════════════════
-
+    // ========== KELUHAN (tidak berubah) ==========
     async function loadKeluhan(id) {
         show("keluhan-loading");
         hide("keluhan-empty");
         hide("keluhan-latest");
         hide("keluhan-all-wrapper");
-
         try {
             const res = await apiFetch(`/lansia/${id}/keluhan-history`);
             const json = await res.json();
             const data = json.data || [];
             hide("keluhan-loading");
-
             if (!data.length) {
                 show("keluhan-empty");
                 return;
             }
-
             const latest = data[0];
             el("kl-tanggal").textContent = fmtDate(latest.tanggal_skrining);
             el("kl-isi").textContent = latest.keluhan || "Tidak ada keluhan.";
-
+            el("kl-diagnosis").textContent =
+                latest.diagnosis || "Tidak ada diagnosis.";
             show("keluhan-latest");
-
             el("keluhan-all-list").innerHTML = data
                 .map(
-                    (r) => `
-                <div class="keluhan-row">
-                    <div class="keluhan-row-date">${fmtDate(r.tanggal_skrining)}</div>
-                    <div class="keluhan-row-isi">${r.keluhan ||
-                        '<em style="color:#9ca3af;">Tidak ada keluhan</em>'
-                        }</div>
-                </div>
-            `,
+                    (r) =>
+                        `<div class="keluhan-row" style="display:grid; grid-template-columns:140px minmax(0,1fr) minmax(0,1fr); gap:12px; align-items:start;"><div class="keluhan-row-date">${fmtDate(r.tanggal_skrining)}</div><div class="keluhan-row-isi">${r.keluhan || '<em style="color:#9ca3af;">Tidak ada keluhan</em>'}</div><div class="keluhan-row-isi">${r.diagnosis || '<em style="color:#9ca3af;">Tidak ada diagnosis</em>'}</div></div>`,
                 )
                 .join("");
         } catch (e) {
-            console.error("loadKeluhan error:", e);
+            console.error(e);
             hide("keluhan-loading");
             show("keluhan-empty");
         }
     }
-
     el("btn-lihat-semua-keluhan")?.addEventListener("click", () => {
         show("keluhan-all-wrapper");
         hide("keluhan-latest");
@@ -633,17 +777,13 @@ document.addEventListener("DOMContentLoaded", function () {
         show("keluhan-latest");
     });
 
-    // ══════════════════════════════════════════════════════════
-    // SARAN
-    // ══════════════════════════════════════════════════════════
-
+    // ========== SARAN (tidak berubah) ==========
     async function loadSaran(id) {
         show("dp-saran-loading");
         hide("dp-saran-empty");
         el("dp-saran-list").innerHTML = "";
         el("dp-saran-new-list").innerHTML = "";
         saranNewIdx = 0;
-
         try {
             const res = await apiFetch(`/lansia/${id}/saran`);
             const json = await res.json();
@@ -655,14 +795,12 @@ document.addEventListener("DOMContentLoaded", function () {
             show("dp-saran-empty");
         }
     }
-
     function renderSaranList(data) {
         const list = el("dp-saran-list");
         list.innerHTML = "";
         hide("dp-saran-empty");
         data.forEach((s) => list.appendChild(buildSaranItem(s)));
     }
-
     function buildSaranItem(s) {
         const div = document.createElement("div");
         div.className = "dp-saran-item";
@@ -671,14 +809,14 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="dp-saran-item-header">
                 <span class="dp-saran-jenis" id="sji-${s.id_saran}">${esc(s.jenis_saran)}</span>
                 <div class="dp-saran-actions">
-                    <button class="dp-saran-btn edit" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                    <button class="dp-saran-btn save" data-action="save" title="Simpan" style="display:none;"><i class="fa-solid fa-check"></i></button>
-                    <button class="dp-saran-btn del"  data-action="del"  title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                    <button class="dp-saran-btn edit" data-action="edit"><i class="fa-solid fa-pen"></i></button>
+                    <button class="dp-saran-btn save" data-action="save" style="display:none;"><i class="fa-solid fa-check"></i></button>
+                    <button class="dp-saran-btn del" data-action="del"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
             <p class="dp-saran-isi" id="sii-${s.id_saran}">${esc(s.isi_saran)}</p>
             <div id="sed-${s.id_saran}" style="display:none;">
-                <input  type="text" class="dp-saran-edit-jenis" id="sej-${s.id_saran}" value="${esc(s.jenis_saran)}" placeholder="Judul saran...">
+                <input type="text" class="dp-saran-edit-jenis" id="sej-${s.id_saran}" value="${esc(s.jenis_saran)}" placeholder="Judul saran...">
                 <textarea class="dp-saran-edit-isi" id="sei-${s.id_saran}" rows="3">${esc(s.isi_saran)}</textarea>
             </div>
         `;
@@ -695,7 +833,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return div;
     }
-
     function toggleEdit(id, on) {
         const item = document.querySelector(`.dp-saran-item[data-id="${id}"]`);
         if (!item) return;
@@ -710,7 +847,6 @@ document.addEventListener("DOMContentLoaded", function () {
         el(`sii-${id}`).style.display = on ? "none" : "";
         el(`sed-${id}`).style.display = on ? "block" : "none";
     }
-
     async function saveSaran(id) {
         const jenis = el(`sej-${id}`)?.value.trim();
         const isi = el(`sei-${id}`)?.value.trim();
@@ -729,7 +865,6 @@ document.addEventListener("DOMContentLoaded", function () {
             toggleEdit(id, false);
         }
     }
-
     async function delSaran(id) {
         if (!confirm("Hapus saran ini?")) return;
         const res = await fetchJSON(
@@ -742,7 +877,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!el("dp-saran-list").children.length) show("dp-saran-empty");
         }
     }
-
     el("dp-btn-add-saran")?.addEventListener("click", () => {
         hide("dp-saran-empty");
         const idx = saranNewIdx++;
@@ -751,7 +885,7 @@ document.addEventListener("DOMContentLoaded", function () {
         row.id = `new-saran-row-${idx}`;
         row.innerHTML = `
             <div class="dp-new-saran-inner">
-                <input  type="text" class="dp-input-new" id="nsj-${idx}" placeholder="Judul saran (cth: Pola Makan...)">
+                <input type="text" class="dp-input-new" id="nsj-${idx}" placeholder="Judul saran (cth: Pola Makan...)">
                 <textarea class="dp-input-new" id="nsi-${idx}" rows="3" placeholder="Tulis isi saran..."></textarea>
                 <div class="dp-new-saran-footer">
                     <button type="button" class="dp-btn-cancel-new">Batal</button>
@@ -768,7 +902,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         row.querySelector(`#nsj-${idx}`).focus();
     });
-
     async function submitNewSaran(idx, row) {
         const jenis = el(`nsj-${idx}`)?.value.trim();
         const isi = el(`nsi-${idx}`)?.value.trim();
@@ -788,62 +921,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ══════════════════════════════════════════════════════════
-    // UTILITIES
-    // ══════════════════════════════════════════════════════════
-
-    function el(id) {
-        return document.getElementById(id);
-    }
-    function show(id) {
-        const e = el(id);
-        if (e) e.style.display = "";
-    }
-    function hide(id) {
-        const e = el(id);
-        if (e) e.style.display = "none";
-    }
-
-    function csrf() {
-        return document.querySelector('meta[name="csrf-token"]')?.content || "";
-    }
-    function apiFetch(url) {
-        return fetch(url, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                Accept: "application/json",
-            },
-        });
-    }
-    function fetchJSON(method, url, body) {
-        const opts = {
-            method,
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrf(),
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        };
-        if (body) opts.body = JSON.stringify(body);
-        return fetch(url, opts);
-    }
-    function esc(str) {
-        return String(str || "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-    function fmtDate(str) {
-        if (!str) return "-";
-        try {
-            return new Date(str + "T00:00:00").toLocaleDateString("id-ID", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-            });
-        } catch {
-            return str;
-        }
-    }
+    // ========== EKSEKUSI AWAL ==========
+    loadCharts(lansiaId);
+    loadKeluhan(lansiaId);
+    loadSaran(lansiaId);
+    initFilters(); // panggil inisialisasi filter
 });

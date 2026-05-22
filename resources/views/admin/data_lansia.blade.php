@@ -99,6 +99,7 @@
                                 data-riwayat-penyakit="{{ $lansia->riwayat_penyakit }}"
                                 data-tanggal-daftar="{{ $lansia->tanggal_daftar }}" data-keterangan="{{ $lansia->keterangan }}"
                                 data-email="{{ $lansia->email }}" data-kode-unik="{{ $lansia->kode_unik ?? '' }}"
+                                data-pekerjaan="{{ $lansia->pekerjaan ?? '' }}"
                                 data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
                                 data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
                                 data-risk-level="{{ $lansia->risk_level ?? 'normal' }}">
@@ -227,6 +228,9 @@
                                 <div class="data-item"><label>Email</label>
                                     <p id="d-email">-</p>
                                 </div>
+                                <div class="data-item"><label>Pekerjaan</label>
+                                    <p id="d-pekerjaan">-</p>
+                                </div>
                                 <div class="data-item"><label>Status</label>
                                     <p id="d-status">-</p>
                                 </div>
@@ -301,6 +305,27 @@
         @include('modal.M_editlansia')
         @include('modal.M_hapus')
         @include('modal.M_filter')
+
+        <!-- GLOBAL LOADING OVERLAY -->
+        <div id="global-loading-overlay"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+            <div class="spinner"
+                style="border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;">
+            </div>
+            <p style="margin-top: 15px; font-weight: bold; color: #2563eb; font-family: 'Inter', sans-serif;">Sedang
+                Memproses...</p>
+            <style>
+                @keyframes spin {
+                    0% {
+                        transform: rotate(0deg);
+                    }
+
+                    100% {
+                        transform: rotate(360deg);
+                    }
+                }
+            </style>
+        </div>
 
     </main>
 @endsection

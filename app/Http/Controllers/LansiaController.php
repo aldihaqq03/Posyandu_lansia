@@ -15,6 +15,31 @@ use Carbon\Carbon;
 class LansiaController extends Controller
 {
     // ============================================================
+    // CEK DATA UNIQUE (AJAX)
+    // ============================================================
+    public function checkUnique(Request $request)
+    {
+        $field = $request->query('field');
+        $value = $request->query('value');
+        $ignoreId = $request->query('ignore_id');
+
+        if (!in_array($field, ['nik', 'no_hp', 'email'])) {
+            return response()->json(['exists' => false]);
+        }
+
+        if (empty($value)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $query = Lansia::where($field, $value);
+        if ($ignoreId) {
+            $query->where('id_lansia', '!=', $ignoreId);
+        }
+
+        return response()->json(['exists' => $query->exists()]);
+    }
+
+    // ============================================================
     // INDEX – Daftar lansia (tabel ringkas)
     // ============================================================
     public function index()
@@ -182,7 +207,7 @@ class LansiaController extends Controller
             ->whereHas('kunjungan')
             ->with([
                 'petugas:id_petugas,nama',
-                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan',
+                    'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan,diagnosis',
             ])
             ->orderByDesc('tanggal_skrining')
             ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
@@ -337,6 +362,7 @@ class LansiaController extends Controller
                         'keluarga.*.nama_keluarga' => 'nullable|string|min:3|max:100',
                         'keluarga.*.no_sama' => 'nullable|string|max:15',
                         'keluarga.*.alamat' => 'nullable|string|max:255',
+                        'pekerjaan'         => 'required|string|max:255',
                     ]);
 
                     // Validasi umur >= 40 tahun
@@ -360,6 +386,7 @@ class LansiaController extends Controller
                         ]);
 
                         $validated['id_user'] = $user->id;
+                        $validated['kode_unik'] = strtoupper(\Illuminate\Support\Str::random(8));
                         $lansia = Lansia::create($validated);
 
                         // Simpan data keluarga jika ada
@@ -388,7 +415,7 @@ class LansiaController extends Controller
     public function keluhanHistory(Lansia $lansia)
     {
         $skrinings = $lansia->skrinings()
-            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt')
+            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,diagnosis')
             ->orderByDesc('tanggal_skrining')
             ->get(['id_skrining', 'tanggal_skrining', 'keluhan']);
 
@@ -396,6 +423,7 @@ class LansiaController extends Controller
             return [
                 'tanggal_skrining' => $s->tanggal_skrining,
                 'keluhan'          => $s->keluhan ?? 'Tidak ada keluhan',
+                'diagnosis'        => $s->kunjungan?->diagnosis ?? 'Tidak ada diagnosis',
                 'td_sistolik'      => $s->kunjungan?->td_sistolik  ?? null,
                 'td_diastolik'     => $s->kunjungan?->td_diastolik ?? null,
                 'berat_badan'      => $s->kunjungan?->berat_badan  ?? null,
@@ -439,6 +467,7 @@ class LansiaController extends Controller
             'keluarga.*.nama_keluarga'       => 'nullable|string|min:3|max:100',
             'keluarga.*.no_sama'             => 'nullable|string|max:15',
             'keluarga.*.alamat'              => 'nullable|string|max:255',
+            'pekerjaan'                      => 'required|string|max:255',
         ], [
             'keluarga.0.nama_keluarga.required' => 'Nama anggota keluarga pertama wajib diisi.',
             'keluarga.required'                 => 'Minimal satu anggota keluarga wajib diisi.',
@@ -460,6 +489,11 @@ class LansiaController extends Controller
         $idLansia = $lansia->id_lansia; // Simpan ID sebelum transaksi
 
         DB::transaction(function () use ($lansiaData, $keluargaData, $lansia, $idLansia) {
+            // Generate kode_unik if empty
+            if (empty($lansia->kode_unik)) {
+                $lansiaData['kode_unik'] = strtoupper(\Illuminate\Support\Str::random(8));
+            }
+
             // Update data lansia
             $lansia->update($lansiaData);
 

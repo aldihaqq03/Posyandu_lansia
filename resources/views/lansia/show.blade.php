@@ -80,7 +80,7 @@
                     <div class="table-scroll">
                         <table class="history-table" id="tbl-kunjungan">
                             <thead>
-                                <tr><th>Tanggal</th><th>Petugas</th><th>Tensi</th><th>Berat Badan</th><th>Tinggi Badan</th><th>Lingkar Perut</th><th>Keluhan</th><th class="text-center">Aksi</th></tr>
+                                <tr><th>Tanggal</th><th>Petugas</th><th>Tensi</th><th>Berat Badan</th><th>Tinggi Badan</th><th>Lingkar Perut</th><th>Keluhan</th><th>Diagnosis</th><th class="text-center">Aksi</th></tr>
                             </thead>
                             <tbody>
                                 @foreach($kunjungans as $s)
@@ -92,6 +92,7 @@
                                         <td>{{ $s->kunjungan?->tinggi_badan ? $s->kunjungan->tinggi_badan . ' cm' : '-' }}</td>
                                         <td>{{ $s->kunjungan?->lingkar_perut ? $s->kunjungan->lingkar_perut . ' cm' : '-' }}</td>
                                         <td>{{ $s->kunjungan?->keluhan ?? $s->keluhan ?? '-' }}</td>
+                                        <td>{{ $s->kunjungan?->diagnosis ?? '-' }}</td>
                                         <td class="text-center aksi-col" onclick="event.stopPropagation()">
                                             <button class="btn-icon btn-detail" data-type="kunjungan" title="Lihat Detail"
                                                 data-skrining-id="{{ $s->id_skrining }}"
@@ -103,7 +104,8 @@
                                                 data-bb="{{ $s->kunjungan?->berat_badan ?? '' }}"
                                                 data-tb="{{ $s->kunjungan?->tinggi_badan ?? '' }}"
                                                 data-lp="{{ $s->kunjungan?->lingkar_perut ?? '' }}"
-                                                data-keluhan-kunjungan="{{ $s->kunjungan?->keluhan ?? '' }}">
+                                                data-keluhan-kunjungan="{{ $s->kunjungan?->keluhan ?? '' }}"
+                                                data-diagnosis="{{ $s->kunjungan?->diagnosis ?? '' }}">
                                                 <i class="fa-solid fa-eye"></i>
                                             </button>
                                             <button class="btn-icon btn-pdf" data-type="kunjungan" title="Download PDF"
@@ -328,6 +330,7 @@
                             ${renderMetric('Tinggi Badan', d.tb, 'cm')}
                             ${renderMetric('Lingkar Perut', d.lp, 'cm')}
                             ${renderInfoRow('Keluhan Kunjungan', d.keluhanKunjungan)}
+                            ${renderInfoRow('Diagnosis', d.diagnosis)}
                         </div>
                     </div>`;
         }
@@ -427,6 +430,7 @@
                     ['Tinggi Badan', detailData.tb ? `${detailData.tb} cm` : '-'],
                     ['Lingkar Perut', detailData.lp ? `${detailData.lp} cm` : '-'],
                     ['Keluhan Kunjungan', sanitizePdfText(detailData.keluhanKunjungan)],
+                    ['Diagnosis', sanitizePdfText(detailData.diagnosis)],
                 ];
             } else {
                 bodyRows = rows;
