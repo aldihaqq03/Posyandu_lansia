@@ -19,6 +19,7 @@ class Skrining_Kunjungan extends Model
         'td_sistolik',
         'td_diastolik',
         'keluhan',
+        'diagnosis',
     ];
 
     // Relasi ke parent (opsional tapi bagus)

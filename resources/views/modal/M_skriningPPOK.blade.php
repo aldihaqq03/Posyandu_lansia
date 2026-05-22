@@ -57,16 +57,9 @@
         <div class="section-title"><i class="fa-solid fa-address-card"></i> Identitas Tambahan</div>
         <div class="form-grid">
             <div class="form-group">
-                <label>Pekerjaan</label>
-                <select name="pekerjaan" class="form-control">
-                    <option value="">-- Pilih --</option>
-                    <option value="1">TNI/POLRI</option>
-                    <option value="2">PNS</option>
-                    <option value="3">Karyawan Swasta</option>
-                    <option value="4">Buruh</option>
-                    <option value="5">Petani/Nelayan</option>
-                    <option value="6">Tidak Bekerja/IRT</option>
-                </select>
+                <label>Pekerjaan Lansia</label>
+                <input type="text" id="pekerjaanDisplay" class="form-control" readonly placeholder="Pilih lansia terlebih dahulu" style="background:#e5e7eb;">
+                <input type="hidden" name="pekerjaan" id="pekerjaanHidden">
             </div>
             <div class="form-group">
                 <label>Status Vaksinasi Covid-19</label>

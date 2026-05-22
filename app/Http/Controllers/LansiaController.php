@@ -207,7 +207,7 @@ class LansiaController extends Controller
             ->whereHas('kunjungan')
             ->with([
                 'petugas:id_petugas,nama',
-                'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan',
+                    'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan,diagnosis',
             ])
             ->orderByDesc('tanggal_skrining')
             ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
@@ -362,6 +362,7 @@ class LansiaController extends Controller
                         'keluarga.*.nama_keluarga' => 'nullable|string|min:3|max:100',
                         'keluarga.*.no_sama' => 'nullable|string|max:15',
                         'keluarga.*.alamat' => 'nullable|string|max:255',
+                        'pekerjaan'         => 'required|string|max:255',
                     ]);
 
                     // Validasi umur >= 40 tahun
@@ -414,7 +415,7 @@ class LansiaController extends Controller
     public function keluhanHistory(Lansia $lansia)
     {
         $skrinings = $lansia->skrinings()
-            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt')
+            ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,diagnosis')
             ->orderByDesc('tanggal_skrining')
             ->get(['id_skrining', 'tanggal_skrining', 'keluhan']);
 
@@ -422,6 +423,7 @@ class LansiaController extends Controller
             return [
                 'tanggal_skrining' => $s->tanggal_skrining,
                 'keluhan'          => $s->keluhan ?? 'Tidak ada keluhan',
+                'diagnosis'        => $s->kunjungan?->diagnosis ?? 'Tidak ada diagnosis',
                 'td_sistolik'      => $s->kunjungan?->td_sistolik  ?? null,
                 'td_diastolik'     => $s->kunjungan?->td_diastolik ?? null,
                 'berat_badan'      => $s->kunjungan?->berat_badan  ?? null,
@@ -465,6 +467,7 @@ class LansiaController extends Controller
             'keluarga.*.nama_keluarga'       => 'nullable|string|min:3|max:100',
             'keluarga.*.no_sama'             => 'nullable|string|max:15',
             'keluarga.*.alamat'              => 'nullable|string|max:255',
+            'pekerjaan'                      => 'required|string|max:255',
         ], [
             'keluarga.0.nama_keluarga.required' => 'Nama anggota keluarga pertama wajib diisi.',
             'keluarga.required'                 => 'Minimal satu anggota keluarga wajib diisi.',
