@@ -106,13 +106,14 @@ $tahun_ini = DB::table('skrining_kunjungan')
 
         // DATA TABEL LAPORAN
         $laporan = DB::table('jadwal_posyandu')
-            ->select(
-                'id_jadwal_posyandu',
-                'tanggal_pelaksanaan',
-                'tema'
-            )
-            ->latest('tanggal_pelaksanaan')
-            ->get();
+    ->select(
+        'id_jadwal_posyandu',
+        'tanggal_pelaksanaan',
+        'tema'
+    )
+    ->whereDate('tanggal_pelaksanaan', '<', now()->toDateString())
+    ->latest('tanggal_pelaksanaan')
+    ->get();
 
         $summary = [
             'hari_ini' => $hari_ini,
