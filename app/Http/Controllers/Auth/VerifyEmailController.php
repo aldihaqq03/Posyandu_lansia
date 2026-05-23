@@ -25,6 +25,6 @@ class VerifyEmailController extends Controller
 
         Auth::login($user);
 
-        return redirect('/dashboard')->with('success', 'Email berhasil diverifikasi.');
+        return view('auth.verified');
     }
 }

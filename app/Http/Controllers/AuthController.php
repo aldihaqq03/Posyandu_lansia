@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Models\User;
 use App\Models\Petugas;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,10 +35,11 @@ class AuthController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return redirect('/login')->withErrors(['email' => 'Akun lansia hanya dapat diakses melalui aplikasi mobile.']);
         }
 
-        if (!$user || !$user->petugas || !$user->email_verified_at || $user->petugas->status !== 'aktif') {
+        if (! $user || ! $user->petugas || ! $user->email_verified_at || $user->petugas->status !== 'aktif') {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -98,10 +99,4 @@ class AuthController extends Controller
 
         return redirect('/');
     }
-
-
-
-
-
-
 }
