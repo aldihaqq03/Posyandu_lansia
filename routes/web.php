@@ -8,6 +8,7 @@ use App\Http\Controllers\JadwalPosyanduController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\SkriningController;
 use App\Http\Controllers\SaranController;
+use App\Http\Controllers\LaporanController;
 
 
 /*
@@ -123,7 +124,12 @@ Route::middleware('auth')->group(function () {
         // Rute Laporan (Hanya Admin)
         Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
         Route::get('/laporan/detail/{id}', [\App\Http\Controllers\LaporanController::class, 'detail']);
+
+        // Route Export PDF Laporan
+        Route::get('/laporan/export/{id}', [LaporanController::class, 'exportPdf'])
+        ->name('laporan.export');
     });
+
 
 
     /*

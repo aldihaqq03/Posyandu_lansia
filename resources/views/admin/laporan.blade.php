@@ -441,10 +441,12 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
     Detail
 </button>
 
-    <button class="export-btn-table">
-        <i class="fa-solid fa-download"></i>
-        Export
-    </button>
+    <a href="{{ route('laporan.export', $item->id_jadwal_posyandu) }}"
+   target="_blank"
+   class="export-btn-table">
+    <i class="fa-solid fa-download"></i>
+    Export
+</a>
 
 </td>
 </tr>
@@ -515,13 +517,15 @@ data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}
 </button>
 
     </div>
-    <div id="exportObatWrapper" 
+   <div id="exportObatWrapper"
 style="display:none; margin-top:0; margin-bottom:16px;">
 
-    <button class="export-btn-table">
+    <a href="#"
+       id="btnExportPdf"
+       class="export-btn-table">
         <i class="fa-solid fa-download"></i>
-        Export Obat Keluar
-    </button>
+        Export
+    </a>
 
 </div>
 
@@ -609,6 +613,7 @@ style="display:none; margin-top:0; margin-bottom:16px;">
 
 @push('scripts')
 <script>
+let currentJadwalId = null;    
 document.addEventListener("DOMContentLoaded", () => {
 
 const counters = document.querySelectorAll('.stat-value');
@@ -656,10 +661,15 @@ detailButtons.forEach(button => {
 
         const id = button.dataset.id;
 
-        const response = await fetch(`/laporan/detail/${id}`);
+currentJadwalId = id;
+
+document.getElementById('btnExportPdf').href =
+    `/laporan/export/${id}`;
+
+const response = await fetch(`/laporan/detail/${id}`);
 
         const data = await response.json();
-         /* =========================
+/* =========================
    DETAIL JADWAL
 ========================= */
 
@@ -850,5 +860,20 @@ rows.forEach(row => {
 
 filterBulan.addEventListener('change', filterLaporan);
 filterTahun.addEventListener('change', filterLaporan);
+
+document.getElementById('btnExportPdf').addEventListener('click', function(e){
+
+    e.preventDefault();
+
+    if(!currentJadwalId){
+        alert('Data jadwal belum dipilih');
+        return;
+    }
+
+    console.log(currentJadwalId);
+
+    window.open(`/laporan/export/${currentJadwalId}`, '_blank');
+
+});
 </script>
 @endpush

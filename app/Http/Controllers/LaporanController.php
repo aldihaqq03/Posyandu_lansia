@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\lansia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
@@ -127,7 +128,9 @@ $laporan = DB::table('jadwal_posyandu')
 ));
     }
    public function detail($id)
+   
 {
+    
     // ambil data jadwal
     $jadwal = DB::table('jadwal_posyandu')
         ->where('id_jadwal_posyandu', $id)
@@ -227,5 +230,22 @@ $obat = DB::table('detail_resep')
         'tema' => $jadwal->tema ?? '-'
     ]
 ]);
+}
+public function exportPdf($id)
+{
+    $jadwal = DB::table('jadwal_posyandu')
+        ->where('id_jadwal_posyandu', $id)
+        ->first();
+
+    $lansia = DB::table('lansia')
+        ->select('nama_lansia')
+        ->get();
+
+    $pdf = Pdf::loadView(
+        'pdf.laporan_posyandu',
+        compact('jadwal', 'lansia')
+    );
+
+    return $pdf->stream('laporan-posyandu.pdf');
 }
 }
