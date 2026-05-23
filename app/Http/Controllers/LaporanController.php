@@ -237,13 +237,56 @@ public function exportPdf($id)
         ->where('id_jadwal_posyandu', $id)
         ->first();
 
-    $lansia = DB::table('lansia')
-        ->select('nama_lansia')
+    $lansia = DB::table('skrining')
+    ->join('lansia','skrining.id_lansia','=','lansia.id_lansia')
+    ->where('skrining.id_jadwal_posyandu',$id)
+    ->select(
+        'lansia.id_lansia',
+        'lansia.nama_lansia',
+        'lansia.nik',
+        'lansia.jenis_kelamin',
+        'lansia.alamat',
+        'lansia.tanggal_lahir'
+    )
+    ->get();
+
+    foreach($lansia as $item){
+    $item->umur =
+        \Carbon\Carbon::parse($item->tanggal_lahir)->age;
+}
+    foreach($lansia as $item){
+
+    $item->umur =
+        \Carbon\Carbon::parse($item->tanggal_lahir)->age;
+
+    $obat = DB::table('detail_resep')
+        ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+        ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+        ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+        ->where('skrining.id_lansia', $item->id_lansia)
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->pluck('obat.nama_obat')
+        ->toArray();
+
+    $item->obat = !empty($obat)
+        ? implode(', ', $obat)
+        : '-';
+}
+
+    $petugas = DB::table('skrining')
+        ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->select('petugas.nama')
+        ->distinct()
         ->get();
 
     $pdf = Pdf::loadView(
         'pdf.laporan_posyandu',
-        compact('jadwal', 'lansia')
+        compact(
+            'jadwal',
+            'lansia',
+            'petugas'
+        )
     );
 
     return $pdf->stream('laporan-posyandu.pdf');

@@ -27,6 +27,10 @@ body{
     margin-bottom:5px;
 }
 
+.section-content{
+    margin-left:13px;
+}
+
 table{
     width:100%;
     border-collapse:collapse;
@@ -62,8 +66,11 @@ table td{
 <div class="garis"></div>
 
 <p class="section-title">
+<p class="section-title">
 A. IDENTITAS KEGIATAN
 </p>
+
+<div class="section-content">
 
 <table style="border:none;">
 <tr>
@@ -84,9 +91,13 @@ A. IDENTITAS KEGIATAN
 </tr>
 </table>
 
+</div>
+
 <p class="section-title">
 B. RINGKASAN KEGIATAN
 </p>
+
+<div class="section-content">
 
 <p>
 Jumlah Kehadiran Lansia :
@@ -94,24 +105,16 @@ Jumlah Kehadiran Lansia :
 </p>
 
 <p>
-Perempuan :
-{{ $lansia->where('jenis_kelamin','Perempuan')->count() }} Orang
+1. Perempuan :
+{{ $lansia->where('jenis_kelamin','P')->count() }} Orang
 </p>
 
 <p>
-Laki-laki :
-{{ $lansia->where('jenis_kelamin','Laki-laki')->count() }} Orang
+2. Laki-laki :
+{{ $lansia->where('jenis_kelamin','L')->count() }} Orang
 </p>
 
-<p>
-Nama Petugas Kesehatan :
-</p>
-
-<ol>
-@foreach($petugas ?? [] as $petugasItem)
-<li>{{ $petugasItem->nama }}</li>
-@endforeach
-</ol>
+</div>
 
 <p class="section-title">
 C. DATA PELAYANAN LANSIA
@@ -154,15 +157,15 @@ C. DATA PELAYANAN LANSIA
 Bondowoso,
 {{ now()->format('d-m-Y') }}
 
-<br><br>
+<br>
 
 Mengetahui,
-
-<br><br><br><br>
-
+<br>
 Ketua Posyandu Lansia
 
-<br><br><br>
+<br><br><br><br><br>
+
+
 
 (...................................)
 
