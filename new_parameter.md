@@ -55,7 +55,7 @@ tidak ada tumpang tindih dengan SkriningHelper.
 | Perlu TL | ≥ 200 mg/dL   |
 
 > Catatan: Kartu Skrining Posbindu PTM menggunakan gula darah **sewaktu**,
-> bukan puasa. Standar ini sesuai komentar kolom DB:
+
 > `B=80-144, S=145-199, TB=≥200`.
 
 ### 4. Kolesterol Total
@@ -71,7 +71,7 @@ tidak ada tumpang tindih dengan SkriningHelper.
 
 ### 5. IMT (Indeks Massa Tubuh)
 
-gunakan batas yang sudah ada itu udah benar
+gunakan batas yang sudah ada itu udah benar 
 
 ### 6. Lingkar Perut
 
