@@ -176,7 +176,7 @@ C. DATA PELAYANAN LANSIA
 <td>{{ $item->jenis_kelamin ?? '-' }}</td>
 <td>{{ $item->umur ?? '-' }}</td>
 <td>{{ $item->alamat ?? '-' }}</td>
-<td>{{ $item->diagnosa ?? '-' }}</td>
+<td>{{ $item->diagnosis ?? '-' }}</td>
 <td>{{ $item->obat ?? '-' }}</td>
 </tr>
 @endforeach
