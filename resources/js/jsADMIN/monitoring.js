@@ -295,13 +295,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? v >= 140
                         ? "🔴 Perlu Tindak Lanjut"
                         : v >= 130
-                          ? "⚠️ Waspada"
-                          : "✅ Normal"
+                            ? "⚠️ Waspada"
+                            : "✅ Normal"
                     : v >= 90
-                      ? "🔴 Perlu Tindak Lanjut"
-                      : v >= 85
-                        ? "⚠️ Waspada"
-                        : "✅ Normal";
+                        ? "🔴 Perlu Tindak Lanjut"
+                        : v >= 85
+                            ? "⚠️ Waspada"
+                            : "✅ Normal";
                 return `  ${lbl}: ${v} mmHg  ${st}`;
             }, 300),
         );
@@ -334,8 +334,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 200
                         ? "🔴 Perlu Tindak Lanjut"
                         : v >= 145
-                          ? "⚠️ Waspada"
-                          : "✅ Normal";
+                            ? "⚠️ Waspada"
+                            : "✅ Normal";
                 return `  Gula Darah: ${v} mg/dL  ${st}`;
             }, 400),
         );
@@ -368,8 +368,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 190
                         ? "🔴 Perlu Tindak Lanjut"
                         : v >= 150
-                          ? "⚠️ Waspada"
-                          : "✅ Normal";
+                            ? "⚠️ Waspada"
+                            : "✅ Normal";
                 return `  Kolesterol: ${v} mg/dL  ${st}`;
             }, 350),
         );
@@ -397,8 +397,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     Math.abs(diff) < 2
                         ? "Stabil"
                         : diff > 0
-                          ? `↑ ${diff} kg dari rata-rata`
-                          : `↓ ${Math.abs(diff)} kg dari rata-rata`;
+                            ? `↑ ${diff} kg dari rata-rata`
+                            : `↓ ${Math.abs(diff)} kg dari rata-rata`;
                 return `  Berat Badan: ${v} kg  (${note})`;
             }, 150),
         );
@@ -469,8 +469,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 22 && v <= 27
                         ? "✅ Normal"
                         : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
-                          ? "⚠️ Waspada"
-                          : "🔴 Perlu Tindak Lanjut";
+                            ? "⚠️ Waspada"
+                            : "🔴 Perlu Tindak Lanjut";
                 return `  IMT: ${v} kg/m²  ${st}`;
             }, 45),
         );
