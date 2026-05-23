@@ -298,6 +298,12 @@ public function exportObat($id)
         ->where('id_jadwal_posyandu', $id)
         ->first();
 
+    // TAMBAHKAN DI SINI
+    $petugas = DB::table('skrining')
+        ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->value('petugas.nama');
+
     $obat = DB::table('detail_resep')
         ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
         ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
@@ -311,7 +317,11 @@ public function exportObat($id)
 
     $pdf = Pdf::loadView(
         'pdf.laporan_obat',
-        compact('jadwal', 'obat')
+        compact(
+            'jadwal',
+            'obat',
+            'petugas' // tambahkan ini juga
+        )
     );
 
     return $pdf->stream('laporan-obat.pdf');

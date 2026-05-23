@@ -13,6 +13,9 @@ Tanggal :
 {{ \Carbon\Carbon::parse($jadwal->tanggal_pelaksanaan)->format('d-m-Y') }}
 </p>
 
+<p>
+    Nama Petugas : {{ $petugas }}
+</p>
 <table border="1" width="100%" cellspacing="0" cellpadding="5">
     <thead>
         <tr>

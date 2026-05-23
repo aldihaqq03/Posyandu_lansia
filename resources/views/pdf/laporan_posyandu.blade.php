@@ -72,23 +72,28 @@ A. IDENTITAS KEGIATAN
 
 <div class="section-content">
 
-<table style="border:none;">
+<table style="border:none;width:100%;">
+
 <tr>
-<td style="border:none;width:180px;">Nama Kegiatan</td>
-<td style="border:none;">: {{ $jadwal->tema }}</td>
+    <td style="border:none;width:120px;">Nama Kegiatan</td>
+    <td style="border:none;width:10px;">:</td>
+    <td style="border:none;">{{ $jadwal->tema }}</td>
 </tr>
 
 <tr>
-<td style="border:none;">Tanggal Kegiatan</td>
-<td style="border:none;">
-: {{ \Carbon\Carbon::parse($jadwal->tanggal_pelaksanaan)->format('d-m-Y') }}
-</td>
+    <td style="border:none;">Tanggal Kegiatan</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">
+        {{ \Carbon\Carbon::parse($jadwal->tanggal_pelaksanaan)->format('d-m-Y') }}
+    </td>
 </tr>
 
 <tr>
-<td style="border:none;">Lokasi</td>
-<td style="border:none;">: Posyandu Lansia</td>
+    <td style="border:none;">Lokasi</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">{{ $jadwal->lokasi ?? '-' }}</td>
 </tr>
+
 </table>
 
 </div>
@@ -99,20 +104,48 @@ B. RINGKASAN KEGIATAN
 
 <div class="section-content">
 
-<p>
-Jumlah Kehadiran Lansia :
-{{ count($lansia) }} Orang
-</p>
+<table style="border:none;width:100%;">
 
-<p>
-1. Perempuan :
-{{ $lansia->where('jenis_kelamin','P')->count() }} Orang
-</p>
+<tr>
+    <td style="border:none;width:120px;">Jumlah Kehadiran Lansia</td>
+    <td style="border:none;width:10px;">:</td>
+    <td style="border:none;">{{ count($lansia) }} Orang</td>
+</tr>
 
-<p>
-2. Laki-laki :
-{{ $lansia->where('jenis_kelamin','L')->count() }} Orang
-</p>
+<tr>
+    <td style="border:none;">1. Perempuan</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">
+        {{ $lansia->where('jenis_kelamin','P')->count() }} Orang
+    </td>
+</tr>
+
+<tr>
+    <td style="border:none;">2. Laki-laki</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">
+        {{ $lansia->where('jenis_kelamin','L')->count() }} Orang
+    </td>
+</tr>
+
+<tr>
+    <td style="border:none;vertical-align:top;">
+        Nama Petugas Kesehatan
+    </td>
+
+    <td style="border:none;vertical-align:top;">
+        :
+    </td>
+
+    <td style="border:none;">
+        <span style="display:block;">
+            @foreach($petugas as $p)
+                {{ $loop->iteration }}. {{ $p->nama }}<br>
+            @endforeach
+        </span>
+    </td>
+</tr>
+</table>
 
 </div>
 
@@ -167,7 +200,7 @@ Ketua Posyandu Lansia
 
 
 
-(...................................)
+(Indri)
 
 </div>
 
