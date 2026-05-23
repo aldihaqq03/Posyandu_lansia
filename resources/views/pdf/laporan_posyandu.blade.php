@@ -1,65 +1,174 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Laporan Posyandu</title>
+<meta charset="utf-8">
 
-    <style>
-        body{
-            font-family: DejaVu Sans, sans-serif;
-            font-size:12px;
-        }
+<style>
+body{
+    font-family: "Times New Roman", serif;
+    font-size:12px;
+    margin:30px;
+}
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:10px;
-        }
+.judul{
+    text-align:center;
+    line-height:1.7;
+}
 
-        table, th, td{
-            border:1px solid #000;
-        }
+.garis{
+    border-top:2px solid #000;
+    margin-top:10px;
+    margin-bottom:10px;
+}
 
-        th, td{
-            padding:6px;
-        }
+.section-title{
+    font-weight:bold;
+    margin-top:10px;
+    margin-bottom:5px;
+}
 
-        h2{
-            text-align:center;
-        }
-    </style>
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    border:1px solid #000;
+    padding:4px;
+    font-size:11px;
+}
+
+.ttd{
+    margin-top:80px;
+    width:100%;
+}
+
+.ttd-kanan{
+    float:right;
+    text-align:center;
+}
+</style>
+
 </head>
 <body>
 
-<h2>LAPORAN POSYANDU LANSIA</h2>
+<div class="judul">
+    <strong>LAPORAN KEGIATAN POSYANDU LANSIA</strong><br>
+    POSYANDU PEGAGAN<br>
+    DESA PONCOGATI KECAMATAN CURAHDAMI
+</div>
 
-<p>
-    <strong>Nama Kegiatan :</strong>
-    {{ $jadwal->tema ?? '-' }}
+<div class="garis"></div>
+
+<p class="section-title">
+A. IDENTITAS KEGIATAN
+</p>
+
+<table style="border:none;">
+<tr>
+<td style="border:none;width:180px;">Nama Kegiatan</td>
+<td style="border:none;">: {{ $jadwal->tema }}</td>
+</tr>
+
+<tr>
+<td style="border:none;">Tanggal Kegiatan</td>
+<td style="border:none;">
+: {{ \Carbon\Carbon::parse($jadwal->tanggal_pelaksanaan)->format('d-m-Y') }}
+</td>
+</tr>
+
+<tr>
+<td style="border:none;">Lokasi</td>
+<td style="border:none;">: Posyandu Lansia</td>
+</tr>
+</table>
+
+<p class="section-title">
+B. RINGKASAN KEGIATAN
 </p>
 
 <p>
-    <strong>Tanggal :</strong>
-    {{ $jadwal->tanggal_pelaksanaan ?? '-' }}
+Jumlah Kehadiran Lansia :
+{{ count($lansia) }} Orang
+</p>
+
+<p>
+Perempuan :
+{{ $lansia->where('jenis_kelamin','Perempuan')->count() }} Orang
+</p>
+
+<p>
+Laki-laki :
+{{ $lansia->where('jenis_kelamin','Laki-laki')->count() }} Orang
+</p>
+
+<p>
+Nama Petugas Kesehatan :
+</p>
+
+<ol>
+@foreach($petugas ?? [] as $petugasItem)
+<li>{{ $petugasItem->nama }}</li>
+@endforeach
+</ol>
+
+<p class="section-title">
+C. DATA PELAYANAN LANSIA
 </p>
 
 <table>
-    <thead>
-        <tr>
-            <th>No</th>
-            <th>Nama Lansia</th>
-        </tr>
-    </thead>
+<thead>
+<tr>
+<th>No</th>
+<th>Nama Lansia</th>
+<th>NIK</th>
+<th>JK</th>
+<th>Umur</th>
+<th>Alamat</th>
+<th>Diagnosa</th>
+<th>Obat</th>
+</tr>
+</thead>
 
-    <tbody>
-        @foreach($lansia as $item)
-        <tr>
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $item->nama_lansia }}</td>
-        </tr>
-        @endforeach
-    </tbody>
+<tbody>
+@foreach($lansia as $item)
+<tr>
+<td>{{ $loop->iteration }}</td>
+<td>{{ $item->nama_lansia }}</td>
+<td>{{ $item->nik ?? '-' }}</td>
+<td>{{ $item->jenis_kelamin ?? '-' }}</td>
+<td>{{ $item->umur ?? '-' }}</td>
+<td>{{ $item->alamat ?? '-' }}</td>
+<td>{{ $item->diagnosa ?? '-' }}</td>
+<td>{{ $item->obat ?? '-' }}</td>
+</tr>
+@endforeach
+</tbody>
 </table>
+
+<div class="ttd">
+
+<div class="ttd-kanan">
+
+Bondowoso,
+{{ now()->format('d-m-Y') }}
+
+<br><br>
+
+Mengetahui,
+
+<br><br><br><br>
+
+Ketua Posyandu Lansia
+
+<br><br><br>
+
+(...................................)
+
+</div>
+
+</div>
 
 </body>
 </html>
