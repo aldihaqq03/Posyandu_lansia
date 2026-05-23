@@ -4,6 +4,9 @@ use App\Http\Controllers\LansiaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PetugasController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\JadwalPosyanduController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\SkriningController;
@@ -19,10 +22,23 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/register', [AuthController::class, 'proses_register'])->name('proses_register');
 
+    Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('/forgot-password/otp', [NewPasswordController::class, 'otpForm'])->name('password.otp.form');
+    Route::post('/forgot-password/otp', [NewPasswordController::class, 'verifyOtp'])->name('password.otp.verify');
+    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+    // Tambah di dalam middleware('guest') group, setelah route password.store
+    Route::get('/reset-password', fn() => redirect()->route('login'))->name('password.reset.fallback');
+
     Route::view('/', 'welcome')->name('welcome');
 
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'proses_login'])->name('proses_login');
+
+    Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware('signed')
+        ->name('verification.verify');
 
 });
 
@@ -146,8 +162,6 @@ Route::middleware('auth')->group(function () {
 | Halaman Sukses
 |--------------------------------------------------------------------------
 */
-
-Route::view('/berhasil', 'simpel.berhasil')->name('berhasil');
 
 Route::get('/set-telegram-webhook', function () {
     $token = env('TELEGRAM_BOT_TOKEN');

@@ -1,4 +1,4 @@
-﻿/* resources/js/jsAdmin/data_lansia.js */
+/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 1. Animasi Angka Statistik
@@ -196,30 +196,14 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-kolesterol", data.kolesterol ?? "-");
             setText("d-imt", data.imt ?? "-");
 
-            // Apply status colors to health cards based on elderly parameters
-            applyCardStatus("hcard-sistolik", data.sistolik, (v) =>
-                v < 130 ? "normal" : v <= 139 ? "waspada" : "tinggi",
-            );
-            applyCardStatus("hcard-diastolik", data.diastolik, (v) =>
-                v < 85 ? "normal" : v <= 89 ? "waspada" : "tinggi",
-            );
-            applyCardStatus("hcard-gula", data.gula_darah, (v) =>
-                v >= 70 && v <= 100
-                    ? "normal"
-                    : v <= 125
-                      ? "waspada"
-                      : "tinggi",
-            );
-            applyCardStatus("hcard-kolesterol", data.kolesterol, (v) =>
-                v < 200 ? "normal" : v <= 239 ? "waspada" : "tinggi",
-            );
-            applyCardStatus("hcard-imt", data.imt, (v) =>
-                v >= 22 && v <= 27
-                    ? "normal"
-                    : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
-                      ? "waspada"
-                      : "tinggi",
-            );
+            // Apply status colors to health cards based on elderly parameters from backend
+            if (data.detail) {
+                applyCardStatus("hcard-sistolik", data.detail.sistolik.status);
+                applyCardStatus("hcard-diastolik", data.detail.diastolik.status);
+                applyCardStatus("hcard-gula", data.detail.gula_darah.status);
+                applyCardStatus("hcard-kolesterol", data.detail.kolesterol.status);
+                applyCardStatus("hcard-imt", data.detail.imt.status);
+            }
         } catch {
             [
                 "d-sistolik",
@@ -231,14 +215,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function applyCardStatus(cardId, value, classifier) {
+    function applyCardStatus(cardId, status) {
         const el = document.getElementById(cardId);
-        if (!el || value === null || value === undefined || value === "-")
-            return;
-        const v = parseFloat(value);
-        if (isNaN(v) || v <= 0) return;
-        const status = classifier(v);
-        el.classList.add(`status-${status}`);
+        if (!el || !status) return;
+        // Map 'perlu_tindak_lanjut' to 'tinggi' to match existing CSS class (.status-tinggi)
+        const mappedStatus = status === 'perlu_tindak_lanjut' ? 'tinggi' : status;
+        el.classList.add(`status-${mappedStatus}`);
     }
 
     async function fetchKeluargaData(id) {

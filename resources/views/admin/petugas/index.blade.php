@@ -16,9 +16,9 @@
         <p>Kelola informasi kader dan tenaga kesehatan Posyandu SIMPEL.</p>
     </div>
 
-    <a href="{{ route('petugas.tambah') }}" class="btn-primary">
+    <button type="button" class="btn-primary" id="btn-tambah-petugas">
         <i class="fa fa-user-plus"></i> Tambah Petugas
-    </a>
+    </button>
 
 </div>
 
@@ -96,7 +96,23 @@
 
                 <td class="user-cell">
 
-                    <img src="{{ $p->foto ? asset('storage/'.$p->foto) : 'https://i.pravatar.cc/40' }}">
+                    @php
+                        $petugasName = trim($p->nama ?? 'Petugas');
+                        $petugasParts = preg_split('/\s+/', $petugasName, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                        $petugasInitials = collect($petugasParts)
+                            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+                            ->take(2)
+                            ->implode('');
+                        if ($petugasInitials === '') {
+                            $petugasInitials = strtoupper(substr($petugasName, 0, 2));
+                        }
+                    @endphp
+
+                    @if($p->foto)
+                        <img src="{{ asset('storage/'.$p->foto) }}" alt="Foto {{ $p->nama }}">
+                    @else
+                        <div class="user-avatar-fallback">{{ $petugasInitials }}</div>
+                    @endif
 
                     <div>
                         <strong>{{ $p->nama }}</strong>
@@ -160,4 +176,107 @@
 
 </div>
 
+<div class="modal-overlay" id="modalTambahPetugas">
+    <div class="petugas-modal">
+        <div class="petugas-modal-header">
+            <div>
+                <h3>Tambah Petugas</h3>
+                <p>Daftarkan petugas baru untuk sistem SIMPEL.</p>
+            </div>
+            <button type="button" class="btn-close-modal" id="btn-close-tambah-petugas" aria-label="Tutup modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form action="{{ route('petugas.store') }}" method="POST" enctype="multipart/form-data" id="form-tambah-petugas" novalidate>
+            @csrf
+            <div class="petugas-modal-body">
+                <div class="form-grid-modal">
+                    @php
+                        $petugasName = trim(old('nama') ?: 'Petugas');
+                        $petugasParts = preg_split('/\s+/', $petugasName, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                        $petugasInitials = collect($petugasParts)
+                            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+                            ->take(2)
+                            ->implode('');
+                        if ($petugasInitials === '') {
+                            $petugasInitials = strtoupper(substr($petugasName, 0, 2));
+                        }
+                    @endphp
+
+                    <div class="form-group-modal full-width">
+                        <label>Foto <span class="optional-label">(opsional)</span></label>
+                        <div class="photo-zone" id="petugas-photo-zone">
+                            <div class="photo-preview" id="petugas-photo-preview">
+                                <div class="photo-preview-fallback" id="petugas-photo-fallback">{{ $petugasInitials }}</div>
+                            </div>
+                            <div class="photo-zone-copy">
+                                <strong>Klik untuk unggah foto</strong>
+                                <p>Gunakan JPG, PNG, atau WEBP maksimal 2MB.</p>
+                            </div>
+                            <input type="file" name="foto" accept="image/*" id="foto" hidden>
+                        </div>
+                        <small class="field-error" id="error-foto"></small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Nama Lengkap</label>
+                        <input type="text" name="nama" id="nama" placeholder="Masukkan nama lengkap" value="{{ old('nama') }}" required>
+                        <small class="field-error" id="error-nama">@error('nama'){{ $message }}@enderror</small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>NIK</label>
+                        <input type="text" name="nik" id="nik" placeholder="16 digit NIK" value="{{ old('nik') }}" required>
+                        <small class="field-error" id="error-nik">@error('nik'){{ $message }}@enderror</small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Jabatan</label>
+                        <select name="jabatan" id="jabatan" required>
+                            <option value="">Pilih Jabatan</option>
+                            <option value="kader" {{ old('jabatan') === 'kader' ? 'selected' : '' }}>kader</option>
+                            <option value="kepala_kader" {{ old('jabatan') === 'kepala_kader' ? 'selected' : '' }}>kepala_kader</option>
+                        </select>
+                        <small class="field-error" id="error-jabatan">@error('jabatan'){{ $message }}@enderror</small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Nomor WhatsApp</label>
+                        <input type="text" name="no_hp" id="no_hp" placeholder="+62" value="{{ old('no_hp') }}" required>
+                        <small class="field-error" id="error-no_hp">@error('no_hp'){{ $message }}@enderror</small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Email</label>
+                        <input type="email" name="email" id="email" placeholder="nama@gmail.com" value="{{ old('email') }}" required>
+                        <small class="field-error" id="error-email">@error('email'){{ $message }}@enderror</small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Kata Sandi</label>
+                        <input type="password" name="password" id="password" placeholder="Minimal 8 karakter" required>
+                        <small class="field-error" id="error-password">@error('password'){{ $message }}@enderror</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="petugas-modal-footer">
+                <button type="button" class="btn-outline-modal" id="btn-batal-tambah-petugas">Batal</button>
+                <button type="submit" class="btn-primary" id="btn-submit-tambah-petugas">
+                    <i class="fa fa-save"></i> Simpan Petugas
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if ($errors->any())
+    <div id="petugas-form-errors" data-has-errors="1" style="display:none;"></div>
+@endif
+
 @endsection
+
+@push('scripts')
+    @vite('resources/js/jsADMIN/data_petugas.js')
+@endpush

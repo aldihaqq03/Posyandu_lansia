@@ -55,13 +55,119 @@
     background: white;
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 2px 4px -1px rgba(0, 0, 0, 0.03);
     border: 1px solid #f3f4f6;
     display: none;
 }
 
 .tab-content.active {
     display: block;
+}
+
+.profile-edit-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+}
+
+.btn-edit-profile {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-photo-card {
+    margin-bottom: 20px;
+}
+
+.profile-photo-zone {
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.profile-photo-zone:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.08);
+    transform: translateY(-1px);
+}
+
+.profile-photo-zone.is-editing {
+    border-style: solid;
+    border-color: #3b82f6;
+}
+
+.profile-photo-preview {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e2e8f0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-photo-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 800;
+    color: #0f172a;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+.profile-photo-copy strong {
+    display: block;
+    font-size: 15px;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.profile-photo-copy p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.profile-form-grid input[readonly] {
+    background: #f8fafc;
+}
+
+.profile-form-grid input[readonly] {
+    cursor: default;
+}
+
+.profile-form-grid input:not([readonly]) {
+    background: #fff;
 }
 
 /* Alert/Toast from session */
@@ -142,4 +248,11 @@
 
 .btn-submit:hover {
     background: #2563eb;
+}
+
+@media (max-width: 640px) {
+    .profile-photo-zone {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
