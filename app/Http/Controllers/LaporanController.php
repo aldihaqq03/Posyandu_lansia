@@ -239,40 +239,37 @@ public function exportPdf($id)
         ->first();
 
     $lansia = DB::table('skrining')
-    ->join('lansia','skrining.id_lansia','=','lansia.id_lansia')
-    ->where('skrining.id_jadwal_posyandu',$id)
+    ->join('lansia', 'skrining.id_lansia', '=', 'lansia.id_lansia')
+    ->leftJoin(
+        'skrining_kunjungan',
+        'skrining.id_skrining',
+        '=',
+        'skrining_kunjungan.id_skrining'
+    )
+    ->where('skrining.id_jadwal_posyandu', $id)
     ->select(
-        'lansia.id_lansia',
-        'lansia.nama_lansia',
-        'lansia.nik',
-        'lansia.jenis_kelamin',
-        'lansia.alamat',
-        'lansia.tanggal_lahir'
+        'lansia.*',
+        'skrining_kunjungan.diagnosis'
     )
     ->get();
 
-    foreach($lansia as $item){
-    $item->umur =
-        \Carbon\Carbon::parse($item->tanggal_lahir)->age;
-}
-    foreach($lansia as $item){
+    foreach ($lansia as $item) {
 
-    $item->umur =
-        \Carbon\Carbon::parse($item->tanggal_lahir)->age;
+        $item->umur = Carbon::parse($item->tanggal_lahir)->age;
 
-    $obat = DB::table('detail_resep')
-        ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
-        ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
-        ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
-        ->where('skrining.id_lansia', $item->id_lansia)
-        ->where('skrining.id_jadwal_posyandu', $id)
-        ->pluck('obat.nama_obat')
-        ->toArray();
+        $obat = DB::table('detail_resep')
+            ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+            ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+            ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+            ->where('skrining.id_lansia', $item->id_lansia)
+            ->where('skrining.id_jadwal_posyandu', $id)
+            ->pluck('obat.nama_obat')
+            ->toArray();
 
-    $item->obat = !empty($obat)
-        ? implode(', ', $obat)
-        : '-';
-}
+        $item->obat = !empty($obat)
+            ? implode(', ', $obat)
+            : '-';
+    }
 
     $petugas = DB::table('skrining')
         ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
@@ -298,29 +295,30 @@ public function exportObat($id)
         ->where('id_jadwal_posyandu', $id)
         ->first();
 
-    // TAMBAHKAN DI SINI
     $petugas = DB::table('skrining')
         ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
         ->where('skrining.id_jadwal_posyandu', $id)
         ->value('petugas.nama');
 
     $obat = DB::table('detail_resep')
-        ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
-        ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
-        ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
-        ->where('skrining.id_jadwal_posyandu', $id)
-        ->select(
-            'obat.nama_obat',
-            'detail_resep.jumlah_obat'
-        )
-        ->get();
+    ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+    ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+    ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+    ->where('skrining.id_jadwal_posyandu', $id)
+    ->select(
+        'obat.nama_obat',
+        'obat.tipe_obat',
+        'detail_resep.jumlah_obat as keluar',
+        'obat.stock as sisa_stok'
+    )
+    ->get();
 
     $pdf = Pdf::loadView(
         'pdf.laporan_obat',
         compact(
             'jadwal',
             'obat',
-            'petugas' // tambahkan ini juga
+            'petugas'
         )
     );
 

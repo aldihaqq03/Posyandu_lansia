@@ -162,7 +162,7 @@ C. DATA PELAYANAN LANSIA
 <th>JK</th>
 <th>Umur</th>
 <th>Alamat</th>
-<th>Diagnosa</th>
+<th>Diagnosis</th>
 <th>Obat</th>
 </tr>
 </thead>
