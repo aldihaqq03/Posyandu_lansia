@@ -1,4 +1,3 @@
-
 function formatDateIndo(dateStr) {
     if (!dateStr) return "";
     const date = new Date(dateStr);
@@ -51,6 +50,11 @@ document.addEventListener("DOMContentLoaded", function () {
         'meta[name="csrf-token"]',
     )?.content;
 
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value ?? "-";
+    }
+
     // ===================== MODAL TAMBAH =====================
     const modalTambah = document.getElementById("modalTambahJadwal");
     const btnTambah = document.getElementById("btn-tambah-jadwal");
@@ -92,6 +96,122 @@ document.addEventListener("DOMContentLoaded", function () {
     btnCancelEdit?.addEventListener("click", closeModalEdit);
     modalEdit?.addEventListener("click", (e) => {
         if (e.target === modalEdit) closeModalEdit();
+    });
+
+    // ===================== MODAL DETAIL =====================
+    const modalDetail = document.getElementById("modalDetailJadwal");
+    const btnCloseDetail = document.getElementById("btn-close-modal-detail");
+    const btnCloseDetailFooter = document.getElementById(
+        "btn-close-modal-detail-footer",
+    );
+
+    function openModalDetail() {
+        modalDetail?.classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModalDetail() {
+        modalDetail?.classList.remove("open");
+        document.body.style.overflow = "";
+    }
+
+    btnCloseDetail?.addEventListener("click", closeModalDetail);
+    btnCloseDetailFooter?.addEventListener("click", closeModalDetail);
+    modalDetail?.addEventListener("click", (e) => {
+        if (e.target === modalDetail) closeModalDetail();
+    });
+
+    function renderStatusBadge(status) {
+        const badge = document.getElementById("detail-status-badge");
+        if (!badge) return;
+
+        const map = {
+            0: { label: "Terjadwal", cls: "badge-terjadwal" },
+            1: { label: "Berlangsung", cls: "badge-berlangsung" },
+            2: { label: "Selesai", cls: "badge-selesai" },
+            3: { label: "Dibatalkan", cls: "badge-batal" },
+        };
+        const conf = map[status] || { label: "-", cls: "" };
+
+        badge.className = "badge";
+        if (conf.cls) badge.classList.add(conf.cls);
+        badge.textContent = conf.label;
+    }
+
+    function renderDetailSkrining(detailSkrining = []) {
+        const container = document.getElementById("detail-skrining-tags");
+        if (!container) return;
+
+        container.innerHTML = "";
+        const map = {
+            1: "Skrining Utama",
+            2: "Skrining PPOK",
+            3: "Kunjungan Rutin",
+        };
+
+        if (!Array.isArray(detailSkrining) || detailSkrining.length === 0) {
+            container.innerHTML =
+                '<span class="detail-tag">Belum ada data skrining</span>';
+            return;
+        }
+
+        detailSkrining.forEach((item) => {
+            const code = parseInt(item.jenis_skrining);
+            const label = map[code] || `Skrining #${code}`;
+            container.innerHTML += `<span class="detail-tag">${label}</span>`;
+        });
+    }
+
+    function renderDetailKegiatan(kegiatan = []) {
+        const container = document.getElementById("detail-kegiatan-list");
+        if (!container) return;
+
+        container.innerHTML = "";
+        if (!Array.isArray(kegiatan) || kegiatan.length === 0) {
+            container.innerHTML =
+                '<div class="detail-empty">Belum ada kegiatan.</div>';
+            return;
+        }
+
+        kegiatan.forEach((item, idx) => {
+            const nama = typeof item === "object" ? item.nama : item;
+            const jam = typeof item === "object" ? item.jam : "";
+            container.innerHTML += `
+                <div class="detail-kegiatan-item">
+                    <span class="detail-kegiatan-no">${idx + 1}</span>
+                    <span class="detail-kegiatan-nama">${nama || "-"}</span>
+                    <span class="detail-kegiatan-jam">${jam || "-"}</span>
+                </div>
+            `;
+        });
+    }
+
+    document.querySelectorAll(".btn-detail").forEach((btn) => {
+        btn.addEventListener("click", function () {
+            const id = this.dataset.id;
+            if (!id) return;
+
+            fetch(`/jadwal_posyandu/${id}`, {
+                headers: { Accept: "application/json" },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    setText("detail-tema", data.tema || "-");
+                    setText(
+                        "detail-tanggal",
+                        formatDateIndo(data.tanggal_pelaksanaan),
+                    );
+                    setText("detail-lokasi", data.lokasi || "-");
+                    setText("detail-catatan", data.keterangan || "-");
+                    renderStatusBadge(parseInt(data.status));
+                    renderDetailSkrining(data.detail_skrining || []);
+                    renderDetailKegiatan(data.kegiatan || []);
+                    openModalDetail();
+                })
+                .catch(() => {
+                    alert("Gagal mengambil detail jadwal!");
+                });
+        });
     });
 
     // ===================== FETCH DATA MODAL EDIT =====================
@@ -300,6 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.key === "Escape") {
             closeModalTambah();
             closeModalEdit();
+            closeModalDetail();
         }
     });
 

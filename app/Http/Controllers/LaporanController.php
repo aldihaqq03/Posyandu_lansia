@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Models\lansia;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
@@ -17,7 +15,6 @@ class LaporanController extends Controller
         $harianData = [];
 
         $kunjunganQuery = DB::table('kunjungan');
-
 
         for ($i = 6; $i >= 0; $i--) {
             // Mengambil tanggal dari 6 hari lalu sampai hari ini
@@ -33,7 +30,7 @@ class LaporanController extends Controller
 
         $harian = [
             'labels' => $harianLabels,
-            'data' => $harianData
+            'data' => $harianData,
         ];
 
         // 2. Data Mingguan (Kehadiran rentang minggu dalam Bulan Ini)
@@ -64,7 +61,7 @@ class LaporanController extends Controller
 
         $mingguan = [
             'labels' => $mingguanLabels,
-            'data' => $mingguanData
+            'data' => $mingguanData,
         ];
 
         // 3. Data Tahunan (Kehadiran 12 Bulan)
@@ -83,11 +80,12 @@ class LaporanController extends Controller
 
         $tahunan = [
             'labels' => $tahunanLabels,
-            'data' => $tahunanData
+            'data' => $tahunanData,
         ];
 
         // 4. Summary Atas
         // 4. Summary Atas
+
 $hari_ini = DB::table('skrining_kunjungan')
     ->whereDate('created_at', now()->toDateString())
     ->count();
@@ -103,15 +101,18 @@ $tahun_ini = DB::table('skrining_kunjungan')
     ->whereYear('created_at', Carbon::now()->year)
     ->count();
 
-// DATA TABEL LAPORAN
-$laporan = DB::table('jadwal_posyandu')
-    ->select(
-        'id_jadwal_posyandu',
-        'tanggal_pelaksanaan',
-        'tema'
-    )
-    ->latest('tanggal_pelaksanaan')
-    ->get();
+       
+
+
+        // DATA TABEL LAPORAN
+        $laporan = DB::table('jadwal_posyandu')
+            ->select(
+                'id_jadwal_posyandu',
+                'tanggal_pelaksanaan',
+                'tema'
+            )
+            ->latest('tanggal_pelaksanaan')
+            ->get();
 
         $summary = [
             'hari_ini' => $hari_ini,
@@ -120,12 +121,12 @@ $laporan = DB::table('jadwal_posyandu')
         ];
 
         return view('admin.laporan', compact(
-    'harian',
-    'mingguan',
-    'tahunan',
-    'summary',
-    'laporan'
-));
+            'harian',
+            'mingguan',
+            'tahunan',
+            'summary',
+            'laporan'
+        ));
     }
    public function detail($id)
    
@@ -290,5 +291,29 @@ public function exportPdf($id)
     );
 
     return $pdf->stream('laporan-posyandu.pdf');
+}
+public function exportObat($id)
+{
+    $jadwal = DB::table('jadwal_posyandu')
+        ->where('id_jadwal_posyandu', $id)
+        ->first();
+
+    $obat = DB::table('detail_resep')
+        ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+        ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+        ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->select(
+            'obat.nama_obat',
+            'detail_resep.jumlah_obat'
+        )
+        ->get();
+
+    $pdf = Pdf::loadView(
+        'pdf.laporan_obat',
+        compact('jadwal', 'obat')
+    );
+
+    return $pdf->stream('laporan-obat.pdf');
 }
 }

@@ -479,6 +479,7 @@
 .modal-overlay.active {
     display: flex;
     opacity: 1;
+    pointer-events: auto;
 }
 
 .modal-content {

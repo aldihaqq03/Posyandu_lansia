@@ -1,103 +1,76 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Konten;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class KontenController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $konten = Konten::orderBy('created_at', 'desc')->get();
-        return view('admin.konten.index', compact('konten'));
-    }
+        try {
+            $konten = Konten::orderBy('created_at', 'desc')->get();
 
-    public function create()
-    {
-        return view('admin.konten.tambah');
-    }
+            $data = $konten->map(function ($item) {
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'judul'          => 'required|string|max:255',
-            'tipe_konten'    => 'required|integer',
-            'kategori_konten'=> 'required|integer',
-            'gambar'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'video'          => 'nullable|mimes:mp4,mov,avi,wmv|max:51200',
-            'deskripsi'      => 'nullable|string',
-        ]);
+                // Gambar URL
+                $gambarUrl = '';
+                if ($item->gambar && $item->gambar !== '') {
+                    $gambarUrl = url('storage/' . $item->gambar);
+                }
 
-        $data = $request->only(['judul', 'tipe_konten', 'kategori_konten', 'deskripsi']);
+                // Video URL
+                $videoUrl = '';
+                if ($item->video && $item->video !== '') {
+                    $videoUrl = url('storage/' . $item->video);
+                }
 
-        // tipe_konten: 1 = Video, 2 = Gambar, 3 = Artikel
-        if ((int)$request->tipe_konten === 1 && $request->hasFile('video')) {
-            $file     = $request->file('video');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path     = $file->storeAs('konten/video', $filename, 'public');
-            $data['video']      = $path;
-            $data['path_konten'] = $path;
+                // full_url: sudah di-handle model via getFullUrlAttribute()
+                // tapi kita override per tipe supaya lebih akurat
+                $tipe = (int) $item->tipe_konten;
+                if ($tipe === 1) {
+                    // Video → full_url = video url
+                    $fullUrl = $videoUrl ?: ($item->full_url ?? '');
+                } elseif ($tipe === 2) {
+                    // Gambar → full_url = gambar url
+                    $fullUrl = $gambarUrl ?: ($item->full_url ?? '');
+                } else {
+                    // Artikel → pakai full_url dari model
+                    $fullUrl = $item->full_url ?? '';
+                }
 
-        } elseif ((int)$request->tipe_konten === 2 && $request->hasFile('gambar')) {
-            $file     = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path     = $file->storeAs('konten/gambar', $filename, 'public');
-            $data['gambar']     = $path;
-            $data['path_konten'] = $path;
+                return [
+                    'id_konten'       => $item->id_konten,  // ← FIX: pakai id_konten
+                    'judul'           => $item->judul ?? '',
+                    'deskripsi'       => $item->deskripsi ?? '',
+                    'tipe_konten'     => $tipe,
+                    'kategori_konten' => (int) ($item->kategori_konten ?? 0),
+                    'gambar'          => $item->gambar ?? '',
+                    'video'           => $item->video ?? '',
+                    'path_konten'     => $item->path_konten ?? '',
+                    'full_url'        => $fullUrl,
+                    'thumbnail_url'   => $gambarUrl, // thumbnail selalu dari gambar
+                    'durasi_detik'    => (int) ($item->durasi_detik ?? 0),
+                    'created_at'      => $item->created_at
+                        ? $item->created_at->toIso8601String()
+                        : '',
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data'    => $data,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data konten: ' . $e->getMessage(),
+                'data'    => [],
+            ], 500);
         }
-        // tipe 3 (Artikel): tidak ada file, deskripsi sudah terisi dari CKEditor
-
-        Konten::create($data);
-
-        return redirect()->route('konten.index')->with('success', 'Konten berhasil ditambahkan!');
-    }
-
-    public function show($id)
-    {
-        $konten = Konten::findOrFail($id);
-        return view('admin.konten.show', compact('konten'));
-    }
-
-    public function edit($id)
-    {
-        $konten = Konten::findOrFail($id);
-        return view('admin.konten.edit', compact('konten'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'judul'          => 'required|string|max:255',
-            'kategori_konten'=> 'required|integer',
-            'deskripsi'      => 'nullable|string',
-        ]);
-
-        $konten = Konten::findOrFail($id);
-
-        // Hanya update field yang diizinkan
-        $konten->judul           = $request->judul;
-        $konten->kategori_konten = $request->kategori_konten;
-        $konten->deskripsi       = $request->deskripsi;
-        $konten->save();
-
-        return redirect()->route('konten.index')->with('success', 'Konten berhasil diperbarui!');
-    }
-
-    public function destroy($id)
-    {
-        $konten = Konten::findOrFail($id);
-
-        if ($konten->gambar) {
-            Storage::disk('public')->delete($konten->gambar);
-        }
-        if ($konten->video) {
-            Storage::disk('public')->delete($konten->video);
-        }
-
-        $konten->delete();
-
-        return redirect()->route('konten.index')->with('success', 'Konten berhasil dihapus!');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class PengaturanController extends Controller
 {
@@ -22,15 +23,44 @@ class PengaturanController extends Controller
             'nik' => 'nullable|string|max:20',
             'whatsapp' => 'nullable|string|max:20',
             'jabatan' => 'required|string',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $user = Auth::user();
-        $user->nama = $request->nama;
+        $petugas = $user->petugas;
+        $emailChanged = $user->email !== $request->email;
+
+        if ($request->hasFile('foto')) {
+            if ($petugas && $petugas->foto) {
+                Storage::disk('public')->delete($petugas->foto);
+            }
+
+            if ($petugas) {
+                $petugas->foto = $request->file('foto')->store('petugas/profile', 'public');
+                $petugas->save();
+            }
+        }
+
         $user->email = $request->email;
-        $user->nik = $request->nik;
         $user->whatsapp = $request->whatsapp;
-        $user->jabatan = $request->jabatan;
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
         $user->save();
+
+        if ($petugas) {
+            $petugas->nama = $request->nama;
+            $petugas->nik = $request->nik;
+            $petugas->jabatan = $request->jabatan;
+            if ($emailChanged) {
+                $petugas->status = 'pending';
+            }
+            $petugas->save();
+
+            if ($emailChanged) {
+                $user->sendEmailVerificationNotification();
+            }
+        }
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }

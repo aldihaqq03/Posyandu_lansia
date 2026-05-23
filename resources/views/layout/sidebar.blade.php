@@ -132,8 +132,27 @@
         <!-- FOOTER USER -->
         <div class="sidebar-footer">
 
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama ?? 'User') }}&background=3b82f6&color=fff"
-                class="user-avatar">
+            @php
+                $sidebarName = trim(Auth::user()->nama ?? 'User');
+                $sidebarParts = preg_split('/\s+/', $sidebarName, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                $sidebarInitials = collect($sidebarParts)
+                    ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+                    ->take(2)
+                    ->implode('');
+                if ($sidebarInitials === '') {
+                    $sidebarInitials = strtoupper(substr($sidebarName, 0, 2));
+                }
+            @endphp
+
+            @php
+                $sidebarPhoto = Auth::user()->petugas?->foto;
+            @endphp
+
+            @if($sidebarPhoto)
+                <img src="{{ asset('storage/' . $sidebarPhoto) }}" class="user-avatar" alt="Foto Pengguna">
+            @else
+                <div class="user-avatar user-avatar-fallback">{{ $sidebarInitials }}</div>
+            @endif
 
             <div class="user-info">
                 <a href="/pengaturan" class="user-name" style="text-decoration: none; color: inherit; cursor: pointer;"

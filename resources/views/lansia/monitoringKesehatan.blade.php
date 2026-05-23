@@ -89,9 +89,9 @@
                             <p class="mon-chart-desc">Sistolik &amp; Diastolik (mmHg)</p>
                         </div>
                         <div class="mon-zones">
-                            <span class="mz mz-normal">Sis &lt;120 / Dias &lt;80</span>
-                            <span class="mz mz-waspada">Sis 120–130 / Dias 80–90</span>
-                            <span class="mz mz-bahaya">Sis &gt;130 / Dias &gt;90</span>
+                            <span class="mz mz-normal">Sis &lt;130 / Dias &lt;85</span>
+                            <span class="mz mz-waspada">Sis 130–139 / Dias 85–89</span>
+                            <span class="mz mz-bahaya">Sis &ge;140 / Dias &ge;90</span>
                             <button class="mon-btn-detail" onclick="openDetailModal('tensi')" title="Lihat Detail Data"><i
                                     class="fa-solid fa-table"></i> Lihat Semua Data</button>
                         </div>
@@ -120,9 +120,9 @@
                             <p class="mon-chart-desc">Kadar glukosa darah (mg/dL)</p>
                         </div>
                         <div class="mon-zones">
-                            <span class="mz mz-normal">Normal &lt;100</span>
-                            <span class="mz mz-waspada">Pra-DM 100–125</span>
-                            <span class="mz mz-bahaya">Diabetes ≥126</span>
+                            <span class="mz mz-normal">Normal 80–144</span>
+                            <span class="mz mz-waspada">Waspada 145–199</span>
+                            <span class="mz mz-bahaya">Perlu TL &ge;200</span>
                             <button class="mon-btn-detail" onclick="openDetailModal('gula')" title="Lihat Detail Data"><i
                                     class="fa-solid fa-table"></i> Lihat Detail</button>
                         </div>
@@ -151,9 +151,9 @@
                             <p class="mon-chart-desc">Kadar kolesterol total (mg/dL)</p>
                         </div>
                         <div class="mon-zones">
-                            <span class="mz mz-normal">Normal &lt;200</span>
-                            <span class="mz mz-waspada">Batas 200–239</span>
-                            <span class="mz mz-bahaya">Tinggi ≥240</span>
+                            <span class="mz mz-normal">Normal &lt;150</span>
+                            <span class="mz mz-waspada">Waspada 150–189</span>
+                            <span class="mz mz-bahaya">Perlu TL &ge;190</span>
                             <button class="mon-btn-detail" onclick="openDetailModal('kolesterol')"
                                 title="Lihat Detail Data"><i class="fa-solid fa-table"></i> Lihat Detail</button>
                         </div>
@@ -262,28 +262,7 @@
                 </div>
             </div>
 
-            {{-- ── MODAL DETAIL DATA ── --}}
-            <div class="mon-modal-overlay" id="detail-modal" style="display:none;">
-                <div class="mon-modal-content">
-                    <div class="mon-modal-header">
-                        <h3 class="mon-modal-title" id="modal-title">Riwayat Pemeriksaan</h3>
-                        <button class="mon-modal-close" onclick="closeDetailModal()"><i
-                                class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <div class="mon-modal-body">
-                        <table class="mon-table" id="detail-table">
-                            <thead>
-                                <tr id="detail-thead">
-                                    <!-- Diisi oleh JS -->
-                                </tr>
-                            </thead>
-                            <tbody id="detail-tbody">
-                                <!-- Diisi oleh JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
 
@@ -356,6 +335,29 @@
             <div id="dp-saran-new-list"></div>
         </div>
     </main>
+
+    {{-- ── MODAL DETAIL DATA ── --}}
+    <div class="mon-modal-overlay" id="detail-modal" style="display:none;">
+        <div class="mon-modal-content">
+            <div class="mon-modal-header">
+                <h3 class="mon-modal-title" id="modal-title">Riwayat Pemeriksaan</h3>
+                <button class="mon-modal-close" onclick="closeDetailModal()"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="mon-modal-body">
+                <table class="mon-table" id="detail-table">
+                    <thead>
+                        <tr id="detail-thead">
+                            <!-- Diisi oleh JS -->
+                        </tr>
+                    </thead>
+                    <tbody id="detail-tbody">
+                        <!-- Diisi oleh JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
