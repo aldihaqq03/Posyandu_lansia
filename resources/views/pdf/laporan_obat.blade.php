@@ -27,6 +27,10 @@ body{
     margin-bottom:5px;
 }
 
+.section-content{
+    padding-left:12px;
+}
+
 table{
     width:100%;
     border-collapse:collapse;
@@ -65,38 +69,46 @@ table td{
 A. IDENTITAS KEGIATAN
 </p>
 
-<table class="identitas">
+<div class="section-content">
+
+<table style="border:none;width:100%;">
 
 <tr>
-    <td width="150">Nama Kegiatan</td>
-    <td width="10">:</td>
-    <td>{{ $jadwal->tema }}</td>
+    <td style="border:none;width:120px;">Nama Kegiatan</td>
+    <td style="border:none;width:10px;">:</td>
+    <td style="border:none;">{{ $jadwal->tema }}</td>
 </tr>
 
 <tr>
-    <td>Tanggal Posyandu</td>
-    <td>:</td>
-    <td>
+    <td style="border:none;">Tanggal Kegiatan</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">
         {{ \Carbon\Carbon::parse($jadwal->tanggal_pelaksanaan)->format('d-m-Y') }}
     </td>
 </tr>
 
 <tr>
-    <td>Lokasi</td>
-    <td>:</td>
-    <td>{{ $jadwal->lokasi ?? '-' }}</td>
+    <td style="border:none;">Lokasi</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">
+        {{ $jadwal->lokasi ?? '-' }}
+    </td>
 </tr>
 
 <tr>
-    <td>Nama Petugas</td>
-    <td>:</td>
-    <td>{{ $petugas }}</td>
+    <td style="border:none;">Nama Petugas</td>
+    <td style="border:none;">:</td>
+    <td style="border:none;">
+        {{ $petugas }}
+    </td>
 </tr>
 
 </table>
 
+</div>
+
 <p class="section-title">
-C. DATA OBAT KELUAR
+B. DATA OBAT KELUAR
 </p>
 
 <table>
@@ -105,7 +117,6 @@ C. DATA OBAT KELUAR
     <th>No</th>
     <th>Nama Obat</th>
     <th>Tipe Obat</th>
-    <th>Satuan</th>
     <th>Jumlah Keluar</th>
     <th>Sisa Stok</th>
 </tr>
@@ -117,9 +128,9 @@ C. DATA OBAT KELUAR
     <td>{{ $loop->iteration }}</td>
     <td>{{ $item->nama_obat }}</td>
     <td>{{ $item->tipe_obat ?? '-' }}</td>
-    <td>{{ $item->satuan ?? 'Tablet' }}</td>
-    <td>{{ $item->jumlah_obat }}</td>
-    <td>{{ $item->stock }}</td>
+
+    <td>{{ $item->keluar }}</td>
+<td>{{ $item->sisa_stok }}</td>
 </tr>
 @endforeach
 </tbody>
