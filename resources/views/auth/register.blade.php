@@ -38,9 +38,9 @@
                         <input type="text" id="nama" name="nama" value="{{ old('nama') }}" required>
                     </div>
                     @error('nama')
-                        <spa n class="error" style="color: #ef4444; font-size: 0.875rem;">
+                        <span class="error" style="color: #ef4444; font-size: 0.875rem;">
                             <i class="fa fa-exclamation-circle"></i> {{ $message }}
-                            </span>
+                        </span>
                     @enderror
                 </div>
 
@@ -51,9 +51,9 @@
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required>
                     </div>
                     @error('email')
-                        <spa n class="error" style="color: #ef4444; font-size: 0.875rem;">
+                        <span class="error" style="color: #ef4444; font-size: 0.875rem;">
                             <i class="fa fa-exclamation-circle"></i> {{ $message }}
-                            </span>
+                        </span>
                     @enderror
                 </div>
 
@@ -64,9 +64,9 @@
                         <input type="text" id="nik" name="nik" value="{{ old('nik') }}" maxlength="16" required>
                     </div>
                     @error('nik')
-                        <spa n class="error" style="color: #ef4444; font-size: 0.875rem;">
+                        <span class="error" style="color: #ef4444; font-size: 0.875rem;">
                             <i class="fa fa-exclamation-circle"></i> {{ $message }}
-                            </span>
+                        </span>
                     @enderror
                 </div>
 
@@ -74,14 +74,12 @@
                     <label>Nomor WhatsApp</label>
                     <div class="input-wrapper">
                         <i class="fa fa-phone"></i>
-
-                        <input type="text" name="whatsapp" value="{{ old('whatsapp') }}" placeholder="62812xxxxx"
-                            required>
+                        <input type="text" name="whatsapp" value="{{ old('whatsapp') }}" placeholder="62812xxxxx" required>
                     </div>
                     @error('whatsapp')
-                        <spa n class="error" style="color: #ef4444; font-size: 0.875rem;">
+                        <span class="error" style="color: #ef4444; font-size: 0.875rem;">
                             <i class="fa fa-exclamation-circle"></i> {{ $message }}
-                            </span>
+                        </span>
                     @enderror
                 </div>
 
@@ -92,9 +90,7 @@
                         <select name="jabatan" required>
                             <option value="">Pilih Jabatan</option>
                             <option value="kader" @selected(old('jabatan') === 'kader')>Kader</option>
-
-                            <option value="kepala_kader" @selected(old('jabatan') === 'kepala_kader')>Kepala Kader
-                            </option>
+                            <option value="kepala_kader" @selected(old('jabatan') === 'kepala_kader')>Kepala Kader</option>
                         </select>
                     </div>
                     @error('jabatan')
@@ -122,10 +118,8 @@
                     <label>Konfirmasi Password</label>
                     <div class="input-wrapper">
                         <i class="fa fa-lock"></i>
-                        <input type="password" id="password_
-                           confirmation" name="password_confirmation" required>
-                        <i class="fa fa-eye password-toggle"
-                            onclick="togglePassword('password_confirmation', this)"></i>
+                        <input type="password" id="password_confirmation" name="password_confirmation" required>
+                        <i class="fa fa-eye password-toggle" onclick="togglePassword('password_confirmation', this)"></i>
                     </div>
                     @error('password_confirmation')
                         <span class="error" style="color: #ef4444; font-size: 0.875rem;">
@@ -134,9 +128,7 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="btn-primary">
-                    Daftar Sekarang
-                </button>
+                <button type="submit" class="btn-primary">Daftar Sekarang</button>
 
                 <div class="login-link">
                     Sudah punya akun?
@@ -157,9 +149,7 @@
                 text: '{{ session('success') }}',
                 confirmButtonColor: '#0ea5e9'
             });
-            //ugugi
         @endif
-</scrip
-        t >
-</body >
-</html >
+    </script>
+</body>
+</html>

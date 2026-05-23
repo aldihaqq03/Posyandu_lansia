@@ -9,6 +9,7 @@ use App\Models\Petugas;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -18,7 +19,7 @@ class AuthController extends Controller
      */
     public function login(): View
     {
-        return view('simpel.login');
+        return view('auth.login');
     }
 
     /**
@@ -28,14 +29,24 @@ class AuthController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $user = auth()->user();
 
-        if (auth()->user()->jabatan === 'lansia') {
+        if ($user && $user->jabatan === 'lansia') {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             return redirect('/login')->withErrors(['email' => 'Akun lansia hanya dapat diakses melalui aplikasi mobile.']);
         }
+
+        if (!$user || !$user->petugas || !$user->email_verified_at || $user->petugas->status !== 'aktif') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/login')->withErrors(['email' => 'Email belum diverifikasi.']);
+        }
+
+        $request->session()->regenerate();
 
         return redirect()->intended('/dashboard');
     }
@@ -45,7 +56,7 @@ class AuthController extends Controller
      */
     public function register(): View
     {
-        return view('simpel.register');
+        return view('auth.register');
     }
 
     /**
@@ -53,19 +64,23 @@ class AuthController extends Controller
      */
     public function proses_register(RegisterRequest $request): RedirectResponse
     {
-        $user = User::create([
-            'email' => $request->email,
-            'whatsapp' => $request->whatsapp,
-            'password' => $request->password,
-        ]);
+        DB::transaction(function () use ($request) {
+            $user = User::create([
+                'email' => $request->email,
+                'whatsapp' => $request->whatsapp,
+                'password' => $request->password,
+            ]);
 
-        Petugas::create([
-            'id_user' => $user->id,
-            'nama' => $request->nama,
-            'nik' => $request->nik,
-            'jabatan' => $request->jabatan,
-            'status' => 'pending',
-        ]);
+            Petugas::create([
+                'id_user' => $user->id,
+                'nama' => $request->nama,
+                'nik' => $request->nik,
+                'jabatan' => $request->jabatan,
+                'status' => 'pending',
+            ]);
+
+            $user->sendEmailVerificationNotification();
+        });
 
         return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk.');
     }

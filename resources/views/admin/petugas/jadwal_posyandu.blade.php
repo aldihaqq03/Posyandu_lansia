@@ -212,6 +212,7 @@
     {{-- MODAL --}}
     @include('modal.M_tambahJadwal')
     @include('modal.M_editJadwal')
+    @include('modal.M_detailJadwal')
 
 @endsection
 

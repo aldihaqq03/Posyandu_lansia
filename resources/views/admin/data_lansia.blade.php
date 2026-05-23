@@ -102,7 +102,7 @@
                                 data-pekerjaan="{{ $lansia->pekerjaan ?? '' }}"
                                 data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
                                 data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
-                                data-risk-level="{{ $lansia->risk_level ?? 'normal' }}">
+                                data-risk-level="{{ $lansia->risk_level ?? '' }}">
                                 {{-- Nama --}}
                                 <td>
                                     <div class="user-cell">
@@ -129,16 +129,24 @@
 
                                 {{-- Risiko --}}
                                 <td>
-                                    @php
-                                        $riskLevel = $lansia->risk_level ?? 'normal';
-                                        $riskConfig = [
-                                            'normal' => ['label' => 'Normal', 'class' => 'risk-normal'],
-                                            'waspada' => ['label' => 'Waspada', 'class' => 'risk-waspada'],
-                                            'tinggi' => ['label' => 'Perlu Tindak Lanjut', 'class' => 'risk-tinggi'],
-                                        ];
-                                        $risk = $riskConfig[$riskLevel] ?? $riskConfig['normal'];
-                                    @endphp
-                                    <span class="risk-badge {{ $risk['class'] }}">{{ $risk['label'] }}</span>
+                                    @if($lansia->risk_level)
+                                        @php
+                                            $riskLevel = $lansia->risk_level;
+                                            $riskConfig = [
+                                                'normal' => ['label' => 'Normal', 'class' => 'risk-normal'],
+                                                'waspada' => ['label' => 'Waspada', 'class' => 'risk-waspada'],
+                                                'tinggi' => ['label' => 'Perlu Tindak Lanjut', 'class' => 'risk-tinggi'],
+                                            ];
+                                            $risk = $riskConfig[$riskLevel] ?? null;
+                                        @endphp
+                                        @if($risk)
+                                            <span class="risk-badge {{ $risk['class'] }}">{{ $risk['label'] }}</span>
+                                        @else
+                                            -
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
                                 </td>
 
                                 {{-- No. HP --}}
@@ -297,7 +305,7 @@
                         <p style="color: #999; text-align: center; padding: 20px;">Tidak ada data keluarga</p>
                     </div>
                 </div>
-
+            </section>
 
         </div>
 
