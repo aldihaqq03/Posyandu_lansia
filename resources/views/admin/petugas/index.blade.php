@@ -9,6 +9,13 @@
 
 @section('content')
 
+@php
+    $currentRole = strtolower(Auth::user()->jabatan ?? '');
+    $isSuperAdmin = $currentRole === 'super_admin';
+@endphp
+
+<div class="petugas-page">
+
 <div class="page-header">
 
     <div>
@@ -77,6 +84,7 @@
         <h3>Daftar Seluruh Petugas</h3>
     </div>
 
+    <div class="table-scroll">
     <table class="table">
 
         <thead>
@@ -114,16 +122,17 @@
                         <div class="user-avatar-fallback">{{ $petugasInitials }}</div>
                     @endif
 
-                    <div>
+                    <div class="user-cell-copy">
                         <strong>{{ $p->nama }}</strong>
-                        <small>{{ $p->email }}</small>
+                        <small class="user-nik">NIK: {{ $p->nik }}</small>
+                        <small class="user-email">{{ $p->email }}</small>
                     </div>
 
                 </td>
 
                 <td>
                     <span class="badge blue">
-                        {{ $p->jabatan }}
+                        {{ str_replace('_', ' ', $p->jabatan) }}
                     </span>
                 </td>
 
@@ -139,22 +148,34 @@
 
                 <td class="aksi">
 
+                    <div class="aksi-wrap">
+
                     <!-- EDIT -->
-                   <a href="{{ route('petugas.edit', ['id' => $p->id_petugas]) }}" 
-                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background: white; color: #0F766E; border: 1px solid #0F766E; cursor: pointer; border-radius: 4px; text-decoration: none;">
+                   <button type="button"
+                        class="btn-open-edit-petugas"
+                        data-petugas-id="{{ $p->id_petugas }}"
+                        data-petugas-nama="{{ e($p->nama) }}"
+                        data-petugas-nik="{{ e($p->nik) }}"
+                        data-petugas-jabatan="{{ e($p->jabatan) }}"
+                        data-petugas-no-hp="{{ e($p->no_hp) }}"
+                        data-petugas-email="{{ e($p->email) }}"
+                        data-update-url-template="{{ url('/petugas/update/__ID__') }}"
+                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background: white; color: #0F766E; border: 1px solid #0F766E; cursor: pointer; border-radius: 4px; height: 32px;">
                         <i class="fa-solid fa-pen-to-square"></i> Edit
-                    </a>
+                    </button>
 
                     <!-- DELETE -->
-                    <form action="{{ route('petugas.destroy',$p->id_petugas) }}" method="POST" style="display:inline;">
+                    <form action="{{ route('petugas.destroy',$p->id_petugas) }}" method="POST" style="display:inline; margin:0;">
                         @csrf
                         @method('DELETE')
 
                         <button onclick="return confirm('Hapus data petugas?')" 
-                            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px;">
+                            style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px; height: 32px;">
                             <i class="fa-solid fa-trash"></i> Hapus
                         </button>
                     </form>
+
+                    </div>
 
                 </td>
 
@@ -173,10 +194,11 @@
         </tbody>
 
     </table>
+    </div>
 
 </div>
 
-<div class="modal-overlay" id="modalTambahPetugas">
+<div class="modal-overlay" id="modalTambahPetugas" data-current-role="{{ $currentRole }}">
     <div class="petugas-modal">
         <div class="petugas-modal-header">
             <div>
@@ -271,9 +293,79 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="modalEditPetugas" data-current-role="{{ $currentRole }}">
+    <div class="petugas-modal">
+        <div class="petugas-modal-header">
+            <div>
+                <h3>Edit Petugas</h3>
+                <p>Perbarui data petugas langsung dari tabel.</p>
+            </div>
+            <button type="button" class="btn-close-modal" id="btn-close-edit-petugas" aria-label="Tutup modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form action="" method="POST" id="form-edit-petugas" novalidate>
+            @csrf
+            @method('PUT')
+            <div class="petugas-modal-body">
+                <div class="form-grid-modal">
+                    <div class="form-group-modal">
+                        <label>Nama Lengkap</label>
+                        <input type="text" name="nama" id="edit-nama" placeholder="Masukkan nama lengkap" required>
+                        <small class="field-error" id="error-edit-nama"></small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>NIK</label>
+                        <input type="text" name="nik" id="edit-nik" placeholder="16 digit NIK" required>
+                        <small class="field-error" id="error-edit-nik"></small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Jabatan</label>
+                        @if($currentRole === 'super_admin')
+                            <select name="jabatan" id="edit-jabatan" required>
+                                <option value="kader">kader</option>
+                                <option value="kepala_kader">kepala_kader</option>
+                            </select>
+                        @else
+                            <select name="jabatan" id="edit-jabatan" required>
+                                <option value="kader" selected>kader</option>
+                            </select>
+                        @endif
+                        <small class="field-error" id="error-edit-jabatan"></small>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label>Nomor WhatsApp</label>
+                        <input type="text" name="no_hp" id="edit-no_hp" placeholder="+62" required>
+                        <small class="field-error" id="error-edit-no_hp"></small>
+                    </div>
+
+                    <div class="form-group-modal full-width">
+                        <label>Email</label>
+                        <input type="email" name="email" id="edit-email" placeholder="nama@gmail.com" required>
+                        <small class="field-error" id="error-edit-email"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="petugas-modal-footer">
+                <button type="button" class="btn-outline-modal" id="btn-batal-edit-petugas">Batal</button>
+                <button type="submit" class="btn-primary" id="btn-submit-edit-petugas">
+                    <i class="fa fa-save"></i> Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @if ($errors->any())
     <div id="petugas-form-errors" data-has-errors="1" style="display:none;"></div>
 @endif
+
+</div>
 
 @endsection
 

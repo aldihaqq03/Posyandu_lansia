@@ -1,4 +1,4 @@
-/* resources/js/jsAdmin/data_lansia.js */
+﻿/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 1. Animasi Angka Statistik
@@ -94,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("name-display", nama);
             setText("detail-umur", umur + " Tahun");
             setText("detail-jk", jk);
+            setText("detail-tb", "Tinggi: -");
             setText("d-nik", nik);
             setText("d-hp", hp);
             setText("d-email", email);
@@ -195,13 +196,25 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-gula", data.gula_darah ?? "-");
             setText("d-kolesterol", data.kolesterol ?? "-");
             setText("d-imt", data.imt ?? "-");
+            setText(
+                "detail-tb",
+                data.tinggi_badan
+                    ? `Tinggi: ${data.tinggi_badan} cm`
+                    : "Tinggi: -",
+            );
 
             // Apply status colors to health cards based on elderly parameters from backend
             if (data.detail) {
                 applyCardStatus("hcard-sistolik", data.detail.sistolik.status);
-                applyCardStatus("hcard-diastolik", data.detail.diastolik.status);
+                applyCardStatus(
+                    "hcard-diastolik",
+                    data.detail.diastolik.status,
+                );
                 applyCardStatus("hcard-gula", data.detail.gula_darah.status);
-                applyCardStatus("hcard-kolesterol", data.detail.kolesterol.status);
+                applyCardStatus(
+                    "hcard-kolesterol",
+                    data.detail.kolesterol.status,
+                );
                 applyCardStatus("hcard-imt", data.detail.imt.status);
             }
         } catch {
@@ -219,7 +232,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const el = document.getElementById(cardId);
         if (!el || !status) return;
         // Map 'perlu_tindak_lanjut' to 'tinggi' to match existing CSS class (.status-tinggi)
-        const mappedStatus = status === 'perlu_tindak_lanjut' ? 'tinggi' : status;
+        const mappedStatus =
+            status === "perlu_tindak_lanjut" ? "tinggi" : status;
         el.classList.add(`status-${mappedStatus}`);
     }
 

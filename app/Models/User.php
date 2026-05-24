@@ -56,6 +56,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return 'User';
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return strtolower($this->jabatan ?? '') === 'super_admin';
+    }
+
+    public function isKepalaKader(): bool
+    {
+        return strtolower($this->jabatan ?? '') === 'kepala_kader';
+    }
+
+    public function isKader(): bool
+    {
+        return strtolower($this->jabatan ?? '') === 'kader';
+    }
+
     public function getWilayahKerjaAttribute()
     {
         return $this->petugas ? $this->petugas->wilayah : '-';

@@ -34,6 +34,10 @@
                         <i class="fa-solid fa-venus-mars"></i>
                         {{ $lansia->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
                     </span>
+                    <span>
+                        <i class="fa-solid fa-ruler-vertical"></i>
+                        Tinggi {{ $tinggiBadanTerakhir ? $tinggiBadanTerakhir . ' cm' : '-' }}
+                    </span>
                     @if($lansia->riwayat_penyakit)
                         <span class="mon-riwayat">
                             <i class="fa-solid fa-notes-medical"></i> {{ $lansia->riwayat_penyakit }}

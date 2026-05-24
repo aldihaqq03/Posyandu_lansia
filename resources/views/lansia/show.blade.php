@@ -47,6 +47,10 @@
                             <i class="fa-solid fa-venus-mars"></i>
                             {{ $lansia->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
                         </span>
+                        <span>
+                            <i class="fa-solid fa-ruler-vertical"></i>
+                            Tinggi {{ $tinggiBadanTerakhir ? $tinggiBadanTerakhir . ' cm' : '-' }}
+                        </span>
                         @if($lansia->no_hp)
                             <span><i class="fa-solid fa-phone"></i> {{ $lansia->no_hp }}</span>
                         @endif
@@ -84,7 +88,23 @@
                             </thead>
                             <tbody>
                                 @foreach($kunjungans as $s)
-                                    <tr data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}">
+                                    <tr
+                                        class="table-row selectable-row"
+                                        title="Klik untuk melihat detail lansia"
+                                        data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}"
+                                        data-type="kunjungan"
+                                        data-skrining-id="{{ $s->id_skrining }}"
+                                        data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
+                                        data-petugas="{{ $s->petugas?->nama ?? '-' }}"
+                                        data-keluhan="{{ $s->keluhan ?? '-' }}"
+                                        data-sistolik="{{ $s->kunjungan?->td_sistolik ?? '' }}"
+                                        data-diastolik="{{ $s->kunjungan?->td_diastolik ?? '' }}"
+                                        data-bb="{{ $s->kunjungan?->berat_badan ?? '' }}"
+                                        data-tb="{{ $s->kunjungan?->tinggi_badan ?? '' }}"
+                                        data-lp="{{ $s->kunjungan?->lingkar_perut ?? '' }}"
+                                        data-keluhan-kunjungan="{{ $s->kunjungan?->keluhan ?? '' }}"
+                                        data-diagnosis="{{ $s->kunjungan?->diagnosis ?? '' }}"
+                                    >
                                         <td>{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}</td>
                                         <td>{{ $s->petugas?->nama ?? '-' }}</td>
                                         <td>@if($s->kunjungan?->td_sistolik)<span class="val-badge red">{{ $s->kunjungan->td_sistolik }}/{{ $s->kunjungan->td_diastolik }} mmHg</span>@else-@endif</td>
@@ -93,21 +113,7 @@
                                         <td>{{ $s->kunjungan?->lingkar_perut ? $s->kunjungan->lingkar_perut . ' cm' : '-' }}</td>
                                         <td>{{ $s->kunjungan?->keluhan ?? $s->keluhan ?? '-' }}</td>
                                         <td>{{ $s->kunjungan?->diagnosis ?? '-' }}</td>
-                                        <td class="text-center aksi-col" onclick="event.stopPropagation()">
-                                            <button class="btn-icon btn-detail" data-type="kunjungan" title="Lihat Detail"
-                                                data-skrining-id="{{ $s->id_skrining }}"
-                                                data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
-                                                data-petugas="{{ $s->petugas?->nama ?? '-' }}"
-                                                data-keluhan="{{ $s->keluhan ?? '-' }}"
-                                                data-sistolik="{{ $s->kunjungan?->td_sistolik ?? '' }}"
-                                                data-diastolik="{{ $s->kunjungan?->td_diastolik ?? '' }}"
-                                                data-bb="{{ $s->kunjungan?->berat_badan ?? '' }}"
-                                                data-tb="{{ $s->kunjungan?->tinggi_badan ?? '' }}"
-                                                data-lp="{{ $s->kunjungan?->lingkar_perut ?? '' }}"
-                                                data-keluhan-kunjungan="{{ $s->kunjungan?->keluhan ?? '' }}"
-                                                data-diagnosis="{{ $s->kunjungan?->diagnosis ?? '' }}">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
+                                        <td class="text-center aksi-col">
                                             <button class="btn-icon btn-pdf" data-type="kunjungan" title="Download PDF"
                                                 data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}">
                                                 <i class="fa-solid fa-file-pdf"></i>
@@ -140,7 +146,16 @@
                                 @php $katLabel = [1 => 'Normal', 2 => 'Waspada', 3 => 'Tinggi'];
                                 $katClass = [1 => 'success', 2 => 'warning', 3 => 'high']; @endphp
                                 @foreach($utamas as $s)
-                                    <tr data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}">
+                                    <tr
+                                        class="table-row selectable-row"
+                                        title="Klik untuk melihat ringkasan detail"
+                                        data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}"
+                                        data-type="utama"
+                                        data-skrining-id="{{ $s->id_skrining }}"
+                                        data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
+                                        data-petugas="{{ $s->petugas?->nama ?? '-' }}"
+                                        data-keluhan="{{ $s->keluhan ?? '-' }}"
+                                    >
                                         <td>{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}</td>
                                         <td>{{ $s->petugas?->nama ?? '-' }}</td>
                                         <td>{{ $s->utama?->gula_darah ? $s->utama->gula_darah . ' mg/dL' : '-' }}</td>
@@ -149,14 +164,7 @@
                                         <td>@if($s->utama?->kolesterol_kategori)<span class="badge-status {{ $katClass[$s->utama->kolesterol_kategori] ?? 'muted' }}">{{ $katLabel[$s->utama->kolesterol_kategori] ?? '-' }}</span>@else-@endif</td>
                                         <td>{{ $s->utama?->imt ?? '-' }}</td>
                                         <td>{{ $s->utama?->srq_total ?? '-' }}</td>
-                                        <td class="text-center aksi-col" onclick="event.stopPropagation()">
-                                            <button class="btn-icon btn-detail" data-type="utama" title="Lihat Detail"
-                                                data-skrining-id="{{ $s->id_skrining }}"
-                                                data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
-                                                data-petugas="{{ $s->petugas?->nama ?? '-' }}"
-                                                data-keluhan="{{ $s->keluhan ?? '-' }}">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
+                                        <td class="text-center aksi-col">
                                             <button class="btn-icon btn-pdf" data-type="utama" title="Download PDF"
                                                 data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}">
                                                 <i class="fa-solid fa-file-pdf"></i>
@@ -188,7 +196,16 @@
                             <tbody>
                                 @foreach($ppoks as $s)
                                     @php $pumaHasil = match ($s->ppok?->puma_kategori_hasil) { 0 => 'Edukasi Gaya Hidup', 1 => 'Risiko PPOK', default => '-', }; @endphp
-                                    <tr data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}">
+                                    <tr
+                                        class="table-row selectable-row"
+                                        title="Klik untuk melihat ringkasan detail"
+                                        data-bulan="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('Y-m') }}"
+                                        data-type="ppok"
+                                        data-skrining-id="{{ $s->id_skrining }}"
+                                        data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
+                                        data-petugas="{{ $s->petugas?->nama ?? '-' }}"
+                                        data-keluhan="{{ $s->keluhan ?? '-' }}"
+                                    >
                                         <td>{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}</td>
                                         <td>{{ $s->petugas?->nama ?? '-' }}</td>
                                         <td>{{ $s->ppok?->puma_total_skor ?? '-' }}</td>
@@ -196,14 +213,7 @@
                                         <td>@if(isset($s->ppok->merokok)) {{ $s->ppok->merokok ? 'Ya' : 'Tidak' }} @else - @endif</td>
                                         <td>{{ $s->ppok?->kadar_co_ppm ? $s->ppok->kadar_co_ppm . ' ppm' : '-' }}</td>
                                         <td>{{ $s->ppok?->hasil_spirometri ?? '-' }}</td>
-                                        <td class="text-center aksi-col" onclick="event.stopPropagation()">
-                                            <button class="btn-icon btn-detail" data-type="ppok" title="Lihat Detail"
-                                                data-skrining-id="{{ $s->id_skrining }}"
-                                                data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}"
-                                                data-petugas="{{ $s->petugas?->nama ?? '-' }}"
-                                                data-keluhan="{{ $s->keluhan ?? '-' }}">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </button>
+                                        <td class="text-center aksi-col">
                                             <button class="btn-icon btn-pdf" data-type="ppok" title="Download PDF"
                                                 data-tanggal="{{ \Carbon\Carbon::parse($s->tanggal_skrining)->format('d M Y') }}">
                                                 <i class="fa-solid fa-file-pdf"></i>
@@ -460,16 +470,6 @@
                 });
             });
 
-            // Klik baris buka modal
-            document.querySelectorAll('.history-table tbody tr').forEach(tr => {
-                tr.style.cursor = 'pointer';
-                tr.addEventListener('click', function (e) {
-                    if (e.target.closest('.aksi-col')) return;
-                    const btn = this.querySelector('.btn-detail');
-                    if (btn) btn.click();
-                });
-            });
-
             const modal = document.getElementById('modal-detail-skrining');
             const modalTitle = document.getElementById('modal-title');
             const modalDate = document.getElementById('modal-date');
@@ -479,9 +479,11 @@
 
             if (modalIcon) modalIcon.style.display = 'none';
 
-            document.querySelectorAll('.btn-detail').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.stopPropagation();
+            // Klik baris buka modal
+            document.querySelectorAll('.history-table tbody tr').forEach(tr => {
+                tr.style.cursor = 'pointer';
+                tr.addEventListener('click', function (e) {
+                    if (e.target.closest('.aksi-col')) return;
                     const d = Object.assign({}, this.dataset);
                     const type = d.type;
                     modalTitle.textContent = 'Detail Skrining';
@@ -511,9 +513,8 @@
                 btn.addEventListener('click', async function (e) {
                     e.stopPropagation();
                     const row = this.closest('tr');
-                    const detailBtn = row?.querySelector('.btn-detail');
-                    if (!detailBtn) return;
-                    const d = Object.assign({}, detailBtn.dataset);
+                    if (!row) return;
+                    const d = Object.assign({}, row.dataset);
                     const type = d.type;
                     const typeLabel = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining Utama', ppok: 'Skrining PPOK' };
 

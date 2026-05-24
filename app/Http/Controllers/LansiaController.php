@@ -131,6 +131,8 @@ class LansiaController extends Controller
     // ============================================================
     public function historiSkrining(Lansia $lansia)
     {
+        $tinggiBadanTerakhir = $this->latestTinggiBadan($lansia);
+
         // Skrining yang punya relasi kunjungan
         // Eager load semua field kunjungan agar tidak N+1
         $kunjungans = $lansia->skrinings()
@@ -166,6 +168,7 @@ class LansiaController extends Controller
 
         return view('lansia.show', compact(
             'lansia',
+            'tinggiBadanTerakhir',
             'kunjungans',
             'utamas',
             'ppoks',
@@ -243,6 +246,7 @@ class LansiaController extends Controller
             'gula_darah' => $utama?->gula_darah       ?? null,
             'kolesterol' => $utama?->kolesterol        ?? null,
             'imt'        => $kunjungan?->imt           ?? null,
+            'tinggi_badan' => $kunjungan?->tinggi_badan ?? null,
             'detail'     => $detail,
         ]);
     }
@@ -376,7 +380,18 @@ class LansiaController extends Controller
 
             public function monitoring(Lansia $lansia)
             {
-            return view('lansia.monitoringKesehatan', compact('lansia'));
+                $tinggiBadanTerakhir = $this->latestTinggiBadan($lansia);
+
+                return view('lansia.monitoringKesehatan', compact('lansia', 'tinggiBadanTerakhir'));
+            }
+
+            private function latestTinggiBadan(Lansia $lansia): ?float
+            {
+            return $lansia->skrinings()
+                ->whereHas('kunjungan')
+                ->with('kunjungan:id_skrining_kunjungan,id_skrining,tinggi_badan')
+                ->orderByDesc('tanggal_skrining')
+                ->first()?->kunjungan?->tinggi_badan;
             }
 
     // ============================================================

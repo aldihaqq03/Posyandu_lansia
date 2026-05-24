@@ -22,7 +22,7 @@ class PengaturanController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
             'nik' => 'nullable|string|max:20',
             'whatsapp' => 'nullable|string|max:20',
-            'jabatan' => 'required|string',
+            'jabatan' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -51,7 +51,6 @@ class PengaturanController extends Controller
         if ($petugas) {
             $petugas->nama = $request->nama;
             $petugas->nik = $request->nik;
-            $petugas->jabatan = $request->jabatan;
             if ($emailChanged) {
                 $petugas->status = 'pending';
             }

@@ -186,31 +186,42 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    document.querySelectorAll(".btn-detail").forEach((btn) => {
-        btn.addEventListener("click", function () {
-            const id = this.dataset.id;
-            if (!id) return;
+    function openJadwalDetail(id) {
+        if (!id) return;
 
-            fetch(`/jadwal_posyandu/${id}`, {
-                headers: { Accept: "application/json" },
+        fetch(`/jadwal_posyandu/${id}`, {
+            headers: { Accept: "application/json" },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setText("detail-tema", data.tema || "-");
+                setText(
+                    "detail-tanggal",
+                    formatDateIndo(data.tanggal_pelaksanaan),
+                );
+                setText("detail-lokasi", data.lokasi || "-");
+                setText("detail-catatan", data.keterangan || "-");
+                renderStatusBadge(parseInt(data.status));
+                renderDetailSkrining(data.detail_skrining || []);
+                renderDetailKegiatan(data.kegiatan || []);
+                openModalDetail();
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    setText("detail-tema", data.tema || "-");
-                    setText(
-                        "detail-tanggal",
-                        formatDateIndo(data.tanggal_pelaksanaan),
-                    );
-                    setText("detail-lokasi", data.lokasi || "-");
-                    setText("detail-catatan", data.keterangan || "-");
-                    renderStatusBadge(parseInt(data.status));
-                    renderDetailSkrining(data.detail_skrining || []);
-                    renderDetailKegiatan(data.kegiatan || []);
-                    openModalDetail();
-                })
-                .catch(() => {
-                    alert("Gagal mengambil detail jadwal!");
-                });
+            .catch(() => {
+                alert("Gagal mengambil detail jadwal!");
+            });
+    }
+
+    document.querySelectorAll(".jadwal-card[data-id]").forEach((card) => {
+        card.addEventListener("click", function (e) {
+            if (e.target.closest(".jadwal-actions")) return;
+            openJadwalDetail(this.dataset.id);
+        });
+
+        card.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openJadwalDetail(this.dataset.id);
+            }
         });
     });
 

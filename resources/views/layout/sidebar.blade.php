@@ -25,6 +25,10 @@
 
 <body>
 
+    @php
+        $sidebarRole = strtolower(Auth::user()->jabatan ?? '');
+    @endphp
+
     <aside class="sidebar" id="sidebar">
 
         <!-- LOGO -->
@@ -49,7 +53,7 @@
                 <span class="nav-text">Dashboard</span>
             </a>
 
-            @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
+            @if(in_array($sidebarRole, ['kepala_kader', 'super_admin']))
                 <a href="/data_petugas" class="nav-item {{ Request::is('data_petugas') ? 'active' : '' }}"
                     title="Data Petugas">
                     <i class="fa-solid fa-user-nurse"></i>
@@ -100,7 +104,7 @@
                 <span class="nav-text">Input Skrining</span>
             </a>
 
-            @if(strtolower(Auth::user()->jabatan) === 'kepala_kader')
+            @if(in_array($sidebarRole, ['kepala_kader', 'super_admin']))
                 <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}" title="Laporan">
                     <i class="fa-solid fa-file"></i>
                     <span class="nav-text">Laporan</span>
