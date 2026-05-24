@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const labelMapping = {
         hipertensi: "Hipertensi",
         hipotensi: "Hipotensi",
-        diabetes: "Diabetes",
+        diabetes: "Gula darah tinggi",
         kolesterol: "Kolesterol Tinggi",
         obesitas: "Obesitas",
         bb_kurang: "Berat Badan Kurang",
@@ -95,30 +95,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 2. Mapping warna default yang konsisten dengan desain Anda
     const colorMapping = {
-        hipertensi: "rgba(239, 68, 68, 0.85)",   // Red
-        hipotensi: "rgba(59, 130, 246, 0.85)",  // Blue
-        diabetes: "rgba(251, 191, 36, 0.85)",  // Amber
+        hipertensi: "rgba(239, 68, 68, 0.85)", // Red
+        hipotensi: "rgba(59, 130, 246, 0.85)", // Blue
+        diabetes: "rgba(251, 191, 36, 0.85)", // Amber
         kolesterol: "rgba(139, 92, 246, 0.85)", // Purple
-        obesitas: "rgba(20, 184, 166, 0.85)",   // Teal
-        bb_kurang: "rgba(163, 230, 53, 0.85)",  // Lime
+        obesitas: "rgba(20, 184, 166, 0.85)", // Teal
+        bb_kurang: "rgba(163, 230, 53, 0.85)", // Lime
     };
 
     // 3. Proses sorting data dari TERBANYAK ke TERSEDIKIT
     // Mengubah object {} menjadi array [] agar bisa di-sort nilainya
     const sortedData = Object.keys(dataTrenPenyakit)
-        .map(key => ({
+        .map((key) => ({
             key: key,
             label: labelMapping[key] || key,
             value: dataTrenPenyakit[key] || 0,
-            color: colorMapping[key] || "rgba(148, 163, 184, 0.85)"
+            color: colorMapping[key] || "rgba(148, 163, 184, 0.85)",
         }))
         // Urutkan berdasarkan value secara Descending (terbanyak -> tersedikit)
         .sort((a, b) => b.value - a.value);
 
     // 4. Pisahkan kembali hasil sort ke dalam struktur array Chart.js
-    const labels = sortedData.map(item => item.label);
-    const dataValues = sortedData.map(item => item.value);
-    const backgroundColors = sortedData.map(item => item.color);
+    const labels = sortedData.map((item) => item.label);
+    const dataValues = sortedData.map((item) => item.value);
+    const backgroundColors = sortedData.map((item) => item.color);
 
     // 5. Render Chart.js dengan data yang sudah terurut
     new Chart(ctx, {

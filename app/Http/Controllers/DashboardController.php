@@ -6,8 +6,8 @@ use App\Models\JadwalPosyandu;
 use App\Models\Lansia;
 use App\Models\Obat;
 use App\Services\HealthRiskAssessor;
+use App\Services\TrenPenyakitService;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -53,63 +53,7 @@ class DashboardController extends Controller
         $perlu_perhatian = $statData['perlu_perhatian'];
 
         // ── 2. TREN PENYAKIT (DIURUTKAN DARI TERBANYAK) ─────────────────
-        $trenPenyakit = Cache::remember('dash_tren_penyakit', 300, function () {
-            $latestKunjungan = DB::table('skrining_kunjungan as sk')
-                ->join('skrining as s', 's.id_skrining', '=', 'sk.id_skrining')
-                ->select('s.id_lansia', 'sk.td_sistolik', 'sk.td_diastolik', 'sk.imt')
-                ->whereIn('s.id_skrining', function ($q) {
-                    $q->select(DB::raw('MAX(s2.id_skrining)'))
-                        ->from('skrining as s2')
-                        ->join('skrining_kunjungan as sk2', 'sk2.id_skrining', '=', 's2.id_skrining')
-                        ->groupBy('s2.id_lansia');
-                })->get()->keyBy('id_lansia');
-
-            $latestUtama = DB::table('skrining_utama as su')
-                ->join('skrining as s', 's.id_skrining', '=', 'su.id_skrining')
-                ->select('s.id_lansia', 'su.gula_darah', 'su.kolesterol')
-                ->whereIn('s.id_skrining', function ($q) {
-                    $q->select(DB::raw('MAX(s2.id_skrining)'))
-                        ->from('skrining as s2')
-                        ->join('skrining_utama as su2', 'su2.id_skrining', '=', 's2.id_skrining')
-                        ->groupBy('s2.id_lansia');
-                })->get()->keyBy('id_lansia');
-
-            $counts = ['hipertensi' => 0, 'hipotensi' => 0, 'diabetes' => 0, 'kolesterol' => 0, 'obesitas' => 0, 'bb_kurang' => 0];
-
-            foreach (Lansia::pluck('id_lansia') as $id) {
-                $k = $latestKunjungan[$id] ?? null;
-                $u = $latestUtama[$id] ?? null;
-                $sistolik = $k?->td_sistolik;
-                $diastolik = $k?->td_diastolik;
-                $imt = $k?->imt;
-                $gula = $u?->gula_darah;
-                $koles = $u?->kolesterol;
-
-                if ($sistolik && ($sistolik >= 140 || ($diastolik && $diastolik >= 90))) {
-                    $counts['hipertensi']++;
-                }
-                if ($sistolik && $sistolik < 90) {
-                    $counts['hipotensi']++;
-                }
-                if ($gula && $gula >= 200) {
-                    $counts['diabetes']++;
-                }
-                if ($koles && $koles >= 190) {
-                    $counts['kolesterol']++;
-                }
-                if ($imt && $imt >= 30) {
-                    $counts['obesitas']++;
-                }
-                if ($imt && $imt < 18.5) {
-                    $counts['bb_kurang']++;
-                }
-            }
-
-            // Urutkan nilai array dari terbesar ke terkecil secara langsung di PHP
-            arsort($counts);
-
-            return $counts;
-        });
+        $trenPenyakit = TrenPenyakitService::getTrend();
 
         // ── 3. JADWAL 30 HARI KE DEPAN ─────────────────────────────────
         $today = now('Asia/Jakarta')->format('Y-m-d');

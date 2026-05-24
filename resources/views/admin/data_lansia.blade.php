@@ -69,10 +69,28 @@
                         <img src="img/icon-7.svg" alt="">
                         <input type="search" placeholder="Cari nama, NIK, atau alamat..." id="main-search">
                     </div>
-                    <button class="btn-outline" id="btn-filter-lansia">
-                        <i class="fa-solid fa-filter"></i>
-                        <span>Filter</span>
-                    </button>
+                    <button class="btn-outline" id="btn-filter-lansia"
+    style="{{ ($filterRisk !== 'semua' || $filterPenyakit !== '') ? 'border-color: #3b82f6; color: #3b82f6; background: #eff6ff;' : '' }}">
+    <i class="fa-solid fa-filter"></i>
+    <span>Filter</span>
+    @if ($filterRisk !== 'semua' || $filterPenyakit !== '')
+        <span style="
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 2px;
+        ">
+            {{ ($filterRisk !== 'semua' ? 1 : 0) + ($filterPenyakit !== '' ? 1 : 0) }}
+        </span>
+    @endif
+</button>
                 </div>
 
                 <p class="row-hint"><i class="fa-solid fa-hand-pointer"></i> Klik baris untuk melihat ringkasan detail</p>
