@@ -664,7 +664,7 @@ detailButtons.forEach(button => {
 currentJadwalId = id;
 
 document.getElementById('btnExportPdf').href =
-    `/laporan/export-obat/${id}`;
+    `/laporan/export/${id}`;
 
 const response = await fetch(`/laporan/detail/${id}`);
 
@@ -872,7 +872,7 @@ document.getElementById('btnExportPdf').addEventListener('click', function(e){
 
     console.log(currentJadwalId);
 
-    window.open(`/laporan/export-obat/${currentJadwalId}`, '_blank');
+    window.open(`/laporan/export/${currentJadwalId}`, '_blank');
 
 });
 </script>
