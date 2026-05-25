@@ -11,6 +11,8 @@ use App\Http\Controllers\JadwalPosyanduController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\SkriningController;
 use App\Http\Controllers\SaranController;
+use App\Http\Controllers\LaporanController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +99,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/obat/{id}/mutasi-stok', [ObatController::class, 'mutasiStokApi'])->name('obat.mutasi_stok_api');
     Route::post('/obat/{obat}/restock', [ObatController::class, 'restock'])->name('obat.restock');
     Route::resource('obat', ObatController::class);
+    
     Route::patch('jadwal_posyandu/{id}/selesai', [JadwalPosyanduController::class, 'selesai'])
     ->name('jadwal_posyandu.selesai');
     Route::resource('jadwal_posyandu', JadwalPosyanduController::class);
@@ -137,7 +140,15 @@ Route::middleware('auth')->group(function () {
 
         // Rute Laporan (Hanya Admin)
         Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
+        Route::get('/laporan/detail/{id}', [\App\Http\Controllers\LaporanController::class, 'detail']);
+
+        // Route Export PDF Laporan
+        Route::get('/laporan/export/{id}', [LaporanController::class, 'exportPdf'])
+        ->name('laporan.export');
+        Route::get('/laporan/export-obat/{id}', [LaporanController::class, 'exportObat'])
+        ->name('laporan.export.obat');
     });
+
 
 
     /*

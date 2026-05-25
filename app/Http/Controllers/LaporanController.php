@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\lansia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
@@ -85,24 +85,35 @@ class LaporanController extends Controller
 
         // 4. Summary Atas
         // 4. Summary Atas
-        $hari_ini = lansia::whereDate('created_at', Carbon::today())->count();
 
-        $minggu_ini = lansia::whereBetween('created_at', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek(),
-        ])->count();
+$hari_ini = DB::table('skrining_kunjungan')
+    ->whereDate('created_at', now()->toDateString())
+    ->count();
 
-        $tahun_ini = lansia::whereYear('created_at', Carbon::now()->year)->count();
+$minggu_ini = DB::table('skrining_kunjungan')
+    ->whereBetween('created_at', [
+        Carbon::now()->startOfWeek(),
+        Carbon::now()->endOfWeek()
+    ])
+    ->count();
+
+$tahun_ini = DB::table('skrining_kunjungan')
+    ->whereYear('created_at', Carbon::now()->year)
+    ->count();
+
+       
+
 
         // DATA TABEL LAPORAN
         $laporan = DB::table('jadwal_posyandu')
-            ->select(
-                'id_jadwal_posyandu',
-                'tanggal_pelaksanaan',
-                'tema'
-            )
-            ->latest('tanggal_pelaksanaan')
-            ->get();
+    ->select(
+        'id_jadwal_posyandu',
+        'tanggal_pelaksanaan',
+        'tema'
+    )
+    ->whereDate('tanggal_pelaksanaan', '<', now()->toDateString())
+    ->latest('tanggal_pelaksanaan')
+    ->get();
 
         $summary = [
             'hari_ini' => $hari_ini,
@@ -118,4 +129,200 @@ class LaporanController extends Controller
             'laporan'
         ));
     }
+   public function detail($id)
+   
+{
+    
+    // ambil data jadwal
+    $jadwal = DB::table('jadwal_posyandu')
+        ->where('id_jadwal_posyandu', $id)
+        ->first();
+
+    // cek apakah jadwal sudah lewat
+    $isSelesai = Carbon::parse($jadwal->tanggal_pelaksanaan)->isPast();
+
+    // =========================
+    // STATUS KEHADIRAN
+    // =========================
+
+    if ($isSelesai) {
+
+        // tampilkan semua lansia
+        $data = DB::table('lansia')
+            ->leftJoin('skrining', function ($join) use ($id) {
+
+                $join->on('lansia.id_lansia', '=', 'skrining.id_lansia')
+                    ->where('skrining.id_jadwal_posyandu', '=', $id);
+
+            })
+            ->select(
+                'lansia.nama_lansia',
+                'lansia.jenis_kelamin',
+                DB::raw("
+                    CASE
+                        WHEN skrining.id_skrining IS NOT NULL
+                        THEN 'Hadir'
+                        ELSE 'Tidak Hadir'
+                    END as status_kehadiran
+                ")
+            )
+            ->get();
+
+    } else {
+
+        // kalau belum selesai → tampil hadir aja
+        $data = DB::table('skrining_kunjungan')
+            ->join('skrining', 'skrining_kunjungan.id_skrining', '=', 'skrining.id_skrining')
+            ->join('lansia', 'skrining.id_lansia', '=', 'lansia.id_lansia')
+            ->where('skrining.id_jadwal_posyandu', $id)
+            ->select(
+                'lansia.nama_lansia',
+                'lansia.jenis_kelamin',
+                DB::raw("'Hadir' as status_kehadiran")
+            )
+            ->get();
+    }
+
+    // =========================
+    // PETUGAS
+    // =========================
+
+    $petugas = DB::table('skrining')
+        ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->select(
+            'petugas.nama',
+            DB::raw('count(skrining.id_lansia) as jumlah_lansia')
+        )
+        ->groupBy('petugas.nama')
+        ->get();
+
+        $jadwal = DB::table('jadwal_posyandu')
+    ->where('id_jadwal_posyandu', $id)
+    ->first();
+
+    // =========================
+// OBAT KELUAR
+// =========================
+
+$obat = DB::table('detail_resep')
+    ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+    ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+    ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+    ->where('skrining.id_jadwal_posyandu', $id)
+    ->select(
+        'obat.nama_obat',
+        'detail_resep.jumlah_obat as jumlah_keluar'
+    )
+    ->get();
+
+    return response()->json([
+    'status' => $data,
+    'petugas' => $petugas,
+    'obat' => $obat,
+
+    'jadwal' => [
+        'tanggal' => $jadwal
+            ? Carbon::parse($jadwal->tanggal_pelaksanaan)
+                ->translatedFormat('d F Y')
+            : '-',
+
+        'tempat' => $jadwal->tempat ?? '-',
+
+        'tema' => $jadwal->tema ?? '-'
+    ]
+]);
+}
+public function exportPdf($id)
+{
+    $jadwal = DB::table('jadwal_posyandu')
+        ->where('id_jadwal_posyandu', $id)
+        ->first();
+
+    $lansia = DB::table('skrining')
+    ->join('lansia', 'skrining.id_lansia', '=', 'lansia.id_lansia')
+    ->leftJoin(
+        'skrining_kunjungan',
+        'skrining.id_skrining',
+        '=',
+        'skrining_kunjungan.id_skrining'
+    )
+    ->where('skrining.id_jadwal_posyandu', $id)
+    ->select(
+        'lansia.*',
+        'skrining_kunjungan.diagnosis'
+    )
+    ->get();
+
+    foreach ($lansia as $item) {
+
+        $item->umur = Carbon::parse($item->tanggal_lahir)->age;
+
+        $obat = DB::table('detail_resep')
+            ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+            ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+            ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+            ->where('skrining.id_lansia', $item->id_lansia)
+            ->where('skrining.id_jadwal_posyandu', $id)
+            ->pluck('obat.nama_obat')
+            ->toArray();
+
+        $item->obat = !empty($obat)
+            ? implode(', ', $obat)
+            : '-';
+    }
+
+    $petugas = DB::table('skrining')
+        ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->select('petugas.nama')
+        ->distinct()
+        ->get();
+
+    $pdf = Pdf::loadView(
+        'pdf.laporan_posyandu',
+        compact(
+            'jadwal',
+            'lansia',
+            'petugas'
+        )
+    );
+
+    return $pdf->stream('laporan-posyandu.pdf');
+}
+public function exportObat($id)
+{
+    $jadwal = DB::table('jadwal_posyandu')
+        ->where('id_jadwal_posyandu', $id)
+        ->first();
+
+    $petugas = DB::table('skrining')
+        ->join('petugas', 'skrining.id_petugas', '=', 'petugas.id_petugas')
+        ->where('skrining.id_jadwal_posyandu', $id)
+        ->value('petugas.nama');
+
+    $obat = DB::table('detail_resep')
+    ->join('resep', 'detail_resep.id_resep', '=', 'resep.id_resep')
+    ->join('skrining', 'resep.id_skrining', '=', 'skrining.id_skrining')
+    ->join('obat', 'detail_resep.id_obat', '=', 'obat.id_obat')
+    ->where('skrining.id_jadwal_posyandu', $id)
+    ->select(
+        'obat.nama_obat',
+        'obat.tipe_obat',
+        'detail_resep.jumlah_obat as keluar',
+        'obat.stock as sisa_stok'
+    )
+    ->get();
+
+    $pdf = Pdf::loadView(
+        'pdf.laporan_obat',
+        compact(
+            'jadwal',
+            'obat',
+            'petugas'
+        )
+    );
+
+    return $pdf->stream('laporan-obat.pdf');
+}
 }
