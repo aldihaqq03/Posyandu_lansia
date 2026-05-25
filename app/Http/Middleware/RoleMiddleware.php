@@ -19,7 +19,13 @@ class RoleMiddleware
             abort(403, 'Unauthorized access.');
         }
 
-        $userRole = strtolower(auth()->user()->jabatan);
+        $user = auth()->user();
+
+        if ($user && strtolower($user->jabatan ?? '') === 'super_admin') {
+            return $next($request);
+        }
+
+        $userRole = strtolower($user->jabatan ?? '');
         $allowedRoles = array_map('strtolower', $roles);
 
         if (!in_array($userRole, $allowedRoles)) {

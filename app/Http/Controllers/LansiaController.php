@@ -9,168 +9,116 @@ use App\Models\SkriningPPOK;
 use App\Models\Saran;
 use App\Helpers\SkriningHelper;
 use App\Services\HealthRiskAssessor;
+use App\Services\TrenPenyakitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+
 
 class LansiaController extends Controller
 {
     // ============================================================
     // CEK DATA UNIQUE (AJAX)
     // ============================================================
-    public function checkUnique(Request $request)
-    {
-        $field = $request->query('field');
-        $value = $request->query('value');
-        $ignoreId = $request->query('ignore_id');
+        public function checkUnique(Request $request)
+        {
+            $field = $request->query('field');
+            $value = $request->query('value');
+            $ignoreId = $request->query('ignore_id');
 
-        if (!in_array($field, ['nik', 'no_hp', 'email'])) {
-            return response()->json(['exists' => false]);
-        }
-
-        if (empty($value)) {
-            return response()->json(['exists' => false]);
-        }
-
-        $query = Lansia::where($field, $value);
-        if ($ignoreId) {
-            $query->where('id_lansia', '!=', $ignoreId);
-        }
-
-        return response()->json(['exists' => $query->exists()]);
-    }
-
-    // ============================================================
-    // INDEX – Daftar lansia (tabel ringkas)
-    // ============================================================
-    public function index()
-    {
-        $lansias = Lansia::with(['latestSkriningUtama'])
-            ->latest()
-            ->paginate(10);
-
-        // ── Hitung status kesehatan per lansia berdasarkan parameter medis ──
-        $lansias->getCollection()->transform(function ($lansia) {
-            // Ambil data kunjungan terakhir
-            $kunjungan = $lansia->skrinings()
-                ->whereHas('kunjungan')
-                ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,imt,lingkar_perut')
-                ->orderByDesc('tanggal_skrining')
-                ->first()?->kunjungan;
-
-            $utama = $lansia->latestSkriningUtama;
-
-            $status = HealthRiskAssessor::assess([
-                'sistolik'      => $kunjungan?->td_sistolik,
-                'diastolik'     => $kunjungan?->td_diastolik,
-                'gula_darah'    => $utama?->gula_darah,
-                'kolesterol'    => $utama?->kolesterol,
-                'imt'           => $kunjungan?->imt,
-                'lingkar_perut' => $kunjungan?->lingkar_perut,
-                'jenis_kelamin' => $lansia->jenis_kelamin,
-            ]);
-
-            // Map 'perlu_tindak_lanjut' to 'tinggi' to match existing CSS (risk-tinggi) and Blade view configuration
-            if ($status === HealthRiskAssessor::PERLU_TL) {
-                $lansia->risk_level = 'tinggi';
-            } else {
-                $lansia->risk_level = $status;
+            if (!in_array($field, ['nik', 'no_hp', 'email'])) {
+                return response()->json(['exists' => false]);
             }
 
-            return $lansia;
-        });
-
-        // ── Stat card counts ──
-        $total_lansia = Lansia::count();
-
-        // Hitung kondisi per level dari semua lansia
-        $allLansias = Lansia::with('latestSkriningUtama')->get();
-        $kondisi_normal = 0;
-        $waspada = 0;
-        $perlu_perhatian = 0;
-
-        foreach ($allLansias as $l) {
-            $kunj = $l->skrinings()
-                ->whereHas('kunjungan')
-                ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,imt,lingkar_perut')
-                ->orderByDesc('tanggal_skrining')
-                ->first()?->kunjungan;
-
-            $ut = $l->latestSkriningUtama;
-
-            $status = HealthRiskAssessor::assess([
-                'sistolik'      => $kunj?->td_sistolik,
-                'diastolik'     => $kunj?->td_diastolik,
-                'gula_darah'    => $ut?->gula_darah,
-                'kolesterol'    => $ut?->kolesterol,
-                'imt'           => $kunj?->imt,
-                'lingkar_perut' => $kunj?->lingkar_perut,
-                'jenis_kelamin' => $l->jenis_kelamin,
-            ]);
-
-            if ($status === HealthRiskAssessor::NORMAL) {
-                $kondisi_normal++;
-            } elseif ($status === HealthRiskAssessor::WASPADA) {
-                $waspada++;
-            } elseif ($status === HealthRiskAssessor::PERLU_TL) {
-                $perlu_perhatian++;
+            if (empty($value)) {
+                return response()->json(['exists' => false]);
             }
+
+            $query = Lansia::where($field, $value);
+            if ($ignoreId) {
+                $query->where('id_lansia', '!=', $ignoreId);
+            }
+
+            return response()->json(['exists' => $query->exists()]);
         }
 
-        return view('admin.data_lansia', compact(
-            'lansias',
-            'total_lansia',
-            'kondisi_normal',
-            'waspada',
-            'perlu_perhatian',
-        ));
-    }
+        // ============================================================
+        // INDEX – Daftar lansia (tabel ringkas)
+        // ============================================================
+        
 
-    // ============================================================
-    // HISTORI SKRINING — 3 tabel terpisah: kunjungan, utama, ppok     accxxsddddddddddggttgf
-    // ============================================================
-    public function historiSkrining(Lansia $lansia)
-    {
-        // Skrining yang punya relasi kunjungan
-        // Eager load semua field kunjungan agar tidak N+1
-        $kunjungans = $lansia->skrinings()
-            ->whereHas('kunjungan')
-            ->with([
-                'petugas:id_petugas,nama',
-                    'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan,diagnosis',
-            ])
-            ->orderByDesc('tanggal_skrining')
-            ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+        public function index(Request $request)
+        {
+            $filterRisk     = $request->input('risk', 'semua');
+            $filterPenyakit = $request->input('penyakit', '');
 
-        // Skrining yang punya relasi utama
-        // Eager load SEMUA field utama (40+ field)
-        $utamas = $lansia->skrinings()
-            ->whereHas('utama')
-            ->with([
-                'petugas:id_petugas,nama',
-                'utama', // Load ALL fields dari utama (tidak specify, ambil semua)
-            ])
-            ->orderByDesc('tanggal_skrining')
-            ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+            $result = TrenPenyakitService::getFilteredLansia(
+                filterRisk:     $filterRisk,
+                filterPenyakit: $filterPenyakit,
+                page:           (int) $request->input('page', 1),
+                perPage:        10,
+                requestUrl:     $request->url(),
+                requestQuery:   $request->query(),
+            );
 
-        // Skrining yang punya relasi ppok
-        // Eager load SEMUA field ppok (50+ field)
-        $ppoks = $lansia->skrinings()
-            ->whereHas('ppok')
-            ->with([
-                'petugas:id_petugas,nama',
-                'ppok', // Load ALL fields dari ppok (tidak specify, ambil semua)
-            ])
-            ->orderByDesc('tanggal_skrining')
-            ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+            return view('admin.data_lansia', [
+                'lansias'         => $result['paginator'],
+                'total_lansia'    => $result['total_lansia'],
+                'kondisi_normal'  => $result['kondisi_normal'],
+                'waspada'         => $result['waspada'],
+                'perlu_perhatian' => $result['perlu_perhatian'],
+                'filterRisk'      => $filterRisk,
+                'filterPenyakit'  => $filterPenyakit,
+            ]);
+        }
+        // ============================================================
+        // HISTORI SKRINING — 3 tabel terpisah: kunjungan, utama, ppok     accxxsddddddddddggttgf
+        // ============================================================
+        public function historiSkrining(Lansia $lansia)
+        {
+            $tinggiBadanTerakhir = $this->latestTinggiBadan($lansia);
 
-        return view('lansia.show', compact(
-            'lansia',
-            'kunjungans',
-            'utamas',
-            'ppoks',
-        ));
-    }
+            // Skrining yang punya relasi kunjungan
+            // Eager load semua field kunjungan agar tidak N+1
+            $kunjungans = $lansia->skrinings()
+                ->whereHas('kunjungan')
+                ->with([
+                    'petugas:id_petugas,nama',
+                        'kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,berat_badan,tinggi_badan,imt,lingkar_perut,keluhan,diagnosis',
+                ])
+                ->orderByDesc('tanggal_skrining')
+                ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+
+            // Skrining yang punya relasi utama
+            // Eager load SEMUA field utama (40+ field)
+            $utamas = $lansia->skrinings()
+                ->whereHas('utama')
+                ->with([
+                    'petugas:id_petugas,nama',
+                    'utama', // Load ALL fields dari utama (tidak specify, ambil semua)
+                ])
+                ->orderByDesc('tanggal_skrining')
+                ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+
+            // Skrining yang punya relasi ppok
+            // Eager load SEMUA field ppok (50+ field)
+            $ppoks = $lansia->skrinings()
+                ->whereHas('ppok')
+                ->with([
+                    'petugas:id_petugas,nama',
+                    'ppok', // Load ALL fields dari ppok (tidak specify, ambil semua)
+                ])
+                ->orderByDesc('tanggal_skrining')
+                ->get(['id_skrining', 'id_petugas', 'tanggal_skrining', 'keluhan']);
+
+            return view('lansia.show', compact(
+                'lansia',
+                'tinggiBadanTerakhir',
+                'kunjungans',
+                'utamas',
+                'ppoks',
+            ));
+        }
 
     
     
@@ -243,6 +191,7 @@ class LansiaController extends Controller
             'gula_darah' => $utama?->gula_darah       ?? null,
             'kolesterol' => $utama?->kolesterol        ?? null,
             'imt'        => $kunjungan?->imt           ?? null,
+            'tinggi_badan' => $kunjungan?->tinggi_badan ?? null,
             'detail'     => $detail,
         ]);
     }
@@ -376,7 +325,18 @@ class LansiaController extends Controller
 
             public function monitoring(Lansia $lansia)
             {
-            return view('lansia.monitoringKesehatan', compact('lansia'));
+                $tinggiBadanTerakhir = $this->latestTinggiBadan($lansia);
+
+                return view('lansia.monitoringKesehatan', compact('lansia', 'tinggiBadanTerakhir'));
+            }
+
+            private function latestTinggiBadan(Lansia $lansia): ?float
+            {
+            return $lansia->skrinings()
+                ->whereHas('kunjungan')
+                ->with('kunjungan:id_skrining_kunjungan,id_skrining,tinggi_badan')
+                ->orderByDesc('tanggal_skrining')
+                ->first()?->kunjungan?->tinggi_badan;
             }
 
     // ============================================================

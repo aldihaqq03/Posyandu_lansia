@@ -1,14 +1,69 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const roleHost = document.querySelector("[data-current-role]");
+    const currentRole = roleHost?.dataset.currentRole || "";
     const modal = document.getElementById("modalTambahPetugas");
+    const editModal = document.getElementById("modalEditPetugas");
     const btnOpen = document.getElementById("btn-tambah-petugas");
     const btnClose = document.getElementById("btn-close-tambah-petugas");
     const btnCancel = document.getElementById("btn-batal-tambah-petugas");
+    const btnCloseEdit = document.getElementById("btn-close-edit-petugas");
+    const btnCancelEdit = document.getElementById("btn-batal-edit-petugas");
     const form = document.getElementById("form-tambah-petugas");
+    const editForm = document.getElementById("form-edit-petugas");
     const submitBtn = document.getElementById("btn-submit-tambah-petugas");
+    const submitEditBtn = document.getElementById("btn-submit-edit-petugas");
     const photoInput = document.getElementById("foto");
     const photoZone = document.getElementById("petugas-photo-zone");
     const photoPreview = document.getElementById("petugas-photo-preview");
     const photoFallback = document.getElementById("petugas-photo-fallback");
+    const jabatanSelects = document.querySelectorAll(
+        'select[name="jabatan"], #jabatan',
+    );
+    const editButtons = document.querySelectorAll(".btn-open-edit-petugas");
+    const editFields = {
+        nama: document.getElementById("edit-nama"),
+        nik: document.getElementById("edit-nik"),
+        jabatan: document.getElementById("edit-jabatan"),
+        no_hp: document.getElementById("edit-no_hp"),
+        email: document.getElementById("edit-email"),
+    };
+
+    function openEditModal() {
+        if (!editModal) return;
+        editModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeEditModal() {
+        if (!editModal) return;
+        editModal.classList.remove("open");
+        document.body.style.overflow = "";
+    }
+
+    function lockJabatanForKepalaKader() {
+        if (currentRole !== "kepala_kader") return;
+
+        jabatanSelects.forEach((select) => {
+            if (!select || select.tagName !== "SELECT") return;
+
+            const kepalaKaderOption = select.querySelector(
+                'option[value="kepala_kader"]',
+            );
+            if (kepalaKaderOption) {
+                kepalaKaderOption.remove();
+            }
+
+            const kaderOption = select.querySelector('option[value="kader"]');
+            if (kaderOption) {
+                kaderOption.selected = true;
+            }
+
+            select.value = "kader";
+            select.disabled = false;
+        });
+    }
+
+    lockJabatanForKepalaKader();
 
     function openModal() {
         if (!modal) return;
@@ -25,9 +80,45 @@ document.addEventListener("DOMContentLoaded", function () {
     btnOpen?.addEventListener("click", openModal);
     btnClose?.addEventListener("click", closeModal);
     btnCancel?.addEventListener("click", closeModal);
+    btnCloseEdit?.addEventListener("click", closeEditModal);
+    btnCancelEdit?.addEventListener("click", closeEditModal);
 
     modal?.addEventListener("click", function (e) {
         if (e.target === modal) closeModal();
+    });
+
+    editModal?.addEventListener("click", function (e) {
+        if (e.target === editModal) closeEditModal();
+    });
+
+    editButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const id = this.dataset.petugasId || "";
+            const updateTemplate = this.dataset.updateUrlTemplate || "";
+
+            if (editForm && updateTemplate) {
+                editForm.action = updateTemplate.replace("__ID__", id);
+            }
+
+            if (editFields.nama)
+                editFields.nama.value = this.dataset.petugasNama || "";
+            if (editFields.nik)
+                editFields.nik.value = this.dataset.petugasNik || "";
+            if (editFields.no_hp)
+                editFields.no_hp.value = this.dataset.petugasNoHp || "";
+            if (editFields.email)
+                editFields.email.value = this.dataset.petugasEmail || "";
+
+            if (editFields.jabatan) {
+                const requestedJabatan = this.dataset.petugasJabatan || "kader";
+                editFields.jabatan.value = requestedJabatan;
+                if (currentRole === "kepala_kader") {
+                    editFields.jabatan.value = "kader";
+                }
+            }
+
+            openEditModal();
+        });
     });
 
     document.addEventListener("keydown", function (e) {
@@ -207,5 +298,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             },
         );
+    }
+
+    if (editForm) {
+        editForm.addEventListener("submit", function () {
+            if (submitEditBtn) submitEditBtn.disabled = true;
+        });
     }
 });

@@ -131,7 +131,12 @@
                 @endif
 
                 {{-- CARD --}}
-                <div class="jadwal-card {{ $item->status == 3 || $item->status == 4 ? 'card-done' : '' }}">
+                <div class="jadwal-card {{ $item->status == 3 || $item->status == 4 ? 'card-done' : '' }}"
+                    data-id="{{ $item->id_jadwal_posyandu }}"
+                    tabindex="0"
+                    role="button"
+                    title="Klik untuk melihat ringkasan detail"
+                    aria-label="Lihat detail jadwal">
 
                     {{-- TANGGAL --}}
                     <div class="jadwal-date {{ $color }}">
@@ -173,9 +178,6 @@
                             {{ $labelMap[$item->status] ?? '-' }}
                         </span>
                         <div class="jadwal-actions">
-                            <button class="btn-outline btn-sm btn-detail" data-id="{{ $item->id_jadwal_posyandu }}">
-                                Detail
-                            </button>
                             @if($item->status == 0)
                                 <button class="btn-outline btn-sm btn-edit" data-id="{{ $item->id_jadwal_posyandu }}">
                                     Edit

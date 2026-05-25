@@ -141,12 +141,13 @@
                                 <option value="">-- Pilih Lansia --</option>
                                 @foreach($lansia as $l)
                                     <option value="{{ $l->id_lansia }}"
-                                        data-pekerjaan="{{ $l->pekerjaan ?? '' }}"
-                                        data-tanggal-lahir="{{ $l->tanggal_lahir ?? '' }}"
-                                        data-umur="{{ $l->tanggal_lahir ? \Carbon\Carbon::parse($l->tanggal_lahir)->age : ($l->umur ?? '') }}"
-                                        {{ old('id_lansia') == $l->id_lansia ? 'selected' : '' }}>
-                                        {{ $l->nama_lansia }}
-                                    </option>
+                                            data-pekerjaan="{{ $l->pekerjaan ?? '' }}"
+                                            data-tanggal-lahir="{{ $l->tanggal_lahir ?? '' }}"
+                                            data-umur="{{ $l->tanggal_lahir ? \Carbon\Carbon::parse($l->tanggal_lahir)->age : ($l->umur ?? '') }}"
+                                            data-nik="{{ $l->nik ?? '' }}"
+                                            {{ old('id_lansia') == $l->id_lansia ? 'selected' : '' }}>
+                                            {{ $l->nama_lansia }} - {{ $l->nik ?? '-' }}
+                                        </option>
                                 @endforeach
                             </select>
                         @endif
@@ -291,15 +292,15 @@
                         <div class="subsection-label">Pengukuran Lab</div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Gula Darah (mg/dL)</label>
+                                <label class="form-label">Gula Darah (mg/dL) <span class="required">*</span></label>
                                 <input type="number" name="gula_darah" class="form-control" placeholder="100"
-                                    value="{{ old('gula_darah') }}">
+                                    value="{{ old('gula_darah') }}" required>
                                 <small class="form-hint">Baik: &lt;145 · Sedang: 145–199 · Tidak Baik: ≥200</small>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Kolesterol (mg/dL)</label>
+                                <label class="form-label">Kolesterol (mg/dL) <span class="required">*</span></label>
                                 <input type="number" name="kolesterol" class="form-control" placeholder="180"
-                                    value="{{ old('kolesterol') }}">
+                                    value="{{ old('kolesterol') }}" required>
                                 <small class="form-hint">Baik: &lt;150 · Sedang: 150–189 · Tidak Baik: ≥190</small>
                             </div>
                         </div>
@@ -664,10 +665,10 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Jenis Kelamin</label>
-                                <div class="radio-group">
-                                    <label><input type="radio" name="puma_jenis_kelamin" value="0" {{ old('puma_jenis_kelamin') === '0' ? 'checked' : '' }}> Perempuan (skor 0)</label>
-                                    <label><input type="radio" name="puma_jenis_kelamin" value="1" {{ old('puma_jenis_kelamin') == '1' ? 'checked' : '' }}> Laki-laki (skor 1)</label>
-                                </div>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="puma_jenis_kelamin" value="0" {{ old('puma_jenis_kelamin') === '0' ? 'checked' : '' }} required> Perempuan (skor 0)</label>
+                                        <label><input type="radio" name="puma_jenis_kelamin" value="1" {{ old('puma_jenis_kelamin') == '1' ? 'checked' : '' }}> Laki-laki (skor 1)</label>
+                                    </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Kategori Usia</label>
@@ -698,12 +699,12 @@
                             <div class="form-group">
                                 <label class="form-label">Rokok per hari</label>
                                 <input type="number" name="puma_rokok_per_hari" class="form-control" placeholder="0" min="0"
-                                    value="{{ old('puma_rokok_per_hari', 0) }}" id="puma-rokok-per-hari">
+                                    value="{{ old('puma_rokok_per_hari', 0) }}" id="puma-rokok-per-hari" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Lama merokok (tahun)</label>
                                 <input type="number" name="puma_lama_merokok_tahun" class="form-control" placeholder="0" min="0"
-                                    value="{{ old('puma_lama_merokok_tahun', 0) }}" id="puma-lama-merokok">
+                                    value="{{ old('puma_lama_merokok_tahun', 0) }}" id="puma-lama-merokok" required>
                             </div>
                         </div>
                         <div class="form-group">

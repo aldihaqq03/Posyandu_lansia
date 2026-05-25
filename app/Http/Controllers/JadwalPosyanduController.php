@@ -133,10 +133,10 @@ class JadwalPosyanduController extends Controller
             return $this->errorResponse($request, 'Hanya jadwal berstatus "Terjadwal" yang bisa diedit', 403);
         }
 
-        $minDate = date('Y-m-d', strtotime($jadwal->tanggal_pelaksanaan . ' +1 day'));
+        $minDate = now('Asia/Jakarta')->addDays(3)->format('Y-m-d');
 
         $request->validate([
-            'tanggal_pelaksanaan' => ['required', 'date', "after:{$minDate}"],
+            'tanggal_pelaksanaan' => ['required', 'date', "after_or_equal:{$minDate}"],
             'tema'                => 'required|string|max:255',
             'lokasi'              => 'required|string|max:255',
             'kegiatan'            => 'nullable|array',
@@ -146,7 +146,7 @@ class JadwalPosyanduController extends Controller
             'jenis_skrining'      => 'required|array|min:1',
             'jenis_skrining.*'    => 'in:1,2,3',
         ], [
-            'tanggal_pelaksanaan.after' => "Tanggal harus lebih dari {$minDate} (H+1 dari jadwal semula)",
+            'tanggal_pelaksanaan.after_or_equal' => "Tanggal minimal {$minDate} (H+3 dari hari ini)",
         ]);
 
         $conflict = JadwalPosyandu::whereDate('tanggal_pelaksanaan', $request->tanggal_pelaksanaan)

@@ -421,6 +421,7 @@
     border-color: var(--primary-mid);
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+    background: #f0f7ff;
 }
 
 .jadwal-card.card-done {

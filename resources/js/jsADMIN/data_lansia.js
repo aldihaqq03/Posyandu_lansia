@@ -1,8 +1,38 @@
 /* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 0. HELPER: setupModalClose
+    // Menutup modal saat tombol close diklik atau klik di luar modal-content
+    // ─────────────────────────────────────────────────────────────────────
+    function setupModalClose(modalEl, closeBtns = []) {
+        if (!modalEl) return;
+
+        // Klik tombol close (X / Cancel dll.)
+        closeBtns.forEach((btn) => {
+            btn?.addEventListener("click", () => {
+                modalEl.classList.remove("active");
+            });
+        });
+
+        // Klik di luar area .modal-content (overlay background)
+        modalEl.addEventListener("click", function (e) {
+            if (e.target === modalEl) {
+                modalEl.classList.remove("active");
+            }
+        });
+
+        // Tekan Escape
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && modalEl.classList.contains("active")) {
+                modalEl.classList.remove("active");
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // 1. Animasi Angka Statistik
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─────────────────────────────────────────────────────────────────────
     document.querySelectorAll(".stat-number").forEach((el) => {
         const target = parseInt(el.innerText.replace(/\D/g, ""));
         if (isNaN(target) || target === 0) return;
@@ -94,6 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("name-display", nama);
             setText("detail-umur", umur + " Tahun");
             setText("detail-jk", jk);
+            setText("detail-tb", "Tinggi: -");
             setText("d-nik", nik);
             setText("d-hp", hp);
             setText("d-email", email);
@@ -195,13 +226,25 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-gula", data.gula_darah ?? "-");
             setText("d-kolesterol", data.kolesterol ?? "-");
             setText("d-imt", data.imt ?? "-");
+            setText(
+                "detail-tb",
+                data.tinggi_badan
+                    ? `Tinggi: ${data.tinggi_badan} cm`
+                    : "Tinggi: -",
+            );
 
             // Apply status colors to health cards based on elderly parameters from backend
             if (data.detail) {
                 applyCardStatus("hcard-sistolik", data.detail.sistolik.status);
-                applyCardStatus("hcard-diastolik", data.detail.diastolik.status);
+                applyCardStatus(
+                    "hcard-diastolik",
+                    data.detail.diastolik.status,
+                );
                 applyCardStatus("hcard-gula", data.detail.gula_darah.status);
-                applyCardStatus("hcard-kolesterol", data.detail.kolesterol.status);
+                applyCardStatus(
+                    "hcard-kolesterol",
+                    data.detail.kolesterol.status,
+                );
                 applyCardStatus("hcard-imt", data.detail.imt.status);
             }
         } catch {
@@ -219,7 +262,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const el = document.getElementById(cardId);
         if (!el || !status) return;
         // Map 'perlu_tindak_lanjut' to 'tinggi' to match existing CSS class (.status-tinggi)
-        const mappedStatus = status === 'perlu_tindak_lanjut' ? 'tinggi' : status;
+        const mappedStatus =
+            status === "perlu_tindak_lanjut" ? "tinggi" : status;
         el.classList.add(`status-${mappedStatus}`);
     }
 
@@ -1493,9 +1537,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // 7. Modal Filter
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ============================================================
+    // 7. Modal Filter — ganti seluruh blok "Modal Filter" yang lama
+    // ============================================================
     const modalFilter = document.getElementById("modal-filter-lansia");
-    const formFilter = modalFilter?.querySelector("form");
 
     document
         .getElementById("btn-filter-lansia")
@@ -1507,28 +1552,80 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("btn-close-filter-modal"),
     ]);
 
-    formFilter?.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const status = document.getElementById("filter_status")?.value;
-        const umur = document.getElementById("filter_umur")?.value;
-        alert(`Filter: Status=${status || "Semua"}, Umur=${umur || "Semua"}`);
-        modalFilter.classList.remove("active");
+    // ── Saat modal dibuka, sync state dari URL params ──────────
+    (function syncFilterStateFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const currentRisk = params.get("risk") || "semua";
+        const currentSakit = params.get("penyakit") || "";
+
+        // Set active tab risk
+        document.querySelectorAll(".filter-risk-tab").forEach((tab) => {
+            tab.classList.toggle("active", tab.dataset.risk === currentRisk);
+        });
+
+        // Terapkan lock/unlock sub-filter
+        applyPenyakitLock(currentRisk);
+
+        // Set active radio penyakit
+        if (currentSakit) {
+            const radio = document.querySelector(
+                `.filter-penyakit-radio[value="${currentSakit}"]`,
+            );
+            if (radio) radio.checked = true;
+        }
+    })();
+
+    // ── Risk tab click ─────────────────────────────────────────
+    document.querySelectorAll(".filter-risk-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+            document
+                .querySelectorAll(".filter-risk-tab")
+                .forEach((t) => t.classList.remove("active"));
+            this.classList.add("active");
+            const risk = this.dataset.risk;
+            applyPenyakitLock(risk);
+        });
     });
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // HELPERS
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    function setVal(id, val) {
-        const el = document.getElementById(id);
-        if (el) el.value = val ?? "";
+    function applyPenyakitLock(risk) {
+        const subBlock = document.getElementById("filter-penyakit-block");
+        const radios = document.querySelectorAll(".filter-penyakit-radio");
+        const locked = risk === "semua" || risk === "normal";
+
+        if (subBlock) {
+            subBlock.style.opacity = locked ? "0.45" : "1";
+            subBlock.style.pointerEvents = locked ? "none" : "auto";
+        }
+
+        if (locked) {
+            // Reset pilihan penyakit saat dikunci
+            radios.forEach((r) => (r.checked = false));
+        }
     }
 
-    function setupModalClose(modal, triggers = []) {
-        if (!modal) return;
-        const close = () => modal.classList.remove("active");
-        triggers.forEach((btn) => btn?.addEventListener("click", close));
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal) close();
+    // ── Terapkan filter → navigate ke URL baru ────────────────
+    document
+        .getElementById("btn-terapkan-filter")
+        ?.addEventListener("click", () => {
+            const activeTab = document.querySelector(".filter-risk-tab.active");
+            const risk = activeTab?.dataset.risk || "semua";
+            const penyakit =
+                document.querySelector(".filter-penyakit-radio:checked")
+                    ?.value || "";
+
+            const params = new URLSearchParams(window.location.search);
+            params.set("risk", risk);
+            params.delete("penyakit");
+            if (penyakit) params.set("penyakit", penyakit);
+            params.delete("page"); // reset ke halaman 1
+
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
         });
-    }
+
+    // ── Reset filter ──────────────────────────────────────────
+    document
+        .getElementById("btn-reset-filter")
+        ?.addEventListener("click", () => {
+            window.location.href = window.location.pathname;
+        });
 });

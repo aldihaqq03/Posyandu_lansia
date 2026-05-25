@@ -186,31 +186,42 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    document.querySelectorAll(".btn-detail").forEach((btn) => {
-        btn.addEventListener("click", function () {
-            const id = this.dataset.id;
-            if (!id) return;
+    function openJadwalDetail(id) {
+        if (!id) return;
 
-            fetch(`/jadwal_posyandu/${id}`, {
-                headers: { Accept: "application/json" },
+        fetch(`/jadwal_posyandu/${id}`, {
+            headers: { Accept: "application/json" },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setText("detail-tema", data.tema || "-");
+                setText(
+                    "detail-tanggal",
+                    formatDateIndo(data.tanggal_pelaksanaan),
+                );
+                setText("detail-lokasi", data.lokasi || "-");
+                setText("detail-catatan", data.keterangan || "-");
+                renderStatusBadge(parseInt(data.status));
+                renderDetailSkrining(data.detail_skrining || []);
+                renderDetailKegiatan(data.kegiatan || []);
+                openModalDetail();
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    setText("detail-tema", data.tema || "-");
-                    setText(
-                        "detail-tanggal",
-                        formatDateIndo(data.tanggal_pelaksanaan),
-                    );
-                    setText("detail-lokasi", data.lokasi || "-");
-                    setText("detail-catatan", data.keterangan || "-");
-                    renderStatusBadge(parseInt(data.status));
-                    renderDetailSkrining(data.detail_skrining || []);
-                    renderDetailKegiatan(data.kegiatan || []);
-                    openModalDetail();
-                })
-                .catch(() => {
-                    alert("Gagal mengambil detail jadwal!");
-                });
+            .catch(() => {
+                alert("Gagal mengambil detail jadwal!");
+            });
+    }
+
+    document.querySelectorAll(".jadwal-card[data-id]").forEach((card) => {
+        card.addEventListener("click", function (e) {
+            if (e.target.closest(".jadwal-actions")) return;
+            openJadwalDetail(this.dataset.id);
+        });
+
+        card.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openJadwalDetail(this.dataset.id);
+            }
         });
     });
 
@@ -226,8 +237,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((data) => {
                     document.getElementById("edit-id").value =
                         data.id_jadwal_posyandu;
-                    document.getElementById("edit-tanggal").value =
-                        data.tanggal_pelaksanaan;
+
                     document.getElementById("edit-tema").value = data.tema;
                     document.getElementById("edit-lokasi").value = data.lokasi;
                     document.getElementById("edit-catatan").value =
@@ -242,19 +252,34 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("edit-chk-ppok").checked =
                         aktifJenis.includes(2);
 
-                    // Minimal tanggal H+1
-                    const minDate = new Date(data.tanggal_pelaksanaan);
-                    minDate.setDate(minDate.getDate() + 1);
-                    const minDateStr = minDate.toISOString().split("T")[0];
+                    // Minimal tanggal = H+3 dari hari ini
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    today.setDate(today.getDate() + 3); // Menghitung H+3 dari hari ini
 
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, "0");
+                    const day = String(today.getDate()).padStart(2, "0");
+
+                    const minDateStr = `${year}-${month}-${day}`;
                     const inputTanggal =
                         document.getElementById("edit-tanggal");
-                    inputTanggal.min = minDateStr;
+
+                    // 1. KUNCI UTAMA: Set atribut 'min' agar tanggal H+3 ke belakang otomatis abu-abu dan tidak bisa dipilih
+                    inputTanggal.setAttribute("min", minDateStr);
                     inputTanggal.dataset.minDate = minDateStr;
 
+                    // 2. VALIDASI NILAI: Jika tanggal dari database sudah kedaluwarsa (kurang dari H+3 hari ini), paksa set ke batas minimal
+                    if (data.tanggal_pelaksanaan < minDateStr) {
+                        inputTanggal.value = minDateStr;
+                    } else {
+                        inputTanggal.value = data.tanggal_pelaksanaan;
+                    }
+
+                    // 3. RENDER HINT TEXT
                     const hintEl = document.getElementById("edit-tanggal-hint");
                     if (hintEl) {
-                        hintEl.textContent = `Minimal tanggal: ${formatDateIndo(minDateStr)} (H+1 dari jadwal semula)`;
+                        hintEl.textContent = `Minimal tanggal: ${formatDateIndo(minDateStr)} (H+3 dari hari ini)`;
                         hintEl.style.display = "block";
                         hintEl.style.color = "var(--primary-mid)";
                         hintEl.style.fontSize = "12px";
@@ -355,9 +380,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const minDate =
                 document.getElementById("edit-tanggal").dataset.minDate;
 
-            if (!tanggal || tanggal <= minDate) {
+            if (!tanggal || tanggal < minDate) {
                 alert(
-                    `Tanggal harus lebih dari ${formatDateIndo(minDate)} (H+1 dari jadwal semula)`,
+                    `Tanggal minimal ${formatDateIndo(minDate)} (H+3 dari hari ini)`,
                 );
                 return;
             }

@@ -9,6 +9,10 @@
 
 @section('content')
 
+@php
+    $currentRole = strtolower(Auth::user()->jabatan ?? '');
+@endphp
+
     <div class="page-container">
 
         <div class="page-header">
@@ -53,11 +57,21 @@
 
                     <div class="form-group">
                         <label>Jabatan</label>
-                        <select name="jabatan" required>
-                            <option value="">Pilih Jabatan</option>
-                            <option value="kader">kader</option>
-                            <option value="kepala_kader">kepala_kader</option>
-                        </select>
+                        @if($currentRole === 'super_admin')
+                            <select name="jabatan" id="jabatan" required>
+                                <option value="">Pilih Jabatan</option>
+                                <option value="kader" {{ old('jabatan') === 'kader' ? 'selected' : '' }}>kader</option>
+                                <option value="kepala_kader" {{ old('jabatan') === 'kepala_kader' ? 'selected' : '' }}>kepala_kader</option>
+                            </select>
+                        @elseif($currentRole === 'kepala_kader')
+                            <select name="jabatan" id="jabatan" required>
+                                <option value="kader" selected>kader</option>
+                            </select>
+                        @else
+                            <input type="hidden" name="jabatan" id="jabatan" value="kader">
+                            <input type="text" value="kader" readonly>
+                            <small style="color:#6b7280; font-size:12px;">Role dikunci ke kader untuk kepala_kader.</small>
+                        @endif
                     </div>
 
 
@@ -96,3 +110,7 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    @vite('resources/js/jsADMIN/data_petugas.js')
+@endpush

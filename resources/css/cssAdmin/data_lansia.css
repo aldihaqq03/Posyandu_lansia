@@ -427,16 +427,16 @@
 
 .edit-btn {
     background: white;
-    border: 1px solid #0F766E !important;
-    color: #0F766E;
+    border: 1px solid #0f766e !important;
+    color: #0f766e;
 }
 
 .edit-btn i {
-    color: #0F766E;
+    color: #0f766e;
 }
 
 .edit-btn:hover {
-    background: #0F766E;
+    background: #0f766e;
 }
 
 .edit-btn:hover i {
@@ -444,16 +444,16 @@
 }
 
 .delete-btn {
-    background: #FEE2E2;
-    border: 1px solid #FCA5A5 !important;
+    background: #fee2e2;
+    border: 1px solid #fca5a5 !important;
 }
 
 .delete-btn i {
-    color: #DC2626;
+    color: #dc2626;
 }
 
 .delete-btn:hover {
-    background: #DC2626;
+    background: #dc2626;
 }
 
 .delete-btn:hover i {

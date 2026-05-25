@@ -2,138 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lansia;
-use App\Models\Skrining;
-use App\Models\SkriningUtama;
 use App\Models\JadwalPosyandu;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Lansia;
+use App\Models\Obat;
+use App\Services\HealthRiskAssessor;
+use App\Services\TrenPenyakitService;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $total_lansia = Cache::remember('dash_total_lansia', 600, fn() => Lansia::count());
-        
-        // Ambil ID lansia dengan screening terbaru
-        $resiko_tinggi = Cache::remember('dash_resiko_tinggi', 600, function() {
-            $latestScreeningIds = SkriningUtama::select(DB::raw('MAX(id_skrining_utama)'))
-                ->groupBy('id_lansia');
+        // ── 1. STAT CARDS ──────────────────────────────────────────────
+        $statData = Cache::remember('dash_stat_risiko', 300, function () {
+            $allLansias = Lansia::with('latestSkriningUtama')->get();
+            $total = $allLansias->count();
+            $kondisi_normal = $waspada = $perlu_perhatian = 0;
 
-            $penyakit_beresiko = ['Hipertensi', 'Diabetes', 'Jantung', 'Stroke', 'PPOK'];
+            foreach ($allLansias as $l) {
+                $kunj = $l->skrinings()
+                    ->whereHas('kunjungan')
+                    ->with('kunjungan:id_skrining_kunjungan,id_skrining,td_sistolik,td_diastolik,imt,lingkar_perut')
+                    ->orderByDesc('tanggal_skrining')
+                    ->first()?->kunjungan;
+                $ut = $l->latestSkriningUtama;
+                $status = HealthRiskAssessor::assess([
+                    'sistolik' => $kunj?->td_sistolik,
+                    'diastolik' => $kunj?->td_diastolik,
+                    'gula_darah' => $ut?->gula_darah,
+                    'kolesterol' => $ut?->kolesterol,
+                    'imt' => $kunj?->imt,
+                    'lingkar_perut' => $kunj?->lingkar_perut,
+                    'jenis_kelamin' => $l->jenis_kelamin,
+                ]);
+                if ($status === HealthRiskAssessor::NORMAL) {
+                    $kondisi_normal++;
+                } elseif ($status === HealthRiskAssessor::WASPADA) {
+                    $waspada++;
+                } elseif ($status === HealthRiskAssessor::PERLU_TL) {
+                    $perlu_perhatian++;
+                }
+            }
 
-            return Lansia::where(function($q) use ($penyakit_beresiko) {
-                    foreach($penyakit_beresiko as $p) {
-                        $q->orWhere('riwayat_penyakit', 'LIKE', '%' . $p . '%');
-                    }
-                })
-                ->orWhereIn('id_lansia', function($query) use ($latestScreeningIds) {
-                    $query->select('id_lansia')
-                        ->from('skrining_utama')
-                        ->whereIn('id_skrining_utama', $latestScreeningIds)
-                        ->where(function($q) {
-                            $q->where('gula_darah_kategori', 3)
-                              ->orWhere('kolesterol_kategori', 3);
-                        });
-                })
-                ->count();
+            return compact('total', 'kondisi_normal', 'waspada', 'perlu_perhatian');
         });
 
-        $pemeriksaan_selesai = Cache::remember('dash_pemeriksaan_selesai', 600, function() {
-            return Skrining::whereMonth('tanggal_skrining', now()->month)
-                ->whereYear('tanggal_skrining', now()->year)
-                ->count();
-        });
+        $total_lansia = $statData['total'];
+        $kondisi_normal = $statData['kondisi_normal'];
+        $waspada = $statData['waspada'];
+        $perlu_perhatian = $statData['perlu_perhatian'];
 
-        // Data untuk Tren Keluhan
-        $penyakit_counts = Cache::remember('dash_penyakit_counts', 600, function() {
-            return [
-                'Hipertensi' => Lansia::where('riwayat_penyakit', 'LIKE', '%Hipertensi%')->orWhereIn('id_lansia', function($q) {
-                    $q->select('id_lansia')->from('skrining')->where('keluhan', 'LIKE', '%Hipertensi%')->orWhere('keluhan', 'LIKE', '%Darah Tinggi%');
-                })->count(),
-                'Diabetes' => Lansia::where('riwayat_penyakit', 'LIKE', '%Diabetes%')->orWhere('riwayat_penyakit', 'LIKE', '%Gula%')->orWhereIn('id_lansia', function($q) {
-                    $q->select('id_lansia')->from('skrining')->where('keluhan', 'LIKE', '%Diabetes%')->orWhere('keluhan', 'LIKE', '%Gula%');
-                })->count(),
-                'Asam Urat' => Lansia::where('riwayat_penyakit', 'LIKE', '%Asam Urat%')->orWhereIn('id_lansia', function($q) {
-                    $q->select('id_lansia')->from('skrining')->where('keluhan', 'LIKE', '%Asam Urat%');
-                })->count(),
-                'Kolesterol' => Lansia::where('riwayat_penyakit', 'LIKE', '%Kolesterol%')->orWhereIn('id_lansia', function($q) {
-                    $q->select('id_lansia')->from('skrining')->where('keluhan', 'LIKE', '%Kolesterol%');
-                })->count(),
-            ];
-        });
+        // ── 2. TREN PENYAKIT (DIURUTKAN DARI TERBANYAK) ─────────────────
+        $trenPenyakit = TrenPenyakitService::getTrend();
 
-        // Total penyakit untuk persentase
-        $total_penyakit = array_sum($penyakit_counts) ?: 1;
-        $tren_keluhan = [];
-        foreach ($penyakit_counts as $nama => $count) {
-            $tren_keluhan[] = [
-                'nama' => $nama,
-                'persen' => round(($count / $total_penyakit) * 100),
-                'color' => $this->getColorForPenyakit($nama)
-            ];
-        }
+        // ── 3. JADWAL 30 HARI KE DEPAN ─────────────────────────────────
+        $today = now('Asia/Jakarta')->format('Y-m-d');
+        $thirtyDays = now('Asia/Jakarta')->addDays(30)->format('Y-m-d');
+        $jadwalMendatang = JadwalPosyandu::with('detailSkrining')
+            ->whereBetween('tanggal_pelaksanaan', [$today, $thirtyDays])
+            ->whereIn('status', [JadwalPosyandu::STATUS_TERJADWAL, JadwalPosyandu::STATUS_BERLANGSUNG])
+            ->orderBy('tanggal_pelaksanaan', 'asc')
+            ->get();
 
-        // Riwayat Pemeriksaan Terakhir
-        $riwayat_terakhir = Cache::remember('dash_riwayat_terakhir', 600, function() {
-            return Skrining::with(['lansia.latestSkriningUtama'])
-                ->latest('tanggal_skrining')
-                ->limit(5)
-                ->get();
-        });
-
-        // Lansia yang diperiksa bulan ini (untuk avatar group)
-        $lansia_checked = Cache::remember('dash_lansia_checked', 600, function() {
-            return Skrining::with('lansia')
-                ->whereMonth('tanggal_skrining', now()->month)
-                ->whereYear('tanggal_skrining', now()->year)
-                ->latest()
-                ->limit(3)
-                ->get();
-        });
+        // ── 4. STOK OBAT MENIPIS ────────────────────────────────────────
+        $obatMenipis = Obat::where('stock', '<', 10)->orderBy('stock', 'asc')->get();
 
         return view('admin.dashboard', compact(
-            'total_lansia',
-            'resiko_tinggi',
-            'pemeriksaan_selesai',
-            'tren_keluhan',
-            'riwayat_terakhir',
-            'lansia_checked'
+            'total_lansia', 'kondisi_normal', 'waspada', 'perlu_perhatian',
+            'trenPenyakit', 'jadwalMendatang', 'obatMenipis'
         ));
-    }
-
-    private function getColorForPenyakit($nama)
-    {
-        return match ($nama) {
-            'Hipertensi' => 'var(--danger)',
-            'Diabetes' => 'var(--warning)',
-            'Asam Urat' => 'var(--primary)',
-            'Kolesterol' => 'var(--success)',
-            default => 'var(--primary)',
-        };
-    }
-
-    public function testNotification()
-    {
-        // Get users with FCM token
-        $users = \App\Models\User::whereNotNull('fcm_token')->get();
-        $count = 0;
-
-        foreach ($users as $user) {
-            $success = \App\Services\FcmService::sendNotification(
-                $user->fcm_token,
-                'Notifikasi Test',
-                'Ini adalah pesan uji coba dari Dashboard Web!',
-                ['type' => 'jadwal_baru']
-            );
-            if ($success) $count++;
-        }
-
-        if ($count > 0) {
-            return redirect()->back()->with('success', "Notifikasi uji coba berhasil dikirim ke $count perangkat!");
-        } else {
-            return redirect()->back()->with('error', 'Gagal mengirim notifikasi. Pastikan ada user yang login di HP (memiliki fcm_token).');
-        }
     }
 }

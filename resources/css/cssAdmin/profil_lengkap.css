@@ -182,6 +182,14 @@
     white-space: nowrap;
 }
 
+.history-table tbody tr {
+    cursor: pointer;
+}
+
+.history-table tbody tr:hover {
+    background: #f0f7ff;
+}
+
 .btn-icon {
     display: inline-flex;
     align-items: center;
@@ -622,7 +630,9 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     margin-bottom: 1.75rem;
     overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 .health-card:hover {
