@@ -28,7 +28,7 @@ class ObatController extends Controller
      */
     public function index()
     {
-        $obat = Obat::all();
+       $obat = Obat::orderBy('stock', 'asc')->get();
         $tipeObat = self::TIPE_OBAT;
         return view('admin.obat.index', compact('obat', 'tipeObat'));
     }

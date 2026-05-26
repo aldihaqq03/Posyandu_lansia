@@ -115,6 +115,7 @@
                     <thead>
                         <tr>
                             <th>NAMA LANSIA</th>
+                            <th>NIK</th>
                             <th>UMUR</th>
                             <th>ALAMAT</th>
                             <th>RISIKO</th>
@@ -140,20 +141,21 @@
                                 {{-- Nama --}}
                                 <td>
                                     <div class="user-cell">
-                                        <div class="avatar">{{ strtoupper(substr($lansia->nama_lansia, 0, 2)) }}</div>
                                         <div class="user-text">
                                             <span class="user-name">{{ $lansia->nama_lansia }}</span>
-                                            <span class="user-subtext">{{ $lansia->nik }}</span>
                                         </div>
                                     </div>
                                 </td>
 
+                                {{-- NIK --}}
+                                <td>
+                                    <span class="main-text">{{ $lansia->nik }}</span>
+                                </td>
+
                                 {{-- Umur --}}
                                 <td>
-                                    <span class="main-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}
-                                        Tahun</span>
-                                    <span
-                                        class="sub-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}</span>
+                                    <span class="main-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }} Tahun</span>
+                                    <span class="sub-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}</span>
                                 </td>
 
                                 {{-- Alamat --}}
@@ -200,7 +202,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="empty-state">Belum ada data lansia.</td>
+                                <td colspan="7" class="empty-state">Belum ada data lansia.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -234,21 +236,17 @@
                 </div>
 
                 <div class="detail-content-grid">
-                    {{-- Kiri: avatar & identitas --}}
+                    {{-- Kiri: QR di posisi paling atas, selalu tampil jika tersedia --}}
                     <div class="profile-side">
-                        <div class="big-avatar" id="detail-avatar">--</div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                            <div style="margin-top:0; text-align:center;">
+                                <img id="detail-qr-telegram" src="" alt="QR Telegram" style="width:120px; height:120px; display:none; margin:0 auto;">
+                                <p id="detail-kode-telegram" style="font-size:11px; margin-top:8px; color:#555;">-</p>
+                            </div>
+                        </div>
                         <h2 id="name-display">-</h2>
                         <p class="age-text" id="detail-umur">-</p>
                         <div class="status-pill" id="detail-jk">-</div>
-
-                        {{-- QR Code Telegram --}}
-                        <div
-                            style="margin-top:20px; padding:10px; background:#f9f9f9; border-radius:8px; border:1px solid #ddd;">
-                            <p style="font-size:12px; font-weight:bold; margin-bottom:5px;">Scan QR Darurat Telegram</p>
-                            <img id="detail-qr-telegram" src="" alt="QR Telegram"
-                                style="width:120px; height:120px; display:none; margin:0 auto;">
-                            <p id="detail-kode-telegram" style="font-size:11px; margin-top:5px; color:#555;">-</p>
-                        </div>
                     </div>
 
                     {{-- Kanan: info pribadi + kesehatan --}}

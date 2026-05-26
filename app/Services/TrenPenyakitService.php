@@ -16,53 +16,59 @@ class TrenPenyakitService
     {
         return Cache::remember('dash_tren_penyakit', 300, function () {
             $latestKunjungan = self::queryLatestKunjungan()->get()->keyBy('id_lansia');
-            $latestUtama     = self::queryLatestUtama()->get()->keyBy('id_lansia');
+            $latestUtama = self::queryLatestUtama()->get()->keyBy('id_lansia');
 
             $counts = [
                 'hipertensi' => 0,
-                'hipotensi'  => 0,
-                'diabetes'   => 0,
+                'hipotensi' => 0,
+                'diabetes' => 0,
                 'kolesterol' => 0,
-                'obesitas'   => 0,
-                'bb_kurang'  => 0,
+                'obesitas' => 0,
+                'bb_kurang' => 0,
             ];
 
             $allLansia = Lansia::select('id_lansia', 'jenis_kelamin')->get();
 
+            $th = HealthRiskAssessor::THRESHOLD;
+
             foreach ($allLansia as $lansia) {
                 $id = $lansia->id_lansia;
-                $k  = $latestKunjungan[$id] ?? null;
-                $u  = $latestUtama[$id] ?? null;
+                $k = $latestKunjungan[$id] ?? null;
+                $u = $latestUtama[$id] ?? null;
 
-                $sistolik    = $k?->td_sistolik;
-                $diastolik   = $k?->td_diastolik;
-                $imt         = $k?->imt;
+                $sistolik = $k?->td_sistolik;
+                $diastolik = $k?->td_diastolik;
+                $imt = $k?->imt;
                 $lingkarPerut = $k?->lingkar_perut;
-                $gula        = $u?->gula_darah;
-                $koles       = $u?->kolesterol;
+                $gula = $u?->gula_darah;
+                $koles = $u?->kolesterol;
 
-                if (self::hasPositiveNumber($sistolik) && ($sistolik >= 140 || (self::hasPositiveNumber($diastolik) && $diastolik >= 90))) {
+                if (self::hasPositiveNumber($sistolik) && (
+                    $sistolik >= $th['hipertensi']['sis_min'] ||
+                    (self::hasPositiveNumber($diastolik) && $diastolik >= $th['hipertensi']['dias_min'])
+                )) {
                     $counts['hipertensi']++;
                 }
-                if ((self::hasPositiveNumber($sistolik) && $sistolik < 90) || (self::hasPositiveNumber($diastolik) && $diastolik < 60)) {
+                if ((self::hasPositiveNumber($sistolik) && $sistolik < $th['hipotensi']['sis_max']) || (self::hasPositiveNumber($diastolik) && $diastolik < $th['hipotensi']['dias_max'])) {
                     $counts['hipotensi']++;
                 }
-                if (self::hasPositiveNumber($gula) && $gula >= 200) {
+                if (self::hasPositiveNumber($gula) && $gula >= $th['diabetes']['min']) {
                     $counts['diabetes']++;
                 }
-                if (self::hasPositiveNumber($koles) && $koles >= 190) {
+                if (self::hasPositiveNumber($koles) && $koles >= $th['kolesterol_flag']['min']) {
                     $counts['kolesterol']++;
                 }
-                $limitLP = strtoupper((string) $lansia->jenis_kelamin) === 'P' ? 80.0 : 90.0;
+                $limitLP = strtoupper((string) $lansia->jenis_kelamin) === 'P' ? $th['lingkar_perut']['limit_p'] : $th['lingkar_perut']['limit_l'];
                 if (self::hasPositiveNumber($lingkarPerut) && (float) $lingkarPerut > $limitLP) {
                     $counts['obesitas']++;
                 }
-                if (self::hasPositiveNumber($imt) && (float) $imt < 18.5) {
+                if (self::hasPositiveNumber($imt) && (float) $imt < $th['bb_kurang']['max']) {
                     $counts['bb_kurang']++;
                 }
             }
 
             arsort($counts);
+
             return $counts;
         });
     }
@@ -87,16 +93,16 @@ class TrenPenyakitService
     // ]
     // ============================================================
     public static function getFilteredLansia(
-        string $filterRisk     = 'semua',
+        string $filterRisk = 'semua',
         string $filterPenyakit = '',
-        int    $page           = 1,
-        int    $perPage        = 10,
-        string $requestUrl     = '',
-        array  $requestQuery   = []
+        int $page = 1,
+        int $perPage = 10,
+        string $requestUrl = '',
+        array $requestQuery = []
     ): array {
         // ── 1. Ambil data medis terbaru satu query ──────────────
         $latestKunjungan = self::queryLatestKunjungan()->get()->keyBy('id_lansia');
-        $latestUtama     = self::queryLatestUtama()->get()->keyBy('id_lansia');
+        $latestUtama = self::queryLatestUtama()->get()->keyBy('id_lansia');
 
         // ── 2. Ambil semua lansia ───────────────────────────────
         $allLansia = Lansia::with('latestSkriningUtama')
@@ -104,26 +110,27 @@ class TrenPenyakitService
             ->get();
 
         // ── 3. Enrichment: risiko + flag penyakit per lansia ───
-        $allLansia = $allLansia->map(function ($lansia) use ($latestKunjungan, $latestUtama) {
+            $allLansia = $allLansia->map(function ($lansia) use ($latestKunjungan, $latestUtama) {
             $id = $lansia->id_lansia;
-            $k  = $latestKunjungan[$id] ?? null;
-            $u  = $latestUtama[$id] ?? null;
+            $k = $latestKunjungan[$id] ?? null;
+            $u = $latestUtama[$id] ?? null;
 
-            $sistolik    = $k?->td_sistolik;
-            $diastolik   = $k?->td_diastolik;
-            $imt         = $k?->imt;
+            $sistolik = $k?->td_sistolik;
+            $diastolik = $k?->td_diastolik;
+            $imt = $k?->imt;
             $lingkarPerut = $k?->lingkar_perut;
-            $gula        = $u?->gula_darah;
-            $koles       = $u?->kolesterol;
-            $jk          = strtoupper((string) $lansia->jenis_kelamin);
+            $gula = $u?->gula_darah;
+            $koles = $u?->kolesterol;
+            $jk = strtoupper((string) $lansia->jenis_kelamin);
+            $th = HealthRiskAssessor::THRESHOLD;
 
             // Risiko keseluruhan via HealthRiskAssessor
             $riskStatus = HealthRiskAssessor::assess([
-                'sistolik'      => $sistolik,
-                'diastolik'     => $diastolik,
-                'gula_darah'    => $gula,
-                'kolesterol'    => $koles,
-                'imt'           => $imt,
+                'sistolik' => $sistolik,
+                'diastolik' => $diastolik,
+                'gula_darah' => $gula,
+                'kolesterol' => $koles,
+                'imt' => $imt,
                 'lingkar_perut' => $lingkarPerut,
                 'jenis_kelamin' => $jk,
             ]);
@@ -134,41 +141,41 @@ class TrenPenyakitService
                 : $riskStatus;
 
             // Flag penyakit (threshold dari TrenPenyakitService)
-            $limitLP = $jk === 'P' ? 80.0 : 90.0;
-            $lansia->_risk_status  = $riskStatus; // internal, untuk filter risiko
+            $limitLP = $jk === 'P' ? $th['lingkar_perut']['limit_p'] : $th['lingkar_perut']['limit_l'];
+            $lansia->_risk_status = $riskStatus; // internal, untuk filter risiko
             $lansia->_penyakit_flags = [
-                'hipertensi' => self::hasPositiveNumber($sistolik) &&
-                                ($sistolik >= 140 ||
-                                    (self::hasPositiveNumber($diastolik) && $diastolik >= 90)),
+                'hipertensi' => self::hasPositiveNumber($sistolik) && (
+                                $sistolik >= $th['hipertensi']['sis_min'] ||
+                                    (self::hasPositiveNumber($diastolik) && $diastolik >= $th['hipertensi']['dias_min'])
+                                ),
 
-                'hipotensi'  => (self::hasPositiveNumber($sistolik) && $sistolik < 90) ||
-                                (self::hasPositiveNumber($diastolik) && $diastolik < 60),
+                'hipotensi' => (self::hasPositiveNumber($sistolik) && $sistolik < $th['hipotensi']['sis_max']) ||
+                                (self::hasPositiveNumber($diastolik) && $diastolik < $th['hipotensi']['dias_max']),
 
-                'diabetes'   => self::hasPositiveNumber($gula) && $gula >= 200,
+                'diabetes' => self::hasPositiveNumber($gula) && $gula >= $th['diabetes']['min'],
 
-                'kolesterol' => self::hasPositiveNumber($koles) && $koles >= 190,
+                'kolesterol' => self::hasPositiveNumber($koles) && $koles >= $th['kolesterol_flag']['min'],
 
-                'obesitas'   => self::hasPositiveNumber($lingkarPerut) &&
-                                (float) $lingkarPerut > $limitLP,
+                'obesitas' => self::hasPositiveNumber($lingkarPerut) && (float) $lingkarPerut > $limitLP,
 
-                'bb_kurang'  => self::hasPositiveNumber($imt) && (float) $imt < 18.5,
+                'bb_kurang' => self::hasPositiveNumber($imt) && (float) $imt < $th['bb_kurang']['max'],
             ];
 
             return $lansia;
         });
 
         // ── 4. Stat cards — selalu dari semua lansia ───────────
-        $total_lansia    = $allLansia->count();
-        $kondisi_normal  = $allLansia->filter(fn($l) => $l->_risk_status === HealthRiskAssessor::NORMAL)->count();
-        $waspada_count   = $allLansia->filter(fn($l) => $l->_risk_status === HealthRiskAssessor::WASPADA)->count();
-        $perlu_perhatian = $allLansia->filter(fn($l) => $l->_risk_status === HealthRiskAssessor::PERLU_TL)->count();
+        $total_lansia = $allLansia->count();
+        $kondisi_normal = $allLansia->filter(fn ($l) => $l->_risk_status === HealthRiskAssessor::NORMAL)->count();
+        $waspada_count = $allLansia->filter(fn ($l) => $l->_risk_status === HealthRiskAssessor::WASPADA)->count();
+        $perlu_perhatian = $allLansia->filter(fn ($l) => $l->_risk_status === HealthRiskAssessor::PERLU_TL)->count();
 
         // ── 5. Filter risiko ────────────────────────────────────
         $filtered = match ($filterRisk) {
-            'normal'  => $allLansia->filter(fn($l) => $l->_risk_status === HealthRiskAssessor::NORMAL),
-            'waspada' => $allLansia->filter(fn($l) => $l->_risk_status === HealthRiskAssessor::WASPADA),
-            'perlu'   => $allLansia->filter(fn($l) => $l->_risk_status === HealthRiskAssessor::PERLU_TL),
-            default   => $allLansia,
+            'normal' => $allLansia->filter(fn ($l) => $l->_risk_status === HealthRiskAssessor::NORMAL),
+            'waspada' => $allLansia->filter(fn ($l) => $l->_risk_status === HealthRiskAssessor::WASPADA),
+            'perlu' => $allLansia->filter(fn ($l) => $l->_risk_status === HealthRiskAssessor::PERLU_TL),
+            default => $allLansia,
         };
 
         // ── 6. Filter penyakit — hanya aktif saat waspada/perlu ─
@@ -178,7 +185,7 @@ class TrenPenyakitService
         //    penyakit tersebut". Jadi kombinasinya tetap akurat.
         if (in_array($filterRisk, ['waspada', 'perlu']) && $filterPenyakit !== '') {
             $filtered = $filtered->filter(
-                fn($l) => $l->_penyakit_flags[$filterPenyakit] ?? false
+                fn ($l) => $l->_penyakit_flags[$filterPenyakit] ?? false
             );
         }
 
@@ -192,10 +199,10 @@ class TrenPenyakitService
         );
 
         return [
-            'paginator'       => $paginator,
-            'total_lansia'    => $total_lansia,
-            'kondisi_normal'  => $kondisi_normal,
-            'waspada'         => $waspada_count,
+            'paginator' => $paginator,
+            'total_lansia' => $total_lansia,
+            'kondisi_normal' => $kondisi_normal,
+            'waspada' => $waspada_count,
             'perlu_perhatian' => $perlu_perhatian,
         ];
     }

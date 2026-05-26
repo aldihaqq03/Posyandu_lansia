@@ -956,6 +956,29 @@ select.form-control {
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
 }
 
+.disabled-locked {
+    opacity: 0.62;
+    filter: grayscale(0.15);
+    pointer-events: none;
+    background: rgba(148, 163, 184, 0.08);
+    border-radius: var(--radius-md);
+    position: relative;
+}
+
+.disabled-locked::after {
+    content: "Terkunci otomatis";
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-500);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--gray-200);
+    border-radius: 999px;
+    padding: 2px 8px;
+}
+
 /* ── Review Grid ── */
 .review-grid {
     display: grid;
@@ -1011,7 +1034,7 @@ select.form-control {
 }
 
 .lansia-locked::after {
-    content: '🔒 Lansia terkunci';
+    content: "🔒 Lansia terkunci";
     position: absolute;
     top: 8px;
     right: 12px;
@@ -1050,7 +1073,7 @@ select.form-control {
     cursor: not-allowed;
     transform: none;
 }
-.radio-group.field-error, 
+.radio-group.field-error,
 .checkbox-grid.field-error {
     border: 1px solid #dc2626 !important;
     background-color: #fef2f2 !important;

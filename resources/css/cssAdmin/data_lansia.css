@@ -186,6 +186,54 @@
     border-collapse: collapse;
 }
 
+/* Table spacing and responsive behavior */
+.custom-table th,
+.custom-table td {
+    padding: 12px 14px;
+    vertical-align: middle;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table-container {
+    overflow-x: auto; /* allow horizontal scroll on narrow screens */
+}
+
+/* Prefer flexible widths but keep columns readable */
+.custom-table th:first-child {
+    width: 32%;
+}
+.custom-table th:nth-child(2) {
+    width: 14%;
+}
+.custom-table th:nth-child(3) {
+    width: 12%;
+}
+.custom-table th:nth-child(4) {
+    width: 22%;
+}
+.custom-table th:nth-child(5) {
+    width: 8%;
+}
+.custom-table th:nth-child(6) {
+    width: 12%;
+}
+
+@media (max-width: 900px) {
+    .custom-table th:first-child {
+        width: 40%;
+    }
+    .custom-table th:nth-child(2) {
+        width: 20%;
+    }
+    .custom-table th:nth-child(3) {
+        width: 15%;
+    }
+    .custom-table th:nth-child(4) {
+        width: auto;
+    }
+}
+
 /* User Cell Styling */
 .user-cell {
     display: flex;

@@ -8,7 +8,8 @@
 @endpush
 
 @section('content')
-    <main class="monitoring-wrap">
+    <main class="main-content">
+        <div class="container">
 
         {{-- ── HEADER ── --}}
         <div class="mon-header">
@@ -338,10 +339,8 @@
             <div id="dp-saran-list"></div>
             <div id="dp-saran-new-list"></div>
         </div>
-    </main>
-
-    {{-- ── MODAL DETAIL DATA ── --}}
-    <div class="mon-modal-overlay" id="detail-modal" style="display:none;">
+        {{-- ── MODAL DETAIL DATA ── --}}
+        <div class="mon-modal-overlay" id="detail-modal" style="display:none;">
         <div class="mon-modal-content">
             <div class="mon-modal-header">
                 <h3 class="mon-modal-title" id="modal-title">Riwayat Pemeriksaan</h3>
@@ -363,11 +362,17 @@
         </div>
     </div>
 
+        </div>
+    </main>
+
 @endsection
 
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script
         src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    @vite('resources/js/jsAdmin/monitoring.js')
+        <script>
+            window.HEALTH_THRESHOLDS = @json(\App\Services\HealthRiskAssessor::THRESHOLD);
+        </script>
+        @vite('resources/js/jsAdmin/monitoring.js')
 @endpush

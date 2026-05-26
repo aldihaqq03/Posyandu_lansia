@@ -69,13 +69,13 @@
                         <label for="edit_pekerjaan">Pekerjaan</label>
                         <select id="edit_pekerjaan" name="pekerjaan">
                             <option value="">Pilih Pekerjaan</option>
-                            <option value="1">TNI/POLRI</option>
-                            <option value="2">PNS</option>
-                            <option value="3">Karyawan Swasta</option>
-                            <option value="4">Buruh</option>
-                            <option value="5">Petani/Nelayan</option>
-                            <option value="6">Tidak Bekerja / IRT</option>
-                            <option value="7">Lainnya</option>
+                            <option value="TNI/POLRI">TNI/POLRI</option>
+                            <option value="PNS">PNS</option>
+                            <option value="Karyawan Swasta">Karyawan Swasta</option>
+                            <option value="Buruh">Buruh</option>
+                            <option value="Petani/Nelayan">Petani/Nelayan</option>
+                            <option value="Tidak Bekerja / IRT">Tidak Bekerja / IRT</option>
+                            <option value="Lainnya">Lainnya</option>
                         </select>
                         <small id="error-edit_pekerjaan" style="color: #e74c3c; font-size: 12px; display: none; margin-top: 4px;"></small>
                     </div>

@@ -13,8 +13,14 @@ class JadwalPosyanduController extends Controller
     {
         $this->autoUpdateStatus(); 
         $jadwalPosyandu = JadwalPosyandu::with('detailSkrining')
+            ->whereIn('status', [JadwalPosyandu::STATUS_TERJADWAL, JadwalPosyandu::STATUS_BERLANGSUNG])
             ->orderBy('tanggal_pelaksanaan', 'desc')
             ->get();
+
+        $availableYears = JadwalPosyandu::selectRaw('YEAR(tanggal_pelaksanaan) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
 
         $stats = [
             'total'       => JadwalPosyandu::count(),
@@ -23,7 +29,7 @@ class JadwalPosyanduController extends Controller
             'selesai'     => JadwalPosyandu::where('status', JadwalPosyandu::STATUS_SELESAI)->count(),
         ];
 
-        return view('admin.petugas.jadwal_posyandu', compact('jadwalPosyandu', 'stats'));
+        return view('admin.petugas.jadwal_posyandu', compact('jadwalPosyandu', 'stats', 'availableYears'));
     }
 
     public function store(Request $request)

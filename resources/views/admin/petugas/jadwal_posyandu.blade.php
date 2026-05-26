@@ -26,49 +26,12 @@
 
 
 
-        {{-- SUMMARY CARD --}}
-        <section class="summary-card" aria-label="Ringkasan Jadwal">
-            <div class="summary-left">
-                <div class="summary-greeting">Ringkasan Jadwal — {{ date('Y') }}</div>
-                <div class="summary-title">Posyandu Puskesmas Jambesari</div>
-                <div class="summary-stats">
-                    <div class="sum-stat">
-                        <div class="sum-num">{{ $stats['total'] }}</div>
-                        <div class="sum-label">Total</div>
-                    </div>
-                    <div class="sum-divider"></div>
-                    <div class="sum-stat">
-                        <div class="sum-num">{{ $stats['terjadwal'] }}</div>
-                        <div class="sum-label">Terjadwal</div>
-                    </div>
-                    <div class="sum-divider"></div>
-                    <div class="sum-stat">
-                        <div class="sum-num">{{ $stats['berlangsung'] }}</div>
-                        <div class="sum-label">Berlangsung</div>
-                    </div>
-                    <div class="sum-divider"></div>
-                    <div class="sum-stat">
-                        <div class="sum-num">{{ $stats['selesai'] }}</div>
-                        <div class="sum-label">Selesai</div>
-                    </div>
-                </div>
-            </div>
-            <div class="summary-right">📅</div>
-        </section>
-
         {{-- FILTER --}}
         <section class="filter-bar">
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" placeholder="Cari lokasi posyandu" id="search-jadwal">
             </div>
-            <select class="filter-select" id="filter-status">
-                <option value="">Semua Status</option>
-                <option value="1">Terjadwal</option>
-                <option value="2">Berlangsung</option>
-                <option value="3">Selesai</option>
-                <option value="4">Dibatalkan</option>
-            </select>
             <select class="filter-select" id="filter-bulan">
                 <option value="">Semua Bulan</option>
                 <option value="1">Januari</option>
@@ -83,6 +46,12 @@
                 <option value="10">Oktober</option>
                 <option value="11">November</option>
                 <option value="12">Desember</option>
+            </select>
+            <select class="filter-select" id="filter-tahun">
+                <option value="">Semua Tahun</option>
+                @foreach($availableYears as $year)
+                    <option value="{{ $year }}">{{ $year }}</option>
+                @endforeach
             </select>
         </section>
 
@@ -133,9 +102,12 @@
                 {{-- CARD --}}
                 <div class="jadwal-card {{ $item->status == 3 || $item->status == 4 ? 'card-done' : '' }}"
                     data-id="{{ $item->id_jadwal_posyandu }}"
+                    data-month="{{ $tgl->format('n') }}"
+                    data-year="{{ $tgl->format('Y') }}"
+                    data-location="{{ strtolower($item->lokasi) }}"
                     tabindex="0"
                     role="button"
-                    title="Klik untuk melihat ringkasan detail"
+                    title="Klik untuk melihat detail jadwal"
                     aria-label="Lihat detail jadwal">
 
                     {{-- TANGGAL --}}

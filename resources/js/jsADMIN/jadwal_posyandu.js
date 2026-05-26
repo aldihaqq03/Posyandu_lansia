@@ -541,12 +541,70 @@ document.addEventListener("DOMContentLoaded", function () {
         .getElementById("search-jadwal")
         ?.addEventListener("input", applyFilter);
     document
-        .getElementById("filter-status")
-        ?.addEventListener("change", applyFilter);
-    document
         .getElementById("filter-bulan")
         ?.addEventListener("change", applyFilter);
+    document
+        .getElementById("filter-tahun")
+        ?.addEventListener("change", applyFilter);
+
     function applyFilter() {
-        /* TODO: AJAX filter */
+        const search =
+            document
+                .getElementById("search-jadwal")
+                ?.value.trim()
+                .toLowerCase() || "";
+        const bulan = document.getElementById("filter-bulan")?.value || "";
+        const tahun = document.getElementById("filter-tahun")?.value || "";
+
+        const cards = [...document.querySelectorAll(".jadwal-card[data-id]")];
+        cards.forEach((card) => {
+            const location = (card.dataset.location || "").toLowerCase();
+            const tema = (
+                card.querySelector(".jadwal-tema")?.textContent || ""
+            ).toLowerCase();
+            const month = card.dataset.month || "";
+            const year = card.dataset.year || "";
+
+            const matchSearch =
+                !search || location.includes(search) || tema.includes(search);
+            const matchMonth = !bulan || bulan === month;
+            const matchYear = !tahun || tahun === year;
+
+            card.style.display =
+                matchSearch && matchMonth && matchYear ? "" : "none";
+        });
+
+        const list = document.querySelector(".jadwal-list");
+        if (!list) return;
+
+        let currentDivider = null;
+        let dividerHasVisibleCard = false;
+
+        list.querySelectorAll(".month-divider, .jadwal-card[data-id]").forEach(
+            (node) => {
+                if (node.classList.contains("month-divider")) {
+                    if (currentDivider) {
+                        currentDivider.style.display = dividerHasVisibleCard
+                            ? ""
+                            : "none";
+                    }
+                    currentDivider = node;
+                    dividerHasVisibleCard = false;
+                    return;
+                }
+
+                const isVisible = node.style.display !== "none";
+                if (isVisible) {
+                    dividerHasVisibleCard = true;
+                    if (currentDivider) currentDivider.style.display = "";
+                }
+            },
+        );
+
+        if (currentDivider) {
+            currentDivider.style.display = dividerHasVisibleCard ? "" : "none";
+        }
     }
+
+    applyFilter();
 });

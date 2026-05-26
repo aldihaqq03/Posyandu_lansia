@@ -293,25 +293,17 @@ class SkriningHelper
 
             // ──────────────────────────────────────────────────────
             // A. IDENTITAS & RIWAYAT
-            // DB: pekerjaan (1-6), status_vaksinasi_covid (1-3),
+            // DB: pekerjaan (numeric legacy atau string nama pekerjaan), status_vaksinasi_covid (1-3),
             //     riwayat_penyakit_keluarga (json), riwayat_penyakit_sendiri (json)
             // PDF: Bagian Identitas Responden & Wawancara Faktor Risiko PTM
             // ──────────────────────────────────────────────────────
             'A. Identitas & Riwayat' => [
                 'pekerjaan' => [
                     'label'  => 'Pekerjaan',
-                    // DB: 1=TNI/POLRI, 2=PNS, 3=Karyawan Swasta, 4=Buruh,
-                    //     5=Petani/Nelayan, 6=Tidak Bekerja/IRT
-                    // PDF: checkbox pekerjaan 6 pilihan
-                    'decode' => fn($v) => match((int)$v) {
-                        1 => 'TNI/POLRI',
-                        2 => 'PNS',
-                        3 => 'Karyawan Swasta',
-                        4 => 'Buruh',
-                        5 => 'Petani/Nelayan',
-                        6 => 'Tidak Bekerja/IRT',
-                        default => '-',
-                    },
+                    // DB lama: 1=TNI/POLRI, 2=PNS, 3=Karyawan Swasta, 4=Buruh,
+                    //         5=Petani/Nelayan, 6=Tidak Bekerja / IRT, 7=Lainnya
+                    // DB baru: simpan langsung nama pekerjaan
+                    'decode' => fn($v) => self::decodePekerjaanLabel($v),
                 ],
                 'status_vaksinasi_covid' => [
                     'label'  => 'Status Vaksinasi COVID-19',
@@ -659,6 +651,29 @@ class SkriningHelper
     {
         if ($v === null) return '-';
         return filter_var($v, FILTER_VALIDATE_BOOLEAN) ? 'Ya' : 'Tidak';
+    }
+
+    private static function decodePekerjaanLabel(mixed $v): string
+    {
+        if ($v === null) {
+            return '-';
+        }
+
+        $value = trim((string) $v);
+        if ($value === '') {
+            return '-';
+        }
+
+        return match ($value) {
+            '1' => 'TNI/POLRI',
+            '2' => 'PNS',
+            '3' => 'Karyawan Swasta',
+            '4' => 'Buruh',
+            '5' => 'Petani/Nelayan',
+            '6' => 'Tidak Bekerja / IRT',
+            '7' => 'Lainnya',
+            default => $value,
+        };
     }
 
     /** Biner 0/1 → Ya / Tidak (untuk PUMA dan SRQ) */

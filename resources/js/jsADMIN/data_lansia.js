@@ -1,6 +1,5 @@
-/* resources/js/jsAdmin/data_lansia.js */
+﻿/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
-
     // ─────────────────────────────────────────────────────────────────────
     // 0. HELPER: setupModalClose
     // Menutup modal saat tombol close diklik atau klik di luar modal-content
@@ -104,6 +103,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (/^\d+$/.test(m) && map[m]) return map[m];
                 return v;
             }
+            // ─────────────────────────────────────────────────────────────────────
+            // Hapus session storage jika datang dari halaman selain monitoring/histori
+            // ─────────────────────────────────────────────────────────────────────
+            (function setupSessionClear() {
+                const allowedPatterns = [
+                    /\/lansia\/\d+\/monitoring/,
+                    /\/lansia\/\d+\/histori-skrining/,
+                ];
+
+                // Cek referrer: jika bukan dari monitoring/histori → hapus state
+                const referrer = document.referrer;
+                if (referrer) {
+                    const isFromAllowed = allowedPatterns.some((p) =>
+                        p.test(referrer),
+                    );
+                    if (!isFromAllowed) {
+                        sessionStorage.removeItem("lastSelectedLansiaId");
+                    }
+                }
+
+                // Intercept klik link sidebar/nav
+                document
+                    .querySelectorAll("nav a, .sidebar a, aside a")
+                    .forEach((link) => {
+                        link.addEventListener("click", function () {
+                            const href = this.getAttribute("href") || "";
+                            const isAllowed = allowedPatterns.some((p) =>
+                                p.test(href),
+                            );
+                            if (!isAllowed) {
+                                sessionStorage.removeItem(
+                                    "lastSelectedLansiaId",
+                                );
+                            }
+                        });
+                    });
+            })();
 
             // â”€â”€ Simpan state ke sessionStorage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             sessionStorage.setItem("lastSelectedLansiaId", id);
@@ -111,14 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
             detailPanel.style.opacity = "0";
             detailPanel.style.display = "block";
 
-            const initials = nama
-                .split(" ")
-                .map((w) => w[0])
-                .slice(0, 2)
-                .join("")
-                .toUpperCase();
-            const avatarEl = document.getElementById("detail-avatar");
-            if (avatarEl) avatarEl.textContent = initials;
+            // avatar removed; no initials to set
 
             setText("dynamic-name", nama);
             setText("name-display", nama);
@@ -136,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setText("d-keterangan", keterangan);
             setText("d-pekerjaan", decodePekerjaan(pekerjaanRaw));
 
-            // Update QR Code Telegram
+            // Update QR Code Telegram: always show QR if kode exists
             const qrTelegramEl = document.getElementById("detail-qr-telegram");
             const kodeTelegramEl = document.getElementById(
                 "detail-kode-telegram",
@@ -195,6 +224,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const el = document.getElementById(id);
         if (el) el.innerText = val;
     }
+
+    // QR is always visible when kode tersedia; no toggle listener required
 
     async function fetchHealthSummary(id) {
         [
@@ -604,7 +635,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let pekerjaanEl = document.getElementById("pekerjaan");
         if (pekerjaanEl) {
             pekerjaanEl.addEventListener("change", function () {
-                if (this.value === "7") {
+                if (this.value === "Lainnya") {
                     // replace select with input inline
                     const input = transformSelectToInput(this, "");
                     if (input) {
@@ -860,7 +891,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 pj.value = "";
                 if (pj.tagName === "SELECT") {
                     pj.addEventListener("change", function () {
-                        if (this.value === "7") {
+                        if (this.value === "Lainnya") {
                             const input = transformSelectToInput(this, "");
                             if (input) {
                                 input.addEventListener("blur", function () {
@@ -1106,7 +1137,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const editPekerjaanEl = document.getElementById("edit_pekerjaan");
         if (editPekerjaanEl) {
             editPekerjaanEl.addEventListener("change", function () {
-                if (this.value === "7") {
+                if (this.value === "Lainnya") {
                     const input = transformSelectToInput(this, "");
                     if (input) {
                         input.addEventListener("blur", function () {
@@ -1378,9 +1409,13 @@ document.addEventListener("DOMContentLoaded", function () {
             container.appendChild(buatItemKeluargaEdit(newIdx, {}, false));
         });
 
-    // Buka modal edit saat tombol edit diklik
-    document.querySelectorAll(".edit-btn").forEach((btn) => {
-        btn.addEventListener("click", async function () {
+    // Delegate clicks on edit buttons from the table body (works when rows re-render)
+    const tableBody = document.querySelector(".custom-table tbody");
+    if (tableBody) {
+        tableBody.addEventListener("click", async function (ev) {
+            const btn = ev.target.closest('.edit-btn');
+            if (!btn) return;
+            ev.preventDefault();
             const row = btn.closest("tr");
             if (!row) {
                 console.error("âŒ Row not found!");
@@ -1399,6 +1434,19 @@ document.addEventListener("DOMContentLoaded", function () {
             editForm.action = `/lansia/${lansiaId}`;
             console.log("âœ“ Form action set:", editForm.action);
 
+            const pekerjaanRaw = row.dataset.pekerjaan || "";
+            const pekerjaanLegacyMap = {
+                1: "TNI/POLRI",
+                2: "PNS",
+                3: "Karyawan Swasta",
+                4: "Buruh",
+                5: "Petani/Nelayan",
+                6: "Tidak Bekerja / IRT",
+                7: "Lainnya",
+            };
+            const pekerjaanLabel =
+                pekerjaanLegacyMap[String(pekerjaanRaw)] || pekerjaanRaw;
+
             // Isi semua field
             setVal("edit_nama_lansia", row.dataset.nama);
             setVal("edit_nik", row.dataset.nik);
@@ -1411,29 +1459,30 @@ document.addEventListener("DOMContentLoaded", function () {
             setVal("edit_riwayat_penyakit", row.dataset.riwayatPenyakit);
             setVal("edit_keterangan", row.dataset.keterangan);
             setVal("edit_email", row.dataset.email);
-            // Set pekerjaan field; if dataset contains custom text, swap select -> input
-            setVal("edit_pekerjaan", row.dataset.pekerjaan);
+            // Set pekerjaan field; dukung nilai baru (teks) dan legacy (angka)
+            setVal("edit_pekerjaan", pekerjaanLabel || pekerjaanRaw);
             const editPjEl = document.getElementById("edit_pekerjaan");
-            if (
-                row.dataset.pekerjaan &&
-                !isNumericString(row.dataset.pekerjaan)
-            ) {
-                // replace select with input and set custom value
-                const input = transformSelectToInput(
-                    editPjEl,
-                    row.dataset.pekerjaan,
+            if (editPjEl && editPjEl.tagName === "SELECT") {
+                const hasOption = Array.from(editPjEl.options || []).some(
+                    (opt) => opt.value === (pekerjaanLabel || pekerjaanRaw),
                 );
-                if (input) {
-                    input.addEventListener("blur", function () {
-                        showEditError(
-                            "pekerjaan",
-                            validatePekerjaan(this.value),
-                        );
-                        updateEditSubmitBtn();
-                    });
-                    input.addEventListener("input", function () {
-                        updateEditSubmitBtn();
-                    });
+                if (!hasOption && pekerjaanRaw) {
+                    const input = transformSelectToInput(
+                        editPjEl,
+                        pekerjaanRaw,
+                    );
+                    if (input) {
+                        input.addEventListener("blur", function () {
+                            showEditError(
+                                "pekerjaan",
+                                validatePekerjaan(this.value),
+                            );
+                            updateEditSubmitBtn();
+                        });
+                        input.addEventListener("input", function () {
+                            updateEditSubmitBtn();
+                        });
+                    }
                 }
             }
 
@@ -1476,7 +1525,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateEditSubmitBtn();
             }, 200);
         });
-    });
+    }
 
     document
         .getElementById("btn-histori-skrining")

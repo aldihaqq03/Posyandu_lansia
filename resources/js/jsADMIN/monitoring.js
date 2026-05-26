@@ -13,7 +13,31 @@ document.addEventListener("DOMContentLoaded", function () {
     let fullHealthHistoryData = []; // data asli dari server
     let filteredHealthHistoryData = []; // data setelah filter
     let chartInstances = {}; // menyimpan objek Chart.js untuk di-destroy
-    const lpLimit = gender === "P" ? 80 : 90; // batas lingkar perut sesuai gender
+    const TH = window.HEALTH_THRESHOLDS ?? {
+        sistolik: {
+            bahaya_bawah: 90,
+            waspada_bawah: 100,
+            waspada_atas: 130,
+            bahaya_atas: 140,
+        },
+        diastolik: {
+            bahaya_bawah: 60,
+            waspada_bawah: 65,
+            waspada_atas: 85,
+            bahaya_atas: 90,
+        },
+        gula_darah: { waspada_atas: 145, bahaya_atas: 200 },
+        kolesterol: { waspada_atas: 150, bahaya_atas: 190 },
+        imt: {
+            bahaya_bawah: 18.5,
+            waspada_bawah: 22.0,
+            waspada_atas: 27.0,
+            bahaya_atas: 30.0,
+        },
+        lingkar_perut: { limit_p: 80.0, limit_l: 90.0 },
+    };
+    const lpLimit =
+        gender === "P" ? TH.lingkar_perut.limit_p : TH.lingkar_perut.limit_l; // batas lingkar perut sesuai gender
 
     // ── Inisiasi lingkar perut zone label sesuai gender ──
     document.getElementById("zone-lp").innerHTML = `
@@ -272,15 +296,17 @@ document.addEventListener("DOMContentLoaded", function () {
             { color: "#10b981", label: "Batas normal", dash: true },
             { color: "#f59e0b", label: "Batas waspada", dash: true },
         ]);
-        const ZONES_SIS = { normal: 130, waspada: 140 };
-        const ZONES_DIAS = { normal: 85, waspada: 90 };
+        const ts = TH.sistolik;
+        const td = TH.diastolik;
         const datasets = [
             lineset(sisPts, "#3b82f6", "Sistolik"),
             lineset(diasPts, "#f97316", "Diastolik"),
-            refLine(rows, "td_sistolik", ZONES_SIS.normal, "#10b981"),
-            refLine(rows, "td_sistolik", ZONES_SIS.waspada, "#f59e0b"),
-            refLine(rows, "td_diastolik", ZONES_DIAS.normal, "#10b981"),
-            refLine(rows, "td_diastolik", ZONES_DIAS.waspada, "#f59e0b"),
+            refLine(rows, "td_sistolik", ts.waspada_atas, "#f59e0b"),
+            refLine(rows, "td_sistolik", ts.bahaya_atas, "#ef4444"),
+            refLine(rows, "td_sistolik", ts.bahaya_bawah, "#ef4444"),
+            refLine(rows, "td_diastolik", td.waspada_atas, "#f59e0b"),
+            refLine(rows, "td_diastolik", td.bahaya_atas, "#ef4444"),
+            refLine(rows, "td_diastolik", td.bahaya_bawah, "#ef4444"),
         ].filter(Boolean);
         renderChart(
             "chart-tensi",
@@ -292,16 +318,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (lbl?.startsWith("Ref")) return null;
                 const isSis = lbl === "Sistolik";
                 const st = isSis
-                    ? v >= 140
+                    ? v >= ts.bahaya_atas || v < ts.bahaya_bawah
                         ? "🔴 Perlu Tindak Lanjut"
-                        : v >= 130
-                            ? "⚠️ Waspada"
-                            : "✅ Normal"
-                    : v >= 90
-                        ? "🔴 Perlu Tindak Lanjut"
-                        : v >= 85
-                            ? "⚠️ Waspada"
-                            : "✅ Normal";
+                        : v >= ts.waspada_atas || v < ts.waspada_bawah
+                          ? "⚠️ Waspada"
+                          : "✅ Normal"
+                    : v >= td.bahaya_atas || v < td.bahaya_bawah
+                      ? "🔴 Perlu Tindak Lanjut"
+                      : v >= td.waspada_atas || v < td.waspada_bawah
+                        ? "⚠️ Waspada"
+                        : "✅ Normal";
                 return `  ${lbl}: ${v} mmHg  ${st}`;
             }, 300),
         );
@@ -314,28 +340,37 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("gula", "chart");
+        const tg = TH.gula_darah;
         renderLegend("legend-gula", [
             { color: "#2563eb", label: "Gula Darah", dash: false },
-            { color: "#10b981", label: "Batas normal (144)", dash: true },
-            { color: "#f59e0b", label: "Batas perlu tindak lanjut (200)", dash: true },
+            {
+                color: "#10b981",
+                label: `Batas normal (< ${tg.waspada_atas})`,
+                dash: true,
+            },
+            {
+                color: "#f59e0b",
+                label: `Batas perlu tindak lanjut (≥ ${tg.bahaya_atas})`,
+                dash: true,
+            },
         ]);
         renderChart(
             "chart-gula",
             [
                 lineset(data, "#2563eb", "Gula Darah"),
-                refLine(rows, "gula_darah", 144, "#10b981"),
-                refLine(rows, "gula_darah", 200, "#f59e0b"),
+                refLine(rows, "gula_darah", tg.waspada_atas - 1, "#10b981"),
+                refLine(rows, "gula_darah", tg.bahaya_atas, "#f59e0b"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
                 const st =
-                    v >= 200
+                    v >= tg.bahaya_atas
                         ? "🔴 Perlu Tindak Lanjut"
-                        : v >= 145
-                            ? "⚠️ Waspada"
-                            : "✅ Normal";
+                        : v >= tg.waspada_atas
+                          ? "⚠️ Waspada"
+                          : "✅ Normal";
                 return `  Gula Darah: ${v} mg/dL  ${st}`;
             }, 400),
         );
@@ -348,28 +383,37 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("kolesterol", "chart");
+        const tk = TH.kolesterol;
         renderLegend("legend-kolesterol", [
             { color: "#7c3aed", label: "Kolesterol", dash: false },
-            { color: "#10b981", label: "Batas normal (150)", dash: true },
-            { color: "#f59e0b", label: "Batas perlu tindak lanjut (190)", dash: true },
+            {
+                color: "#10b981",
+                label: `Batas normal (< ${tk.waspada_atas})`,
+                dash: true,
+            },
+            {
+                color: "#f59e0b",
+                label: `Batas perlu tindak lanjut (≥ ${tk.bahaya_atas})`,
+                dash: true,
+            },
         ]);
         renderChart(
             "chart-kolesterol",
             [
                 lineset(data, "#7c3aed", "Kolesterol"),
-                refLine(rows, "kolesterol", 150, "#10b981"),
-                refLine(rows, "kolesterol", 190, "#f59e0b"),
+                refLine(rows, "kolesterol", tk.waspada_atas - 1, "#10b981"),
+                refLine(rows, "kolesterol", tk.bahaya_atas, "#f59e0b"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
                 const st =
-                    v >= 190
+                    v >= tk.bahaya_atas
                         ? "🔴 Perlu Tindak Lanjut"
-                        : v >= 150
-                            ? "⚠️ Waspada"
-                            : "✅ Normal";
+                        : v >= tk.waspada_atas
+                          ? "⚠️ Waspada"
+                          : "✅ Normal";
                 return `  Kolesterol: ${v} mg/dL  ${st}`;
             }, 350),
         );
@@ -397,8 +441,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     Math.abs(diff) < 2
                         ? "Stabil"
                         : diff > 0
-                            ? `↑ ${diff} kg dari rata-rata`
-                            : `↓ ${Math.abs(diff)} kg dari rata-rata`;
+                          ? `↑ ${diff} kg dari rata-rata`
+                          : `↓ ${Math.abs(diff)} kg dari rata-rata`;
                 return `  Berat Badan: ${v} kg  (${note})`;
             }, 150),
         );
@@ -456,10 +500,10 @@ document.addEventListener("DOMContentLoaded", function () {
             "chart-imt",
             [
                 lineset(data, "#e11d48", "IMT"),
-                refLine(rows, "imt", 22, "#10b981"),
-                refLine(rows, "imt", 27, "#10b981"),
-                refLine(rows, "imt", 18.5, "#f59e0b"),
-                refLine(rows, "imt", 30, "#f59e0b"),
+                refLine(rows, "imt", TH.imt.waspada_bawah, "#10b981"),
+                refLine(rows, "imt", TH.imt.waspada_atas, "#10b981"),
+                refLine(rows, "imt", TH.imt.bahaya_bawah, "#f59e0b"),
+                refLine(rows, "imt", TH.imt.bahaya_atas, "#f59e0b"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
@@ -469,8 +513,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     v >= 22 && v <= 27
                         ? "✅ Normal"
                         : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
-                            ? "⚠️ Waspada"
-                            : "🔴 Perlu Tindak Lanjut";
+                          ? "⚠️ Waspada"
+                          : "🔴 Perlu Tindak Lanjut";
                 return `  IMT: ${v} kg/m²  ${st}`;
             }, 45),
         );
@@ -624,12 +668,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Status untuk tensi
         function getTensiStatus(sis, dias) {
-            let sisStatus = "normal",
-                diasStatus = "normal";
-            if (sis >= 140) sisStatus = "bahaya";
-            else if (sis >= 130) sisStatus = "waspada";
-            if (dias >= 90) diasStatus = "bahaya";
-            else if (dias >= 85) diasStatus = "waspada";
+            const ts = TH.sistolik;
+            const td = TH.diastolik;
+            const sisStatus =
+                sis >= ts.bahaya_atas || sis < ts.bahaya_bawah
+                    ? "bahaya"
+                    : sis >= ts.waspada_atas || sis < ts.waspada_bawah
+                      ? "waspada"
+                      : "normal";
+            const diasStatus =
+                dias >= td.bahaya_atas || dias < td.bahaya_bawah
+                    ? "bahaya"
+                    : dias >= td.waspada_atas || dias < td.waspada_bawah
+                      ? "waspada"
+                      : "normal";
             return { sisStatus, diasStatus };
         }
 
@@ -658,9 +710,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
                 tdBuilder = (r) => {
                     let val = r.gula_darah;
+                    const tg = TH.gula_darah;
                     let status = "normal";
-                    if (val >= 200) status = "bahaya";
-                    else if (val >= 145) status = "waspada";
+                    if (val >= tg.bahaya_atas) status = "bahaya";
+                    else if (val >= tg.waspada_atas) status = "waspada";
                     const valHtml = val ? colorText(val, status) : "-";
                     return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
                 };
@@ -673,9 +726,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
                 tdBuilder = (r) => {
                     let val = r.kolesterol;
+                    const tk = TH.kolesterol;
                     let status = "normal";
-                    if (val >= 190) status = "bahaya";
-                    else if (val >= 150) status = "waspada";
+                    if (val >= tk.bahaya_atas) status = "bahaya";
+                    else if (val >= tk.waspada_atas) status = "waspada";
                     const valHtml = val ? colorText(val, status) : "-";
                     return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
                 };
@@ -709,11 +763,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 filteredData = dataSource.filter((r) => hasData(r, ["imt"]));
                 tdBuilder = (r) => {
                     let val = r.imt;
+                    const ti = TH.imt;
                     let status = "normal";
                     if (val != null) {
-                        if ((val >= 18.5 && val < 22) || (val > 27 && val < 30))
+                        if (
+                            (val >= ti.bahaya_bawah &&
+                                val < ti.waspada_bawah) ||
+                            (val > ti.waspada_atas && val < ti.bahaya_atas)
+                        )
                             status = "waspada";
-                        else if (val < 18.5 || val >= 30) status = "bahaya";
+                        else if (val < ti.bahaya_bawah || val >= ti.bahaya_atas)
+                            status = "bahaya";
                         else status = "normal";
                     }
                     const valHtml = val ? colorText(val, status) : "-";
