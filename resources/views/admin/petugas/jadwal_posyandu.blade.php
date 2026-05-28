@@ -15,8 +15,8 @@
                     <i class="fa-solid fa-chevron-right"></i>
                     <span class="text-muted">Jadwal Posyandu</span>
                 </nav>
-                <h1 class="page-title">Jadwal Posyandu</h1>
-                <p class="page-subtitle">Kelola jadwal pertemuan dan jenis skrining posyandu lansia.</p>
+                <h1 class="page-title">Sekarang di Jadwal Posyandu</h1>
+                <p class="page-subtitle">Pemantauan kesehatan & inventaris posyandu lansia</p>
             </div>
             <button class="btn-primary" type="button" id="btn-tambah-jadwal">
                 <i class="fa-solid fa-plus"></i>

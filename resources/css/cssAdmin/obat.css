@@ -2,10 +2,76 @@
    obat.css — Halaman Data Obat
    ============================================================ */
 
-/* ── Tabel wrapper ──────────────────────────────────────── */
-.obat-table-wrap {
-    overflow-x: auto;
+/* ── obat-page flex layout (seperti data lansia) ── */
+
+body:has(.obat-page) .main-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.obat-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.obat-page > .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 24px 28px 20px;
+    box-sizing: border-box;
+    gap: 20px;
+}
+
+/* Header tidak boleh menyusut */
+.obat-page .page-header {
+    flex-shrink: 0;
+}
+
+/* Card wrapper tabel mengisi sisa ruang secara dinamis */
+.obat-page .obat-table-wrap {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
     border-radius: 20px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+/* Elemen header table tidak boleh menyusut */
+.obat-page .table-header-actions {
+    flex-shrink: 0;
+}
+
+/* Scroll container langsung membungkus tabel */
+.obat-scroll-body {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    min-height: 0;
+    max-height: none !important; /* override the old 420px max-height */
+    border-radius: 0 0 12px 12px;
+}
+
+/* Sticky header — top: 0 relatif ke .obat-scroll-body ─ */
+.obat-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 1px 0 #e5e7eb;
 }
 
 /* ── Row hover ──────────────────────────────────────────── */
@@ -59,7 +125,7 @@
 .obat-col-stok {
     text-align: center;
     min-width: 70px;
-    width: 85px;   /* sempit karena isi angka singkat */
+    width: 85px; /* sempit karena isi angka singkat */
 }
 
 .obat-col-ket {
@@ -113,18 +179,18 @@
 
 .obat-btn-edit {
     background: white;
-    color: #0F766E;
-    border-color: #0F766E;
+    color: #0f766e;
+    border-color: #0f766e;
 }
 
 .obat-btn-restock {
     background: white;
-    color: #D97706;
-    border-color: #D97706;
+    color: #d97706;
+    border-color: #d97706;
 }
 
 .obat-btn-hapus {
-    background: #FEE2E2;
-    color: #DC2626;
-    border-color: #FCA5A5;
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
 }

@@ -8,7 +8,7 @@
 <meta name="route-store-lansia" content="{{ route('lansia.store') }}">
 
 @section('content')
-    <main class="main-content">
+    <main class="main-content lansia-page">
 
         <div class="container">
 
@@ -20,8 +20,8 @@
                         <img class="separator" src="img/icon-6.svg" alt="">
                         <span class="text-muted">MANAJEMEN</span>
                     </nav>
-                    <h1 class="page-title">Data Lansia</h1>
-                    <p class="page-subtitle">Kelola informasi kesehatan lansia untuk pelayanan Posyandu yang lebih baik.</p>
+                    <h1 class="page-title">Sekarang di Data Lansia</h1>
+                    <p class="page-subtitle">Pemantauan kesehatan & inventaris posyandu lansia</p>
                 </div>
                 <button class="btn-primary" type="button" id="btn-tambah-lansia">
                     <img src="img/icon-10.svg" alt="">
@@ -111,102 +111,103 @@
 
                 <p class="row-hint"><i class="fa-solid fa-hand-pointer"></i> Klik baris untuk melihat ringkasan detail</p>
 
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>NAMA LANSIA</th>
-                            <th>NIK</th>
-                            <th>UMUR</th>
-                            <th>ALAMAT</th>
-                            <th>RISIKO</th>
-                            <th>NO. HANDPHONE</th>
-                            <th>AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($lansias as $lansia)
-                            <tr class="table-row selectable-row" title="Klik untuk melihat ringkasan detail"
-                                data-id="{{ $lansia->id_lansia }}" data-nama="{{ $lansia->nama_lansia }}"
-                                data-nik="{{ $lansia->nik }}" data-tanggal-lahir="{{ $lansia->tanggal_lahir }}"
-                                data-alamat="{{ $lansia->alamat }}" data-jenis-kelamin="{{ $lansia->jenis_kelamin }}"
-                                data-no-hp="{{ $lansia->no_hp }}" data-tempat-lahir="{{ $lansia->tempat_lahir }}"
-                                data-status-perkawinan="{{ $lansia->status_perkawinan }}"
-                                data-riwayat-penyakit="{{ $lansia->riwayat_penyakit }}"
-                                data-tanggal-daftar="{{ $lansia->tanggal_daftar }}" data-keterangan="{{ $lansia->keterangan }}"
-                                data-email="{{ $lansia->email }}" data-kode-unik="{{ $lansia->kode_unik ?? '' }}"
-                                data-pekerjaan="{{ $lansia->pekerjaan ?? '' }}"
-                                data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
-                                data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
-                                data-risk-level="{{ $lansia->risk_level ?? '' }}">
-                                {{-- Nama --}}
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-text">
-                                            <span class="user-name">{{ $lansia->nama_lansia }}</span>
+                {{-- Scroll container: tabel di sini, sticky thead bekerja & tinggi mengisi sisa layar --}}
+                <div class="lansia-table-scroll">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>NAMA LANSIA</th>
+                                <th>NIK</th>
+                                <th>UMUR</th>
+                                <th>ALAMAT</th>
+                                <th>RISIKO</th>
+                                <th>NO. HANDPHONE</th>
+                                <th>AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($lansias as $lansia)
+                                <tr class="table-row selectable-row" title="Klik untuk melihat ringkasan detail"
+                                    data-id="{{ $lansia->id_lansia }}" data-nama="{{ $lansia->nama_lansia }}"
+                                    data-nik="{{ $lansia->nik }}" data-tanggal-lahir="{{ $lansia->tanggal_lahir }}"
+                                    data-alamat="{{ $lansia->alamat }}" data-jenis-kelamin="{{ $lansia->jenis_kelamin }}"
+                                    data-no-hp="{{ $lansia->no_hp }}" data-tempat-lahir="{{ $lansia->tempat_lahir }}"
+                                    data-status-perkawinan="{{ $lansia->status_perkawinan }}"
+                                    data-riwayat-penyakit="{{ $lansia->riwayat_penyakit }}"
+                                    data-tanggal-daftar="{{ $lansia->tanggal_daftar }}" data-keterangan="{{ $lansia->keterangan }}"
+                                    data-email="{{ $lansia->email }}" data-kode-unik="{{ $lansia->kode_unik ?? '' }}"
+                                    data-pekerjaan="{{ $lansia->pekerjaan ?? '' }}"
+                                    data-umur="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }}"
+                                    data-format-tanggal="{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}"
+                                    data-risk-level="{{ $lansia->risk_level ?? '' }}">
+                                    {{-- Nama --}}
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-text">
+                                                <span class="user-name">{{ $lansia->nama_lansia }}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
 
-                                {{-- NIK --}}
-                                <td>
-                                    <span class="main-text">{{ $lansia->nik }}</span>
-                                </td>
+                                    {{-- NIK --}}
+                                    <td>
+                                        <span class="main-text">{{ $lansia->nik }}</span>
+                                    </td>
 
-                                {{-- Umur --}}
-                                <td>
-                                    <span class="main-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }} Tahun</span>
-                                    <span class="sub-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}</span>
-                                </td>
+                                    {{-- Umur --}}
+                                    <td>
+                                        <span class="main-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->age }} Tahun</span>
+                                        <span class="sub-text">{{ \Carbon\Carbon::parse($lansia->tanggal_lahir)->format('d/m/Y') }}</span>
+                                    </td>
 
-                                {{-- Alamat --}}
-                                <td>
-                                    <address>{{ $lansia->alamat ?? '-' }}</address>
-                                </td>
+                                    {{-- Alamat --}}
+                                    <td>
+                                        <address>{{ $lansia->alamat ?? '-' }}</address>
+                                    </td>
 
-                                {{-- Risiko --}}
-                                <td>
-                                    @if($lansia->risk_level)
-                                        @php
-                                            $riskLevel = $lansia->risk_level;
-                                            $riskConfig = [
-                                                'normal' => ['label' => 'Normal', 'class' => 'risk-normal'],
-                                                'waspada' => ['label' => 'Waspada', 'class' => 'risk-waspada'],
-                                                'tinggi' => ['label' => 'Perlu Tindak Lanjut', 'class' => 'risk-tinggi'],
-                                            ];
-                                            $risk = $riskConfig[$riskLevel] ?? null;
-                                        @endphp
-                                        @if($risk)
-                                            <span class="risk-badge {{ $risk['class'] }}">{{ $risk['label'] }}</span>
+                                    {{-- Risiko --}}
+                                    <td>
+                                        @if($lansia->risk_level)
+                                            @php
+                                                $riskLevel = $lansia->risk_level;
+                                                $riskConfig = [
+                                                    'normal' => ['label' => 'Normal', 'class' => 'risk-normal'],
+                                                    'waspada' => ['label' => 'Waspada', 'class' => 'risk-waspada'],
+                                                    'tinggi' => ['label' => 'Perlu Tindak Lanjut', 'class' => 'risk-tinggi'],
+                                                ];
+                                                $risk = $riskConfig[$riskLevel] ?? null;
+                                            @endphp
+                                            @if($risk)
+                                                <span class="risk-badge {{ $risk['class'] }}">{{ $risk['label'] }}</span>
+                                            @else
+                                                -
+                                            @endif
                                         @else
                                             -
                                         @endif
-                                    @else
-                                        -
-                                    @endif
-                                </td>
+                                    </td>
 
-                                {{-- No. HP --}}
-                                <td>{{ $lansia->no_hp ?? '-' }}</td>
+                                    {{-- No. HP --}}
+                                    <td>{{ $lansia->no_hp ?? '-' }}</td>
 
-                                {{-- Aksi --}}
-                                <td class="aksi" onclick="event.stopPropagation()">
-                                    <button class="edit-btn" title="Edit"
-                                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background: white; color: #0F766E; border: 1px solid #0F766E; cursor: pointer; border-radius: 4px;">
-                                        <i class="fa-solid fa-pen-to-square"></i> Edit
-                                    </button>
-                                    <button class="delete-btn" title="Hapus"
-                                        style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px;">
-                                        <i class="fa-solid fa-trash"></i> Hapus
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="empty-state">Belum ada data lansia.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                    {{-- Aksi --}}
+                                    <td class="aksi" onclick="event.stopPropagation()">
+                                        <button class="edit-btn" title="Edit">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </button>
+                                        <button class="delete-btn" title="Hapus">
+                                            <i class="fa-solid fa-trash"></i> Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="empty-state">Belum ada data lansia.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>{{-- /.lansia-table-scroll --}}
 
                 <div class="pagination-wrapper">
                     {{ $lansias->links() }}

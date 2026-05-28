@@ -195,8 +195,19 @@
     border-bottom: 1px solid #f1f5f9;
 }
 
+/* ── tabel-container: di luar konteks lansia, pakai scroll biasa ── */
 .table-container {
-    overflow-x: auto; /* allow horizontal scroll on narrow screens */
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.custom-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 1px 0 #f1f5f9;
 }
 
 /* Prefer flexible widths but keep columns readable */
@@ -473,18 +484,33 @@
     color: #2563eb;
 }
 
+.edit-btn,
+.delete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
 .edit-btn {
     background: white;
-    border: 1px solid #0f766e !important;
+    border: 1px solid #0f766e;
     color: #0f766e;
 }
 
 .edit-btn i {
     color: #0f766e;
+    transition: color 0.2s ease;
 }
 
 .edit-btn:hover {
     background: #0f766e;
+    color: white;
 }
 
 .edit-btn:hover i {
@@ -493,15 +519,19 @@
 
 .delete-btn {
     background: #fee2e2;
-    border: 1px solid #fca5a5 !important;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
 }
 
 .delete-btn i {
     color: #dc2626;
+    transition: color 0.2s ease;
 }
 
 .delete-btn:hover {
     background: #dc2626;
+    color: white;
+    border-color: #dc2626;
 }
 
 .delete-btn:hover i {
@@ -1028,4 +1058,84 @@ td.empty-state {
     justify-content: center;
     font-weight: bold;
     font-size: 24px;
+}
+
+/* ============================================================
+   LANSIA PAGE — Full-height flex layout (seperti Data Petugas)
+   ============================================================ */
+
+/* 1. Buat main-content tidak overflow saat di halaman lansia */
+body:has(.lansia-page) .main-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+/* 2. main.lansia-page mengisi tinggi penuh secara flex column */
+.lansia-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* 3. .container di dalam lansia-page: flex column, isi sisa tinggi */
+.lansia-page > .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 24px 28px 20px;
+    box-sizing: border-box;
+}
+
+/* 4. Header & stats tidak boleh menyusut */
+.lansia-page .page-header,
+.lansia-page .stats-grid {
+    flex-shrink: 0;
+}
+
+/* 5. Kartu tabel mengisi semua sisa ruang secara dinamis */
+.lansia-page .table-container.card {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    /* Override max-height fixed yang lama */
+    max-height: none !important;
+}
+
+/* 6. Elemen statis di dalam kartu tidak boleh menyusut */
+.lansia-page .table-header-actions,
+.lansia-page .row-hint,
+.lansia-page .pagination-wrapper {
+    flex-shrink: 0;
+}
+
+/* 7. Scroll container langsung membungkus tabel */
+.lansia-table-scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* sticky thead bekerja relatif ke .lansia-table-scroll */
+.lansia-table-scroll .custom-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 1px 0 #f1f5f9;
+}
+
+/* min-width agar tabel tidak remuk saat layar sempit */
+.lansia-table-scroll .custom-table {
+    min-width: 860px;
 }

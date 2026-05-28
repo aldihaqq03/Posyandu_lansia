@@ -578,6 +578,10 @@ select.form-control {
     display: flex;
     align-items: flex-start;
     gap: 8px;
+    background: var(--blue-50);
+    padding: 12px 14px;
+    border: 1.5px solid var(--blue-500);
+    border-radius: 10px;
 }
 
 .saran-row-fields {

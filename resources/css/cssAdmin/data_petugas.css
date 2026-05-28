@@ -4,6 +4,8 @@
 }
 
 body:has(.petugas-page) .main-content {
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     padding: 0 !important;
 }
@@ -11,11 +13,21 @@ body:has(.petugas-page) .main-content {
 .petugas-page {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    flex: 1;
     height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.petugas-page>.container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     padding: 24px 28px 20px;
     box-sizing: border-box;
-    overflow: hidden;
+    gap: 16px;
 }
 
 .page-header {
@@ -92,15 +104,22 @@ body:has(.petugas-page) .main-content {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    flex: 1;
+    flex: 0 1 auto;
     overflow: hidden;
 }
 
 .table-scroll {
     width: 100%;
-    flex: 1;
+    flex: 0 1 auto;
     overflow: auto;
+    max-height: calc(100vh - 280px);
     min-height: 0;
+}
+
+@media (max-width: 768px) {
+    .table-scroll {
+        max-height: 400px;
+    }
 }
 
 .table {
@@ -115,6 +134,12 @@ body:has(.petugas-page) .main-content {
     font-size: 13px;
     color: #6b7280;
     border-bottom: 1px solid #eee;
+    /* Sticky header */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 1px 0 #eeeeee;
 }
 
 .table td {

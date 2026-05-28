@@ -111,12 +111,20 @@
 /* ── Table ───────────────────────────────────────────────── */
 .table-scroll {
     overflow-x: auto;
+    max-height: 350px;
+    overflow-y: auto;
 }
 
 .history-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.875rem;
+}
+
+.history-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .history-table th {

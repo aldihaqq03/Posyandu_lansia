@@ -15,12 +15,13 @@
 @endphp
 
 <div class="petugas-page">
+    <div class="container">
 
 <div class="page-header">
 
     <div>
-        <h1>Data Petugas</h1>
-        <p>Kelola informasi kader dan tenaga kesehatan Posyandu SIMPEL.</p>
+        <h1>Sekarang di Data Petugas</h1>
+        <p>Pemantauan kesehatan & inventaris posyandu lansia</p>
     </div>
 
     <button type="button" class="btn-primary" id="btn-tambah-petugas">
@@ -197,6 +198,7 @@
     </div>
 
 </div>
+    </div>
 
 <div class="modal-overlay" id="modalTambahPetugas" data-current-role="{{ $currentRole }}">
     <div class="petugas-modal">

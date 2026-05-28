@@ -1,4 +1,4 @@
-﻿/* resources/js/jsAdmin/data_lansia.js */
+/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
     // ─────────────────────────────────────────────────────────────────────
     // 0. HELPER: setupModalClose
@@ -1409,14 +1409,11 @@ document.addEventListener("DOMContentLoaded", function () {
             container.appendChild(buatItemKeluargaEdit(newIdx, {}, false));
         });
 
-    // Delegate clicks on edit buttons from the table body (works when rows re-render)
-    const tableBody = document.querySelector(".custom-table tbody");
-    if (tableBody) {
-        tableBody.addEventListener("click", async function (ev) {
-            const btn = ev.target.closest('.edit-btn');
-            if (!btn) return;
+    // Bind click events directly to all edit buttons
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+        btn.addEventListener("click", async function (ev) {
             ev.preventDefault();
-            const row = btn.closest("tr");
+            const row = this.closest("tr");
             if (!row) {
                 console.error("âŒ Row not found!");
                 return;
@@ -1525,7 +1522,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateEditSubmitBtn();
             }, 200);
         });
-    }
+    });
 
     document
         .getElementById("btn-histori-skrining")

@@ -829,13 +829,20 @@ document.addEventListener("DOMContentLoaded", function () {
             show("keluhan-empty");
         }
     }
+
+    const modalKeluhan = el("keluhan-modal");
+    window.closeKeluhanModal = function () {
+        if (modalKeluhan) modalKeluhan.style.display = "none";
+    };
+
+    if (modalKeluhan) {
+        modalKeluhan.addEventListener("click", (e) => {
+            if (e.target === modalKeluhan) closeKeluhanModal();
+        });
+    }
+
     el("btn-lihat-semua-keluhan")?.addEventListener("click", () => {
-        show("keluhan-all-wrapper");
-        hide("keluhan-latest");
-    });
-    el("btn-tutup-keluhan")?.addEventListener("click", () => {
-        hide("keluhan-all-wrapper");
-        show("keluhan-latest");
+        if (modalKeluhan) modalKeluhan.style.display = "flex";
     });
 
     // ========== SARAN (tidak berubah) ==========
@@ -870,9 +877,9 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="dp-saran-item-header">
                 <span class="dp-saran-jenis" id="sji-${s.id_saran}">${esc(s.jenis_saran)}</span>
                 <div class="dp-saran-actions">
-                    <button class="dp-saran-btn edit" data-action="edit"><i class="fa-solid fa-pen"></i></button>
-                    <button class="dp-saran-btn save" data-action="save" style="display:none;"><i class="fa-solid fa-check"></i></button>
-                    <button class="dp-saran-btn del" data-action="del"><i class="fa-solid fa-trash"></i></button>
+                    <button class="dp-saran-btn edit" data-action="edit"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button class="dp-saran-btn save" data-action="save" style="display:none;"><i class="fa-solid fa-check"></i> Simpan</button>
+                    <button class="dp-saran-btn del" data-action="del"><i class="fa-solid fa-trash"></i> Hapus</button>
                 </div>
             </div>
             <p class="dp-saran-isi" id="sii-${s.id_saran}">${esc(s.isi_saran)}</p>

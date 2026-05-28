@@ -39,11 +39,6 @@
                         <i class="fa-solid fa-ruler-vertical"></i>
                         Tinggi {{ $tinggiBadanTerakhir ? $tinggiBadanTerakhir . ' cm' : '-' }}
                     </span>
-                    @if($lansia->riwayat_penyakit)
-                        <span class="mon-riwayat">
-                            <i class="fa-solid fa-notes-medical"></i> {{ $lansia->riwayat_penyakit }}
-                        </span>
-                    @endif
                 </div>
             </div>
         </div>
@@ -278,8 +273,8 @@
                     <span class="dp-section-icon"><i class="fa-solid fa-stethoscope"></i></span>
                     <h4 class="dp-section-title">Riwayat Keluhan</h4>
                 </div>
-                <button class="dp-btn-action" id="btn-lihat-semua-keluhan" title="Lihat Semua">
-                    <i class="fa-solid fa-list-ul"></i>
+                <button class="mon-btn-detail" id="btn-lihat-semua-keluhan" title="Lihat Semua Keluhan">
+                    <i class="fa-solid fa-table"></i> Lihat Semua
                 </button>
             </div>
             <div id="keluhan-loading" class="dp-loading-state" style="display:none;">
@@ -307,15 +302,6 @@
                     </div>
                 </div>
             </div>
-            <div id="keluhan-all-wrapper" style="display:none; margin-top:16px;">
-                <div class="keluhan-table-header">
-                    <span>Semua Riwayat Keluhan</span>
-                    <button class="dp-btn-action-sm" id="btn-tutup-keluhan" title="Tutup">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div id="keluhan-all-list" class="keluhan-list-scroll"></div>
-            </div>
         </div>
 
         {{-- ── SARAN ── --}}
@@ -325,9 +311,6 @@
                     <span class="dp-section-icon"><i class="fa-solid fa-lightbulb"></i></span>
                     <h4 class="dp-section-title">Saran untuk Lansia</h4>
                 </div>
-                <button class="dp-btn-action primary" id="dp-btn-add-saran" title="Tambah Saran">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
             </div>
             <div id="dp-saran-loading" class="dp-loading-state" style="display:none;">
                 <i class="fa-solid fa-spinner fa-spin"></i> Memuat data saran...
@@ -338,6 +321,11 @@
             </div>
             <div id="dp-saran-list"></div>
             <div id="dp-saran-new-list"></div>
+            <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
+                <button type="button" class="dp-btn-add-kecil" id="dp-btn-add-saran">
+                    <i class="fa-solid fa-plus"></i> Tambah Saran
+                </button>
+            </div>
         </div>
         {{-- ── MODAL DETAIL DATA ── --}}
         <div class="mon-modal-overlay" id="detail-modal" style="display:none;">
@@ -361,6 +349,20 @@
             </div>
         </div>
     </div>
+
+        {{-- ── MODAL LIHAT SEMUA KELUHAN ── --}}
+        <div class="mon-modal-overlay" id="keluhan-modal" style="display:none;">
+            <div class="mon-modal-content">
+                <div class="mon-modal-header">
+                    <h3 class="mon-modal-title">Semua Riwayat Keluhan</h3>
+                    <button class="mon-modal-close" onclick="closeKeluhanModal()"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="mon-modal-body">
+                    <div id="keluhan-all-list" class="keluhan-list-scroll" style="padding: 16px;"></div>
+                </div>
+            </div>
+        </div>
 
         </div>
     </main>

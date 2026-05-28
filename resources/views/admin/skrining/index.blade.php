@@ -20,7 +20,8 @@
                     <i class="fa-solid fa-chevron-right"></i>
                     <span class="text-muted">Input Skrining</span>
                 </nav>
-                <h1 class="page-title">Input Skrining Posyandu</h1>
+                <h1 class="page-title">Sekarang di Input Skrining</h1>
+                <p class="page-subtitle" style="margin-top: 4px; color: var(--gray-500); font-size: 14px;">Pemantauan kesehatan & inventaris posyandu lansia</p>
             </div>
         </header>
 
@@ -1382,7 +1383,7 @@
                         saranSebelumnyaWrapper.style.display = 'none';
                     } else {
                         saranSebelumnyaList.innerHTML = data.map(s => `
-                                                <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+                                                <div class="saran-edit-form" data-id="${s.id_saran}" style="margin-bottom:16px;padding:12px 14px;background:var(--blue-50,#eff6ff);border:1.5px solid var(--blue-500,#3b82f6);border-radius:10px;">
                                                     <div class="form-group" style="margin-bottom:12px;">
                                                         <input type="text" class="form-control saran-edit-jenis"
                                                             value="${escSaran(s.jenis_saran)}" placeholder="Judul saran...">
