@@ -8,9 +8,7 @@
 @section('title', 'Data Obat')
 
 @section('content')
-    <main class="main-content" style="width: 100%;">
-
-        <div style="width: 100%; padding: 0 24px; box-sizing: border-box;">
+    <div class="obat-page" style="width: 100%; padding: 24px 28px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
 
             {{-- ── HEADER ─────────────────────────────────────────────── --}}
             <header class="page-header">
@@ -115,9 +113,7 @@
                     </tbody>
                 </table>
             </section>
-        </div>
-
-    </main>
+    </div>
 
     <div id="obat-page-config"
         data-open-create="{{ $errors->any() && (session('_method') == 'POST' || is_null(session('_method'))) ? '1' : '0' }}"

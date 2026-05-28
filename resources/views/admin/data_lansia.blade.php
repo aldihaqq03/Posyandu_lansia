@@ -8,9 +8,7 @@
 <meta name="route-store-lansia" content="{{ route('lansia.store') }}">
 
 @section('content')
-    <main class="main-content">
-
-        <div class="container">
+    <div class="lansia-page">
 
             {{-- ── HEADER ─────────────────────────────────────────────── --}}
             <header class="page-header">
@@ -369,7 +367,7 @@
             </style>
         </div>
 
-    </main>
+    </div>
 @endsection
 
 @push('scripts')
