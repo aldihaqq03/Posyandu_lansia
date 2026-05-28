@@ -180,12 +180,10 @@
             @endif
 
             <div class="user-info">
-                <a href="/pengaturan" class="user-name" style="text-decoration: none; color: inherit; cursor: pointer;"
-                    title="Pergi ke Pengaturan">
+                <a href="/pengaturan" class="user-name" title="Pergi ke Pengaturan">
                     {{ Auth::user()->nama ?? 'Pengguna' }}
                 </a>
-                <span class="user-role"
-                    style="text-transform: capitalize;">{{ str_replace('_', ' ', Auth::user()->jabatan ?? 'Kader') }}</span>
+                <span class="user-role">{{ str_replace('_', ' ', Auth::user()->jabatan ?? 'Kader') }}</span>
             </div>
 
             <form action="/logout" method="POST" id="formLogoutSidebar">
