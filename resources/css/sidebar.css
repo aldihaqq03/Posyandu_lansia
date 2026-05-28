@@ -28,7 +28,7 @@ body {
     background:linear-gradient(
         180deg,
         #0c1835 25%,
-        #3b82f6 100%
+        #3b82f6 75%
     );
 
     border-right:1px solid rgba(255,255,255,0.06);
@@ -41,6 +41,8 @@ body {
     transition:.3s ease;
 
     z-index:999;
+
+    border-radius:0 24px 24px 0; /* tambahkan ini */
 }
 
 /* LOGO */
@@ -168,14 +170,14 @@ body {
     0 10px 25px rgba(37,99,235,.35);
 }
 
-.nav-section-title{
-    color:#64748b;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:1px;
-
-    margin:
-    20px 12px 12px;
+.nav-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.55);
+    margin: 22px 14px 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
 /* SETTING */
@@ -185,68 +187,86 @@ body {
     border-top: 1px solid #eee;
 }
 
-/* FOOTER */
+/* ===== USER FOOTER ===== */
 
 .sidebar-footer{
     margin-top:auto;
-
-    background:rgba(255,255,255,0.04);
-
-    border:1px solid rgba(255,255,255,0.06);
-
-    border-radius:20px;
-
     padding:16px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.08);
 
     display:flex;
     align-items:center;
     gap:14px;
+
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.08);
 }
 
+/* avatar */
 .user-avatar,
 .user-avatar-fallback{
-    width:48px;
-    height:48px;
+    width:52px;
+    height:52px;
     border-radius:16px;
 
-    object-fit:cover;
-
-    background:linear-gradient(
-        135deg,
-        #2563eb,
-        #60a5fa
-    );
-
-    color:white;
+    background:rgba(255,255,255,0.12);
+    color:#ffffff;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
     font-weight:700;
+    font-size:20px;
+
+    flex-shrink:0;
 }
 
-.user-info {
-    flex: 1;
+/* text */
+.user-info{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
 }
 
-.user-name {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
+.user-name{
+    font-size:15px;
+    font-weight:700;
+    color:#ffffff;
 }
 
-.user-role {
-    font-size: 12px;
-    color: #9ca3af;
+.user-role{
+    font-size:13px;
+    color:rgba(255,255,255,0.65);
+    margin-top:4px;
 }
 
-.logout-btn {
-    background: none;
-    border: none;
-    color: #ef4444;
-    cursor: pointer;
-    font-size: 16px;
+/* logout button */
+.logout-btn{
+    margin-left:auto;
+
+    width:38px;
+    height:38px;
+
+    border:none;
+    border-radius:12px;
+
+    background:rgba(255,255,255,0.08);
+    color:#dbeafe;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+    transition:0.25s ease;
+}
+
+.logout-btn:hover{
+    background:#ef4444;
+    color:white;
+    transform:translateX(2px);
 }
 
 /* MAIN CONTENT AREA */
@@ -438,8 +458,8 @@ body {
 }
 
 .sidebar-toggle{
-    width:42px;
-    height:42px;
+    width: 20px;
+    height: 20px;
 
     border:none;
     border-radius:14px;
@@ -457,42 +477,101 @@ body {
     color: #2563eb;
 }
 
-.sidebar.collapsed {
-    width: 85px;
+/* COLLAPSED SIDEBAR */
+.sidebar.collapsed{
+    width:85px;
 }
 
+/* SEMBUNYIKAN TEXT */
 .sidebar.collapsed .logo-text,
 .sidebar.collapsed .nav-text,
 .sidebar.collapsed .dropdown-icon,
-.sidebar.collapsed .user-info {
-    display: none;
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .user-info{
+    display:none;
 }
 
-.sidebar.collapsed .logo-section {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 10px;
+/* LOGO */
+.sidebar.collapsed .logo-section{
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:18px;
 }
 
-.sidebar.collapsed .sidebar-toggle {
-    margin-left: 0;
-    margin-top: 15px;
+/* NAVIGATION */
+.sidebar.collapsed .sidebar-nav{
+    align-items:center;
 }
 
-.sidebar.collapsed .nav-item {
-    justify-content: center;
-    padding: 15px;
+/* ITEM */
+.sidebar.collapsed .nav-item{
+    width:52px;
+    height:52px;
+
+    padding:0;
+
+    border-radius:16px;
+
+    justify-content:center;
+    align-items:center;
+
+    margin-bottom:14px;
 }
 
-.sidebar.collapsed .nav-item i {
-    width: auto;
-    font-size: 1.1rem;
+/* ICON */
+.sidebar.collapsed .nav-item i{
+    font-size:18px;
+    margin:0;
 }
 
-.sidebar.collapsed .sidebar-footer {
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 10px;
-    gap: 15px;
+/* FOOTER */
+.sidebar.collapsed .sidebar-footer{
+    width:52px;
+    height:52px;
+
+    padding:0;
+
+    border-radius:16px;
+
+    justify-content:center;
+}
+
+/* AVATAR */
+.sidebar.collapsed .user-avatar,
+.sidebar.collapsed .user-avatar-fallback{
+    width:42px;
+    height:42px;
+
+    font-size:14px;
+}
+
+/* HILANGKAN GARIS SYSTEM */
+.sidebar.collapsed hr,
+.sidebar.collapsed .sidebar-divider{
+    display:none;
+}
+
+/* Hilangkan garis abu-abu saat klik menu sidebar */
+.nav-item,
+.nav-item:focus,
+.nav-item:active,
+button,
+button:focus,
+button:active,
+a,
+a:focus,
+a:active {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Hilangkan border focus biru/abu */
+.sidebar *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+*:focus-visible {
+    outline: none !important;
+}
 }
