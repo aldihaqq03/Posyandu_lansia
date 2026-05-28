@@ -9,8 +9,7 @@
 @section('title', 'Histori Skrining – ' . $lansia->nama_lansia)
 
 @section('content')
-    <main class="main-content">
-        <div class="container">
+    <div class="lansia-show-page" style="padding: 24px 28px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; width: 100%;">
 
             {{-- BREADCRUMB & HEADER --}}
             <header class="page-header">
@@ -225,9 +224,7 @@
                         </table>
                     </div>
                 @endif
-            </section>
-        </div>
-    </main>
+    </div>
 
     {{-- MODAL DETAIL MODERN --}}
     <div class="modal-overlay" id="modal-detail-skrining">

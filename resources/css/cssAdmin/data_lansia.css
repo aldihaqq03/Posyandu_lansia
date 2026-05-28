@@ -10,6 +10,16 @@
     --border-color: #f1f5f9;
 }
 
+.lansia-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+    padding: 24px 28px 20px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
 /* Header & Breadcrumb */
 .page-header {
     display: flex;
