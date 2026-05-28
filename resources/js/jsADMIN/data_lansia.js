@@ -1,4 +1,4 @@
-/* resources/js/jsAdmin/data_lansia.js */
+﻿/* resources/js/jsAdmin/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
     // ─────────────────────────────────────────────────────────────────────
     // 0. HELPER: setupModalClose
@@ -1409,11 +1409,10 @@ document.addEventListener("DOMContentLoaded", function () {
             container.appendChild(buatItemKeluargaEdit(newIdx, {}, false));
         });
 
-    // Bind click events directly to all edit buttons
+    // Buka modal edit saat tombol edit diklik
     document.querySelectorAll(".edit-btn").forEach((btn) => {
-        btn.addEventListener("click", async function (ev) {
-            ev.preventDefault();
-            const row = this.closest("tr");
+        btn.addEventListener("click", async function () {
+            const row = btn.closest("tr");
             if (!row) {
                 console.error("âŒ Row not found!");
                 return;

@@ -49,7 +49,7 @@
                     $penyakitList = [
                         'hipertensi' => ['label' => 'Hipertensi',  'icon' => 'fa-heart-crack'],
                         'hipotensi'  => ['label' => 'Hipotensi',   'icon' => 'fa-heart-pulse'],
-                        'diabetes'   => ['label' => 'Diabetes',    'icon' => 'fa-droplet'],
+                        'diabetes'   => ['label' => 'Gula Darah tinggi',    'icon' => 'fa-droplet'],
                         'kolesterol' => ['label' => 'Kolesterol',  'icon' => 'fa-circle-dot'],
                         'obesitas'   => ['label' => 'Obesitas',    'icon' => 'fa-weight-scale'],
                         'bb_kurang'  => ['label' => 'BB Kurang',   'icon' => 'fa-person-thin'],
