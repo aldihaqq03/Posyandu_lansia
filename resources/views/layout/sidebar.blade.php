@@ -33,20 +33,38 @@
 
         <!-- LOGO -->
         <div class="logo-section">
-            <div class="logo-icon" style="background: transparent; color: #2563eb;">
-                <x-logo style="width: 100%; height: 100%;" />
-            </div>
-            <div class="logo-text">
-                <span class="brand-name">SIMPEL</span>
-                <!-- <span class="brand-tagline">PEDULI LANSIA</span> -->
-            </div>
-            <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Lebarkan/Sempitkan">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+
+    <div class="logo-left">
+        <div class="logo-icon">
+            <x-logo style="width: 100%; height: 100%;" />
         </div>
+
+        <div class="logo-text">
+            <span class="brand-name">SIMPEL</span>
+            <span class="brand-tagline">
+                
+
+                Sistem Informasi Posyandu
+            </span>
+        </div>
+    </div>
+
+    <button type="button"
+        class="sidebar-toggle"
+        id="sidebarToggle"
+        title="Lebarkan/Sempitkan">
+
+        <i class="fa-solid fa-bars"></i>
+
+    </button>
+
+</div>
 
         <!-- MENU -->
         <nav class="sidebar-nav">
+            <div class="nav-section-title">
+    MAIN MENU
+</div>
 
             <a href="/dashboard" class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}" title="Dashboard">
                 <i class="fa-solid fa-chart-line"></i>
@@ -124,6 +142,9 @@
             </a>
 
         </nav>
+        <div class="nav-section-title">
+    SYSTEM
+</div>
 
         <!-- PENGATURAN -->
         <div class="sidebar-setting">
