@@ -184,7 +184,6 @@ body {
 
 .sidebar-setting {
     padding: 10px 0;
-    border-top: 1px solid #eee;
 }
 
 /* ===== USER FOOTER ===== */
@@ -233,12 +232,12 @@ body {
 .user-name{
     font-size:15px;
     font-weight:700;
-    color:#ffffff;
+    color:#f1f1f1;
 }
 
 .user-role{
     font-size:13px;
-    color:rgba(255,255,255,0.65);
+    color:rgba(231, 228, 228, 0.65);
     margin-top:4px;
 }
 
@@ -546,32 +545,8 @@ body {
     font-size:14px;
 }
 
-/* HILANGKAN GARIS SYSTEM */
-.sidebar.collapsed hr,
-.sidebar.collapsed .sidebar-divider{
-    display:none;
-}
 
-/* Hilangkan garis abu-abu saat klik menu sidebar */
-.nav-item,
-.nav-item:focus,
-.nav-item:active,
-button,
-button:focus,
-button:active,
-a,
-a:focus,
-a:active {
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent;
-}
 
-/* Hilangkan border focus biru/abu */
-.sidebar *:focus {
-    outline: none !important;
-    box-shadow: none !important;
-*:focus-visible {
-    outline: none !important;
-}
-}
+
+
+
