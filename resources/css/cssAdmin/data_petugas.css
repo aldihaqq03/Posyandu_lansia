@@ -64,7 +64,7 @@ body:has(.petugas-page) .main-content {
     flex-shrink: 0;
 }
 
-.stat-card {
+.petugas-page .stat-card {
     background: white;
     padding: 20px;
     border-radius: 12px;

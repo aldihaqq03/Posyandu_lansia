@@ -4,6 +4,7 @@
     --primary: #3b82f6;
     --danger: #ef4444;
     --success: #10b981;
+    --warning: #f59e0b;
     --text-main: #1e293b;
     --text-muted: #94a3b8;
     --bg-card: #ffffff;
@@ -68,72 +69,90 @@
 }
 
 /* Stat Cards */
-.stats-grid {
+.lansia-page .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 12px;
     margin-bottom: 30px;
 }
 
-.stat-card {
+.lansia-page .stat-card {
     background: var(--bg-card);
-    padding: 24px;
-    border-radius: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.stat-label {
-    font-size: 11px;
+.lansia-page .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+}
+
+.lansia-page .stat-card.border-success {
+    border-left-color: var(--success);
+}
+
+.lansia-page .stat-card.border-warning {
+    border-left-color: var(--warning);
+}
+
+.lansia-page .stat-card.border-danger {
+    border-left-color: var(--danger);
+}
+
+.lansia-page .stat-card:not([class*="border-"]) {
+    border-left-color: var(--primary);
+}
+
+.lansia-page .stat-label {
+    font-size: 9px;
     font-weight: 700;
     color: var(--text-muted);
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: block;
 }
 
-.stat-content {
+.lansia-page .stat-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    margin-top: 6px;
+    width: 100%;
 }
 
-.stat-number {
-    font-size: 32px;
+.lansia-page .stat-number {
+    font-size: 28px;
     font-weight: 800;
     color: var(--text-main);
+    line-height: 1;
 }
 
-.stat-icon-fa {
-    font-size: 28px;
-    color: #cbd5e1;
-    opacity: 0.7;
+.lansia-page .stat-icon-fa {
+    font-size: 24px;
+    opacity: 0.15;
 }
 
-.color-danger {
-    color: var(--danger);
-}
-
+/* Color helpers */
 .color-success {
-    color: var(--success);
-}
-
-.border-danger {
-    border-left: 4px solid var(--danger);
-}
-
-.border-success {
-    border-left: 4px solid var(--success);
+    color: var(--success) !important;
 }
 
 .color-warning {
-    color: #d97706;
+    color: var(--warning) !important;
 }
-.text-warning {
-    color: #d97706 !important;
+
+.color-danger {
+    color: var(--danger) !important;
 }
-.border-warning {
-    border-left: 4px solid #fbbf24;
+
+.color-primary {
+    color: var(--primary) !important;
 }
+
 
 /* Table Container */
 .card {

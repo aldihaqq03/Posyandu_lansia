@@ -319,32 +319,26 @@ background:#dbeafe;
 <!-- STATS GRID -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-top">
-            <div class="stat-icon icon-blue"><i class="fa-solid fa-calendar-day"></i></div>
-        </div>
-        <div class="stat-info">
-            <span class="stat-label">Hadir Hari Ini</span>
-            <h2 class="stat-value" data-target="{{ $summary['hari_ini'] }}">0</h2>
+        <span class="stat-label">Hadir Hari Ini</span>
+        <div class="stat-content">
+            <span class="stat-number stat-value" data-target="{{ $summary['hari_ini'] }}">0</span>
+            <i class="fa-solid fa-calendar-day stat-icon-fa color-primary"></i>
         </div>
     </div>
 
-    <div class="stat-card success-card">
-        <div class="stat-top">
-            <div class="stat-icon icon-green"><i class="fa-solid fa-calendar-week"></i></div>
-        </div>
-        <div class="stat-info">
-            <span class="stat-label">Hadir Minggu Ini</span>
-            <h2 class="stat-value" data-target="{{ $summary['minggu_ini'] }}">0</h2>
+    <div class="stat-card border-success">
+        <span class="stat-label">Hadir Minggu Ini</span>
+        <div class="stat-content">
+            <span class="stat-number stat-value color-success" data-target="{{ $summary['minggu_ini'] }}">0</span>
+            <i class="fa-solid fa-calendar-week stat-icon-fa color-success"></i>
         </div>
     </div>
 
     <div class="stat-card" style="border-left-color: #8b5cf6;">
-        <div class="stat-top">
-            <div class="stat-icon" style="background:#ede9fe; color:#8b5cf6;"><i class="fa-solid fa-calendar-days"></i></div>
-        </div>
-        <div class="stat-info">
-            <span class="stat-label">Total Tahun Ini</span>
-            <h2 class="stat-value" data-target="{{ $summary['tahun_ini'] }}">0</h2>
+        <span class="stat-label">Total Tahun Ini</span>
+        <div class="stat-content">
+            <span class="stat-number stat-value" style="color: #8b5cf6;" data-target="{{ $summary['tahun_ini'] }}">0</span>
+            <i class="fa-solid fa-calendar-days stat-icon-fa" style="color: #8b5cf6; opacity: 0.15;"></i>
         </div>
     </div>
 </div>
