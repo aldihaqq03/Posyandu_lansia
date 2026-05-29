@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================== MODAL TAMBAH =====================
     const modalTambah = document.getElementById("modalTambahJadwal");
     const btnTambah = document.getElementById("btn-tambah-jadwal");
+    const btnTambahEmpty = document.getElementById("btn-tambah-jadwal-empty");
     const btnClose = document.getElementById("btn-close-modal");
     const btnCancel = document.getElementById("btn-cancel-modal");
 
@@ -71,6 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     btnTambah?.addEventListener("click", openModalTambah);
+    btnTambahEmpty?.addEventListener("click", openModalTambah);
     btnClose?.addEventListener("click", closeModalTambah);
     btnCancel?.addEventListener("click", closeModalTambah);
     modalTambah?.addEventListener("click", (e) => {

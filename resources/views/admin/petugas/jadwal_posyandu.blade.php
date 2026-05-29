@@ -173,9 +173,12 @@
 
             @empty
                 <div class="empty-state">
-                    <i class="fa-solid fa-calendar-xmark"></i>
-                    <p>Belum ada jadwal posyandu.</p>
-                    <span>Klik "Tambah Jadwal" untuk membuat jadwal baru.</span>
+                    <i class="fa-solid fa-calendar-xmark" style="font-size:5rem; color:#e2e8f0;"></i>
+                    <h2 style="font-weight:700; color:#1e293b; margin:1rem 0 0.5rem; font-size:1.5rem;">Jadwal Masih Kosong</h2>
+                    <p style="color:#64748b; margin-bottom:2rem; font-size:0.875rem;">Belum ada jadwal posyandu yang ditambahkan ke sistem.</p>
+                    <button class="btn-primary" type="button" id="btn-tambah-jadwal-empty" style="display:inline-flex; width:auto; font-size:13px; font-weight:600; padding:10px 20px; border-radius:8px;">
+                        <i class="fa-solid fa-plus"></i> Tambah Sekarang
+                    </button>
                 </div>
             @endforelse
 

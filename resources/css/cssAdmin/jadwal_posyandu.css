@@ -86,10 +86,26 @@
 }
 
 /* ===================== LAYOUT ===================== */
+.jadwal-wrapper {
+    padding: 2rem;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
 .container {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+/* ===================== EMPTY STATE ===================== */
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: white;
+    border-radius: 1.5rem;
+    border: 2px dashed #e2e8f0;
+    margin-top: 1rem;
 }
 
 /* ===================== HEADER ===================== */
