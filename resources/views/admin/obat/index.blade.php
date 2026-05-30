@@ -8,8 +8,7 @@
 @section('title', 'Data Obat')
 
 @section('content')
-    <div class="obat-page">
-        <div class="container">
+    <div class="obat-page" style="width: 100%; padding: 24px 28px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
 
             {{-- ── HEADER ─────────────────────────────────────────────── --}}
             <header class="page-header">
@@ -117,7 +116,6 @@
                     </table>
                 </div>
             </section>
-        </div>
     </div>
 
     <div id="obat-page-config"
