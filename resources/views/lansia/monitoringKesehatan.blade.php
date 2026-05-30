@@ -8,8 +8,6 @@
 @endpush
 
 @section('content')
-    <main class="main-content">
-        <div class="container">
 
         {{-- ── HEADER ── --}}
         <div class="mon-header">
@@ -364,8 +362,7 @@
             </div>
         </div>
 
-        </div>
-    </main>
+
 
 @endsection
 

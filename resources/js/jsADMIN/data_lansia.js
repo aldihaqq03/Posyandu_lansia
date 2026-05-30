@@ -200,8 +200,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 detailPanel.style.transition = "opacity 0.3s ease";
                 detailPanel.style.opacity = "1";
             });
-
-            detailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+            detailPanel.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            });
         });
     });
 
@@ -223,6 +225,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function setText(id, val) {
         const el = document.getElementById(id);
         if (el) el.innerText = val;
+    }
+    function setVal(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val ?? "";
     }
 
     // QR is always visible when kode tersedia; no toggle listener required

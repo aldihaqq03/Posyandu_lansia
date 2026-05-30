@@ -8,31 +8,30 @@
 @section('title', 'Data Obat')
 
 @section('content')
-    <div class="obat-page" style="width: 100%; padding: 24px 28px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+    <div class="obat-page" style="width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
 
-            {{-- ── HEADER ─────────────────────────────────────────────── --}}
-            <header class="page-header">
+        {{-- ── HEADER ─────────────────────────────────────────────── --}}
+                    <div class="page-header">
+
                 <div class="header-info">
-                    <nav class="breadcrumb" aria-label="Breadcrumb">
-                        <img class="icon" src="/img/icon-2.svg" alt="Home" />
-                        <img class="separator" src="/img/icon-6.svg" alt="" />
-                        <span class="text-muted">MANAJEMEN</span>
-                    </nav>
-                    <h1 class="page-title">Sekarang di Data Obat</h1>
-                    <p class="page-subtitle">Pemantauan kesehatan & inventaris posyandu lansia</p>
+                    <h1 class="page-title">Data Obat</h1>
+                    <p class="page-subtitle">
+                        Kelola inventaris obat-obatan posyandu dan pantau stok secara real-time.
+                    </p>
                 </div>
-                <button onclick="openModalTambahObat()"
-                    style="display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; background: #0F766E; color: white; padding: 10px 16px; border-radius: 6px; font-weight: 600; font-size: 14px;">
-                    <img src="/img/icon-10.svg" alt="" />
+
+                <button onclick="openModalTambahObat()" class="btn-primary">
+                    <i class="fa-solid fa-plus"></i>
                     <span>Tambah Obat</span>
                 </button>
-            </header>
+
+            </div>
 
             {{-- ── TABEL ───────────────────────────────────────────────── --}}
             <section class="card obat-table-wrap">
                 <div class="table-header-actions">
                     <div class="search-wrapper">
-                        <img src="/img/icon-7.svg" alt="" />
+                        <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="search" placeholder="Cari nama obat atau tipe..." id="main-search" />
                     </div>
                 </div>
@@ -68,7 +67,7 @@
 
                                     {{-- Stok --}}
                                     <td class="obat-col-stok">
-                                        <span class="obat-stok-num">{{ $item->stock }}</span>
+                                        <span class="obat-stok-num {{ $item->stock < 10 ? 'color-danger' : '' }}">{{ $item->stock }}</span>
                                     </td>
 
                                     {{-- Keterangan --}}

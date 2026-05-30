@@ -4,18 +4,31 @@
     --primary: #3b82f6;
     --danger: #ef4444;
     --success: #10b981;
+    --warning: #f59e0b;
     --text-main: #1e293b;
     --text-muted: #94a3b8;
     --bg-card: #ffffff;
     --border-color: #f1f5f9;
 }
-
+.stat-card.border-primary {
+    border-left-color: var(--primary);
+}
+.stat-card.border-success {
+    border-left-color: var(--success);
+}
+.stat-card.border-warning {
+    border-left-color: var(--warning);
+}
+.stat-card.border-danger {
+    border-left-color: var(--danger);
+}
+/* ── 1. MAIN LAYOUT (Disamakan dengan Obat) ─────────────────── */
 .lansia-page {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    height: 100%;
-    padding: 24px 28px 20px;
+    gap: 20px;
+    min-height: 0;
+    padding: 0; /* Padding dinolkan agar sejajar dengan obat.css */
     box-sizing: border-box;
     width: 100%;
 }
@@ -23,9 +36,12 @@
 /* Header & Breadcrumb */
 .page-header {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 30px;
+    flex-wrap: nowrap;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
 .breadcrumb {
@@ -49,17 +65,20 @@
     font-size: 14px;
 }
 
+/* ── 2. BUTTONS & ACTIONS ───────────────────────────────────── */
 .btn-primary {
     background: var(--primary);
     color: white;
-    padding: 12px 20px;
+    padding: 9px 16px;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 13px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 7px;
     transition: 0.3s;
     border: none;
+    cursor: pointer;
 }
 
 .btn-primary:hover {
@@ -67,404 +86,26 @@
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-/* Stat Cards */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: var(--bg-card);
-    padding: 24px;
-    border-radius: 16px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.stat-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-}
-
-.stat-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.stat-number {
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-.stat-icon-fa {
-    font-size: 28px;
-    color: #cbd5e1;
-    opacity: 0.7;
-}
-
-.color-danger {
-    color: var(--danger);
-}
-
-.color-success {
-    color: var(--success);
-}
-
-.border-danger {
-    border-left: 4px solid var(--danger);
-}
-
-.border-success {
-    border-left: 4px solid var(--success);
-}
-
-.color-warning {
-    color: #d97706;
-}
-.text-warning {
-    color: #d97706 !important;
-}
-.border-warning {
-    border-left: 4px solid #fbbf24;
-}
-
-/* Table Container */
-.card {
-    background: var(--bg-card);
-    border-radius: 20px;
-    padding: 24px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    margin-bottom: 30px;
-}
-
-.table-header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.search-wrapper {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 50%;
-}
-
-.search-wrapper input {
-    border: none;
-    background: transparent;
-    width: 100%;
-    outline: none;
-    font-size: 14px;
-}
-
 .btn-outline {
     background: transparent;
     color: var(--text-main);
-    padding: 12px 20px;
+    padding: 9px 16px;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 13px;
     display: flex;
     align-items: center;
     gap: 10px;
     transition: 0.3s;
     border: 1px solid #e2e8f0;
     cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .btn-outline:hover {
     background: #f8fafc;
     border-color: #cbd5e1;
-}
-
-/* Custom Table — base rule only, refinements below */
-.custom-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-/* Table spacing and responsive behavior */
-.custom-table th,
-.custom-table td {
-    padding: 12px 14px;
-    vertical-align: middle;
-    text-align: left;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-/* ── tabel-container: di luar konteks lansia, pakai scroll biasa ── */
-.table-container {
-    overflow-x: auto;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.custom-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #ffffff;
-    box-shadow: 0 1px 0 #f1f5f9;
-}
-
-/* Prefer flexible widths but keep columns readable */
-.custom-table th:first-child {
-    width: 32%;
-}
-.custom-table th:nth-child(2) {
-    width: 14%;
-}
-.custom-table th:nth-child(3) {
-    width: 12%;
-}
-.custom-table th:nth-child(4) {
-    width: 22%;
-}
-.custom-table th:nth-child(5) {
-    width: 8%;
-}
-.custom-table th:nth-child(6) {
-    width: 12%;
-}
-
-@media (max-width: 900px) {
-    .custom-table th:first-child {
-        width: 40%;
-    }
-    .custom-table th:nth-child(2) {
-        width: 20%;
-    }
-    .custom-table th:nth-child(3) {
-        width: 15%;
-    }
-    .custom-table th:nth-child(4) {
-        width: auto;
-    }
-}
-
-/* User Cell Styling */
-.user-cell {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #dbeafe;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.user-name {
-    display: block;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-/* Sub text in user cell */
-.user-subtext {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-/* Badges */
-.badge-pill {
-    background: #f1f5f9;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.badge-status {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    display: inline-block;
-}
-
-.badge-status.danger {
-    background: #fee2e2;
-    color: var(--danger);
-}
-
-.badge-status.muted {
-    background: #f1f5f9;
-    color: #64748b;
-}
-
-/* Detail Sidebar/Panel */
-.detail-panel {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 40px;
-}
-
-.panel-header {
-    grid-column: span 2;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 20px;
-}
-
-.panel-title-info {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.icon-doc-bg {
-    width: 48px;
-    height: 48px;
-    background: #f8fafc;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-link-primary {
-    color: var(--primary);
-    font-weight: 700;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-outline-blue {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    color: var(--primary);
-    background-color: #eff6ff;
-    border: 1.5px solid #bfdbfe;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 13px;
-    text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.05);
-}
-
-.btn-outline-blue:hover {
-    background-color: var(--primary);
-    color: #ffffff;
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.25);
-}
-
-.btn-outline-blue i {
-    transition: transform 0.3s ease;
-}
-
-.btn-outline-blue:hover i {
-    transform: translateX(4px);
-}
-
-/* Container Utama Ringkasan Detail — see enhanced rules below */
-
-/* detail-header — see enhanced rules below */
-
-.header-content {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-/* Grid Konten Detail */
-.detail-content-grid {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    /* Membagi area foto dan area data */
-    gap: 24px;
-}
-
-/* profile-side — see enhanced rules below */
-
-.profile-photo {
-    width: 120px;
-    height: 120px;
-    background: #f8fafc;
-    border-radius: 20px;
-    margin: 0 auto 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Area Data Kanan */
-.info-side-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px 24px;
-    align-items: start;
-}
-.info-column .data-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px 24px;
-}
-
-/* info-column h4 — see enhanced rules below */
-
-.data-item {
-    margin-bottom: 8px;
-}
-
-.data-item label {
-    font-size: 10px;
-    color: #94a3b8;
-    display: block;
-}
-
-.data-item p {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.4;
-    color: #1e293b;
-}
-
-/* Old .health-cards and .h-card rules replaced by enhanced versions below */
-
-.medical-note {
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 10px;
-    font-style: italic;
-    font-size: 13px;
-    color: #64748b;
-    border-left: 4px solid #cbd5e1;
-}
-
-.aksi {
-    display: flex;
-    gap: 8px;
 }
 
 .btn-icon {
@@ -475,7 +116,6 @@
     border-radius: 8px;
     cursor: pointer;
     transition: 0.2s;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -485,11 +125,9 @@
     font-size: 16px;
     color: #374151;
 }
-
 .btn-icon:hover {
     background: #e5e7eb;
 }
-
 .view-btn:hover i {
     color: #2563eb;
 }
@@ -504,7 +142,7 @@
     cursor: pointer;
     border-radius: 4px;
     line-height: 1;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .edit-btn {
@@ -512,17 +150,10 @@
     border: 1px solid #0f766e;
     color: #0f766e;
 }
-
-.edit-btn i {
-    color: #0f766e;
-    transition: color 0.2s ease;
-}
-
 .edit-btn:hover {
     background: #0f766e;
     color: white;
 }
-
 .edit-btn:hover i {
     color: #fff;
 }
@@ -532,23 +163,500 @@
     border: 1px solid #fca5a5;
     color: #dc2626;
 }
-
-.delete-btn i {
-    color: #dc2626;
-    transition: color 0.2s ease;
-}
-
 .delete-btn:hover {
     background: #dc2626;
     color: white;
     border-color: #dc2626;
 }
-
 .delete-btn:hover i {
     color: #fff;
 }
 
-/* Modal Styling */
+.btn-outline-blue {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    color: var(--primary);
+    background-color: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+.btn-outline-blue:hover {
+    background-color: var(--primary);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.25);
+}
+
+/* ── 3. STAT CARDS (Grid disamakan dengan Obat) ─────────────── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px; /* Disamakan jaraknya jadi 16px */
+    flex-shrink: 0;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color); /* ← dulu */
+    border-left: 4px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+}
+.stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.stat-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+.stat-icon-fa {
+    font-size: 24px;
+    color: #cbd5e1;
+    opacity: 0.15;
+}
+
+/* ── 4. TABLE SECTION (CARD & WRAPPER) ──────────────────────── */
+.card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 20px; /* Padding card 20px spt obat */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.table-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+}
+
+.search-wrapper {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    max-width: 50%;
+}
+
+.search-wrapper input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    outline: none;
+    font-size: 14px;
+}
+
+/* KUNCI PERBAIKAN SCROLL: Mengunci tinggi agar tabel mandiri */
+.lansia-table-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 410px; /* Batas ini yg bikin scroll dalam tabel aktif */
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    width: 100%;
+    padding-bottom: 0px;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.custom-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 1px 0 #e5e7eb;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.custom-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    font-size: 13px;
+    color: var(--text-main);
+}
+
+.custom-table tbody tr {
+    transition: background 0.15s ease;
+}
+.custom-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.selectable-row:hover {
+    background: #f0f7ff !important;
+}
+.selectable-row.row-selected {
+    background: #eff6ff !important;
+    box-shadow: inset 4px 0 0 var(--primary);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+.user-name {
+    display: block;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.user-subtext {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+td.empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+}
+
+/* ── 5. BADGES & PILLS ──────────────────────────────────────── */
+.badge-pill {
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-block;
+}
+.badge-status.danger,
+.badge-status.high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+.badge-status.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+.badge-status.success {
+    background: #d1fae5;
+    color: #059669;
+}
+.badge-status.muted {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+.risk-normal {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+.risk-waspada {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+.risk-tinggi {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* ── 6. DETAIL PANEL ────────────────────────────────────────── */
+#detail-panel {
+    transition: opacity 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.detail-container {
+    padding: 32px;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.detail-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.detail-panel {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+}
+
+.profile-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    border-right: 1px solid #f1f5f9;
+    padding-right: 24px;
+}
+.profile-side h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    background: #f8fafc;
+    border-radius: 20px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-header {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+.panel-title-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+.icon-doc-bg {
+    width: 48px;
+    height: 48px;
+    background: #f8fafc;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.detail-content-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 24px;
+}
+.info-side-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px 24px;
+    align-items: start;
+}
+.info-column h4 {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+.info-column .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+}
+.data-item label {
+    font-size: 10px;
+    color: #94a3b8;
+    display: block;
+}
+.data-item p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.medical-note {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 10px;
+    font-style: italic;
+    font-size: 13px;
+    border-left: 4px solid #cbd5e1;
+}
+
+/* ── 7. HEALTH CARDS ────────────────────────────────────────── */
+.health-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.h-card {
+    padding: 16px 14px;
+    border-radius: 12px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s ease;
+}
+.h-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.h-card-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+.h-card-value {
+    font-size: 24px;
+    font-weight: 800;
+    display: block;
+    margin: 4px 0;
+    color: #1e293b;
+}
+
+.h-card.status-normal {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+.h-card.status-normal .h-card-value,
+.h-card.status-normal .h-card-label {
+    color: #059669;
+}
+.h-card.status-waspada {
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+.h-card.status-waspada .h-card-value,
+.h-card.status-waspada .h-card-label {
+    color: #d97706;
+}
+.h-card.status-tinggi {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+.h-card.status-tinggi .h-card-value,
+.h-card.status-tinggi .h-card-label {
+    color: #dc2626;
+}
+
+/* ── 8. PAGINATION & MODALS ─────────────────────────────────── */
+.pagination-wrapper {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+.pagination-wrapper nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+.pagination-wrapper nav > div:first-child {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+.pagination-wrapper nav > div:last-child {
+    display: flex !important;
+    gap: 4px !important;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.pagination-wrapper nav a,
+.pagination-wrapper nav span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: var(--text-main) !important;
+    text-decoration: none !important;
+}
+.pagination-wrapper nav span[aria-current="page"] {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
+} /* ============================================================
+   MODAL STYLING (Bersih & Bebas Bug Klik)
+   ============================================================ */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -556,10 +664,10 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    display: none;
+    display: none; /* Wajib none agar tidak menghalangi klik saat tertutup */
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -567,7 +675,6 @@
 .modal-overlay.active {
     display: flex;
     opacity: 1;
-    pointer-events: auto;
 }
 
 .modal-content {
@@ -575,48 +682,69 @@
     border-radius: 16px;
     width: 100%;
     max-width: 540px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 24px;
+    max-height: 90vh; /* Modal tidak akan melebihi tinggi layar */
+    display: flex;
+    flex-direction: column; /* Kunci agar Body bisa mengisi tengah */
+    padding: 0; /* Padding dinolkan agar Header & Footer menempel ke ujung */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transform: translateY(-20px);
     transition: transform 0.3s ease;
-    max-height: 90vh;
-    overflow-y: auto;
 }
 
 .modal-overlay.active .modal-content {
     transform: translateY(0);
 }
 
+/* ── HEADER (Tetap di Atas) ── */
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    padding: 20px 24px;
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* Mencegah header menyusut */
 }
 
 .modal-header h2 {
     font-size: 20px;
     color: var(--text-main);
     font-weight: 800;
+    margin: 0;
 }
 
 .btn-close-modal {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 26px;
     color: var(--text-muted);
     cursor: pointer;
     transition: color 0.2s;
+    padding: 0;
+    line-height: 1;
 }
 
 .btn-close-modal:hover {
     color: var(--danger);
 }
 
+/* ── BODY (Area Scroll) ── */
+.modal-body {
+    padding: 24px;
+    overflow-y: auto; /* Scroll vertikal hanya muncul di bagian form ini */
+    flex: 1; /* Mengisi seluruh sisa ruang di antara Header dan Footer */
+}
+
+/* ── FOOTER (Tetap di Bawah) ── */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 15px 24px 20px 24px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0; /* Mencegah footer menyusut */
+}
+
+/* Form Styles dalam Modal */
 .form-group {
     margin-bottom: 15px;
 }
@@ -639,6 +767,7 @@
     font-size: 14px;
     color: var(--text-main);
     outline: none;
+    box-sizing: border-box;
     transition: border-color 0.2s;
 }
 
@@ -646,15 +775,6 @@
 .form-group textarea:focus,
 .form-group select:focus {
     border-color: var(--primary);
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 25px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
 }
 
 .btn-secondary {
@@ -672,480 +792,32 @@
     background: #e2e8f0;
     color: #475569;
 }
-/* Tambahan untuk resources/css/cssAdmin/data_lansia.css */
-
-/* ── Row Hint ─────────────────────────────────────────── */
-.row-hint {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.row-hint i {
-    color: var(--primary);
-}
-
-/* selectable-row — see enhanced rules below */
-
-/* ── Badge Status Extra ───────────────────────────────── */
-.badge-status.high {
-    background: #fee2e2;
-    color: #dc2626;
-}
-.badge-status.warning {
-    background: #fef3c7;
-    color: #d97706;
-}
-.badge-status.success {
-    background: #d1fae5;
-    color: #059669;
-}
-.badge-status.muted {
-    background: #f1f5f9;
-    color: #64748b;
-}
-
-/* ── Detail Panel (hidden awal) ──────────────────────── */
-#detail-panel {
-    transition: opacity 0.3s ease;
-}
-
-/* ── Health Cards tambahan untuk panel detail ─────────── */
-.h-card.orange {
-    background: #fff7ed;
-    color: #ea580c;
-    border: 1px solid #fed7aa;
-}
-.h-card.purple {
-    background: #faf5ff;
-    color: #7c3aed;
-    border: 1px solid #ddd6fe;
-}
-
-/* ── Risk Badges (Tabel Data Lansia) ─────────────────── */
-.risk-badge {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    line-height: 1.4;
-}
-.risk-normal {
-    background: #ecfdf5;
-    color: #059669;
-    border: 1px solid #a7f3d0;
-}
-.risk-waspada {
-    background: #fffbeb;
-    color: #d97706;
-    border: 1px solid #fde68a;
-}
-.risk-tinggi {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-}
-
-/* ── Table refinements ───────────────────────────────── */
-.custom-table th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    padding: 14px 16px;
-    border-bottom: 2px solid var(--border-color);
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-.custom-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-    font-size: 13px;
-    color: var(--text-main);
-}
-.custom-table tbody tr {
-    transition:
-        background 0.15s ease,
-        box-shadow 0.15s ease;
-}
-.custom-table tbody tr:hover {
-    background: #f8fafc;
-}
-.selectable-row:hover {
-    background: #f0f7ff !important;
-}
-.selectable-row.row-selected {
-    background: #eff6ff !important;
-    box-shadow: inset 4px 0 0 var(--primary);
-}
-
-.main-text {
-    display: block;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--text-main);
-}
-.sub-text {
-    display: block;
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-}
-
-/* Health cards di detail: grid 2-3 kolom adaptif */
-.health-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-/* ── Health Card – Enhanced ──────────────────────────── */
-.h-card {
-    padding: 16px 14px;
-    border-radius: 12px;
-    text-align: center;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-.h-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-.h-card-label {
-    display: block;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    color: #94a3b8;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-}
-.h-card-value {
-    font-size: 24px;
-    font-weight: 800;
-    display: block;
-    margin: 4px 0;
-    color: #1e293b;
-    line-height: 1.2;
-}
-.h-card-unit {
-    font-size: 11px;
-    color: #94a3b8;
-    font-weight: 500;
-}
-
-/* Health card status colors (applied dynamically via JS) */
-.h-card.status-normal {
-    background: #ecfdf5;
-    border-color: #a7f3d0;
-}
-.h-card.status-normal .h-card-value {
-    color: #059669;
-}
-.h-card.status-normal .h-card-label {
-    color: #059669;
-}
-
-.h-card.status-waspada {
-    background: #fffbeb;
-    border-color: #fde68a;
-}
-.h-card.status-waspada .h-card-value {
-    color: #d97706;
-}
-.h-card.status-waspada .h-card-label {
-    color: #d97706;
-}
-
-.h-card.status-tinggi {
-    background: #fef2f2;
-    border-color: #fecaca;
-}
-.h-card.status-tinggi .h-card-value {
-    color: #dc2626;
-}
-.h-card.status-tinggi .h-card-label {
-    color: #dc2626;
-}
-
-/* ── Detail Panel Spacing ────────────────────────────── */
-.detail-container {
-    margin-top: 30px;
-    padding: 32px;
-}
-.detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 24px;
-    margin-bottom: 28px;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-.detail-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-.info-column h4 {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-    font-weight: 700;
-}
-.profile-side {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
-    border-right: 1px solid #f1f5f9;
-    padding-right: 24px;
-}
-.profile-side h2 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-main);
-    margin: 0;
-}
-.age-text {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-.status-pill {
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    background: #eff6ff;
-    color: var(--primary);
-    border: 1px solid #bfdbfe;
-}
-
-/* ── Alert ───────────────────────────────────────────── */
-.alert-error {
-    background: #ffebe9;
-    border: 1px solid rgba(255, 129, 130, 0.4);
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    color: #cf222e;
-    font-size: 14px;
-}
-.alert-success {
-    background: #d1fae5;
-    border: 1px solid #6ee7b7;
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    color: #065f46;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* ── Pagination ──────────────────────────────────────── */
-.pagination-wrapper {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-}
-
-/* Override Laravel Tailwind pagination — pastikan semua tombol konsisten */
-.pagination-wrapper nav {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-}
-
-/* Info teks "Showing X to Y of Z results" */
-.pagination-wrapper nav > div:first-child p,
-.pagination-wrapper nav > div:first-child {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-align: center;
-}
-
-/* Container tombol */
-.pagination-wrapper nav > div:last-child,
-.pagination-wrapper span[role="navigation"],
-.pagination-wrapper .flex {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-/* Semua elemen anchor & span dalam pagination */
-.pagination-wrapper nav a,
-.pagination-wrapper nav span {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 36px !important;
-    height: 36px !important;
-    padding: 0 10px !important;
-    border-radius: 8px !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    line-height: 1 !important;
-    text-decoration: none !important;
-    transition:
-        background 0.2s,
-        color 0.2s,
-        border-color 0.2s !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-    border: 1px solid #e2e8f0 !important;
-    background: #ffffff !important;
+/* Paksa warna teks nama menjadi gelap, meskipun di dalam tag <a> */
+.user-name,
+.user-name a,
+.obat-col-nama {
     color: var(--text-main) !important;
+    text-decoration: none; /* Menghilangkan garis bawah jika itu link */
 }
 
-/* Halaman aktif */
-.pagination-wrapper nav span[aria-current="page"],
-.pagination-wrapper nav span.font-bold,
-.pagination-wrapper nav a[aria-current="page"] {
-    background: var(--primary) !important;
-    color: #ffffff !important;
-    border-color: var(--primary) !important;
+/* Pastikan modal overlay visible dan bisa diklik */
+.modal-overlay.active {
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10000 !important;
 }
 
-/* Hover */
-.pagination-wrapper nav a:hover {
-    background: #f0f7ff !important;
-    border-color: var(--primary) !important;
-    color: var(--primary) !important;
+.modal-overlay.active .modal-content,
+.modal-overlay.active button,
+.modal-overlay.active .btn-close-modal,
+.modal-overlay.active .btn-secondary,
+.modal-overlay.active .btn-primary {
+    pointer-events: auto !important;
 }
 
-/* Disabled (dots / ellipsis / disabled prev-next) */
-.pagination-wrapper nav span[aria-disabled="true"],
-.pagination-wrapper nav span.cursor-default {
-    background: #f8fafc !important;
-    color: #cbd5e1 !important;
-    border-color: #f1f5f9 !important;
-    cursor: default !important;
+/* Pastikan loading overlay tidak mengganggu */
+#global-loading-overlay {
+    display: none !important;
     pointer-events: none !important;
-}
-
-/* SVG icon di tombol prev / next */
-.pagination-wrapper nav a svg,
-.pagination-wrapper nav span svg {
-    width: 14px !important;
-    height: 14px !important;
-    flex-shrink: 0 !important;
-}
-
-/* ── Empty state di tabel ────────────────────────────── */
-td.empty-state {
-    text-align: center;
-    padding: 32px;
-    color: var(--text-muted);
-}
-.big-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #4f46e5;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 24px;
-}
-
-/* ============================================================
-   LANSIA PAGE — Full-height flex layout (seperti Data Petugas)
-   ============================================================ */
-
-/* 1. Buat main-content tidak overflow saat di halaman lansia */
-body:has(.lansia-page) .main-content {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 0 !important;
-}
-
-/* 2. main.lansia-page mengisi tinggi penuh secara flex column */
-.lansia-page {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    height: 100%;
-    overflow: hidden;
-    box-sizing: border-box;
-}
-
-/* 3. .container di dalam lansia-page: flex column, isi sisa tinggi */
-.lansia-page > .container {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    padding: 24px 28px 20px;
-    box-sizing: border-box;
-}
-
-/* 4. Header & stats tidak boleh menyusut */
-.lansia-page .page-header,
-.lansia-page .stats-grid {
-    flex-shrink: 0;
-}
-
-/* 5. Kartu tabel mengisi semua sisa ruang secara dinamis */
-.lansia-page .table-container.card {
-    flex: 0 1 auto;
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 0;
-    /* Override max-height fixed yang lama */
-    max-height: none !important;
-}
-
-/* 6. Elemen statis di dalam kartu tidak boleh menyusut */
-.lansia-page .table-header-actions,
-.lansia-page .row-hint,
-.lansia-page .pagination-wrapper {
-    flex-shrink: 0;
-}
-
-/* 7. Scroll container langsung membungkus tabel */
-.lansia-table-scroll {
-    flex: 1;
-    overflow-x: auto;
-    overflow-y: auto;
-    min-height: 0;
-}
-
-/* sticky thead bekerja relatif ke .lansia-table-scroll */
-.lansia-table-scroll .custom-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #ffffff;
-    box-shadow: 0 1px 0 #f1f5f9;
-}
-
-/* min-width agar tabel tidak remuk saat layar sempit */
-.lansia-table-scroll .custom-table {
-    min-width: 860px;
 }

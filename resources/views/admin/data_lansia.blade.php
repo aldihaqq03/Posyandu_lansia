@@ -11,68 +11,47 @@
     <div class="lansia-page">
 
             {{-- ── HEADER ─────────────────────────────────────────────── --}}
-            <header class="page-header">
-                <div class="header-info">
-                    <nav class="breadcrumb" aria-label="Breadcrumb">
-                        <img class="icon" src="img/icon-2.svg" alt="">
-                        <img class="separator" src="img/icon-6.svg" alt="">
-                        <span class="text-muted">MANAJEMEN</span>
-                    </nav>
-                    <h1 class="page-title">Sekarang di Data Lansia</h1>
-                    <p class="page-subtitle">Pemantauan kesehatan & inventaris posyandu lansia</p>
-                </div>
-                <button class="btn-primary" type="button" id="btn-tambah-lansia">
-                    <img src="img/icon-10.svg" alt="">
-                    <span>Tambah Lansia</span>
-                </button>
-            </header>
+           <div class="page-header">
+    <div class="header-info">
+        <h1 class="page-title">Data Lansia</h1>
+        <p class="page-subtitle">Kelola data lansia yang terdaftar di posyandu beserta informasi kesehatannya.</p>
+    </div>
+    <button class="btn-primary" type="button" id="btn-tambah-lansia">
+        <i class="fa-solid fa-plus"></i>
+        <span>Tambah Lansia</span>
+    </button>
+</div>
 
 
             {{-- ── STATISTIK ───────────────────────────────────────────── --}}
             <section class="stats-grid" aria-label="Statistik Lansia">
                 <div class="stat-card border-primary">
-                <h2 class="stat-label text-primary">TOTAL LANSIA</h2>
+                    <span class="stat-label">TOTAL LANSIA</span>
                     <div class="stat-content">
-                         <div class="icon-wrapper">
-        <i class="fa-solid fa-users stat-icon-fa"></i>
-    </div>
-
-    <span class="stat-number color-primary">{{ $total_lansia ?? 0 }}</span>
-
-</div>
+                        <span class="stat-number color-primary">{{ $total_lansia ?? 0 }}</span>
+                        <i class="fa-solid fa-users stat-icon-fa color-primary"></i>
+                    </div>
                 </div>
                 <div class="stat-card border-success">
-                    <h2 class="stat-label text-success">KONDISI NORMAL</h2>
+                    <span class="stat-label">KONDISI NORMAL</span>
                     <div class="stat-content">
-                         <div class="icon-wrapper success">
-        <i class="fa-solid fa-heart-pulse stat-icon-fa color-success"></i>
-    </div>
-
-    <span class="stat-number color-success">{{ $kondisi_normal ?? 0 }}</span>
-
-</div>
+                        <span class="stat-number color-success">{{ $kondisi_normal ?? 0 }}</span>
+                        <i class="fa-solid fa-heart-pulse stat-icon-fa color-success"></i>
+                    </div>
                 </div>
                 <div class="stat-card border-warning">
-                    <h2 class="stat-label text-warning">WASPADA</h2>
+                    <span class="stat-label">WASPADA</span>
                     <div class="stat-content">
-                         <div class="icon-wrapper warning">
-        <i class="fa-solid fa-exclamation-circle stat-icon-fa color-warning"></i>
-    </div>
-
-    <span class="stat-number color-warning">{{ $waspada ?? 0 }}</span>
-
-</div>
+                        <span class="stat-number color-warning">{{ $waspada ?? 0 }}</span>
+                        <i class="fa-solid fa-exclamation-circle stat-icon-fa color-warning"></i>
+                    </div>
                 </div>
                 <div class="stat-card border-danger">
-                    <h2 class="stat-label text-danger">PERLU PERHATIAN</h2>
+                    <span class="stat-label">PERLU PERHATIAN</span>
                     <div class="stat-content">
-                        <div class="icon-wrapper danger">
-        <i class="fa-solid fa-triangle-exclamation stat-icon-fa color-danger"></i>
-    </div>
-
-    <span class="stat-number color-danger">{{ $perlu_perhatian ?? 0 }}</span>
-
-</div>
+                        <span class="stat-number color-danger">{{ $perlu_perhatian ?? 0 }}</span>
+                        <i class="fa-solid fa-triangle-exclamation stat-icon-fa color-danger"></i>
+                    </div>
                 </div>
             </section>
 

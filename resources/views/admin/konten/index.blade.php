@@ -4,486 +4,486 @@
 
 @push('styles')
 <style>
-    .konten-container {
-        padding: 2rem;
-        background: #f8fafc;
-        min-height: 100vh;
-    }
+/* ── Page ── */
+.konten-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
 
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
 
-    .page-title h1 {
-        font-size: 1.875rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
-    }
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 2px;
+}
 
-    .page-title p {
-        color: #64748b;
-        margin-top: 0.25rem;
-        margin-bottom: 0;
-    }
+.page-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
 
-    .btn-add {
-        background: #2563eb;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-        transition: all 0.2s;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-        white-space: nowrap;
-    }
+.btn-tambah {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 
-    .btn-add:hover {
-        background: #1d4ed8;
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-    }
+.btn-tambah:hover { background: #1d4ed8; color: #fff; }
 
-    .konten-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
+/* ── Seksi ── */
+.konten-seksi {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
 
-    .konten-card {
-        background: white;
-        border-radius: 1rem;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
-    }
+.seksi-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
 
-    .konten-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    }
+.seksi-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
 
-    /* Bagian media bisa diklik */
-    .card-media {
-        height: 180px;
-        background: #e2e8f0;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
+.seksi-icon.video    { background: #fef3c7; color: #d97706; }
+.seksi-icon.gambar   { background: #dbeafe; color: #2563eb; }
+.seksi-icon.artikel  { background: #dcfce7; color: #16a34a; }
 
-    .card-media img,
-    .card-media video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        pointer-events: none;
-    }
+.seksi-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
 
-    .card-media-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.25s;
-    }
+.seksi-count {
+    font-size: 11px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
 
-    .card-media:hover .card-media-overlay {
-        background: rgba(0,0,0,0.35);
-    }
+/* ── Grid ── */
+.konten-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+}
 
-    .card-media-overlay .overlay-icon {
-        color: white;
-        font-size: 2.5rem;
-        opacity: 0;
-        transform: scale(0.7);
-        transition: opacity 0.25s, transform 0.25s;
-        text-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
+/* ── Card ── */
+.konten-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
 
-    .card-media:hover .card-media-overlay .overlay-icon {
-        opacity: 1;
-        transform: scale(1);
-    }
+.konten-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
 
-    /* Badge play untuk video */
-    .video-play-badge {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 2.5rem;
-        text-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        pointer-events: none;
-    }
+.card-media {
+    height: 150px;
+    background: #f1f5f9;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
 
-    .card-badge {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        padding: 0.35rem 0.85rem;
-        border-radius: 0.75rem;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        pointer-events: none;
-        z-index: 2;
-    }
+.card-media img,
+.card-media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
 
-    .badge-fisioterapi { background: rgba(37,99,235,0.9); color: white; }
-    .badge-gizi        { background: rgba(22,163,74,0.9); color: white; }
-    .badge-senam       { background: rgba(234,179,8,0.9); color: white; }
-    .badge-ptm         { background: rgba(220,38,38,0.9); color: white; }
-    .badge-jiwa        { background: rgba(147,51,234,0.9); color: white; }
-    .badge-lainnya     { background: rgba(14,165,233,0.9); color: white; }
-    .badge-default     { background: rgba(100,116,139,0.9); color: white; }
+.card-media-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
 
-    /* Artikel placeholder */
-    .artikel-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        color: #2563eb;
-        cursor: pointer;
-    }
+.card-media:hover .card-media-overlay { background: rgba(0,0,0,0.3); }
 
-    .artikel-placeholder i { font-size: 3rem; opacity: 0.7; }
-    .artikel-placeholder span { font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
+.overlay-icon {
+    color: #fff;
+    font-size: 2rem;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s, transform 0.2s;
+}
 
-    .card-content {
-        padding: 1.5rem;
-        flex-grow: 1;
-    }
+.card-media:hover .overlay-icon { opacity: 1; transform: scale(1); }
 
-    .card-content h3 {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 0.75rem;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+.video-play-badge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 2rem;
+    background: rgba(0,0,0,0.18);
+    pointer-events: none;
+}
 
-    .card-content p {
-        color: #475569;
-        font-size: 0.875rem;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+.card-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    z-index: 2;
+}
 
-    .card-footer {
-        padding: 1rem 1.5rem;
-        background: #f8fafc;
-        border-top: 1px solid #f1f5f9;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+.badge-fisioterapi { background: rgba(37,99,235,0.88); color: #fff; }
+.badge-gizi        { background: rgba(22,163,74,0.88); color: #fff; }
+.badge-senam       { background: rgba(234,179,8,0.88); color: #fff; }
+.badge-ptm         { background: rgba(220,38,38,0.88); color: #fff; }
+.badge-jiwa        { background: rgba(147,51,234,0.88); color: #fff; }
+.badge-lainnya     { background: rgba(14,165,233,0.88); color: #fff; }
+.badge-default     { background: rgba(100,116,139,0.88); color: #fff; }
 
-    .card-actions { display: flex; gap: 0.5rem; }
+.artikel-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #2563eb;
+    cursor: pointer;
+}
 
-    .btn-icon {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.75rem;
-        transition: all 0.2s;
-        cursor: pointer;
-        border: none;
-        font-size: 0.9rem;
-    }
+.artikel-placeholder i { font-size: 2rem; opacity: 0.6; }
+.artikel-placeholder span { font-size: 10px; font-weight: 700; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
 
-    .btn-edit { background: #eff6ff; color: #2563eb; text-decoration: none; }
-    .btn-edit:hover { background: #2563eb; color: white; }
-    .btn-delete { background: #fff1f2; color: #e11d48; }
-    .btn-delete:hover { background: #e11d48; color: white; }
+.card-content {
+    padding: 12px 14px;
+    flex: 1;
+}
 
-    .empty-state {
-        text-align: center;
-        padding: 5rem 2rem;
-        background: white;
-        border-radius: 1.5rem;
-        grid-column: 1 / -1;
-        border: 2px dashed #e2e8f0;
-    }
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
 
-    /* ===================== MODAL ===================== */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.7);
-        backdrop-filter: blur(6px);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-    }
+.card-tipe {
+    padding: 2px 6px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
 
-    .modal-overlay.active { display: flex; }
+.card-time {
+    font-size: 11px;
+    color: #9ca3af;
+}
 
-    .modal-box {
-        background: white;
-        border-radius: 1.25rem;
-        width: 100%;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-        animation: modalIn 0.25s ease;
-    }
+.card-judul {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
 
-    @keyframes modalIn {
-        from { opacity: 0; transform: scale(0.93) translateY(20px); }
-        to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
+.card-desc {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
 
-    .modal-header {
-        padding: 1.5rem 1.5rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 10;
-        border-radius: 1.25rem 1.25rem 0 0;
-    }
+.card-footer {
+    padding: 8px 14px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafafa;
+}
 
-    .modal-header h2 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin: 0;
-        line-height: 1.4;
-    }
+.card-date { font-size: 11px; color: #9ca3af; }
 
-    .modal-close {
-        background: #f1f5f9;
-        border: none;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #64748b;
-        flex-shrink: 0;
-        font-size: 1rem;
-        transition: all 0.2s;
-    }
+.card-actions { display: flex; gap: 6px; }
 
-    .modal-close:hover { background: #e11d48; color: white; }
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+    text-decoration: none;
+}
 
-    .modal-body { padding: 1.5rem; }
+.btn-edit   { background: #eff6ff; color: #2563eb; }
+.btn-edit:hover { background: #2563eb; color: #fff; }
+.btn-delete { background: #fff1f2; color: #e11d48; }
+.btn-delete:hover { background: #e11d48; color: #fff; }
 
-    .modal-body img {
-        width: 100%;
-        border-radius: 0.75rem;
-        max-height: 500px;
-        object-fit: contain;
-        background: #f8fafc;
-    }
+/* ── Empty state ── */
+.seksi-empty {
+    padding: 24px;
+    text-align: center;
+    background: #f9fafb;
+    border: 1px dashed #e5e7eb;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #9ca3af;
+}
 
-    .modal-body video {
-        width: 100%;
-        border-radius: 0.75rem;
-        max-height: 450px;
-        background: #000;
-    }
+/* ── Modal ── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
 
-    .modal-meta {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-    }
+.modal-overlay.active { display: flex; }
 
-    .modal-meta span {
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
+.modal-box {
+    background: #fff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    animation: modalIn 0.22s ease;
+}
 
-    .meta-tipe { background: #f1f5f9; color: #475569; }
-    .meta-kategori { background: #eff6ff; color: #2563eb; }
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
 
-    .modal-deskripsi {
-        margin-top: 1rem;
-        color: #334155;
-        font-size: 0.9rem;
-        line-height: 1.8;
-        border-top: 1px solid #f1f5f9;
-        padding-top: 1rem;
-    }
+.modal-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+    border-radius: 14px 14px 0 0;
+}
 
-    /* CKEditor content styling di modal */
-    .ck-content-preview h1, .ck-content-preview h2, .ck-content-preview h3 {
-        font-weight: 700; color: #0f172a; margin: 1rem 0 0.5rem;
-    }
-    .ck-content-preview h1 { font-size: 1.5rem; }
-    .ck-content-preview h2 { font-size: 1.25rem; }
-    .ck-content-preview h3 { font-size: 1.1rem; }
-    .ck-content-preview p  { margin-bottom: 0.75rem; }
-    .ck-content-preview ul, .ck-content-preview ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
-    .ck-content-preview strong { font-weight: 700; }
-    .ck-content-preview em { font-style: italic; }
-    .ck-content-preview a { color: #2563eb; }
-    .ck-content-preview blockquote {
-        border-left: 4px solid #2563eb;
-        padding: 0.5rem 1rem;
-        background: #f0f7ff;
-        border-radius: 0 0.5rem 0.5rem 0;
-        margin: 0.75rem 0;
-    }
+.modal-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; }
+
+.modal-close {
+    background: #f1f5f9;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 13px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.modal-close:hover { background: #e11d48; color: #fff; }
+
+.modal-body {
+    padding: 16px 18px;
+}
+
+.modal-body img { width: 100%; border-radius: 8px; max-height: 420px; object-fit: contain; background: #f8fafc; }
+.modal-body video { width: 100%; border-radius: 8px; max-height: 380px; background: #000; }
+
+.modal-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.modal-meta span { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.meta-tipe     { background: #f1f5f9; color: #475569; }
+.meta-kategori { background: #eff6ff; color: #2563eb; }
+
+.modal-deskripsi {
+    margin-top: 10px;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.7;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+}
+
+.ck-content-preview h1, .ck-content-preview h2, .ck-content-preview h3 { font-weight: 700; color: #0f172a; margin: 12px 0 6px; }
+.ck-content-preview h1 { font-size: 18px; }
+.ck-content-preview h2 { font-size: 15px; }
+.ck-content-preview h3 { font-size: 13px; }
+.ck-content-preview p  { margin-bottom: 8px; }
+.ck-content-preview ul, .ck-content-preview ol { padding-left: 20px; margin-bottom: 8px; }
+.ck-content-preview strong { font-weight: 700; }
+.ck-content-preview em { font-style: italic; }
+.ck-content-preview a { color: #2563eb; }
+.ck-content-preview blockquote { border-left: 3px solid #2563eb; padding: 6px 12px; background: #f0f7ff; border-radius: 0 6px 6px 0; margin: 8px 0; }
 </style>
 @endpush
 
 @section('content')
-<div class="konten-container">
+@php
+    $categories = [1=>'Fisioterapi', 2=>'Gizi', 3=>'Senam', 4=>'Edukasi PTM', 5=>'Jiwa', 6=>'Lainnya'];
+    $catClasses = [1=>'badge-fisioterapi', 2=>'badge-gizi', 3=>'badge-senam', 4=>'badge-ptm', 5=>'badge-jiwa', 6=>'badge-lainnya'];
+
+    $videos   = $konten->filter(fn($k) => (int)$k->tipe_konten === 1);
+    $gambar   = $konten->filter(fn($k) => (int)$k->tipe_konten === 2);
+    $artikel  = $konten->filter(fn($k) => (int)$k->tipe_konten === 3);
+@endphp
+
+<div class="konten-page">
+
+    {{-- Header --}}
     <div class="page-header">
-        <div class="page-title">
-            <h1>Manajemen Konten</h1>
-            <p>Kelola konten edukasi, video senam, dan informasi gizi untuk lansia.</p>
+        <div>
+            <h1 class="page-title">Manajemen Konten</h1>
+            <p class="page-subtitle">Kelola konten edukasi, video senam, dan informasi gizi untuk lansia.</p>
         </div>
-        <a href="{{ route('konten.create') }}" class="btn-add">
-            <i class="fa-solid fa-plus"></i>
-            Tambah Konten
+        <a href="{{ route('konten.create') }}" class="btn-tambah">
+            <i class="fa-solid fa-plus"></i> Tambah Konten
         </a>
     </div>
 
     @if(session('success'))
-        <div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:0.875rem 1.25rem; border-radius:0.75rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:10px 14px; border-radius:8px; font-size:13px; display:flex; align-items:center; gap:8px;">
             <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
         </div>
     @endif
 
-    <div class="konten-grid">
-        @php
-            $categories = [1=>'Fisioterapi', 2=>'Gizi', 3=>'Senam', 4=>'Edukasi PTM', 5=>'Jiwa', 6=>'Lainnya'];
-            $types      = [1=>'Video', 2=>'Gambar', 3=>'Artikel'];
-            $catClasses = [1=>'badge-fisioterapi', 2=>'badge-gizi', 3=>'badge-senam', 4=>'badge-ptm', 5=>'badge-jiwa', 6=>'badge-lainnya'];
-        @endphp
-
-        @forelse($konten as $item)
-            <div class="konten-card">
-                {{-- Media area: klik buka modal --}}
-                <div class="card-media" onclick="openModal({{ $item->id_konten }})">
-                    @if($item->gambar)
-                        <img src="{{ asset('storage/' . $item->gambar) }}" alt="{{ $item->judul }}">
-                        <div class="card-media-overlay">
-                            <i class="fa-solid fa-magnifying-glass-plus overlay-icon"></i>
-                        </div>
-                    @elseif($item->video)
-                        <video src="{{ asset('storage/' . $item->video) }}" muted preload="metadata"></video>
-                        <div class="video-play-badge">
-                            <i class="fa-solid fa-circle-play"></i>
-                        </div>
-                        <div class="card-media-overlay">
-                            <i class="fa-solid fa-play overlay-icon"></i>
-                        </div>
-                    @elseif((int)$item->tipe_konten === 3)
-                        <div class="artikel-placeholder">
-                            <i class="fa-solid fa-file-lines"></i>
-                            <span>Artikel</span>
-                        </div>
-                        <div class="card-media-overlay">
-                            <i class="fa-solid fa-book-open overlay-icon"></i>
-                        </div>
-                    @else
-                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 100%); color:#94a3b8;">
-                            <i class="fa-solid fa-file-lines fa-4x" style="opacity:0.5;"></i>
-                        </div>
-                    @endif
-
-                    <div class="card-badge {{ $catClasses[$item->kategori_konten] ?? 'badge-default' }}">
-                        {{ $categories[$item->kategori_konten] ?? 'Lainnya' }}
-                    </div>
-                </div>
-
-                <div class="card-content">
-                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-                        <span style="padding:0.2rem 0.5rem; background:#f1f5f9; border-radius:4px; font-size:0.65rem; color:#64748b; font-weight:800; text-transform:uppercase;">
-                            {{ $types[$item->tipe_konten] ?? 'Konten' }}
-                        </span>
-                        <span style="font-size:0.75rem; color:#94a3b8;">
-                            <i class="fa-regular fa-clock"></i>
-                            {{ $item->created_at ? $item->created_at->diffForHumans() : '-' }}
-                        </span>
-                    </div>
-                    <h3>{{ $item->judul }}</h3>
-                    <p>{{ $item->deskripsi ? strip_tags($item->deskripsi) : '-' }}</p>
-                </div>
-
-                <div class="card-footer">
-                    <span style="font-size:0.75rem; color:#64748b; font-weight:500;">
-                        <i class="fa-regular fa-calendar-alt"></i>
-                        {{ $item->created_at ? $item->created_at->format('d M Y') : '-' }}
-                    </span>
-                    <div class="card-actions">
-                        <a href="{{ route('konten.edit', $item->id_konten) }}" class="btn-icon btn-edit" title="Edit">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
-                        <form action="{{ route('konten.destroy', $item->id_konten) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus konten ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-icon btn-delete" title="Hapus">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
+    {{-- ── SEKSI VIDEO ── --}}
+    <div class="konten-seksi">
+        <div class="seksi-header">
+            <div class="seksi-icon video"><i class="fa-solid fa-play"></i></div>
+            <span class="seksi-title">Video</span>
+            <span class="seksi-count">{{ $videos->count() }}</span>
+        </div>
+        @if($videos->isEmpty())
+            <div class="seksi-empty">Belum ada konten video.</div>
+        @else
+            <div class="konten-grid">
+                @foreach($videos as $item)
+                    @include('admin.konten._card', ['item' => $item, 'categories' => $categories, 'catClasses' => $catClasses])
+                @endforeach
             </div>
-        @empty
-            <div class="empty-state">
-                <i class="fa-solid fa-box-open" style="font-size:5rem; color:#e2e8f0;"></i>
-                <h2 style="font-weight:700; color:#1e293b; margin:1rem 0 0.5rem;">Konten Masih Kosong</h2>
-                <p style="color:#64748b; margin-bottom:2rem;">Belum ada konten edukasi yang ditambahkan ke sistem.</p>
-                <a href="{{ route('konten.create') }}" class="btn-add" style="display:inline-flex; width:auto;">
-                    <i class="fa-solid fa-plus"></i> Tambah Sekarang
-                </a>
-            </div>
-        @endforelse
+        @endif
     </div>
+
+    {{-- ── SEKSI GAMBAR ── --}}
+    <div class="konten-seksi">
+        <div class="seksi-header">
+            <div class="seksi-icon gambar"><i class="fa-solid fa-image"></i></div>
+            <span class="seksi-title">Gambar</span>
+            <span class="seksi-count">{{ $gambar->count() }}</span>
+        </div>
+        @if($gambar->isEmpty())
+            <div class="seksi-empty">Belum ada konten gambar.</div>
+        @else
+            <div class="konten-grid">
+                @foreach($gambar as $item)
+                    @include('admin.konten._card', ['item' => $item, 'categories' => $categories, 'catClasses' => $catClasses])
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- ── SEKSI ARTIKEL ── --}}
+    <div class="konten-seksi">
+        <div class="seksi-header">
+            <div class="seksi-icon artikel"><i class="fa-solid fa-file-lines"></i></div>
+            <span class="seksi-title">Artikel</span>
+            <span class="seksi-count">{{ $artikel->count() }}</span>
+        </div>
+        @if($artikel->isEmpty())
+            <div class="seksi-empty">Belum ada konten artikel.</div>
+        @else
+            <div class="konten-grid">
+                @foreach($artikel as $item)
+                    @include('admin.konten._card', ['item' => $item, 'categories' => $categories, 'catClasses' => $catClasses])
+                @endforeach
+            </div>
+        @endif
+    </div>
+
 </div>
 
-{{-- ==================== MODAL PREVIEW ==================== --}}
+{{-- Modal Preview --}}
 <div class="modal-overlay" id="previewModal" onclick="closeModalOutside(event)">
     <div class="modal-box" id="modalBox">
         <div class="modal-header">
@@ -492,64 +492,44 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="modal-body" id="modalBody">
-            {{-- Diisi oleh JS --}}
-        </div>
+        <div class="modal-body" id="modalBody"></div>
     </div>
 </div>
 
-{{-- Data konten untuk modal (JSON) --}}
 <script>
-    const kontenData = @json($kontenJson);
+const kontenData = @json($kontenJson);
+const categories = { 1:'Fisioterapi', 2:'Gizi', 3:'Senam', 4:'Edukasi PTM', 5:'Jiwa', 6:'Lainnya' };
+const types      = { 1:'Video', 2:'Gambar', 3:'Artikel' };
 
-    const categories = { 1:'Fisioterapi', 2:'Gizi', 3:'Senam', 4:'Edukasi PTM', 5:'Jiwa', 6:'Lainnya' };
-    const types      = { 1:'Video', 2:'Gambar', 3:'Artikel' };
-
-    function openModal(id) {
-        const item = kontenData.find(k => k.id === id);
-        if (!item) return;
-
-        document.getElementById('modalTitle').textContent = item.judul;
-
-        let mediaHtml = '';
-        if (item.tipe == 2 && item.gambar_url) {
-            mediaHtml = `<img src="${item.gambar_url}" alt="${item.judul}">`;
-        } else if (item.tipe == 1 && item.video_url) {
-            mediaHtml = `<video src="${item.video_url}" controls autoplay muted style="width:100%;border-radius:0.75rem;max-height:450px;background:#000;"></video>`;
-        }
-
-        let deskripsiHtml = '';
-        if (item.deskripsi) {
-            if (item.tipe == 3) {
-                // Artikel: render HTML dari CKEditor
-                deskripsiHtml = `<div class="modal-deskripsi ck-content-preview">${item.deskripsi}</div>`;
-            } else {
-                deskripsiHtml = `<div class="modal-deskripsi">${item.deskripsi.replace(/</g,'&lt;')}</div>`;
-            }
-        }
-
-        const metaHtml = `
-            <div class="modal-meta" style="margin-bottom:1rem;">
-                <span class="meta-tipe">${types[item.tipe] ?? 'Konten'}</span>
-                <span class="meta-kategori">${categories[item.kategori] ?? 'Lainnya'}</span>
-            </div>
-        `;
-
-        document.getElementById('modalBody').innerHTML = metaHtml + mediaHtml + deskripsiHtml;
-        document.getElementById('previewModal').classList.add('active');
-        document.body.style.overflow = 'hidden';
+function openModal(id) {
+    const item = kontenData.find(k => k.id === id);
+    if (!item) return;
+    document.getElementById('modalTitle').textContent = item.judul;
+    let mediaHtml = '';
+    if (item.tipe == 2 && item.gambar_url) {
+        mediaHtml = `<img src="${item.gambar_url}" alt="${item.judul}">`;
+    } else if (item.tipe == 1 && item.video_url) {
+        mediaHtml = `<video src="${item.video_url}" controls autoplay muted></video>`;
     }
+    let deskripsiHtml = item.deskripsi
+        ? `<div class="modal-deskripsi ${item.tipe == 3 ? 'ck-content-preview' : ''}">${item.tipe == 3 ? item.deskripsi : item.deskripsi.replace(/</g,'&lt;')}</div>`
+        : '';
+    const metaHtml = `<div class="modal-meta"><span class="meta-tipe">${types[item.tipe] ?? 'Konten'}</span><span class="meta-kategori">${categories[item.kategori] ?? 'Lainnya'}</span></div>`;
+    document.getElementById('modalBody').innerHTML = metaHtml + mediaHtml + deskripsiHtml;
+    document.getElementById('previewModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
-    function closeModal() {
-        document.getElementById('previewModal').classList.remove('active');
-        document.getElementById('modalBody').innerHTML = '';
-        document.body.style.overflow = '';
-    }
+function closeModal() {
+    document.getElementById('previewModal').classList.remove('active');
+    document.getElementById('modalBody').innerHTML = '';
+    document.body.style.overflow = '';
+}
 
-    function closeModalOutside(e) {
-        if (e.target === document.getElementById('previewModal')) closeModal();
-    }
+function closeModalOutside(e) {
+    if (e.target === document.getElementById('previewModal')) closeModal();
+}
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 @endsection

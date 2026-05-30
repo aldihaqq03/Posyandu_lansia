@@ -1,9 +1,12 @@
 /* resources/css/cssAdmin/monitoring.css */
-
+.main-content > .container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+}
 .monitoring-wrap {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 28px 32px 60px;
 }
 
 /* ── Header ── */

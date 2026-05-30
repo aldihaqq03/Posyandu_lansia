@@ -19,9 +19,9 @@
 
 <div class="page-header">
 
-    <div>
-        <h1>Sekarang di Data Petugas</h1>
-        <p>Pemantauan kesehatan & inventaris posyandu lansia</p>
+    <div class="header-left">
+        <h1 class="page-title">Data Petugas</h1>
+        <p class="page-subtitle">Kelola data seluruh petugas posyandu yang terdaftar dalam sistem.</p>
     </div>
 
     <button type="button" class="btn-primary" id="btn-tambah-petugas">
@@ -33,58 +33,57 @@
 
 <!-- CARD STATISTIK -->
 
-<div class="stats-container">
+<div class="stats-grid">
 
-    <div class="stat-card">
-        <div class="stat-icon blue">
-            <i class="fa fa-users"></i>
-        </div>
-
-        <div>
-            <p class="stat-title">TOTAL</p>
-            <h2>{{ $total }}</h2>
-            <span>Petugas Terdaftar</span>
+    <div class="stat-card border-primary">
+        <span class="stat-label">TOTAL PETUGAS</span>
+        <div class="stat-content">
+            <span class="stat-number">{{ $total }}</span>
+            <i class="fa fa-users stat-icon-fa color-primary"></i>
         </div>
     </div>
 
 
-    <div class="stat-card">
-        <div class="stat-icon green">
-            <i class="fa fa-check"></i>
-        </div>
-
-        <div>
-            <p class="stat-title">AKTIF</p>
-            <h2>{{ $aktif }}</h2>
-            <span>Status Aktif</span>
+    <div class="stat-card border-success">
+        <span class="stat-label">AKTIF</span>
+        <div class="stat-content">
+            <span class="stat-number color-success">{{ $aktif }}</span>
+            <i class="fa fa-check-circle stat-icon-fa color-success"></i>
         </div>
     </div>
 
 
-    <div class="stat-card">
-        <div class="stat-icon orange">
-            <i class="fa fa-clock"></i>
-        </div>
-
-        <div>
-            <p class="stat-title">PENDING</p>
-            <h2>{{ $pending }}</h2>
-            <span>Menunggu Persetujuan</span>
+    <div class="stat-card border-warning">
+        <span class="stat-label">PENDING</span>
+        <div class="stat-content">
+            <span class="stat-number color-warning">{{ $pending }}</span>
+            <i class="fa fa-clock stat-icon-fa color-warning"></i>
         </div>
     </div>
 
 </div>
 
-
-
 <!-- TABEL PETUGAS -->
 
 <div class="table-container">
+  <div class="table-header-actions">
 
-    <div class="table-header">
-        <h3>Daftar Seluruh Petugas</h3>
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+                type="text"
+                id="searchPetugas"
+                placeholder="Cari nama petugas..."
+            >
+        </div>
+
+        <select id="filterStatus" class="filter-select">
+            <option value="">Semua Status</option>
+            <option value="aktif">Aktif</option>
+            <option value="pending">Pending</option>
+        </select>
+
     </div>
-
     <div class="table-scroll">
     <table class="table">
 
@@ -99,11 +98,14 @@
 
         <tbody>
 
-        @forelse($petugas as $p)
+       @forelse($petugas as $p)
 
-            <tr>
+<tr
+    data-nama="{{ strtolower($p->nama) }}"
+    data-status="{{ strtolower($p->status) }}"
+>
 
-                <td class="user-cell">
+    <td class="user-cell">
 
                     @php
                         $petugasName = trim($p->nama ?? 'Petugas');

@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
 }
 
 html,
@@ -10,13 +10,17 @@ body {
     margin: 0;
     padding: 0;
     width: 100%;
+    min-height: 100vh;
+    /* Allow page to scroll — previously set to hidden which disables scrolling */
+    overflow: visible;
     height: 100%;
-    overflow: hidden;
 }
 
 body {
     display: flex;
     background: #f8fafc;
+    min-height: 100vh; /* tambahkan */
+    align-items: stretch;
 }
 
 .sidebar {
@@ -26,9 +30,7 @@ body {
     left: 0;
     top: 0;
 
-    background: linear-gradient(180deg,
-            #0c1835 25%,
-            #3b82f6 75%);
+    background: linear-gradient(180deg, #0c1835 25%, #3b82f6 75%);
 
     border-right: 1px solid rgba(255, 255, 255, 0.06);
 
@@ -37,7 +39,7 @@ body {
 
     padding: 20px 16px;
 
-    transition: .3s ease;
+    transition: 0.3s ease;
 
     z-index: 999;
 
@@ -73,9 +75,7 @@ body {
     height: 52px;
     border-radius: 16px;
 
-    background: linear-gradient(135deg,
-            #2563eb,
-            #3b82f6);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
 
     display: flex;
     align-items: center;
@@ -83,8 +83,7 @@ body {
 
     padding: 10px;
 
-    box-shadow:
-        0 10px 25px rgba(37, 99, 235, .35);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
 }
 
 .brand-name {
@@ -137,7 +136,7 @@ body {
 
     margin-bottom: 8px;
 
-    transition: .25s ease;
+    transition: 0.25s ease;
 
     font-weight: 500;
 }
@@ -156,14 +155,11 @@ body {
 }
 
 .nav-item.active {
-    background: linear-gradient(135deg,
-            #2563eb,
-            #3b82f6);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
 
     color: white;
 
-    box-shadow:
-        0 10px 25px rgba(37, 99, 235, .35);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
 }
 
 .nav-section-title {
@@ -279,14 +275,23 @@ body {
 .main-content {
     margin-left: 280px;
     width: calc(100% - 280px);
-
+    padding: 24px 28px 20px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    overflow-x: hidden;
     transition:
-        margin-left .3s ease,
-        width .3s ease;
+        margin-left 0.3s ease,
+        width 0.3s ease;
+}
+
+/* Allow per-page content to use their own top-level page class, but keep horizontal spacing consistent */
+/* Remove forced centering so pages use full width with consistent padding */
+.main-content > * {
+    box-sizing: border-box;
 }
 
 /* SAAT SIDEBAR COLLAPSE */
-.sidebar.collapsed~.main-content {
+.sidebar.collapsed ~ .main-content {
     margin-left: 85px;
     width: calc(100% - 85px);
 }
@@ -361,7 +366,9 @@ body {
     border-radius: 16px;
     padding: 30px;
     text-align: center;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
     transform: translateY(20px);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -475,7 +482,7 @@ body {
 
     cursor: pointer;
 
-    transition: .2s ease;
+    transition: 0.2s ease;
 }
 
 .sidebar-toggle:hover {
@@ -550,4 +557,12 @@ body {
     border-radius: 10px !important;
 
     font-size: 13px !important;
+}
+.sidebar-nav::-webkit-scrollbar {
+    width: 0; /* ← sembunyikan scrollbar sepenuhnya */
+    display: none;
+}
+
+.sidebar-nav {
+    scrollbar-width: none; /* ← untuk Firefox */
 }

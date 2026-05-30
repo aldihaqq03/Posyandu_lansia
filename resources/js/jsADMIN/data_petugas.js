@@ -306,3 +306,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+const searchInput = document.getElementById("searchPetugas");
+const filterStatus = document.getElementById("filterStatus");
+
+function filterPetugas() {
+    const keyword = searchInput.value.toLowerCase();
+    const status = filterStatus.value.toLowerCase();
+
+    document.querySelectorAll(".table tbody tr").forEach((row) => {
+        const nama = row.dataset.nama || "";
+        const rowStatus = row.dataset.status || "";
+
+        const cocokNama = nama.includes(keyword);
+        const cocokStatus = status === "" || rowStatus === status;
+
+        row.style.display = cocokNama && cocokStatus ? "" : "none";
+    });
+}
+
+searchInput?.addEventListener("input", filterPetugas);
+filterStatus?.addEventListener("change", filterPetugas);

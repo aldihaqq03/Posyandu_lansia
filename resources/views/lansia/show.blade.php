@@ -9,7 +9,7 @@
 @section('title', 'Histori Skrining – ' . $lansia->nama_lansia)
 
 @section('content')
-    <div class="lansia-show-page" style="padding: 24px 28px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; width: 100%;">
+    <div class="lansia-show-page" style="box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; width: 100%;">
 
             {{-- BREADCRUMB & HEADER --}}
             <header class="page-header">

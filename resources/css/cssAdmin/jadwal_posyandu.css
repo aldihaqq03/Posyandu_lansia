@@ -18,9 +18,9 @@
     --text: #1f2937;
     --text-mid: #374151;
     --text-light: #6b7280;
-    --border: #dbeafe;
+    --border: #e2e8f0;
     --white: #ffffff;
-    --bg: #f0faf6;
+    --bg: #f8fafc;
     --shadow: 0 2px 16px #3b82f614;
     --shadow-md: 0 6px 28px #3b82f626;
     font-family:
@@ -97,7 +97,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 24px;
+    margin-bottom: 0;
 }
 
 .breadcrumb {

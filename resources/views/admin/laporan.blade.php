@@ -3,877 +3,637 @@
 @push('styles')
 @vite('resources/css/cssAdmin/dashboard.css')
 <style>
-    .badge-normal{
-background:#dcfce7;
-color:#16a34a;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:600;
+/* ── Stat Cards ── */
+.laporan-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    flex-shrink: 0;
 }
 
-.badge-warning{
-background:#fef3c7;
-color:#d97706;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:600;
+/* ── Card pembungkus filter + tabel (seperti jadwal) ── */
+.laporan-main-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
-.badge-danger{
-background:#fee2e2;
-color:#dc2626;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:600;
+.laporan-filter-bar {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fefefe;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
 }
 
-    .filter-tabs {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-
-    .filter-btn {
-        background-color: white;
-        color: var(--text-muted);
-        border: 1px solid #e2e8f0;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .filter-btn.active{
-    background:#2563eb;
-    color:white;
-    border-color:#2563eb;
+.laporan-filter-bar label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    white-space: nowrap;
 }
 
-    /* CSS BARU TARUH SINI */
-    .laporan-table{
-        width:100%;
-        border-collapse: collapse;
-    }
-
-    .laporan-table thead{
-        background:#f8fafc;
-    }
-
-    .laporan-table th{
-        padding:14px;
-        font-size:13px;
-        font-weight:700;
-        color:#475569;
-        border-bottom:1px solid #e2e8f0;
-        text-align:left;
-    }
-
-    .laporan-table td{
-        padding:14px;
-        border-bottom:1px solid #f1f5f9;
-        font-size:14px;
-        color:#334155;
-    }
-
-    .laporan-table tr:hover{
-        background:#f8fafc;
-    }
-
-    .badge-hadir{
-        background:#dcfce7;
-        color:#16a34a;
-        padding:6px 12px;
-        border-radius:999px;
-        font-size:12px;
-        font-weight:600;
-    }
-
-    .table-responsive{
-        overflow-x:auto;
-    }
-    .filter-laporan-card{
-background:#ffffff;
-border:1px solid #e2e8f0;
-border-radius:24px;
-padding:24px;
-margin-bottom:24px;
+.laporan-filter-select {
+    padding: 7px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fff;
+    outline: none;
+    color: #1e293b;
+    cursor: pointer;
 }
 
-.filter-title{
-font-size:14px;
-font-weight:700;
-letter-spacing:1px;
-color:#64748b;
-margin-bottom:24px;
+.laporan-filter-select:focus {
+    border-color: #3b82f6;
 }
 
-.filter-grid{
-display:grid;
-grid-template-columns: 1fr 1fr 320px;
-gap:20px;
-align-items:end;
+.laporan-table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
-.filter-group{
-display:flex;
-flex-direction:column;
-gap:10px;
+/* ── Tabel style sama dengan custom-table data lansia ── */
+.laporan-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.filter-group label{
-font-size:15px;
-font-weight:600;
-color:#0f172a;
+.laporan-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 0 1px 0 #e5e7eb;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    padding: 14px 16px;
+    border-bottom: 2px solid #f1f5f9;
+    white-space: nowrap;
 }
 
-.filter-input{
-width:100%;
-height:52px;
-border:1px solid #dbe2ea;
-border-radius:14px;
-padding:0 16px;
-font-size:15px;
-outline:none;
-background:#f8fafc;
+.laporan-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 13px;
+    color: #1e293b;
 }
 
-.filter-input:focus{
-border-color:#3b82f6;
-background:#fff;
+.laporan-table tbody tr {
+    transition: background 0.15s ease;
 }
 
-.export-btn{
-height:52px;
-border:none;
-border-radius:14px;
-background:#2563eb;
-color:white;
-font-weight:600;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
-transition:.2s;
+.laporan-table tbody tr:hover {
+    background: #f8fafc;
 }
 
-.export-btn:hover{
-background:#1d4ed8;
+/* ── Aksi tombol ── */
+.laporan-aksi-wrap {
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
-    .modal-detail{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(15,23,42,0.55);
-z-index:999;
-justify-content:center;
-align-items:center;
-backdrop-filter: blur(4px);
-padding:20px;
+.laporan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity 0.15s;
+    text-decoration: none;
+    line-height: 1;
 }
 
-.modal-detail-content{
-width:100%;
-max-width:520px;
-background:#ffffff;
-border-radius:24px;
-padding:24px;
-box-shadow:0 25px 50px rgba(0,0,0,0.15);
-animation: modalFade .25s ease;
+.laporan-btn:hover { opacity: 0.82; }
 
-/* tambahan */
-max-height:90vh;
-overflow-y:auto;
+.laporan-btn-detail {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
 }
 
-.modal-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:24px;
+.laporan-btn-export {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
 }
 
-.modal-header h3{
-font-size:22px;
-font-weight:700;
-color:#0f172a;
+/* ── Badge ── */
+.badge-normal { background:#dcfce7; color:#16a34a; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+.badge-warning { background:#fef3c7; color:#d97706; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+.badge-danger  { background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+.badge-hadir   { background:#dcfce7; color:#16a34a; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+
+/* ── Layout halaman ── */
+body:has(.laporan-page) .main-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.close-modal{
-position:absolute;
-top:16px;
-right:16px;
-width:38px;
-height:38px;
-border:none;
-border-radius:12px;
-background:#f1f5f9;
-cursor:pointer;
-font-size:22px;
-display:flex;
-align-items:center;
-justify-content:center;
-transition:.2s;
+.laporan-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    gap: 20px;
 }
 
-.close-modal:hover{
-background:#e2e8f0;
+/* ── Modal ── */
+.modal-detail {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+    padding: 20px;
 }
 
-.modal-body{
-display:flex;
-flex-direction:column;
-gap:10px;
+.modal-detail-content {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: modalFade .22s ease;
 }
 
-.detail-item{
-background:#f8fafc;
-border:1px solid #e2e8f0;
-border-radius:14px;
-padding:12px 14px;
+@keyframes modalFade {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
 }
 
-.detail-item span{
-display:block;
-font-size:12px;
-color:#64748b;
-margin-bottom:4px;
+.modal-detail-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
 }
 
-.detail-item strong{
-font-size:14px;
-color:#0f172a;
-font-weight:600;
+.modal-detail-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
 }
 
-@keyframes modalFade{
-from{
-    opacity:0;
-    transform:translateY(20px);
+.modal-detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-to{
-    opacity:1;
-    transform:translateY(0);
-}
-}
-.btn-detail-action{
-    border:none;
-    background:#eff6ff;
-    color:#2563eb;
-    padding:10px 18px;
-    border-radius:12px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.2s;
-    font-size:14px;
+.modal-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-.btn-detail-action:hover{
-    background:#dbeafe;
+.modal-tab-btn {
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
 }
 
-.export-btn-table{
-    border:none;
-    background:#2563eb;
-    color:white;
-    padding:10px 18px;
-    border-radius:12px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.2s;
-    font-size:14px;
-    display:flex;
-    align-items:center;
-    gap:8px;
+.modal-tab-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
 }
 
-.export-btn-table:hover{
-    background:#1d4ed8;
-}
-.btn-detail-action:hover{
-background:#dbeafe;
+.modal-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
+.modal-info-item {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+.modal-info-item span {
+    display: block;
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.modal-info-item strong {
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.btn-close-modal {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.btn-close-modal:hover { background: #fee2e2; color: #dc2626; }
+
+.export-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.export-modal-btn:hover { background: #1d4ed8; }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-<div class="dashboard-header">
-    <div class="header-text">
-        <h1>Laporan Kehadiran</h1>
-        <p>Pantau laporan partisipasi dan kehadiran lansia per hari, minggu, dan tahun.</p>
-    </div>
-</div>
+<div class="laporan-page">
 
-<!-- STATS GRID -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-top">
-            <div class="stat-icon icon-blue"><i class="fa-solid fa-calendar-day"></i></div>
+    {{-- ── HEADER ── --}}
+    <div class="page-header" style="flex-shrink:0;">
+        <div>
+            <h1 class="page-title">Laporan</h1>
+            <p class="page-subtitle">Pantau laporan partisipasi dan kehadiran lansia per hari, minggu, dan tahun.</p>
         </div>
-        <div class="stat-info">
+    </div>
+
+    {{-- ── STAT CARDS ── --}}
+    <div class="laporan-stats-grid" style="flex-shrink:0;">
+        <div class="stat-card" style="border-left-color:#3b82f6;">
             <span class="stat-label">Hadir Hari Ini</span>
-            <h2 class="stat-value" data-target="{{ $summary['hari_ini'] }}">0</h2>
+            <div class="stat-content">
+                <span class="stat-number color-primary" data-target="{{ $summary['hari_ini'] }}">0</span>
+                <i class="fa-solid fa-calendar-day stat-icon-fa color-primary"></i>
+            </div>
         </div>
-    </div>
-
-    <div class="stat-card success-card">
-        <div class="stat-top">
-            <div class="stat-icon icon-green"><i class="fa-solid fa-calendar-week"></i></div>
-        </div>
-        <div class="stat-info">
+        <div class="stat-card" style="border-left-color:#10b981;">
             <span class="stat-label">Hadir Minggu Ini</span>
-            <h2 class="stat-value" data-target="{{ $summary['minggu_ini'] }}">0</h2>
+            <div class="stat-content">
+                <span class="stat-number color-success" data-target="{{ $summary['minggu_ini'] }}">0</span>
+                <i class="fa-solid fa-calendar-week stat-icon-fa color-success"></i>
+            </div>
         </div>
-    </div>
-
-    <div class="stat-card" style="border-left-color: #8b5cf6;">
-        <div class="stat-top">
-            <div class="stat-icon" style="background:#ede9fe; color:#8b5cf6;"><i class="fa-solid fa-calendar-days"></i></div>
-        </div>
-        <div class="stat-info">
+        <div class="stat-card" style="border-left-color:#8b5cf6;">
             <span class="stat-label">Total Tahun Ini</span>
-            <h2 class="stat-value" data-target="{{ $summary['tahun_ini'] }}">0</h2>
+            <div class="stat-content">
+                <span class="stat-number" style="color:#8b5cf6;" data-target="{{ $summary['tahun_ini'] }}">0</span>
+                <i class="fa-solid fa-calendar-days stat-icon-fa" style="color:#8b5cf6;"></i>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- TABLE AREA -->
-<div style="margin-top:24px;">
-    <div class="filter-laporan-card">
+    {{-- ── CARD UTAMA: FILTER + TABEL ── --}}
+    <div class="laporan-main-card">
 
-<h3 class="filter-title">
-    FILTER LAPORAN
-</h3>
-
-<div class="filter-grid">
-
-    {{-- BULAN --}}
-    <div class="filter-group">
-        <label>Bulan</label>
-
-        <select id="filterBulan" class="filter-input">
-            <option value="">Semua Bulan</option>
-            <option value="1">Januari</option>
-            <option value="2">Februari</option>
-            <option value="3">Maret</option>
-            <option value="4">April</option>
-            <option value="5">Mei</option>
-            <option value="6">Juni</option>
-            <option value="7">Juli</option>
-            <option value="8">Agustus</option>
-            <option value="9">September</option>
-            <option value="10">Oktober</option>
-            <option value="11">November</option>
-            <option value="12">Desember</option>
-        </select>
+        {{-- Filter Bar (seperti jadwal) --}}
+        <div class="laporan-filter-bar">
+            <div style="display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #d1d5db; border-radius:8px; padding:7px 12px; flex:1; min-width:180px;">
+        <i class="fa-solid fa-magnifying-glass" style="color:#9ca3af; font-size:13px;"></i>
+        <input type="text" id="searchKegiatan" placeholder="Cari nama kegiatan..."
+            style="border:none; background:transparent; outline:none; font-size:13px; width:100%; font-family:inherit; color:#1e293b;">
     </div>
+            <label>Bulan:</label>
+            <select id="filterBulan" class="laporan-filter-select">
+                <option value="">Semua Bulan</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
+            <label>Tahun:</label>
+            <select id="filterTahun" class="laporan-filter-select">
+                <option value="">Semua Tahun</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+            </select>
+        </div>
 
-    {{-- TAHUN --}}
-    <div class="filter-group">
-        <label>Tahun</label>
-
-        <select id="filterTahun" class="filter-input">
-            <option value="">Semua Tahun</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-        </select>
-    </div>
-
-    
-
-</div>
-
-</div>
-    
-    <div class="chart-container-wrapper">
-
-<h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
-Tabel Laporan Kehadiran
-</h3>
-
-<div class="table-responsive">
-    <table class="laporan-table">
-        <thead>
-            <tr>
-<th>No</th>
-<th>Tanggal Kunjungan</th>
-<th>Nama Kegiatan</th>
-<th>Aksi</th>
-</tr>
-        </thead>
-
-        <tbody id="laporan-body">
-            @forelse($laporan as $item)
-
-<tr
-data-bulan="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('m') }}"
-data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}"
->
-<td>{{ $loop->iteration }}</td>
-
-<td>
-{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('d M Y') }}
-</td>
-
-<td>
-{{ $item->tema }}
-</td>
-
-<td style="display:flex; gap:10px;">
-
-    <button 
-    class="btn-detail-action btn-detail"
-    data-id="{{ $item->id_jadwal_posyandu }}"
->
-    Detail
-</button>
-
-    <a href="{{ route('laporan.export', $item->id_jadwal_posyandu) }}"
-   target="_blank"
-   class="export-btn-table">
-    <i class="fa-solid fa-download"></i>
-    Export
-</a>
-
-</td>
-</tr>
-            @empty
-                <tr>
-                    <td colspan="5" style="text-align:center;">
-                        Tidak ada data laporan
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-</div>
-</div>
-</div>
-
-
-</div>
-</div>
-</div>
-
-{{-- MODAL DETAIL --}}
-<div id="modalDetail" class="modal-detail">
-
-<div class="modal-detail-content">
-
-<button class="close-modal" onclick="closeModalModal()">
-&times;
-</button>
-
-    <h3 style="font-size:20px; font-weight:700; margin-bottom:20px;">
-        Detail 
-    </h3>
-
-    <div class="modal-body">
-        <div class="detail-item" style="margin-top:10px;">
-    <span>Tanggal Posyandu</span>
-    <strong id="detailTanggal">-</strong>
-</div>
-
-<div class="detail-item">
-    <span>Tema Kegiatan</span>
-    <strong id="detailTema">-</strong>
-</div>
-
-    <div style="display:flex; gap:10px; margin-bottom:8px;">
-
-        <button class="filter-btn" id="btnStatus" onclick="showStatusTable()">
-            Status Kehadiran
-        </button>
-
-        <button 
-    class="filter-btn"
-    id="btnPetugas"
-    onclick="showPetugasTable()"
->
-    Petugas
-</button>
-
-<button 
-    class="filter-btn"
-    id="btnObat"
-    onclick="showObatTable()"
->
-    Obat Keluar
-</button>
-
-    </div>
-   <div id="exportObatWrapper"
-style="display:none; margin-top:0; margin-bottom:16px;">
-
-    <a href="#"
-       id="btnExportPdf"
-       class="export-btn-table">
-        <i class="fa-solid fa-download"></i>
-        Export
-    </a>
-
-</div>
-
-    {{-- TABLE STATUS --}}
-    <div id="statusTable" style="display:none;">
-
-        <div class="table-responsive">
-
+        {{-- Tabel --}}
+        <div class="laporan-table-wrap">
             <table class="laporan-table">
-
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Nama Lansia</th>
-                        <th>Jenis Kelamin</th>
-                        <th>Status Kehadiran</th>
+                        <th>Tanggal Kunjungan</th>
+                        <th>Nama Kegiatan</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-
-               <tbody id="statusBody">
-
-               </tbody>
-
-           
-
+                <tbody id="laporan-body">
+                    @forelse($laporan as $item)
+                    <tr
+                        data-bulan="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('m') }}"
+                        data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}"
+                    >
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('d M Y') }}</td>
+                        <td>{{ $item->tema }}</td>
+                        <td>
+                            <div class="laporan-aksi-wrap">
+                                <button class="laporan-btn laporan-btn-detail btn-detail"
+                                    data-id="{{ $item->id_jadwal_posyandu }}">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                                <a href="{{ route('laporan.export', $item->id_jadwal_posyandu) }}"
+                                    target="_blank"
+                                    class="laporan-btn laporan-btn-export">
+                                    <i class="fa-solid fa-download"></i> Export
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:40px; color:#94a3b8;">
+                            <i class="fa-solid fa-folder-open" style="font-size:24px; display:block; margin-bottom:8px; opacity:0.4;"></i>
+                            Tidak ada data laporan
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
             </table>
-
         </div>
 
     </div>
-    {{-- TABLE PETUGAS --}}
-<div id="petugasTable" style="display:none;">
 
-    <div class="table-responsive">
+</div>
 
-        <table class="laporan-table">
+{{-- ── MODAL DETAIL ── --}}
+<div id="modalDetail" class="modal-detail">
+    <div class="modal-detail-content">
 
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Petugas</th>
-                    <th>Jumlah Lansia</th>
-                </tr>
-            </thead>
+        <div class="modal-detail-header">
+            <h3>Detail Laporan</h3>
+            <button class="btn-close-modal" onclick="closeModalDetail()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
 
-            <tbody id="petugasBody">
-            </tbody>
+        <div class="modal-detail-body">
 
-        </table>
+            {{-- Info jadwal --}}
+            <div class="modal-info-grid">
+                <div class="modal-info-item">
+                    <span>Tanggal Posyandu</span>
+                    <strong id="detailTanggal">-</strong>
+                </div>
+                <div class="modal-info-item" style="grid-column: span 1;">
+                    <span>Tema Kegiatan</span>
+                    <strong id="detailTema">-</strong>
+                </div>
+            </div>
 
+            {{-- Tab navigasi --}}
+            <div class="modal-tabs">
+                <button class="modal-tab-btn active" id="btnStatus" onclick="showTab('status')">
+                    <i class="fa-solid fa-users"></i> Status Kehadiran
+                </button>
+                <button class="modal-tab-btn" id="btnPetugas" onclick="showTab('petugas')">
+                    <i class="fa-solid fa-user-nurse"></i> Petugas
+                </button>
+                <button class="modal-tab-btn" id="btnObat" onclick="showTab('obat')">
+                    <i class="fa-solid fa-pills"></i> Obat Keluar
+                </button>
+            </div>
+
+            {{-- Export obat (muncul saat tab obat aktif) --}}
+            <div id="exportObatWrapper" style="display:none;">
+                <a href="#" id="btnExportPdf" class="export-modal-btn">
+                    <i class="fa-solid fa-download"></i> Export PDF
+                </a>
+            </div>
+
+            {{-- Tabel Status --}}
+            <div id="tabStatus">
+                <div style="overflow-x:auto;">
+                    <table class="laporan-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Lansia</th>
+                                <th>Jenis Kelamin</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Tabel Petugas --}}
+            <div id="tabPetugas" style="display:none;">
+                <div style="overflow-x:auto;">
+                    <table class="laporan-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Petugas</th>
+                                <th>Jumlah Lansia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="petugasBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Tabel Obat --}}
+            <div id="tabObat" style="display:none;">
+                <div style="overflow-x:auto;">
+                    <table class="laporan-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Obat</th>
+                                <th>Jumlah Keluar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="obatBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
-
 </div>
-
-    {{-- TABLE OBAT --}}
-<div id="obatTable" style="display:none;">
-
-    <div class="table-responsive">
-
-        <table class="laporan-table">
-
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Obat</th>
-                    <th>Jumlah Keluar</th>
-                </tr>
-            </thead>
-
-            <tbody id="obatBody">
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-</div>
-
-</div>
-</div>
-
-
 @endsection
 
 @push('scripts')
 <script>
-let currentJadwalId = null;    
-document.addEventListener("DOMContentLoaded", () => {
+let currentJadwalId = null;
 
-const counters = document.querySelectorAll('.stat-value');
-
-counters.forEach(counter => {
-
-    const updateCount = () => {
-
-        const target = +counter.getAttribute('data-target');
-        const count = +counter.innerText;
+// Counter animasi
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+        const target = +el.dataset.target;
+        let count = 0;
         const inc = target / 30;
+        const tick = () => {
+            count = Math.min(count + inc, target);
+            el.innerText = Math.ceil(count).toLocaleString('id-ID');
+            if (count < target) setTimeout(tick, 30);
+        };
+        tick();
+    });
 
-        if (count < target) {
-            counter.innerText = Math.ceil(count + inc);
-            setTimeout(updateCount, 30);
-        } else {
-            counter.innerText = target.toLocaleString('id-ID');
-        }
-    };
+    // Filter
+    const filterBulan = document.getElementById('filterBulan');
+    const filterTahun = document.getElementById('filterTahun');
+    const rows = document.querySelectorAll('#laporan-body tr[data-bulan]');
 
-    updateCount();
+   const searchInput = document.getElementById('searchKegiatan');
 
-});
+function filterLaporan() {
+    const bulan = filterBulan.value;
+    const tahun = filterTahun.value;
+    const keyword = searchInput.value.toLowerCase().trim();
 
-});
+    rows.forEach(row => {
+        const matchBulan = !bulan || row.dataset.bulan === bulan;
+        const matchTahun = !tahun || row.dataset.tahun === tahun;
+        const tema = row.querySelector('td:nth-child(3)')?.innerText.toLowerCase() || '';
+        const matchSearch = !keyword || tema.includes(keyword);
+        row.style.display = (matchBulan && matchTahun && matchSearch) ? '' : 'none';
+    });
+}
+searchInput.addEventListener('input', filterLaporan);
+    filterBulan.addEventListener('change', filterLaporan);
+    filterTahun.addEventListener('change', filterLaporan);
 
+    // Modal detail
+    const modal = document.getElementById('modalDetail');
 
+    document.querySelectorAll('.btn-detail').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            modal.style.display = 'flex';
+            showTab('status');
+            currentJadwalId = btn.dataset.id;
+            document.getElementById('btnExportPdf').href = `/laporan/export/${currentJadwalId}`;
 
+            const res = await fetch(`/laporan/detail/${currentJadwalId}`);
+            const data = await res.json();
 
-/* MODAL */
-const modal = document.getElementById('modalDetail');
+            document.getElementById('detailTanggal').innerText = data.jadwal.tanggal;
+            document.getElementById('detailTema').innerText = data.jadwal.tema;
 
-const detailButtons = document.querySelectorAll('.btn-detail');
-
-const closeModal = document.querySelector('.close-modal');
-
-detailButtons.forEach(button => {
-
-    button.addEventListener('click', async () => {
-
-        modal.style.display = 'flex';
-
-        // tampil default status
-        showStatusTable();
-
-        const id = button.dataset.id;
-
-currentJadwalId = id;
-
-document.getElementById('btnExportPdf').href =
-    `/laporan/export/${id}`;
-
-const response = await fetch(`/laporan/detail/${id}`);
-
-        const data = await response.json();
-/* =========================
-   DETAIL JADWAL
-========================= */
-
-document.getElementById('detailTanggal').innerText =
-    data.jadwal.tanggal;
-
-document.getElementById('detailTema').innerText =
-    data.jadwal.tema;
-
-        /* =========================
-           STATUS KEHADIRAN
-        ========================== */
-
-        const tbody = document.getElementById('statusBody');
-
-        tbody.innerHTML = '';
-
-        data.status.forEach((item, index) => {
-
-            tbody.innerHTML += `
+            // Status
+            document.getElementById('statusBody').innerHTML = data.status.map((item, i) => `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td>${i + 1}</td>
                     <td>${item.nama_lansia}</td>
                     <td>${item.jenis_kelamin}</td>
-                    <td>
-    <span class="${
-        item.status_kehadiran == 'Hadir'
-        ? 'badge-normal'
-        : 'badge-danger'
-    }">
-        ${item.status_kehadiran}
-    </span>
-</td>
+                    <td><span class="${item.status_kehadiran === 'Hadir' ? 'badge-normal' : 'badge-danger'}">${item.status_kehadiran}</span></td>
                 </tr>
-            `;
+            `).join('');
 
-        });
-
-        /* =========================
-           PETUGAS
-        ========================== */
-
-        const petugasBody = document.getElementById('petugasBody');
-
-        petugasBody.innerHTML = '';
-
-        data.petugas.forEach((item, index) => {
-
-            petugasBody.innerHTML += `
+            // Petugas
+            document.getElementById('petugasBody').innerHTML = data.petugas.map((item, i) => `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td>${i + 1}</td>
                     <td>${item.nama}</td>
                     <td>${item.jumlah_lansia} Lansia</td>
                 </tr>
-            `;
+            `).join('');
 
+            // Obat
+            document.getElementById('obatBody').innerHTML = data.obat.map((item, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.nama_obat}</td>
+                    <td>${item.jumlah_keluar}</td>
+                </tr>
+            `).join('');
         });
-        /* =========================
-   OBAT KELUAR
-========================= */
-
-const obatBody = document.getElementById('obatBody');
-
-obatBody.innerHTML = '';
-
-data.obat.forEach((item, index) => {
-
-    obatBody.innerHTML += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${item.nama_obat}</td>
-            <td>${item.jumlah_keluar}</td>
-        </tr>
-    `;
-
-});
-
-
     });
 
+    modal.addEventListener('click', e => {
+        if (e.target === modal) closeModalDetail();
+    });
+
+    document.getElementById('btnExportPdf').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!currentJadwalId) return;
+        window.open(`/laporan/export/${currentJadwalId}`, '_blank');
+    });
 });
 
-closeModal.addEventListener('click', () => {
-
-modal.style.display = 'none';
-
-});
-function closeModalModal() {
-
-modal.style.display = 'none';
-
-}
-function showStatusTable() {
-
-    const statusTable = document.getElementById('statusTable');
-    const petugasTable = document.getElementById('petugasTable');
-    const obatTable = document.getElementById('obatTable');
-
-    const btnStatus = document.getElementById('btnStatus');
-    const btnPetugas = document.getElementById('btnPetugas');
-    const btnObat = document.getElementById('btnObat');
-
-    statusTable.style.display = 'block';
-    petugasTable.style.display = 'none';
-    obatTable.style.display = 'none';
-
-    document.getElementById('exportObatWrapper').style.display = 'none';
-
-    btnStatus.classList.add('active');
-    btnPetugas.classList.remove('active');
-    btnObat.classList.remove('active');
+function closeModalDetail() {
+    document.getElementById('modalDetail').style.display = 'none';
 }
 
-function showPetugasTable() {
-
-    const statusTable = document.getElementById('statusTable');
-    const petugasTable = document.getElementById('petugasTable');
-    const obatTable = document.getElementById('obatTable');
-
-    const btnStatus = document.getElementById('btnStatus');
-    const btnPetugas = document.getElementById('btnPetugas');
-    const btnObat = document.getElementById('btnObat');
-
-    statusTable.style.display = 'none';
-    petugasTable.style.display = 'block';
-    obatTable.style.display = 'none';
-
-    document.getElementById('exportObatWrapper').style.display = 'none';
-
-    btnStatus.classList.remove('active');
-    btnPetugas.classList.add('active');
-    btnObat.classList.remove('active');
+function showTab(tab) {
+    ['status', 'petugas', 'obat'].forEach(t => {
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? 'block' : 'none';
+        document.getElementById('btn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+    document.getElementById('exportObatWrapper').style.display = tab === 'obat' ? 'flex' : 'none';
 }
-
-function showObatTable() {
-
-    const statusTable = document.getElementById('statusTable');
-    const petugasTable = document.getElementById('petugasTable');
-    const obatTable = document.getElementById('obatTable');
-
-    const btnStatus = document.getElementById('btnStatus');
-    const btnPetugas = document.getElementById('btnPetugas');
-    const btnObat = document.getElementById('btnObat');
-
-    statusTable.style.display = 'none';
-    petugasTable.style.display = 'none';
-    obatTable.style.display = 'block';
-
-    document.getElementById('exportObatWrapper').style.display = 'block';
-
-    btnStatus.classList.remove('active');
-    btnPetugas.classList.remove('active');
-    btnObat.classList.add('active');
-}
-
-
-
-const filterBulan = document.getElementById('filterBulan');
-const filterTahun = document.getElementById('filterTahun');
-
-const rows = document.querySelectorAll('#laporan-body tr');
-
-function filterLaporan() {
-
-const bulan = filterBulan.value;
-const tahun = filterTahun.value;
-
-rows.forEach(row => {
-
-    const rowBulan = row.getAttribute('data-bulan');
-    const rowTahun = row.getAttribute('data-tahun');
-
-    let show = true;
-
-    if (bulan && rowBulan !== bulan.padStart(2, '0')) {
-        show = false;
-    }
-
-    if (tahun && rowTahun !== tahun) {
-        show = false;
-    }
-
-    row.style.display = show ? '' : 'none';
-
-});
-
-}
-
-filterBulan.addEventListener('change', filterLaporan);
-filterTahun.addEventListener('change', filterLaporan);
-
-document.getElementById('btnExportPdf').addEventListener('click', function(e){
-
-    e.preventDefault();
-
-    if(!currentJadwalId){
-        alert('Data jadwal belum dipilih');
-        return;
-    }
-
-    console.log(currentJadwalId);
-
-    window.open(`/laporan/export/${currentJadwalId}`, '_blank');
-
-});
 </script>
 @endpush
