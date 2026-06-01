@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasRandomId;
 
 class SkriningPPOK extends Model
 {
+    use HasRandomId;
     protected $table = 'skrining_ppok';
     protected $primaryKey = 'id_skrining_ppok';
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_skrining',

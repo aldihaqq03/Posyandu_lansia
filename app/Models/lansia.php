@@ -11,6 +11,8 @@ class Lansia extends Model
 
     protected $table      = 'lansia';
     protected $primaryKey = 'id_lansia';
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_user',

@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasRandomId;
 
 class DetailSkrining extends Model
 {
-     protected $table      = 'detail_skrining';
+    use HasRandomId;
+    protected $table      = 'detail_skrining';
     protected $primaryKey = 'id_detail_skrining';
+    public $incrementing = false;
+    protected $keyType = 'int';
  
     protected $fillable = [
         'id_jadwal_posyandu',

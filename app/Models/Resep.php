@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasRandomId;
 
 class Resep extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRandomId;
     protected $table = 'resep';
     protected $primaryKey = 'id_resep';
+    public $incrementing = false;
+    protected $keyType = 'int';
     public $timestamps = true;
 
     protected $fillable = [

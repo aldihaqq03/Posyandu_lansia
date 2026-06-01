@@ -4,13 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasRandomId;
 
 class MutasiStokObat extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRandomId;
 
     protected $table = 'mutasi_stok_obat';
     protected $primaryKey = 'id_mutasi';
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_obat',

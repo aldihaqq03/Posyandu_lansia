@@ -4,13 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasRandomId;
 
 class Konten extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRandomId;
 
     protected $table = 'konten';
     protected $primaryKey = 'id_konten';
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'judul',

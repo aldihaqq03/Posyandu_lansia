@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\HasRandomId;
 
+
 class Petugas extends Model
 {
     use HasFactory, HasRandomId;
     protected $table = 'petugas';
     protected $primaryKey = 'id_petugas';
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_user',

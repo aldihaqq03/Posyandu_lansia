@@ -2,11 +2,15 @@
 namespace App\Models;
  
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasRandomId;
  
 class JadwalPosyandu extends Model
 {
+    use HasRandomId;
     protected $table      = 'jadwal_posyandu';
     protected $primaryKey = 'id_jadwal_posyandu';
+    public $incrementing = false;
+    protected $keyType = 'int';
  
     protected $fillable = [
         'id_petugas',

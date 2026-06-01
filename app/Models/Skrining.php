@@ -103,12 +103,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasRandomId;
 
 class Skrining extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRandomId;
     protected $table      = 'skrining';
     protected $primaryKey = 'id_skrining';
+    public $incrementing = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_lansia',
