@@ -21,13 +21,13 @@
                 <i class="fa fa-users stat-icon-fa color-primary"></i>
             </div>
         </div>
-       <div class="stat-card border-success">
-    <span class="stat-label">KONDISI NORMAL</span>
-    <div class="stat-content">
-        <span class="stat-number color-success">{{ $kondisi_normal }}</span>
-        <i class="fa fa-heartbeat stat-icon-fa color-success"></i>
-    </div>
-</div>
+        <div class="stat-card border-success">
+            <span class="stat-label">KONDISI NORMAL</span>
+            <div class="stat-content">
+                <span class="stat-number color-success">{{ $kondisi_normal }}</span>
+                <i class="fa fa-heartbeat stat-icon-fa color-success"></i>
+            </div>
+        </div>
         <div class="stat-card border-warning">
             <span class="stat-label">STATUS WASPADA</span>
             <div class="stat-content">
@@ -161,5 +161,5 @@
         // Passing data tren penyakit aman dari PHP array ke JavaScript Object
         const dataTrenPenyakit = @json($trenPenyakit);
         </script>
-    @vite('resources/js/jsAdmin/dashboard.js')
+    @vite('resources/js/jsADMIN/dashboard.js')
 @endpush

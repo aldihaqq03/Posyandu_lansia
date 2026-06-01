@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasRandomId;
 
 class Petugas extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRandomId;
     protected $table = 'petugas';
     protected $primaryKey = 'id_petugas';
 

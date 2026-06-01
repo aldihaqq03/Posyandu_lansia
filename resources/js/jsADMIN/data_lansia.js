@@ -1,4 +1,4 @@
-﻿/* resources/js/jsAdmin/data_lansia.js */
+﻿/* resources/js/jsADMIN/data_lansia.js */
 document.addEventListener("DOMContentLoaded", function () {
     // ─────────────────────────────────────────────────────────────────────
     // 0. HELPER: setupModalClose

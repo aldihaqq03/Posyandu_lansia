@@ -373,5 +373,5 @@
         <script>
             window.HEALTH_THRESHOLDS = @json(\App\Services\HealthRiskAssessor::THRESHOLD);
         </script>
-        @vite('resources/js/jsAdmin/monitoring.js')
+        @vite('resources/js/jsADMIN/monitoring.js')
 @endpush

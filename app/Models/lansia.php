@@ -3,10 +3,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasRandomId;
 
 class Lansia extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRandomId;
 
     protected $table      = 'lansia';
     protected $primaryKey = 'id_lansia';
