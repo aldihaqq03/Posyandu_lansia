@@ -573,7 +573,8 @@ searchInput.addEventListener('input', filterLaporan);
             modal.style.display = 'flex';
             showTab('status');
             currentJadwalId = btn.dataset.id;
-            document.getElementById('btnExportPdf').href = `/laporan/export/${currentJadwalId}`;
+             document.getElementById('btnExportPdf').href =
+            `/laporan/export-obat/${currentJadwalId}`;
 
             const res = await fetch(`/laporan/detail/${currentJadwalId}`);
             const data = await res.json();
@@ -614,12 +615,11 @@ searchInput.addEventListener('input', filterLaporan);
     modal.addEventListener('click', e => {
         if (e.target === modal) closeModalDetail();
     });
-
-    document.getElementById('btnExportPdf').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (!currentJadwalId) return;
-        window.open(`/laporan/export/${currentJadwalId}`, '_blank');
-    });
+document.getElementById('btnExportPdf').addEventListener('click', function(e) {
+    e.preventDefault();
+    if (!currentJadwalId) return;
+    window.open(`/laporan/export-obat/${currentJadwalId}`, '_blank');
+});
 });
 
 function closeModalDetail() {
