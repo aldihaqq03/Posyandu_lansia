@@ -21,6 +21,7 @@ export default defineConfig({
                 "resources/css/cssAdmin/obat.css",
                 "resources/css/welcome.css",
                 //resources js
+                "resources/js/register.js",
                 "resources/js/jsADMIN/dashboard.js",
                 "resources/js/jsADMIN/pemeriksaan.js",
                 "resources/js/jsADMIN/data_lansia.js",
