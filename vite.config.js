@@ -7,6 +7,7 @@ export default defineConfig({
         laravel({
             input: [
                 "resources/css/app.css",
+                "resources/css/register.css",
                 "resources/css/berhasil.css",
                 "resources/css/sidebar.css",
                 "resources/css/cssAdmin/dashboard.css",
