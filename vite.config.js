@@ -19,6 +19,11 @@ export default defineConfig({
                 "resources/css/cssAdmin/pengaturan.css",
                 "resources/css/cssAdmin/monitoring.css",
                 "resources/css/cssAdmin/obat.css",
+
+                "resources/css/cssAdmin/jadwal_posyandu.css",
+                "resources/css/cssAdmin/skrining_index.css",
+                "resources/css/cssAdmin/lansia_profile.css",
+                "resources/css/cssAdmin/profil_lengkap.css",
                 "resources/css/welcome.css",
                 //resources js
                 "resources/js/jsADMIN/data_petugas.js",
