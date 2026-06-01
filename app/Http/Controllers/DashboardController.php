@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JadwalPosyandu;
-use App\Models\Lansia;
+use App\Models\lansia;
 use App\Models\Obat;
 use App\Services\HealthRiskAssessor;
 use App\Services\TrenPenyakitService;
