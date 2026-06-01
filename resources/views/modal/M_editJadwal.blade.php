@@ -55,7 +55,6 @@
 
             <div class="skrining-section">
                 <div class="skrining-section-header">
-                    <i class="fa-solid fa-clipboard-check"></i>
                     Pilih skrining yang akan dilakukan di pertemuan ini
                 </div>
 
@@ -71,11 +70,11 @@
                     <span class="skrining-badge always">Selalu Ada</span>
                 </div>
 
-                {{-- Skrining Utama --}}
+                {{-- Skrining PTM --}}
                 <div class="skrining-option" id="edit-opt-utama">
                     <input type="checkbox" id="edit-chk-utama" name="jenis_skrining" value="2">
                     <div class="skrining-opt-info">
-                        <div class="skrining-opt-title">Skrining Utama</div>
+                        <div class="skrining-opt-title">Skrining PTM</div>
                         <div class="skrining-opt-desc">
                             SRQ-20, skrining penglihatan & pendengaran, riwayat penyakit
                         </div>

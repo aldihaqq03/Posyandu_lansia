@@ -53,11 +53,6 @@
                         @if($lansia->no_hp)
                             <span><i class="fa-solid fa-phone"></i> {{ $lansia->no_hp }}</span>
                         @endif
-                        @if($lansia->riwayat_penyakit)
-                            <span class="mon-riwayat">
-                                <i class="fa-solid fa-notes-medical"></i> {{ $lansia->riwayat_penyakit }}
-                            </span>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -66,12 +61,11 @@
             <section class="card history-section">
                 <div class="history-header">
                     <div class="history-title">
-                        <div class="history-icon red"><i class="fa-solid fa-heart-pulse"></i></div>
-                        <div>
-                            <h3>Skrining Kunjungan</h3>
-                            <p>Tekanan darah, berat badan, tinggi badan, lingkar perut</p>
+                            <div>
+                                <h3>Skrining Kunjungan</h3>
+                                <p>Tekanan darah, berat badan, tinggi badan, lingkar perut</p>
+                            </div>
                         </div>
-                    </div>
                     <div class="history-actions">
                         <input type="month" class="filter-month" data-target="tbl-kunjungan" title="Filter bulan">
                     </div>
@@ -130,13 +124,12 @@
             <section class="card history-section">
                 <div class="history-header">
                     <div class="history-title">
-                        <div class="history-icon blue"><i class="fa-solid fa-vial"></i></div>
-                        <div><h3>Skrining Utama</h3><p>Gula darah, kolesterol, IMT, SRQ-20, dan faktor risiko lainnya</p></div>
-                    </div>
+                            <div><h3>Skrining PTM</h3><p>Gula darah, kolesterol, IMT, SRQ-20, dan faktor risiko lainnya</p></div>
+                        </div>
                     <div class="history-actions"><input type="month" class="filter-month" data-target="tbl-utama" title="Filter bulan"></div>
                 </div>
                 @if($utamas->isEmpty())
-                    <div class="empty-state">Belum ada data skrining utama.</div>
+                    <div class="empty-state">Belum ada data Skrining PTM.</div>
                 @else
                     <div class="table-scroll">
                         <table class="history-table" id="tbl-utama">
@@ -181,9 +174,8 @@
             <section class="card history-section">
                 <div class="history-header">
                     <div class="history-title">
-                        <div class="history-icon green"><i class="fa-solid fa-lungs"></i></div>
-                        <div><h3>Skrining PPOK</h3><p>PUMA score, spirometri, dan faktor risiko paru</p></div>
-                    </div>
+                            <div><h3>Skrining PPOK</h3><p>PUMA score, spirometri, dan faktor risiko paru</p></div>
+                        </div>
                     <div class="history-actions"><input type="month" class="filter-month" data-target="tbl-ppok" title="Filter bulan"></div>
                 </div>
                 @if($ppoks->isEmpty())
@@ -258,6 +250,7 @@
             nik: @json($lansia->nik),
             alamat: @json($lansia->alamat ?? '-'),
             umur: @json(\Carbon\Carbon::parse($lansia->tanggal_lahir)->age),
+            jenisKelamin: @json($lansia->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'),
         };
 
         // ========== FORMAT VALUE (array / JSON) ==========
@@ -409,20 +402,56 @@
         async function generatePdf(jenisLabel, tanggal, rows, type, detailData = null) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait' });
+            // ===== HEADER =====
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(16);
-            doc.text('SIMPEL – Posyandu Lansia', 14, 18);
+            doc.text('SKRINING KESEHATAN POSYANDU LANSIA', 105, 15, { align: 'center' });
+
+            doc.setFontSize(13);
+            doc.text('POSYANDU PEGAGAN', 105, 23, { align: 'center' });
+
+            doc.setFontSize(11);
+            doc.text('DESA PONCOGATI KECAMATAN CURAHDAMI', 105, 30, { align: 'center' });
+
+            doc.line(14, 35, 196, 35);
+
+            let namaSkrining = '';
+            if (type === 'kunjungan') {
+            namaSkrining = 'Skrining Rutin Lansia';
+            } else if (type === 'utama') {
+            namaSkrining = 'Skrining Faktor Risiko Penyakit Tidak Menular (PTM)';
+            } else if (type === 'ppok') {
+            namaSkrining = 'Skrining PPOK (Penyakit Paru Obstruktif Kronis)';
+            }
+           doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
-            doc.text(jenisLabel, 14, 26);
+            doc.text(namaSkrining, 105, 45, { align: 'center' });
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('A. IDENTITAS LANSIA', 14, 58);
+
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.text(`Nama    : ${sanitizePdfText(LANSIA.nama)}`, 14, 34);
-            doc.text(`NIK     : ${sanitizePdfText(LANSIA.nik)}`, 14, 40);
-            doc.text(`Umur    : ${LANSIA.umur} Tahun`, 14, 46);
-            doc.text(`Alamat  : ${sanitizePdfText(LANSIA.alamat)}`, 14, 52);
-            doc.text(`Tanggal : ${sanitizePdfText(tanggal)}`, 14, 58);
-            doc.text(`Dicetak : ${new Date().toLocaleDateString('id-ID')}`, 14, 64);
-            doc.line(14, 68, 196, 68);
+
+            let y = 68;
+
+            const identitas = [
+                ['Nama', LANSIA.nama],
+                ['NIK', LANSIA.nik],
+                ['Jenis Kelamin', LANSIA.jenisKelamin],
+                ['Umur', `${LANSIA.umur} Tahun`],
+                ['Alamat', LANSIA.alamat],
+                ['Tanggal Skrining', tanggal],
+                ['Dicetak Pada', new Date().toLocaleDateString('id-ID')]
+            ];
+
+            identitas.forEach(item => {
+                doc.text(item[0], 18, y);
+                doc.text(':', 60, y);
+                doc.text(String(item[1]), 64, y);
+                y += 8;
+            });
+
+            doc.line(14, y + 2, 196, y + 2);
 
             let bodyRows = [];
             if (type === 'kunjungan') {
@@ -445,7 +474,7 @@
             doc.autoTable({
                 head: [['Keterangan', 'Nilai']],
                 body: bodyRows,
-                startY: 78,
+                startY: y + 12,
                 styles: { fontSize: 9, cellPadding: 3 },
                 headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
                 alternateRowStyles: { fillColor: [248, 250, 252] },
@@ -485,7 +514,7 @@
                     const type = d.type;
                     modalTitle.textContent = 'Detail Skrining';
                     modalDate.textContent = d.tanggal || '-';
-                    const badgeMap = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining Utama', ppok: 'Skrining PPOK' };
+                    const badgeMap = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining PTM', ppok: 'Skrining PPOK' };
                     modalBadge.textContent = badgeMap[type] || type;
                     modalBadge.className = `badge-modern ${type}`;
 
@@ -513,7 +542,7 @@
                     if (!row) return;
                     const d = Object.assign({}, row.dataset);
                     const type = d.type;
-                    const typeLabel = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining Utama', ppok: 'Skrining PPOK' };
+                    const typeLabel = { kunjungan: 'Skrining Kunjungan', utama: 'Skrining PTM', ppok: 'Skrining PPOK' };
 
                     if (type === 'kunjungan') {
                         generatePdf(typeLabel[type], d.tanggal, null, 'kunjungan', d);
@@ -535,7 +564,7 @@
                                     rows.push([sanitizePdfText(f.label), sanitizePdfText(formatValue(f.value))]);
                                 });
                             }
-                            generatePdf(typeLabel[type], d.tanggal, rows, 'other');
+                            generatePdf(typeLabel[type], d.tanggal, rows, type);
                         } catch (err) {
                             alert('Gagal generate PDF: ' + err.message);
                         }

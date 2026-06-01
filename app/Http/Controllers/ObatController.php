@@ -6,6 +6,7 @@ use App\Models\Obat;
 use App\Models\MutasiStokObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ObatController extends Controller
 {
@@ -46,15 +47,23 @@ class ObatController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nama_obat' => 'required|string|max:150|unique:obat,nama_obat',
+            $validated = $request->validate([
+            'nama_obat' => [
+                'required',
+                'string',
+                'max:150',
+                Rule::unique('obat')
+                    ->where(fn ($query) =>
+                        $query->where('tipe_obat', $request->tipe_obat)
+                    ),
+            ],
             'tipe_obat' => 'required|in:' . implode(',', self::TIPE_OBAT),
-            'stock' => 'required|integer|min:0|max:999999',
+            'stock' => 'required|integer|min:0|max:1000',
             'keterangan' => 'nullable|string|max:500',
         ], [
-            'nama_obat.unique' => 'Nama obat sudah terdaftar, gunakan nama yang berbeda.',
+            'nama_obat.unique' => 'Nama obat dengan tipe yang sama sudah terdaftar.',
             'tipe_obat.in' => 'Tipe obat tidak valid.',
-            'stock.max' => 'Stok tidak boleh lebih dari 999999.',
+            'stock.max' => 'Stok tidak boleh lebih dari 1000.',
         ]);
 
         try {
@@ -80,7 +89,7 @@ class ObatController extends Controller
     public function restock(Request $request, string $id)
     {
         $request->validate([
-            'jumlah' => 'required|integer|min:1|max:999999',
+            'jumlah' => 'required|integer|min:1|max:1000',
             'keterangan' => 'nullable|string|max:500',
         ]);
 
@@ -139,7 +148,16 @@ class ObatController extends Controller
         $obat = Obat::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_obat' => 'required|string|max:150|unique:obat,nama_obat,' . $id . ',id_obat',
+            'nama_obat' => [
+    'required',
+    'string',
+    'max:150',
+    Rule::unique('obat')
+        ->ignore($id, 'id_obat')
+        ->where(fn ($query) =>
+            $query->where('tipe_obat', $request->tipe_obat)
+        ),
+],
             'tipe_obat' => 'required|in:' . implode(',', self::TIPE_OBAT),
             'keterangan' => 'nullable|string|max:500',
         ], [
@@ -160,12 +178,19 @@ class ObatController extends Controller
      */
     public function destroy(string $id)
     {
-        try {
-            $obat = Obat::findOrFail($id);
-            $obat->delete();
-            return redirect()->route('obat.index')->with('success', 'Data obat berhasil dihapus');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus data obat');
+        $obat = Obat::findOrFail($id);
+
+        if ($obat->stock > 0) {
+            return back()->with(
+                'error',
+                'Obat tidak dapat dihapus karena stok masih tersedia.'
+            );
         }
+
+        $obat->delete();
+
+        return redirect()
+            ->route('obat.index')
+            ->with('success', 'Data obat berhasil dihapus');
     }
 }

@@ -35,7 +35,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 16px;
+    padding: 10px 20px;
     background: #2563eb;
     color: #fff;
     border-radius: 8px;

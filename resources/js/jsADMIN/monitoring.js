@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const lansiaId = document.getElementById("lansia-id")?.value;
-    const gender = document.getElementById("lansia-gender")?.value || "L"; // L atau P
+    const gender = document.getElementById("lansia-gender")?.value || "L";
 
     if (!lansiaId) {
         console.error("Lansia ID tidak ditemukan.");
@@ -9,10 +9,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let saranNewIdx = 0;
 
-    // ========== VARIABEL UNTUK FILTER ==========
-    let fullHealthHistoryData = []; // data asli dari server
-    let filteredHealthHistoryData = []; // data setelah filter
-    let chartInstances = {}; // menyimpan objek Chart.js untuk di-destroy
+    let fullHealthHistoryData = [];
+    let filteredHealthHistoryData = [];
+    let chartInstances = {};
     const TH = window.HEALTH_THRESHOLDS ?? {
         sistolik: {
             bahaya_bawah: 90,
@@ -37,15 +36,13 @@ document.addEventListener("DOMContentLoaded", function () {
         lingkar_perut: { limit_p: 80.0, limit_l: 90.0 },
     };
     const lpLimit =
-        gender === "P" ? TH.lingkar_perut.limit_p : TH.lingkar_perut.limit_l; // batas lingkar perut sesuai gender
+        gender === "P" ? TH.lingkar_perut.limit_p : TH.lingkar_perut.limit_l;
 
-    // ── Inisiasi lingkar perut zone label sesuai gender ──
     document.getElementById("zone-lp").innerHTML = `
         <span class="mz mz-normal">Normal ≤${lpLimit} cm</span>
         <span class="mz mz-bahaya">Berisiko &gt;${lpLimit} cm</span>
     `;
 
-    // ── Tabs Logic ──
     const tabBtns = document.querySelectorAll(".mon-tab-btn");
     const tabContents = document.querySelectorAll(".mon-tab-content");
 
@@ -60,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ========== FUNGSI-FUNGSI HELPER ==========
     function el(id) {
         return document.getElementById(id);
     }
@@ -114,8 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return str;
         }
     }
-
-    // Format bulan-tahun untuk info filter
     function formatMonthYear(date) {
         if (!date) return "";
         return date.toLocaleDateString("id-ID", {
@@ -123,13 +117,23 @@ document.addEventListener("DOMContentLoaded", function () {
             year: "numeric",
         });
     }
-
-    // Helper: dapatkan tanggal mundur (bulan)
     function getRelativeDate(monthsAgo) {
         const date = new Date();
         date.setMonth(date.getMonth() - monthsAgo);
         date.setHours(0, 0, 0, 0);
         return date;
+    }
+
+    // ========== WARNA STATUS TITIK ==========
+    const DOT_COLOR = {
+        normal: "#22c55e", // hijau
+        waspada: "#f59e0b", // kuning/amber
+        bahaya: "#ef4444", // merah
+    };
+
+    // Kembalikan array warna per titik berdasarkan fungsi getStatus(value)
+    function pointColors(data, getStatus) {
+        return data.map((pt) => DOT_COLOR[getStatus(pt.y)] ?? DOT_COLOR.normal);
     }
 
     // ========== STATE CHART ==========
@@ -143,7 +147,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (wrap) wrap.style.display = state === "chart" ? "block" : "none";
     }
 
-    // ========== FUNGSI CHART (menerima parameter rows) ==========
     function pts(rows, key) {
         return rows
             .filter((r) => r[key] != null)
@@ -176,7 +179,8 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    function lineset(data, color, label) {
+    // lineset kini menerima dotColors (array) opsional; warna garis tetap dari `color`
+    function lineset(data, color, label, dotColors) {
         return {
             label,
             data,
@@ -185,7 +189,8 @@ document.addEventListener("DOMContentLoaded", function () {
             borderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6,
-            pointBackgroundColor: color,
+            // Jika dotColors disediakan pakai itu, otherwise pakai warna garis
+            pointBackgroundColor: dotColors || color,
             pointBorderColor: "#fff",
             pointBorderWidth: 1.5,
             fill: false,
@@ -280,34 +285,51 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // ========== BUILD CHART (menggunakan parameter rows) ==========
+    // ========== BUILD CHARTS ==========
+
     function buildTensiChart(rows) {
         const sisPts = pts(rows, "td_sistolik");
         const diasPts = pts(rows, "td_diastolik");
-
         if (!sisPts.length && !diasPts.length) {
             setChartState("tensi", "empty");
             return;
         }
         setChartState("tensi", "chart");
-        renderLegend("legend-tensi", [
-            { color: "#3b82f6", label: "Sistolik", dash: false },
-            { color: "#f97316", label: "Diastolik", dash: true },
-            { color: "#10b981", label: "Batas normal", dash: true },
-            { color: "#f59e0b", label: "Batas waspada", dash: true },
-        ]);
+
         const ts = TH.sistolik;
         const td = TH.diastolik;
+
+        function sisStatus(v) {
+            if (v >= ts.bahaya_atas || v < ts.bahaya_bawah) return "bahaya";
+            if (v >= ts.waspada_atas || v < ts.waspada_bawah) return "waspada";
+            return "normal";
+        }
+        function diasStatus(v) {
+            if (v >= td.bahaya_atas || v < td.bahaya_bawah) return "bahaya";
+            if (v >= td.waspada_atas || v < td.waspada_bawah) return "waspada";
+            return "normal";
+        }
+
+        renderLegend("legend-tensi", [
+            { color: "#3b82f6", label: "Sistolik" },
+            { color: "#f97316", label: "Diastolik" },
+        ]);
+
         const datasets = [
-            lineset(sisPts, "#3b82f6", "Sistolik"),
-            lineset(diasPts, "#f97316", "Diastolik"),
-            refLine(rows, "td_sistolik", ts.waspada_atas, "#f59e0b"),
-            refLine(rows, "td_sistolik", ts.bahaya_atas, "#ef4444"),
-            refLine(rows, "td_sistolik", ts.bahaya_bawah, "#ef4444"),
-            refLine(rows, "td_diastolik", td.waspada_atas, "#f59e0b"),
-            refLine(rows, "td_diastolik", td.bahaya_atas, "#ef4444"),
-            refLine(rows, "td_diastolik", td.bahaya_bawah, "#ef4444"),
+            lineset(
+                sisPts,
+                "#3b82f6",
+                "Sistolik",
+                pointColors(sisPts, sisStatus),
+            ),
+            lineset(
+                diasPts,
+                "#f97316",
+                "Diastolik",
+                pointColors(diasPts, diasStatus),
+            ),
         ].filter(Boolean);
+
         renderChart(
             "chart-tensi",
             datasets,
@@ -318,14 +340,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (lbl?.startsWith("Ref")) return null;
                 const isSis = lbl === "Sistolik";
                 const st = isSis
-                    ? v >= ts.bahaya_atas || v < ts.bahaya_bawah
+                    ? sisStatus(v) === "bahaya"
                         ? "🔴 Perlu Tindak Lanjut"
-                        : v >= ts.waspada_atas || v < ts.waspada_bawah
+                        : sisStatus(v) === "waspada"
                           ? "⚠️ Waspada"
                           : "✅ Normal"
-                    : v >= td.bahaya_atas || v < td.bahaya_bawah
+                    : diasStatus(v) === "bahaya"
                       ? "🔴 Perlu Tindak Lanjut"
-                      : v >= td.waspada_atas || v < td.waspada_bawah
+                      : diasStatus(v) === "waspada"
                         ? "⚠️ Waspada"
                         : "✅ Normal";
                 return `  ${lbl}: ${v} mmHg  ${st}`;
@@ -340,35 +362,48 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("gula", "chart");
+
         const tg = TH.gula_darah;
+        function gulaStatus(v) {
+            if (v >= tg.bahaya_atas) return "bahaya";
+            if (v >= tg.waspada_atas) return "waspada";
+            return "normal";
+        }
+
         renderLegend("legend-gula", [
             { color: "#2563eb", label: "Gula Darah", dash: false },
             {
-                color: "#10b981",
-                label: `Batas normal (< ${tg.waspada_atas})`,
+                color: "#f59e0b",
+                label: `Batas waspada (≥ ${tg.waspada_atas})`,
                 dash: true,
             },
             {
-                color: "#f59e0b",
+                color: "#ef4444",
                 label: `Batas perlu tindak lanjut (≥ ${tg.bahaya_atas})`,
                 dash: true,
             },
         ]);
+
         renderChart(
             "chart-gula",
             [
-                lineset(data, "#2563eb", "Gula Darah"),
-                refLine(rows, "gula_darah", tg.waspada_atas - 1, "#10b981"),
-                refLine(rows, "gula_darah", tg.bahaya_atas, "#f59e0b"),
+                lineset(
+                    data,
+                    "#2563eb",
+                    "Gula Darah",
+                    pointColors(data, gulaStatus),
+                ),
+                refLine(rows, "gula_darah", tg.waspada_atas, "#f59e0b"),
+                refLine(rows, "gula_darah", tg.bahaya_atas, "#ef4444"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
                 const st =
-                    v >= tg.bahaya_atas
+                    gulaStatus(v) === "bahaya"
                         ? "🔴 Perlu Tindak Lanjut"
-                        : v >= tg.waspada_atas
+                        : gulaStatus(v) === "waspada"
                           ? "⚠️ Waspada"
                           : "✅ Normal";
                 return `  Gula Darah: ${v} mg/dL  ${st}`;
@@ -383,35 +418,48 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("kolesterol", "chart");
+
         const tk = TH.kolesterol;
+        function kolStatus(v) {
+            if (v >= tk.bahaya_atas) return "bahaya";
+            if (v >= tk.waspada_atas) return "waspada";
+            return "normal";
+        }
+
         renderLegend("legend-kolesterol", [
             { color: "#7c3aed", label: "Kolesterol", dash: false },
             {
-                color: "#10b981",
-                label: `Batas normal (< ${tk.waspada_atas})`,
+                color: "#f59e0b",
+                label: `Batas waspada (≥ ${tk.waspada_atas})`,
                 dash: true,
             },
             {
-                color: "#f59e0b",
+                color: "#ef4444",
                 label: `Batas perlu tindak lanjut (≥ ${tk.bahaya_atas})`,
                 dash: true,
             },
         ]);
+
         renderChart(
             "chart-kolesterol",
             [
-                lineset(data, "#7c3aed", "Kolesterol"),
-                refLine(rows, "kolesterol", tk.waspada_atas - 1, "#10b981"),
-                refLine(rows, "kolesterol", tk.bahaya_atas, "#f59e0b"),
+                lineset(
+                    data,
+                    "#7c3aed",
+                    "Kolesterol",
+                    pointColors(data, kolStatus),
+                ),
+                refLine(rows, "kolesterol", tk.waspada_atas, "#f59e0b"),
+                refLine(rows, "kolesterol", tk.bahaya_atas, "#ef4444"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
                 const st =
-                    v >= tk.bahaya_atas
+                    kolStatus(v) === "bahaya"
                         ? "🔴 Perlu Tindak Lanjut"
-                        : v >= tk.waspada_atas
+                        : kolStatus(v) === "waspada"
                           ? "⚠️ Waspada"
                           : "✅ Normal";
                 return `  Kolesterol: ${v} mg/dL  ${st}`;
@@ -419,6 +467,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+    // BB: tidak ada threshold, semua titik hijau (normal)
     function buildBBChart(rows) {
         const data = pts(rows, "berat_badan");
         if (!data.length) {
@@ -426,13 +475,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("bb", "chart");
+
         renderLegend("legend-bb", [
             { color: "#0891b2", label: "Berat Badan (kg)", dash: false },
         ]);
+
         const avg = Math.round(data.reduce((s, d) => s + d.y, 0) / data.length);
+
+        // BB hanya 2 kategori: normal (hijau) vs perlu tindak lanjut (merah) — ±2 kg dari rata-rata = stabil
+        // Karena user bilang "bb memang ga ada batas", semua titik BB = hijau (normal)
+        const bbColors = data.map(() => DOT_COLOR.normal);
+
         renderChart(
             "chart-bb",
-            [lineset(data, "#0891b2", "Berat Badan")],
+            [lineset(data, "#0891b2", "Berat Badan", bbColors)],
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null) return null;
@@ -448,6 +504,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+    // LP: 2 kategori — normal (hijau) vs berisiko/merah
     function buildLPChart(rows, limit) {
         const data = pts(rows, "lingkar_perut");
         if (!data.length) {
@@ -455,6 +512,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("lp", "chart");
+
+        function lpStatus(v) {
+            return v >= limit ? "bahaya" : "normal";
+        }
+
         renderLegend("legend-lp", [
             { color: "#0d9488", label: "Lingkar Perut (cm)", dash: false },
             {
@@ -463,17 +525,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 dash: true,
             },
         ]);
+
         renderChart(
             "chart-lp",
             [
-                lineset(data, "#0d9488", "Lingkar Perut"),
+                lineset(
+                    data,
+                    "#0d9488",
+                    "Lingkar Perut",
+                    pointColors(data, lpStatus),
+                ),
                 refLine(rows, "lingkar_perut", limit, "#ef4444"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
-                const st = v >= limit ? "🔴 Perlu Tindak Lanjut" : "✅ Normal";
+                const st =
+                    lpStatus(v) === "bahaya"
+                        ? "🔴 Perlu Tindak Lanjut"
+                        : "✅ Normal";
                 return `  Lingkar Perut: ${v} cm  ${st}`;
             }, 150),
         );
@@ -486,35 +557,47 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         setChartState("imt", "chart");
+
+        const ti = TH.imt;
+        function imtStatus(v) {
+            if (v < ti.bahaya_bawah || v >= ti.bahaya_atas) return "bahaya";
+            if (
+                (v >= ti.bahaya_bawah && v < ti.waspada_bawah) ||
+                (v > ti.waspada_atas && v < ti.bahaya_atas)
+            )
+                return "waspada";
+            return "normal";
+        }
+
         renderLegend("legend-imt", [
             { color: "#e11d48", label: "IMT (kg/m²)", dash: false },
-            { color: "#10b981", label: "Batas normal bawah (22)", dash: true },
-            { color: "#10b981", label: "Batas normal atas (27)", dash: true },
+            { color: "#f59e0b", label: "Batas waspada (22 / 27)", dash: true },
             {
-                color: "#f59e0b",
-                label: "Batas waspada (18.5 / 30)",
+                color: "#ef4444",
+                label: "Batas perlu tindak lanjut (18.5 / 30)",
                 dash: true,
             },
         ]);
+
         renderChart(
             "chart-imt",
             [
-                lineset(data, "#e11d48", "IMT"),
-                refLine(rows, "imt", TH.imt.waspada_bawah, "#10b981"),
-                refLine(rows, "imt", TH.imt.waspada_atas, "#10b981"),
-                refLine(rows, "imt", TH.imt.bahaya_bawah, "#f59e0b"),
-                refLine(rows, "imt", TH.imt.bahaya_atas, "#f59e0b"),
+                lineset(data, "#e11d48", "IMT", pointColors(data, imtStatus)),
+                refLine(rows, "imt", ti.waspada_bawah, "#f59e0b"),
+                refLine(rows, "imt", ti.waspada_atas, "#f59e0b"),
+                refLine(rows, "imt", ti.bahaya_bawah, "#ef4444"),
+                refLine(rows, "imt", ti.bahaya_atas, "#ef4444"),
             ].filter(Boolean),
             makeOptions((ctx) => {
                 const v = ctx.raw?.y;
                 if (v == null || ctx.dataset.label?.startsWith("Ref"))
                     return null;
                 const st =
-                    v >= 22 && v <= 27
-                        ? "✅ Normal"
-                        : (v >= 18.5 && v < 22) || (v > 27 && v < 30)
+                    imtStatus(v) === "bahaya"
+                        ? "🔴 Perlu Tindak Lanjut"
+                        : imtStatus(v) === "waspada"
                           ? "⚠️ Waspada"
-                          : "🔴 Perlu Tindak Lanjut";
+                          : "✅ Normal";
                 return `  IMT: ${v} kg/m²  ${st}`;
             }, 45),
         );
@@ -573,9 +656,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function applyDefaultFilter() {
-        const today = new Date();
-        const oneYearAgo = getRelativeDate(12);
-        applyFilter(oneYearAgo, today);
+        applyFilter(getRelativeDate(12), new Date());
     }
 
     function initFilters() {
@@ -590,10 +671,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 btn.classList.add("active");
                 const filterVal = btn.getAttribute("data-filter");
                 if (filterVal === "all") applyFilter(null, null);
-                else {
-                    const months = parseInt(filterVal, 10);
-                    applyFilter(getRelativeDate(months), new Date());
-                }
+                else
+                    applyFilter(
+                        getRelativeDate(parseInt(filterVal, 10)),
+                        new Date(),
+                    );
                 if (startInput) startInput.value = "";
                 if (endInput) endInput.value = "";
             });
@@ -606,8 +688,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 startDate = new Date(startInput.value + "-01");
             if (endInput?.value) {
                 const [year, month] = endInput.value.split("-");
-                const nextMonth = new Date(parseInt(year), parseInt(month), 1);
-                endDate = new Date(nextMonth - 86400000);
+                endDate = new Date(
+                    new Date(parseInt(year), parseInt(month), 1) - 86400000,
+                );
             }
             applyFilter(startDate, endDate);
             presetBtns.forEach((b) => b.classList.remove("active"));
@@ -631,7 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ========== MODAL DETAIL DATA (menggunakan filteredHealthHistoryData) ==========
+    // ========== MODAL DETAIL DATA ==========
     const modalDetail = document.getElementById("detail-modal");
     window.closeDetailModal = function () {
         if (modalDetail) modalDetail.style.display = "none";
@@ -655,7 +738,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const hasData = (r, keys) => keys.some((k) => r[k] != null);
 
-        // Fungsi bantu untuk memberi warna teks
         function colorText(value, condition) {
             if (condition === "normal")
                 return `<span style="color: #10b981; font-weight:500;">${value}</span>`;
@@ -666,10 +748,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return value;
         }
 
-        // Status untuk tensi
         function getTensiStatus(sis, dias) {
-            const ts = TH.sistolik;
-            const td = TH.diastolik;
+            const ts = TH.sistolik,
+                td = TH.diastolik;
             const sisStatus =
                 sis >= ts.bahaya_atas || sis < ts.bahaya_bawah
                     ? "bahaya"
@@ -694,12 +775,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     hasData(r, ["td_sistolik", "td_diastolik"]),
                 );
                 tdBuilder = (r) => {
-                    const sis = r.td_sistolik;
-                    const dias = r.td_diastolik;
-                    const { sisStatus, diasStatus } = getTensiStatus(sis, dias);
-                    const sisHtml = sis ? colorText(sis, sisStatus) : "-";
-                    const diasHtml = dias ? colorText(dias, diasStatus) : "-";
-                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${sisHtml}</td><td>${diasHtml}</td></tr>`;
+                    const { sisStatus, diasStatus } = getTensiStatus(
+                        r.td_sistolik,
+                        r.td_diastolik,
+                    );
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.td_sistolik ? colorText(r.td_sistolik, sisStatus) : "-"}</td><td>${r.td_diastolik ? colorText(r.td_diastolik, diasStatus) : "-"}</td></tr>`;
                 };
                 break;
             case "gula":
@@ -709,13 +789,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     hasData(r, ["gula_darah"]),
                 );
                 tdBuilder = (r) => {
-                    let val = r.gula_darah;
                     const tg = TH.gula_darah;
-                    let status = "normal";
-                    if (val >= tg.bahaya_atas) status = "bahaya";
-                    else if (val >= tg.waspada_atas) status = "waspada";
-                    const valHtml = val ? colorText(val, status) : "-";
-                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                    const st =
+                        r.gula_darah >= tg.bahaya_atas
+                            ? "bahaya"
+                            : r.gula_darah >= tg.waspada_atas
+                              ? "waspada"
+                              : "normal";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.gula_darah ? colorText(r.gula_darah, st) : "-"}</td></tr>`;
                 };
                 break;
             case "kolesterol":
@@ -725,13 +806,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     hasData(r, ["kolesterol"]),
                 );
                 tdBuilder = (r) => {
-                    let val = r.kolesterol;
                     const tk = TH.kolesterol;
-                    let status = "normal";
-                    if (val >= tk.bahaya_atas) status = "bahaya";
-                    else if (val >= tk.waspada_atas) status = "waspada";
-                    const valHtml = val ? colorText(val, status) : "-";
-                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                    const st =
+                        r.kolesterol >= tk.bahaya_atas
+                            ? "bahaya"
+                            : r.kolesterol >= tk.waspada_atas
+                              ? "waspada"
+                              : "normal";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.kolesterol ? colorText(r.kolesterol, st) : "-"}</td></tr>`;
                 };
                 break;
             case "bb":
@@ -750,41 +832,34 @@ document.addEventListener("DOMContentLoaded", function () {
                     hasData(r, ["lingkar_perut"]),
                 );
                 tdBuilder = (r) => {
-                    let val = r.lingkar_perut;
-                    let status = val >= lpLimit ? "bahaya" : "normal";
-                    const valHtml = val ? colorText(val, status) : "-";
-                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                    const st = r.lingkar_perut >= lpLimit ? "bahaya" : "normal";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${r.lingkar_perut ? colorText(r.lingkar_perut, st) : "-"}</td></tr>`;
                 };
                 break;
             case "imt":
                 title = "Detail IMT";
-                // HAPUS kolom status, hanya tanggal dan nilai IMT
                 thHTML = "<th>Tanggal</th><th>IMT (kg/m²)</th>";
                 filteredData = dataSource.filter((r) => hasData(r, ["imt"]));
                 tdBuilder = (r) => {
-                    let val = r.imt;
-                    const ti = TH.imt;
-                    let status = "normal";
-                    if (val != null) {
-                        if (
-                            (val >= ti.bahaya_bawah &&
-                                val < ti.waspada_bawah) ||
-                            (val > ti.waspada_atas && val < ti.bahaya_atas)
-                        )
-                            status = "waspada";
-                        else if (val < ti.bahaya_bawah || val >= ti.bahaya_atas)
-                            status = "bahaya";
-                        else status = "normal";
-                    }
-                    const valHtml = val ? colorText(val, status) : "-";
-                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${valHtml}</td></tr>`;
+                    const ti = TH.imt,
+                        v = r.imt;
+                    const st =
+                        v == null
+                            ? "normal"
+                            : v < ti.bahaya_bawah || v >= ti.bahaya_atas
+                              ? "bahaya"
+                              : (v >= ti.bahaya_bawah &&
+                                      v < ti.waspada_bawah) ||
+                                  (v > ti.waspada_atas && v < ti.bahaya_atas)
+                                ? "waspada"
+                                : "normal";
+                    return `<tr><td>${fmtDate(r.tanggal)}</td><td>${v ? colorText(v, st) : "-"}</td></tr>`;
                 };
                 break;
         }
 
         titleEl.textContent = title;
         thead.innerHTML = thHTML;
-
         if (!filteredData.length) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">Tidak ada riwayat data.</td></tr>`;
         } else {
@@ -796,7 +871,7 @@ document.addEventListener("DOMContentLoaded", function () {
         modalDetail.style.display = "flex";
     };
 
-    // ========== KELUHAN (tidak berubah) ==========
+    // ========== KELUHAN ==========
     async function loadKeluhan(id) {
         show("keluhan-loading");
         hide("keluhan-empty");
@@ -834,18 +909,16 @@ document.addEventListener("DOMContentLoaded", function () {
     window.closeKeluhanModal = function () {
         if (modalKeluhan) modalKeluhan.style.display = "none";
     };
-
     if (modalKeluhan) {
         modalKeluhan.addEventListener("click", (e) => {
             if (e.target === modalKeluhan) closeKeluhanModal();
         });
     }
-
     el("btn-lihat-semua-keluhan")?.addEventListener("click", () => {
         if (modalKeluhan) modalKeluhan.style.display = "flex";
     });
 
-    // ========== SARAN (tidak berubah) ==========
+    // ========== SARAN ==========
     async function loadSaran(id) {
         show("dp-saran-loading");
         hide("dp-saran-empty");
@@ -993,5 +1066,5 @@ document.addEventListener("DOMContentLoaded", function () {
     loadCharts(lansiaId);
     loadKeluhan(lansiaId);
     loadSaran(lansiaId);
-    initFilters(); // panggil inisialisasi filter
+    initFilters();
 });

@@ -58,8 +58,8 @@
             {{-- ── TABEL LANSIA (4 kolom sesuai spesifikasi) ──────────── --}}
             <section class="table-container card">
                 <div class="table-header-actions">
-                    <div class="search-wrapper">
-                        <img src="img/icon-7.svg" alt="">
+                    <div class="search-wrapper filter-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="search" placeholder="Cari nama, NIK, atau alamat..." id="main-search">
                     </div>
                     <button class="btn-outline" id="btn-filter-lansia"

@@ -198,6 +198,17 @@
     background: #f0f7ff;
 }
 
+/* Neutralize history icon visuals and badge colors per request */
+.history-icon {
+    display: none !important;
+}
+.badge-kunjungan,
+.badge-utama,
+.badge-ppok {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+}
+
 .btn-icon {
     display: inline-flex;
     align-items: center;

@@ -1,6 +1,6 @@
 @extends('layout.sidebar')
 
-@section('title', 'Skrining Utama')
+@section('title', 'Skrining PTM')
 
 @push('styles')
     @vite('resources/css/cssAdmin/skrining_utama.css')
@@ -19,7 +19,7 @@
         @if(!$jadwalHariIni)
             <div class="alert-warning" style="background: #fff7ed; border: 1px solid #fdba74; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #9a3412;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
-                <strong>Peringatan:</strong> Jadwal posyandu hari ini tidak mencakup <strong>Skrining Utama</strong>. Anda tidak dapat menyimpan data ini.
+                <strong>Peringatan:</strong> Jadwal posyandu hari ini tidak mencakup <strong>Skrining PTM</strong>. Anda tidak dapat menyimpan data ini.
             </div>
         @endif
 

@@ -351,23 +351,21 @@ body:has(.laporan-page) .main-content {
         <input type="text" id="searchKegiatan" placeholder="Cari nama kegiatan..."
             style="border:none; background:transparent; outline:none; font-size:13px; width:100%; font-family:inherit; color:#1e293b;">
     </div>
-            <label>Bulan:</label>
             <select id="filterBulan" class="laporan-filter-select">
                 <option value="">Semua Bulan</option>
-                <option value="01">Januari</option>
-                <option value="02">Februari</option>
-                <option value="03">Maret</option>
-                <option value="04">April</option>
-                <option value="05">Mei</option>
-                <option value="06">Juni</option>
-                <option value="07">Juli</option>
-                <option value="08">Agustus</option>
-                <option value="09">September</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
                 <option value="10">Oktober</option>
                 <option value="11">November</option>
                 <option value="12">Desember</option>
             </select>
-            <label>Tahun:</label>
             <select id="filterTahun" class="laporan-filter-select">
                 <option value="">Semua Tahun</option>
                 <option value="2024">2024</option>
@@ -390,7 +388,7 @@ body:has(.laporan-page) .main-content {
                 <tbody id="laporan-body">
                     @forelse($laporan as $item)
                     <tr
-                        data-bulan="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('m') }}"
+                        data-bulan="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('n') }}"
                         data-tahun="{{ \Carbon\Carbon::parse($item->tanggal_pelaksanaan)->format('Y') }}"
                     >
                         <td>{{ $loop->iteration }}</td>

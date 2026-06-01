@@ -67,7 +67,7 @@
                 $steps = [['id' => 'step-lansia', 'label' => 'Data & Kunjungan', 'icon' => 'fa-person-cane']];
 
                 if (in_array(\App\Models\DetailSkrining::SKRINING_UTAMA, $aktifSkrining)) {
-                    $steps[] = ['id' => 'step-utama', 'label' => 'Skrining Utama', 'icon' => 'fa-clipboard-list'];
+                    $steps[] = ['id' => 'step-utama', 'label' => 'Skrining PTM', 'icon' => 'fa-clipboard-list'];
                 }
 
                 if (in_array(\App\Models\DetailSkrining::SKRINING_PPOK, $aktifSkrining)) {
@@ -112,9 +112,8 @@
 
                 {{-- ── Bagian: Pilih Lansia ── --}}
                 <div class="form-section">
-                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <i class="fa-solid fa-person-cane"></i>
                             <span>Data Lansia</span>
                         </div>
                         @if ($sudahSkrining->isNotEmpty())
@@ -184,8 +183,7 @@
 
                 {{-- ── Bagian: Kunjungan Rutin (selalu ada) ── --}}
                 <div class="form-section">
-                    <div class="section-header kunjungan">
-                        <i class="fa-solid fa-stethoscope"></i>
+                        <div class="section-header kunjungan">
                         <span>Kunjungan Rutin</span>
                         <span class="badge-always">Selalu Ada</span>
                     </div>
@@ -299,8 +297,7 @@
                 <div class="wizard-panel" id="step-utama">
                     <div class="form-section">
                         <div class="section-header utama">
-                            <i class="fa-solid fa-clipboard-list"></i>
-                            <span>Skrining Utama</span>
+                            <span>Skrining PTM</span>
                         </div>
 
                         <div class="subsection-label">Pengukuran Lab</div>
@@ -564,7 +561,6 @@
                 <div class="wizard-panel" id="step-ppok">
                     <div class="form-section">
                         <div class="section-header ppok">
-                            <i class="fa-solid fa-lungs"></i>
                             <span>Skrining PPOK</span>
                         </div>
 
@@ -1184,9 +1180,9 @@
                     ['Resep Obat', adaResep ? jumlahResep + ' item' : 'Tidak ada'],
                 ]);
 
-                // Skrining Utama (opsional)
+                // Skrining PTM (opsional)
                 if (gula || kol || parseInt(srqTotal) > 0) {
-                    html += reviewCard('fa-clipboard-list', 'Skrining Utama', [
+                    html += reviewCard('fa-clipboard-list', 'Skrining PTM', [
                         ['Gula Darah', gula ? gula + ' mg/dL' : '—'],
                         ['Kolesterol', kol ? kol + ' mg/dL' : '—'],
                         ['Skor SRQ-20', srqTotal + ' / 20'],
