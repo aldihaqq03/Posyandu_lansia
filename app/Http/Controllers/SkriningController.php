@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailResep;
 use App\Models\DetailSkrining;
 use App\Models\JadwalPosyandu;
-use App\Models\Lansia;
+use App\Models\lansia;
 use App\Models\MutasiStokObat;
 use App\Models\Obat;
 use App\Models\Resep;
