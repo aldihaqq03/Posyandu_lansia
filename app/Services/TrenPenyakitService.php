@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Lansia;
+use App\Models\lansia;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
