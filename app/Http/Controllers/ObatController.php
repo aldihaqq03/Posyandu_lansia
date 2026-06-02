@@ -149,19 +149,19 @@ class ObatController extends Controller
 
         $validated = $request->validate([
             'nama_obat' => [
-    'required',
-    'string',
-    'max:150',
-    Rule::unique('obat')
-        ->ignore($id, 'id_obat')
-        ->where(fn ($query) =>
-            $query->where('tipe_obat', $request->tipe_obat)
-        ),
-],
+            'required',
+            'string',
+            'max:150',
+            Rule::unique('obat')
+                ->ignore($id, 'id_obat')
+                ->where(fn ($query) =>
+                    $query->where('tipe_obat', $request->tipe_obat)
+                ),
+        ],
             'tipe_obat' => 'required|in:' . implode(',', self::TIPE_OBAT),
             'keterangan' => 'nullable|string|max:500',
         ], [
-            'nama_obat.unique' => 'Nama obat sudah terdaftar, gunakan nama yang berbeda.',
+            'nama_obat.unique' => 'Nama obat dengan tipe yang sama sudah terdaftar.',
             'tipe_obat.in' => 'Tipe obat tidak valid.',
         ]);
 
