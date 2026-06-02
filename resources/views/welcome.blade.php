@@ -448,7 +448,7 @@
             padding: 28px 18px;
             box-shadow: 0 24px 60px rgba(12, 24, 53, .28);
             overflow: hidden;
-            min-height: 600px;
+            min-height: 500px;
         }
 
         .wf-sidebar::before {
@@ -1482,9 +1482,7 @@
                             <div class="wf-pill">
                                 <div class="pill-dot" style="background:#9333ea"></div>Saran petugas
                             </div>
-                            <div class="wf-pill">
-                                <div class="pill-dot" style="background:#9333ea"></div>Pemantauan berkala
-                            </div>
+
                             <div class="wf-pill">
                                 <div class="pill-dot" style="background:#9333ea"></div>Status kesehatan
                             </div>
@@ -1526,9 +1524,7 @@
                             <div class="wf-pill">
                                 <div class="pill-dot" style="background:#ea580c"></div>Skrining PPOK
                             </div>
-                            <div class="wf-pill">
-                                <div class="pill-dot" style="background:#ea580c"></div>Detail pemeriksaan
-                            </div>
+
                             <div class="wf-pill">
                                 <div class="pill-dot" style="background:#ea580c"></div>Download History Skrining
                             </div>
@@ -1630,7 +1626,7 @@
                                     class="fa-solid fa-chart-pie"></i></div>
                             <div class="wf-card-heading">
                                 <div class="wf-card-eyebrow">Fitur 06</div>
-                                <h2>Laporan dan Rekapitulasi</h2>
+                                <h2>Laporan </h2>
                                 <p>Menyediakan laporan kegiatan dan rekap data kesehatan untuk kebutuhan administrasi
                                     serta evaluasi pelayanan, lengkap dengan statistik dan kemampuan export PDF.</p>
                             </div>
@@ -1639,19 +1635,16 @@
                         <div class="wf-hl-title">Highlight Fitur</div>
                         <div class="wf-pills">
                             <div class="wf-pill">
-                                <div class="pill-dot" style="background:#7c3aed"></div>Rekap pemeriksaan
-                            </div>
-                            <div class="wf-pill">
-                                <div class="pill-dot" style="background:#7c3aed"></div>Statistik kesehatan
+                                <div class="pill-dot" style="background:#7c3aed"></div>Kehadiran lansia
                             </div>
                             <div class="wf-pill">
                                 <div class="pill-dot" style="background:#7c3aed"></div>Laporan kegiatan
                             </div>
                             <div class="wf-pill">
-                                <div class="pill-dot" style="background:#7c3aed"></div>Export PDF
+                                <div class="pill-dot" style="background:#7c3aed"></div>Export PDF laporan
                             </div>
                             <div class="wf-pill">
-                                <div class="pill-dot" style="background:#7c3aed"></div>Dokumentasi kegiatan
+                                <div class="pill-dot" style="background:#7c3aed"></div>Laporan obat keluar
                             </div>
                         </div>
                         <div class="wf-strip" style="background:linear-gradient(135deg,#faf5ff,#f3e8ff)">

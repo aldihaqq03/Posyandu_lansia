@@ -66,8 +66,8 @@
         }
 
         .logo-icon {
-            width: 500px;
-            height: 500px;
+            width: 70px;
+            height: 70px;
 
             border-radius: 28px;
             display: inline-flex;
@@ -76,7 +76,6 @@
             margin-bottom: 1rem;
 
         }
-
 
         .logo-icon i {
             font-size: 34px;
