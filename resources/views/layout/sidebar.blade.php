@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,8 +21,12 @@
     <!-- LOGO -->
     <div class="logo-section">
         <div class="logo-left">
-            <div class="logo-icon"><x-logo style="width:100%; height:100%;" /></div>
-            <div class="logo-text"><span class="brand-name">SIMPEL</span><span class="brand-tagline">Sistem Informasi Posyandu</span></div>
+            <div class="logo-icon">
+    <img src="{{ asset('assets/img/logo_simpel.png') }}"
+         alt="Logo SIMPEL"
+         style="width:100%; height:100%; object-fit:contain;">
+</div>
+            <div class="logo-text"><span class="brand-name">SIMPEL</span><span class="brand-tagline">Sistem Informasi Peduli Lansia </span></div>
         </div>
         <button type="button" class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
     </div>
@@ -29,13 +34,13 @@
     <nav class="sidebar-nav">
         <div class="nav-section-title">MAIN MENU</div>
         <a href="/dashboard" class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Dashboard</span></a>
-        @if(in_array($sidebarRole, ['kepala_kader', 'super_admin']))
+        @if (in_array($sidebarRole, ['kepala_kader', 'super_admin']))
             <a href="/data_petugas" class="nav-item {{ Request::is('data_petugas') ? 'active' : '' }}"><i class="fa-solid fa-user-nurse"></i><span class="nav-text">Data Petugas</span></a>
         @endif
         <a href="/data_lansia" class="nav-item {{ Request::is('data_lansia') ? 'active' : '' }}"><i class="fa-solid fa-users"></i><span class="nav-text">Data Lansia</span></a>
         <a href="/obat" class="nav-item {{ Request::is('obat') ? 'active' : '' }}"><i class="fa-solid fa-pills"></i><span class="nav-text">Data Obat</span></a>
         <a href="/skrining" class="nav-item {{ Request::is('skrining') ? 'active' : '' }}"><i class="fa-solid fa-notes-medical"></i><span class="nav-text">Input Skrining</span></a>
-        @if(in_array($sidebarRole, ['kepala_kader', 'super_admin']))
+        @if (in_array($sidebarRole, ['kepala_kader', 'super_admin']))
             <a href="/laporan" class="nav-item {{ Request::is('laporan') ? 'active' : '' }}"><i class="fa-solid fa-file"></i><span class="nav-text">Laporan</span></a>
         @endif
         <a href="/jadwal_posyandu" class="nav-item {{ Request::is('jadwal_posyandu') ? 'active' : '' }}"><i class="fa-solid fa-calendar"></i><span class="nav-text">Jadwal Posyandu</span></a>
@@ -57,14 +62,14 @@
             if ($sidebarInitials === '') $sidebarInitials = strtoupper(substr($sidebarName,0,2));
             $sidebarPhoto = Auth::user()->petugas?->foto;
         @endphp
-        @if($sidebarPhoto)
-            <img src="{{ asset('storage/'.$sidebarPhoto) }}" class="user-avatar" alt="Foto Pengguna">
+        @if ($sidebarPhoto)
+            <img src="{{ asset('storage/' . $sidebarPhoto) }}" class="user-avatar" alt="Foto Pengguna">
         @else
             <div class="user-avatar user-avatar-fallback">{{ $sidebarInitials }}</div>
         @endif
         <div class="user-info">
             <a href="/pengaturan" class="user-name">{{ Auth::user()->nama ?? 'Pengguna' }}</a>
-            <span class="user-role">{{ str_replace('_',' ', Auth::user()->jabatan ?? 'Kader') }}</span>
+            <span class="user-role">{{ str_replace('_', ' ', Auth::user()->jabatan ?? 'Kader') }}</span>
         </div>
         <form action="/logout" method="POST" id="formLogoutSidebar">@csrf<button type="button" class="logout-btn" onclick="openLogoutModal()"><i class="fa-solid fa-right-from-bracket"></i></button></form>
     </div>
@@ -89,7 +94,20 @@
     .sidebar { width:280px; height:100vh; position:fixed; left:0; top:0; background:linear-gradient(180deg,#0c1835 25%,#3b82f6 75%); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; padding:20px 16px; transition:width 0.3s ease; z-index:999; border-radius:0 24px 24px 0; }
     .logo-left { display:flex; align-items:center; gap:14px; }
     .logo-section { display:flex; align-items:center; justify-content:space-between; margin-bottom:30px; }
-    .logo-icon { width:52px; height:52px; border-radius:16px; background:linear-gradient(135deg,#2563eb,#3b82f6); display:flex; align-items:center; justify-content:center; padding:10px; box-shadow:0 10px 25px rgba(37,99,235,.35); }
+   .logo-icon { 
+    width:52px; height:52px; border-radius:16px; 
+    background: #ffffff; 
+    display:flex; align-items:center; justify-content:center; 
+    padding:0;                 /* ← hapus padding */
+    overflow:hidden;           /* ← agar gambar tidak keluar */
+    box-shadow:0 10px 25px rgba(37,99,235,.35); 
+}
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* gambar akan memenuhi seluruh kotak */
+    /* atau gunakan object-fit: contain jika logo tidak ingin terpotong */
+}
     .brand-name { font-size:22px; font-weight:700; color:white; }
     .brand-tagline { font-size:11px; color:#9ca3af; }
     .sidebar-nav { flex:1; overflow-y:auto; scrollbar-width:none; }
@@ -160,26 +178,32 @@
         setTimeout(dismiss,duration);
     };
     document.addEventListener('DOMContentLoaded',function(){
-        @if(session('success')) showToast(@json(session('success')),'success'); @endif
-        @if(session('error')) showToast(@json(session('error')),'error'); @endif
-        @if(session('warning')) showToast(@json(session('warning')),'warning'); @endif
-        @if(session('info')) showToast(@json(session('info')),'info'); @endif
-        @if($errors->any()) @foreach($errors->all() as $err) showToast(@json($err),'error'); @endforeach @endif
+        @if (session('success')) showToast(@json(session('success')),'success'); @endif
+        @if (session('error')) showToast(@json(session('error')),'error'); @endif
+        @if (session('warning')) showToast(@json(session('warning')),'warning'); @endif
+        @if (session('info')) showToast(@json(session('info')),'info'); @endif
+        @if ($errors->any()) @foreach ($errors->all() as $err) showToast(@json($err),'error'); @endforeach
+               @endif
     });
     function openLogoutModal() { document.getElementById('logoutModal').classList.add('active'); }
     function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('active'); }
     function submitLogout() { document.getElementById('formLogoutSidebar').submit(); }
     // Fungsi untuk membuka modal parameter (didefinisikan juga di parameter-modal.blade.php)
-    window.openParamModal = function() { const modal = document.getElementById('paramModal'); if(modal) modal.classList.add('active'); };
-    window.closeParamModal = function() { const modal = document.getElementById('paramModal'); if(modal) modal.classList.remove('active'); };
-    window.closeParamIfOutside = function(e) { if(e.target === document.getElementById('paramModal')) closeParamModal(); };
+    window.openParamModal = function() { const modal = document.getElementById('paramModal'); if(modal)
+    modal.classList.add('active'); };
+    window.closeParamModal = function() { const modal = document.getElementById('paramModal'); if(modal)
+    modal.classList.remove('active'); };
+    window.closeParamIfOutside = function(e) { if(e.target === document.getElementById('paramModal')) closeParamModal();
+    };
     // Sidebar collapse
     document.addEventListener('DOMContentLoaded',()=>{
-        const btn=document.getElementById('sidebarToggle'), sidebar=document.getElementById('sidebar');
-        if(localStorage.getItem('sidebarCollapsed')==='true') sidebar.classList.add('collapsed');
-        btn.addEventListener('click',()=>{ sidebar.classList.toggle('collapsed'); localStorage.setItem('sidebarCollapsed',sidebar.classList.contains('collapsed')); });
+    const btn=document.getElementById('sidebarToggle'), sidebar=document.getElementById('sidebar');
+    if(localStorage.getItem('sidebarCollapsed')==='true') sidebar.classList.add('collapsed');
+    btn.addEventListener('click',()=>{ sidebar.classList.toggle('collapsed');
+    localStorage.setItem('sidebarCollapsed',sidebar.classList.contains('collapsed')); });
     });
-</script>
-@stack('scripts')
-</body>
+    </script>
+    @stack('scripts')
+    </body>
+
 </html>
