@@ -39,8 +39,15 @@ class KontenController extends Controller
             'tipe_konten'    => 'required|integer',
             'kategori_konten'=> 'required|integer',
             'gambar'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'video'          => 'nullable|mimes:mp4,mov,avi,wmv|max:51200',
-            'deskripsi'      => 'nullable|string',
+            'video'          => 'nullable|mimes:mp4,mov,avi,wmv|max:40960',
+            'deskripsi'      => 'nullable|string|max:65000',
+        ], [
+            'judul.max'      => 'Judul terlalu panjang, maksimal 255 karakter.',
+            'video.max'      => 'File video terlalu besar. Maksimal ukuran yang diizinkan adalah 40MB.',
+            'video.mimes'    => 'Format video tidak didukung. Gunakan MP4, MOV, AVI, atau WMV.',
+            'gambar.max'     => 'File foto terlalu besar. Maksimal ukuran yang diizinkan adalah 5MB.',
+            'gambar.mimes'   => 'Format foto tidak didukung. Gunakan JPEG, PNG, atau GIF.',
+            'deskripsi.max'  => 'Deskripsi terlalu panjang. Maksimal 65.000 karakter.',
         ]);
 
         $data = $request->only(['judul', 'tipe_konten', 'kategori_konten', 'deskripsi']);

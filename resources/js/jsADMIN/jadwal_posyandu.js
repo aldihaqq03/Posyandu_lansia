@@ -64,6 +64,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function openModalTambah() {
         modalTambah.classList.add("open");
         document.body.style.overflow = "hidden";
+        const inputTanggal = document.getElementById("input-tanggal");
+        const hintEl = document.getElementById("input-tanggal-hint");
+        setMinDateForInput(inputTanggal, hintEl);
+        if (inputTanggal && !inputTanggal.value) {
+            inputTanggal.value = inputTanggal.min;
+        }
     }
     function closeModalTambah() {
         modalTambah.classList.remove("open");
@@ -120,7 +126,25 @@ document.addEventListener("DOMContentLoaded", function () {
     modalDetail?.addEventListener("click", (e) => {
         if (e.target === modalDetail) closeModalDetail();
     });
-
+    function setMinDateForInput(inputElement, hintElement) {
+        if (!inputElement) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        today.setDate(today.getDate() + 3);
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const minDateStr = `${year}-${month}-${day}`;
+        inputElement.setAttribute('min', minDateStr);
+        inputElement.dataset.minDate = minDateStr;
+        if (hintElement) {
+            hintElement.textContent = `Minimal tanggal: ${formatDateIndo(minDateStr)} (H+3 dari hari ini)`;
+            hintElement.style.display = 'block';
+            hintElement.style.color = 'var(--primary-mid)';
+            hintElement.style.fontSize = '12px';
+            hintElement.style.marginTop = '4px';
+        }
+    }
     function renderStatusBadge(status) {
         const badge = document.getElementById("detail-status-badge");
         if (!badge) return;
@@ -317,6 +341,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const tanggal = document.getElementById("input-tanggal").value;
             const tema = document.getElementById("input-tema").value.trim();
             const lokasi = document.getElementById("input-lokasi").value.trim();
+            if (!tanggal) {
+                alert("Tanggal wajib diisi!");
+                return;
+            }
+            if (tanggal < minDate) {
+                alert(`Tanggal minimal ${formatDateIndo(minDate)} (H+3 dari hari ini)`);
+                return;
+            }
+
 
             if (!tanggal || !tema || !lokasi) {
                 alert("Tanggal, Tema, dan Lokasi wajib diisi!");

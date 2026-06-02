@@ -1,554 +1,267 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk — SIMPEL</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Login | SIMPEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        *,
-        *::before,
-        *::after {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
-
+            background: radial-gradient(circle at 10% 20%, #0a0f2e, #030514, #0b0f1c);
             display: flex;
             align-items: center;
             justify-content: center;
-
-            padding: 2rem;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #eef4fb 0%,
-                    #f6f9fc 100%
-                );
-
-            overflow: hidden;
-        }
-
-        /* =========================
-            CARD UTAMA
-        ========================== */
-
-        .auth-container {
-            width: 100%;
-            max-width: 1180px;
-            min-height: 680px;
-
+            padding: 1.5rem;
             position: relative;
-            display: flex;
-
-            border-radius: 36px;
-
-            overflow: hidden;
-
-            background: rgba(255,255,255,0.88);
-
-            backdrop-filter: blur(14px);
-
-            border: 1px solid rgba(255,255,255,0.7);
-
-            box-shadow:
-                0 20px 60px rgba(15, 42, 110, 0.08),
-                0 10px 25px rgba(15, 42, 110, 0.05);
+            overflow-x: hidden;
         }
 
-        /* =========================
-            KIRI FORM
-        ========================== */
-
-        .form-section {
-            width: 48%;
-
-            background: rgba(255,255,255,0.94);
-
-            padding: 4rem;
-
-            z-index: 10;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        /* Canvas untuk bintang (sedikit) */
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        /* =========================
-            HEADER
-        ========================== */
+        /* Card Login – besar, glassmorphic */
+        .login-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            padding: 2.8rem 2.5rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
 
+        .login-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Header card */
         .brand-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-
-            margin-bottom: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
-        .logo-ring {
-            width: 54px;
-            height: 54px;
-
-            border-radius: 18px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #2b7fff,
-                    #1d63d8
-                );
-
-            display: flex;
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #2b7fff, #1d4ed8);
+            border-radius: 28px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-
-            box-shadow:
-                0 10px 25px rgba(43,127,255,0.35);
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 20px rgba(43, 127, 255, 0.3);
         }
 
-        .logo-ring svg {
-            width: 26px;
-            height: 26px;
-
-            stroke: white;
-            fill: none;
-
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+        .logo-icon i {
+            font-size: 34px;
+            color: white;
         }
 
-        .brand-text h1 {
-            font-size: 1.4rem;
+        .brand-header h1 {
+            font-size: 2.1rem;
             font-weight: 800;
-
             color: #0f172a;
+            letter-spacing: -0.5px;
         }
 
-        .brand-text p {
-            font-size: 0.75rem;
-            font-weight: 600;
-
-            letter-spacing: .08em;
-            text-transform: uppercase;
-
-            color: #6b84b0;
+        .brand-header p {
+            color: #5b6e8c;
+            font-size: 0.9rem;
+            margin-top: 6px;
         }
 
-        /* =========================
-            TEKS
-        ========================== */
-
-        .greeting {
-            font-size: 2.6rem;
-            font-weight: 800;
-
-            line-height: 1.1;
-
-            color: #111827;
-
-            margin-bottom: .7rem;
-        }
-
-        .greeting-sub {
-            font-size: .98rem;
-            line-height: 1.7;
-
-            color: #64748b;
-
-            margin-bottom: 2.4rem;
-        }
-
-        /* =========================
-            ALERT
-        ========================== */
-
+        /* Alert */
         .alert-error,
         .alert-success {
-            padding: 1rem 1.1rem;
-
-            border-radius: 14px;
-
-            font-size: .88rem;
-
-            margin-bottom: 1.5rem;
+            padding: 1rem 1.2rem;
+            border-radius: 28px;
+            font-size: 0.85rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border-left: 5px solid;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .alert-error {
-            background: #fff1f1;
-            border: 1px solid #ffd5d5;
-            color: #d63031;
+            border-left-color: #ef4444;
+            color: #b91c1c;
         }
 
         .alert-success {
-            background: #effcf5;
-            border: 1px solid #b8ecd1;
-            color: #1f7a4d;
+            border-left-color: #10b981;
+            color: #0a5c2e;
         }
 
-        /* =========================
-            FORM
-        ========================== */
-
-        .field {
-            margin-bottom: 1.4rem;
+        /* Form fields */
+        .input-group {
+            margin-bottom: 1.6rem;
         }
 
-        label {
+        .input-group label {
             display: block;
-
-            font-size: .88rem;
             font-weight: 700;
-
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
             color: #1e293b;
-
-            margin-bottom: .7rem;
         }
 
-        .input-wrap {
+        .input-wrapper {
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        .ico {
+        .input-wrapper i:first-child {
             position: absolute;
-
-            left: 16px;
-            top: 50%;
-
-            transform: translateY(-50%);
-        }
-
-        .ico svg {
-            width: 19px;
-            height: 19px;
-
-            stroke: #94a3b8;
-            fill: none;
-
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-
-            border: 1.5px solid #e2e8f0;
-
-            background: #ffffff;
-
-            border-radius: 16px;
-
-            padding:
-                1rem
-                3rem
-                1rem
-                3rem;
-
-            font-size: .95rem;
-            font-family: inherit;
-
-            color: #1e293b;
-
-            transition: .25s ease;
-
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #3b82f6;
-
-            box-shadow:
-                0 0 0 5px rgba(59,130,246,.10);
-        }
-
-        input::placeholder {
+            left: 18px;
             color: #94a3b8;
+            font-size: 1.1rem;
         }
 
-        /* =========================
-            TOGGLE PASSWORD
-        ========================== */
+        .input-wrapper input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            background: #ffffff;
+        }
 
-        .toggle-pw {
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .toggle-password {
             position: absolute;
-
-            right: 16px;
-            top: 50%;
-
-            transform: translateY(-50%);
-
+            right: 18px;
             background: none;
             border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
 
+        /* Checkbox tanpa border */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 1.2rem 0 2rem;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #3b82f6;
+            margin: 0;
+            border: none;
+            box-shadow: none;
             cursor: pointer;
         }
 
-        .toggle-pw svg {
-            width: 19px;
-            height: 19px;
-
-            stroke: #94a3b8;
-            fill: none;
-
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+        .checkbox-wrapper label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
         }
 
-        .toggle-pw:hover svg {
-            stroke: #3b82f6;
-        }
-
-        .field-error {
-            margin-top: .5rem;
-
-            font-size: .82rem;
-
-            color: #ef4444;
-        }
-
-        /* =========================
-            ACTION
-        ========================== */
-
+        /* Actions: tombol login BESAR & lupa password */
         .form-actions {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-
+            flex-direction: column;
             gap: 1rem;
-
-            margin-top: 2rem;
-        }
-
-        .btn-forgot {
-            font-size: .88rem;
-            font-weight: 700;
-
-            color: #64748b;
-
-            text-decoration: none;
-
-            transition: .2s;
-        }
-
-        .btn-forgot:hover {
-            color: #2563eb;
         }
 
         .btn-login {
+            background: linear-gradient(135deg, #2b7fff, #1d4ed8);
             border: none;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #2b7fff,
-                    #1d63d8
-                );
-
+            padding: 1rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1.1rem;
             color: white;
-
-            border-radius: 16px;
-
-            padding: 1rem 2.4rem;
-
-            font-size: .95rem;
-            font-weight: 700;
-            font-family: inherit;
-
             cursor: pointer;
-
-            box-shadow:
-                0 12px 25px rgba(43,127,255,.25);
-
-            transition: .25s ease;
+            transition: 0.25s;
+            box-shadow: 0 10px 18px rgba(43, 127, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
         }
 
         .btn-login:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 18px 30px rgba(43,127,255,.35);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px rgba(43, 127, 255, 0.5);
         }
 
-        /* =========================
-            REGISTER
-        ========================== */
+        .forgot-link {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #3b82f6;
+            text-decoration: none;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+            color: #1e40af;
+        }
 
         .register-link {
-            margin-top: 2.5rem;
-
-            font-size: .92rem;
-
-            color: #64748b;
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #5b6e8c;
+            border-top: 1px solid #eef2f6;
+            padding-top: 1.5rem;
         }
 
         .register-link a {
-            color: #2563eb;
-
             font-weight: 700;
-
+            color: #2b7fff;
             text-decoration: none;
         }
 
-        /* =========================
-            KANAN VISUAL
-        ========================== */
-
-        .visual-section {
-            flex: 1;
-
-            position: relative;
-
-            overflow: hidden;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #f8fbff 0%,
-                    #edf4ff 100%
-                );
-        }
-
-        .visual-section::before {
-            content: "";
-
-            position: absolute;
-
-            width: 550px;
-            height: 550px;
-
-            border-radius: 50%;
-
-            background:
-                rgba(59,130,246,.08);
-
-            filter: blur(30px);
-
-            top: 50%;
-            right: -180px;
-
-            transform: translateY(-50%);
-        }
-
-        /* =========================
-            LINGKARAN
-        ========================== */
-
-        .circle {
-            position: absolute;
-
-            border-radius: 50%;
-        }
-
-        .circle-1 {
-            width: 950px;
-            height: 950px;
-
-            background:
-                rgba(191,219,254,.35);
-
-            top: 50%;
-            right: -540px;
-
-            transform: translateY(-50%);
-        }
-
-        .circle-2 {
-            width: 760px;
-            height: 760px;
-
-            background:
-                rgba(147,197,253,.30);
-
-            top: 50%;
-            right: -420px;
-
-            transform: translateY(-50%);
-        }
-
-        .circle-3 {
-            width: 560px;
-            height: 560px;
-
-            background:
-                rgba(96,165,250,.24);
-
-            top: 50%;
-            right: -290px;
-
-            transform: translateY(-50%);
-        }
-
-        .circle-4 {
-            width: 350px;
-            height: 350px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #60a5fa,
-                    #2563eb
-                );
-
-            top: 50%;
-            right: -140px;
-
-            transform: translateY(-50%);
-
-            box-shadow:
-                0 0 80px rgba(37,99,235,.35);
-        }
-        .toggle-pw svg {
-    width: 20px;
-    height: 20px;
-
-    stroke: #94a3b8;
-    fill: none;
-
-    stroke-width: 2;
-
-    stroke-linecap: round;
-    stroke-linejoin: round;
-
-    flex-shrink: 0;
-}
-
-
-        /* =========================
-            MOBILE
-        ========================== */
-
-        @media (max-width: 900px) {
-
-            .visual-section {
-                display: none;
+        /* Responsive */
+        @media (max-width: 560px) {
+            .login-card {
+                padding: 2rem 1.5rem;
             }
 
-            .form-section {
-                width: 100%;
-                padding: 2.5rem;
-            }
-
-            .auth-container {
-                max-width: 500px;
-                min-height: auto;
-            }
-
-            .greeting {
-                font-size: 2rem;
+            .btn-login {
+                font-size: 1rem;
             }
         }
     </style>
@@ -556,217 +269,157 @@
 
 <body>
 
-<div class="auth-container">
+    <canvas id="starCanvas"></canvas>
 
-    <!-- =====================
-        FORM
-    ====================== -->
-
-    <div class="form-section">
-
+    <div class="login-card">
         <div class="brand-header">
-
-            <div class="logo-ring">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.5 2.33 6.48 5.55 7.59L12 22l1.45-5.41C16.67 15.48 19 12.5 19 9c0-3.87-3.13-7-7-7z"/>
-                    <circle cx="12" cy="9" r="2.5"/>
-                </svg>
+            <div class="logo-icon">
+                <i class="fas fa-hand-holding-heart"></i>
             </div>
-
-            <div class="brand-text">
-                <h1>SIMPEL</h1>
-                <p>Sistem Informasi Peduli Lansia</p>
-            </div>
-
+            <h1>SIMPEL</h1>
+            <p>Sistem Informasi Peduli Lansia</p>
         </div>
 
-        <div class="greeting">
-            Welcome Back!
-        </div>
-
-        <div class="greeting-sub">
-            Masuk ke akun petugas Anda untuk melanjutkan monitoring kesehatan lansia.
-        </div>
-
-        @if(session('success'))
+        @if (session('success'))
             <div class="alert-success">
-                {{ session('success') }}
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
             </div>
         @endif
 
-        @if($errors->any())
+        @if ($errors->any())
             <div class="alert-error">
-                {{ $errors->first() }}
+                <i class="fas fa-exclamation-triangle"></i> {{ $errors->first() }}
             </div>
         @endif
 
         <form method="POST" action="{{ route('proses_login') }}">
-
             @csrf
 
-            <!-- EMAIL -->
-
-            <div class="field">
-
-                <label for="email">
-                    Username
-                </label>
-
-                <div class="input-wrap">
-
-                    <span class="ico">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="2" y="4" width="20" height="16" rx="2"/>
-                            <path d="m2 7 10 7 10-7"/>
-                        </svg>
-                    </span>
-
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        placeholder="nama@dinas.go.id"
-                        required
-                        autofocus
-                    >
-
+            <div class="input-group">
+                <label for="email">Alamat Email</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}"
+                        placeholder="nama@dinas.go.id" required autofocus>
                 </div>
-
-                @error('email')
-                    <div class="field-error">
-                        {{ $message }}
-                    </div>
-                @enderror
-
             </div>
 
-            <!-- PASSWORD -->
-
-            <div class="field">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <div class="input-wrap">
-
-                    <span class="ico">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="3" y="11" width="18" height="11" rx="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                    </span>
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="••••••••"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="toggle-pw"
-                        onclick="togglePw()"
-                    >
-                        <svg id="eye-ico" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
+            <div class="input-group">
+                <label for="password">Kata Sandi</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword()">
+                        <i class="fas fa-eye-slash" id="eyeIcon"></i>
                     </button>
-
                 </div>
-
             </div>
 
-            <div style="margin-top: 1rem; padding: 1rem 1.05rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; display: flex; align-items: center; gap: 0.8rem; font-family: 'Plus Jakarta Sans', sans-serif;">
-                <input
-                    type="checkbox"
-                    id="remember"
-                    name="remember"
-                    value="1"
-                    {{ old('remember') ? 'checked' : '' }}
-                    style="width: 18px; height: 18px; accent-color: #2b7fff; cursor: pointer; flex-shrink: 0;"
-                >
-                <label for="remember" style="margin: 0; cursor: pointer; font-size: 0.92rem; font-weight: 600; color: #334155; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.4;">
-                    Ingat saya
-                </label>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" name="remember" id="remember" value="1"
+                    {{ old('remember') ? 'checked' : '' }}>
+                <label for="remember">Ingat saya</label>
             </div>
-
-            <!-- ACTION -->
 
             <div class="form-actions">
-
-                @if(Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="btn-forgot">
-                        Forgot password?
-                    </a>
-                @endif
-
                 <button type="submit" class="btn-login">
-                    Login
+                    <i class="fas fa-arrow-right-to-bracket"></i> MASUK
                 </button>
-
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="forgot-link">Lupa password?</a>
+                @endif
             </div>
-
         </form>
 
         <div class="register-link">
-            Don't have an account?
-            <a href="{{ route('register') }}">
-                Daftar di sini
-            </a>
+            Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a>
         </div>
-
     </div>
 
-    <!-- =====================
-        VISUAL
-    ====================== -->
+    <script>
+        // ==================== BINTANG (SEDIKIT, LAMBAT JATUH) ====================
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let stars = [];
 
-    <div class="visual-section">
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initStars();
+        }
 
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="circle circle-4"></div>
+        function initStars() {
+            stars = [];
+            // Jumlah bintang lebih sedikit (60-100 tergantung lebar)
+            const starCount = Math.min(120, Math.floor(width * 0.08) + 40);
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.2 + 0.8,
+                    alpha: Math.random() * 0.6 + 0.3,
+                    speedY: Math.random() * 0.8 + 0.3, // jatuh pelan
+                    speedX: (Math.random() - 0.5) * 0.2,
+                    flicker: Math.random() * 0.03
+                });
+            }
+        }
 
-       
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            for (let star of stars) {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                // Warna bintang putih kekuningan dengan kilap
+                ctx.fillStyle = `rgba(255, 245, 210, ${star.alpha + Math.sin(Date.now() * star.flicker) * 0.1})`;
+                ctx.fill();
+                ctx.shadowBlur = star.radius * 1.5;
+                ctx.shadowColor = 'rgba(255,240,180,0.6)';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
 
-    </div>
+        function updateStars() {
+            for (let star of stars) {
+                star.y += star.speedY;
+                star.x += star.speedX;
+                if (star.y > height + 30) {
+                    star.y = -20;
+                    star.x = Math.random() * width;
+                }
+                if (star.x > width + 30) star.x = -30;
+                if (star.x < -30) star.x = width + 30;
+            }
+            drawStars();
+            requestAnimationFrame(updateStars);
+        }
 
-</div>
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+        resizeCanvas();
+        updateStars();
 
-<script>
-
-    function togglePw() {
-
-    const inp = document.getElementById('password');
-    const ico = document.getElementById('eye-ico');
-
-    if (inp.type === 'password') {
-
-        inp.type = 'text';
-
-        ico.innerHTML = `
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-            <path d="M1 1L23 23"/>
-        `;
-
-    } else {
-
-        inp.type = 'password';
-
-        ico.innerHTML = `
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-        `;
-    }
-}
-
-</script>
+        // Toggle password visibility
+        function togglePassword() {
+            const pw = document.getElementById('password');
+            const eye = document.getElementById('eyeIcon');
+            if (pw.type === 'password') {
+                pw.type = 'text';
+                eye.classList.remove('fa-eye-slash');
+                eye.classList.add('fa-eye');
+            } else {
+                pw.type = 'password';
+                eye.classList.remove('fa-eye');
+                eye.classList.add('fa-eye-slash');
+            }
+        }
+    </script>
 
 </body>
+
 </html>

@@ -1,201 +1,353 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Password — SIMPEL</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Lupa Password | SIMPEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #eef4fb 0%, #f6f9fc 100%);
-            overflow: hidden;
+            background: radial-gradient(circle at 10% 20%, #0a0f2e, #030514, #0b0f1c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .auth-container {
-            width: 100%; max-width: 1180px; min-height: 680px;
-            position: relative; display: flex;
-            border-radius: 36px; overflow: hidden;
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow: 0 20px 60px rgba(15,42,110,0.08), 0 10px 25px rgba(15,42,110,0.05);
-        }
-
-        .form-section {
-            width: 48%;
-            background: rgba(255,255,255,0.94);
-            padding: 4rem;
-            z-index: 10;
-            display: flex; flex-direction: column; justify-content: center;
-        }
-
-        .brand-header { display: flex; align-items: center; gap: 14px; margin-bottom: 3rem; }
-
-        .logo-ring {
-            width: 54px; height: 54px; border-radius: 18px;
-            background: linear-gradient(145deg, #2b7fff, #1d63d8);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(43,127,255,0.35);
-        }
-
-        .logo-ring svg { width: 26px; height: 26px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-        .brand-text h1 { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
-        .brand-text p  { font-size: 0.75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #6b84b0; }
-
-        .greeting     { font-size: 2.6rem; font-weight: 800; line-height: 1.1; color: #111827; margin-bottom: .7rem; }
-        .greeting-sub { font-size: .98rem; line-height: 1.7; color: #64748b; margin-bottom: 2.4rem; }
-
-        .alert-error, .alert-success {
-            padding: 1rem 1.1rem; border-radius: 14px; font-size: .88rem; margin-bottom: 1.5rem;
-        }
-        .alert-error   { background: #fff1f1; border: 1px solid #ffd5d5; color: #d63031; }
-        .alert-success { background: #effcf5; border: 1px solid #b8ecd1; color: #1f7a4d; }
-
-        .field { margin-bottom: 1.4rem; }
-
-        label { display: block; font-size: .88rem; font-weight: 700; color: #1e293b; margin-bottom: .7rem; }
-
-        .input-wrap { position: relative; }
-
-        .ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); }
-        .ico svg { width: 19px; height: 19px; stroke: #94a3b8; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-        input[type="email"] {
+        /* Canvas untuk bintang (sedikit) */
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border: 1.5px solid #e2e8f0;
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 1rem 1rem 1rem 3rem;
-            font-size: .95rem;
-            font-family: inherit;
-            color: #1e293b;
-            transition: .25s ease;
-            outline: none;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 5px rgba(59,130,246,.10); }
-        input::placeholder { color: #94a3b8; }
+        /* Card utama – glassmorphic, besar */
+        .forgot-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            padding: 2.8rem 2.5rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
 
-        .btn-login {
-            border: none;
-            background: linear-gradient(135deg, #2b7fff, #1d63d8);
+        .forgot-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #2b7fff, #1d4ed8);
+            border-radius: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 20px rgba(43, 127, 255, 0.3);
+        }
+
+        .logo-icon i {
+            font-size: 34px;
             color: white;
-            border-radius: 16px;
-            padding: 1rem;
-            font-size: .95rem; font-weight: 700; font-family: inherit;
+        }
+
+        .brand-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-header p {
+            color: #5b6e8c;
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        .greeting {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .greeting-sub {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #64748b;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Alert */
+        .alert-error,
+        .alert-success {
+            padding: 1rem 1.2rem;
+            border-radius: 28px;
+            font-size: 0.85rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border-left: 5px solid;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-error {
+            border-left-color: #ef4444;
+            color: #b91c1c;
+        }
+
+        .alert-success {
+            border-left-color: #10b981;
+            color: #0a5c2e;
+        }
+
+        /* Form group */
+        .input-group {
+            margin-bottom: 1.6rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+            color: #1e293b;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i:first-child {
+            position: absolute;
+            left: 18px;
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            background: #ffffff;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Tombol besar */
+        .btn-submit {
+            background: linear-gradient(135deg, #2b7fff, #1d4ed8);
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: white;
             cursor: pointer;
-            box-shadow: 0 12px 25px rgba(43,127,255,.25);
-            transition: .25s ease;
+            transition: 0.25s;
+            box-shadow: 0 10px 18px rgba(43, 127, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
         }
 
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 18px 30px rgba(43,127,255,.35); }
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px rgba(43, 127, 255, 0.5);
+        }
 
+        /* Back link */
         .back-link {
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            font-size: .88rem; color: #64748b; text-decoration: none;
-            margin-top: 1.5rem; transition: color .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #3b82f6;
+            text-decoration: none;
+            margin-top: 1.8rem;
+            transition: color 0.2s;
         }
-        .back-link:hover { color: #2563eb; }
-        .back-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* Visual */
-        .visual-section {
-            flex: 1; position: relative; overflow: hidden;
-            background: linear-gradient(135deg, #f8fbff 0%, #edf4ff 100%);
+        .back-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
         }
-        .visual-section::before {
-            content: ""; position: absolute;
-            width: 550px; height: 550px; border-radius: 50%;
-            background: rgba(59,130,246,.08); filter: blur(30px);
-            top: 50%; right: -180px; transform: translateY(-50%);
-        }
-        .circle { position: absolute; border-radius: 50%; }
-        .circle-1 { width: 950px; height: 950px; background: rgba(191,219,254,.35); top: 50%; right: -540px; transform: translateY(-50%); }
-        .circle-2 { width: 760px; height: 760px; background: rgba(147,197,253,.30); top: 50%; right: -420px; transform: translateY(-50%); }
-        .circle-3 { width: 560px; height: 560px; background: rgba(96,165,250,.24);  top: 50%; right: -290px; transform: translateY(-50%); }
-        .circle-4 { width: 350px; height: 350px; background: linear-gradient(135deg, #60a5fa, #2563eb); top: 50%; right: -140px; transform: translateY(-50%); box-shadow: 0 0 80px rgba(37,99,235,.35); }
 
-        @media (max-width: 900px) {
-            .visual-section { display: none; }
-            .form-section { width: 100%; padding: 2.5rem; }
-            .auth-container { max-width: 500px; min-height: auto; }
-            .greeting { font-size: 2rem; }
+        @media (max-width: 560px) {
+            .forgot-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .greeting {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="auth-container">
+    <canvas id="starCanvas"></canvas>
 
-    <div class="form-section">
-
+    <div class="forgot-card">
         <div class="brand-header">
-            <div class="logo-ring">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.5 2.33 6.48 5.55 7.59L12 22l1.45-5.41C16.67 15.48 19 12.5 19 9c0-3.87-3.13-7-7-7z"/>
-                    <circle cx="12" cy="9" r="2.5"/>
-                </svg>
+            <div class="logo-icon">
+                <i class="fas fa-key"></i>
             </div>
-            <div class="brand-text">
-                <h1>SIMPEL</h1>
-                <p>Sistem Informasi Peduli Lansia</p>
-            </div>
+            <h1>SIMPEL</h1>
+            <p>Sistem Informasi Peduli Lansia</p>
         </div>
 
         <div class="greeting">Lupa Password?</div>
-        <div class="greeting-sub">Masukkan email terdaftar, kami kirimkan kode OTP untuk membuka halaman reset password.</div>
+        <div class="greeting-sub">Masukkan email terdaftar, kami akan mengirimkan kode OTP untuk reset password.</div>
 
         @if (session('status'))
-            <div class="alert-success">{{ session('status') }}</div>
+            <div class="alert-success">
+                <i class="fas fa-check-circle"></i> {{ session('status') }}
+            </div>
         @endif
 
         @if ($errors->has('email'))
-            <div class="alert-error">{{ $errors->first('email') }}</div>
+            <div class="alert-error">
+                <i class="fas fa-exclamation-triangle"></i> {{ $errors->first('email') }}
+            </div>
         @endif
 
         <form method="POST" action="{{ route('password.email') }}">
             @csrf
 
-            <div class="field">
+            <div class="input-group">
                 <label for="email">Email Akun Petugas</label>
-                <div class="input-wrap">
-                    <span class="ico">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="2" y="4" width="20" height="16" rx="2"/>
-                            <path d="m2 7 10 7 10-7"/>
-                        </svg>
-                    </span>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="email@dinas.go.id" required autofocus>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}"
+                        placeholder="email@dinas.go.id" required autofocus>
                 </div>
             </div>
 
-            <button type="submit" class="btn-login">Kirim Kode OTP</button>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Kirim Kode OTP
+            </button>
         </form>
 
         <a href="{{ route('login') }}" class="back-link">
-            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Kembali ke halaman login
+            <i class="fas fa-arrow-left"></i> Kembali ke halaman login
         </a>
-
     </div>
 
-    <div class="visual-section">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="circle circle-4"></div>
-    </div>
+    <script>
+        // ==================== BINTANG SEDIKIT (SAMA SEPERTI LOGIN) ====================
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let stars = [];
 
-</div>
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const starCount = Math.min(120, Math.floor(width * 0.08) + 40);
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.2 + 0.8,
+                    alpha: Math.random() * 0.6 + 0.3,
+                    speedY: Math.random() * 0.8 + 0.3,
+                    speedX: (Math.random() - 0.5) * 0.2,
+                    flicker: Math.random() * 0.03
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            for (let star of stars) {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 245, 210, ${star.alpha + Math.sin(Date.now() * star.flicker) * 0.1})`;
+                ctx.fill();
+                ctx.shadowBlur = star.radius * 1.5;
+                ctx.shadowColor = 'rgba(255,240,180,0.6)';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function updateStars() {
+            for (let star of stars) {
+                star.y += star.speedY;
+                star.x += star.speedX;
+                if (star.y > height + 30) {
+                    star.y = -20;
+                    star.x = Math.random() * width;
+                }
+                if (star.x > width + 30) star.x = -30;
+                if (star.x < -30) star.x = width + 30;
+            }
+            drawStars();
+            requestAnimationFrame(updateStars);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+        resizeCanvas();
+        updateStars();
+    </script>
 
 </body>
+
 </html>

@@ -220,7 +220,61 @@
     .ck.ck-editor__top .ck-sticky-panel .ck-toolbar { border-radius: 0.75rem 0.75rem 0 0 !important; }
     .ck.ck-editor { border-radius: 0.75rem !important; border: 1.5px solid #e2e8f0 !important; }
     .ck.ck-editor:focus-within { border-color: #2563eb !important; box-shadow: 0 0 0 4px rgba(37,99,235,0.1) !important; }
+
+    /* Alert error server */
+    .alert-error {
+        background: #fef2f2;
+        border: 1.5px solid #fca5a5;
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        color: #dc2626;
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    .alert-error i { margin-top: 0.1rem; flex-shrink: 0; }
+    .alert-error ul { margin: 0; padding: 0 0 0 1rem; font-size: 0.875rem; }
+    .alert-error ul li { margin-bottom: 0.25rem; }
+
+    /* Input error state */
+    .form-control.input-error {
+        border-color: #f87171;
+        background: #fff7f7;
+    }
+
+    /* Character counter */
+    .char-counter {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        text-align: right;
+        margin-top: 0.35rem;
+        transition: color 0.2s;
+    }
+    .char-counter.warning { color: #f59e0b; font-weight: 600; }
+    .char-counter.danger  { color: #dc2626; font-weight: 700; }
+
+    /* File error */
+    .file-error {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.9rem;
+        color: #dc2626;
+        font-size: 0.825rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Upload zone error state */
+    .upload-zone.has-error {
+        border-color: #f87171;
+        background: #fff7f7;
+    }
 </style>
+
 @endpush
 
 @section('content')
@@ -235,12 +289,25 @@
             <h1>Tambah Konten Baru</h1>
         </div>
 
+        {{-- Error dari server --}}
+        @if ($errors->any())
+        <div class="alert-error" id="serverErrors">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         <form action="{{ route('konten.store') }}" method="POST" enctype="multipart/form-data" id="kontenForm">
             @csrf
 
             <div class="form-group">
                 <label class="form-label">Judul Konten</label>
-                <input type="text" name="judul" class="form-control" placeholder="Masukkan judul konten..." value="{{ old('judul') }}" required>
+                <input type="text" name="judul" id="judulInput" class="form-control {{ $errors->has('judul') ? 'input-error' : '' }}" placeholder="Masukkan judul konten..." value="{{ old('judul') }}" required maxlength="255">
+                <div class="char-counter" id="judulCounter"><span id="judulCount">0</span>/255 karakter</div>
             </div>
 
             <div class="grid-2">
@@ -275,9 +342,10 @@
                     <div class="upload-zone" id="video-zone">
                         <i class="fa-solid fa-video"></i>
                         <span class="upload-label">Klik atau seret video ke sini</span>
-                        <span class="upload-hint">MP4, MOV, AVI, WMV — maks. 50MB</span>
-                        <input type="file" name="video" accept="video/*" id="video-input">
+                        <span class="upload-hint">MP4, MOV, AVI, WMV — maks. 40MB</span>
+                        <input type="file" name="video" accept="video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv" id="video-input">
                     </div>
+                    <div class="file-error" id="video-error" style="display:none;"></div>
                     <div class="preview-container" id="video-preview"></div>
                 </div>
 
@@ -288,8 +356,9 @@
                         <i class="fa-solid fa-image"></i>
                         <span class="upload-label">Klik atau seret foto ke sini</span>
                         <span class="upload-hint">JPEG, PNG, GIF — maks. 5MB</span>
-                        <input type="file" name="gambar" accept="image/*" id="gambar-input">
+                        <input type="file" name="gambar" accept="image/jpeg,image/png,image/gif" id="gambar-input">
                     </div>
+                    <div class="file-error" id="gambar-error" style="display:none;"></div>
                     <div class="preview-container" id="gambar-preview"></div>
                 </div>
             </div>
@@ -297,7 +366,8 @@
             {{-- Deskripsi: plain textarea untuk Video/Gambar --}}
             <div class="form-group" id="plain-deskripsi-wrapper">
                 <label class="form-label">Deskripsi <span class="optional-badge">Opsional</span></label>
-                <textarea name="deskripsi" id="plainDeskripsi" class="form-control" rows="5" placeholder="Tuliskan deskripsi singkat...">{{ old('deskripsi') }}</textarea>
+                <textarea name="deskripsi" id="plainDeskripsi" class="form-control {{ $errors->has('deskripsi') ? 'input-error' : '' }}" rows="5" placeholder="Tuliskan deskripsi singkat..." maxlength="65000">{{ old('deskripsi') }}</textarea>
+                <div class="char-counter" id="deskripsiCounter"><span id="deskripsiCount">0</span>/65.000 karakter</div>
             </div>
 
             {{-- Deskripsi CKEditor untuk Artikel --}}

@@ -1,256 +1,522 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password — SIMPEL</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Reset Password | SIMPEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #eef4fb 0%, #f6f9fc 100%);
+            background: #0a0f1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ========= AURORA EFFECT (BACKGROUND SAJA) ========= */
+        .aurora {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
             overflow: hidden;
         }
 
-        .auth-container {
-            width: 100%; max-width: 1180px; min-height: 680px;
-            position: relative; display: flex;
-            border-radius: 36px; overflow: hidden;
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow: 0 20px 60px rgba(15,42,110,0.08), 0 10px 25px rgba(15,42,110,0.05);
+        .aurora-layer {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(0, 255, 180, 0.3), transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(100, 80, 255, 0.35), transparent 60%),
+                radial-gradient(circle at 40% 80%, rgba(0, 200, 255, 0.25), transparent 70%);
+            filter: blur(80px);
+            animation: auroraMove 18s infinite alternate ease-in-out;
+            opacity: 0.8;
         }
 
-        .form-section {
-            width: 48%;
-            background: rgba(255,255,255,0.94);
-            padding: 4rem;
-            z-index: 10;
-            display: flex; flex-direction: column; justify-content: center;
+        .aurora-layer2 {
+            position: absolute;
+            width: 180%;
+            height: 180%;
+            background: radial-gradient(circle at 80% 20%, rgba(80, 220, 255, 0.35), transparent 60%),
+                radial-gradient(circle at 20% 70%, rgba(150, 100, 255, 0.3), transparent 70%);
+            filter: blur(100px);
+            animation: auroraMove2 22s infinite alternate ease-in-out;
+            opacity: 0.7;
         }
 
-        .brand-header { display: flex; align-items: center; gap: 14px; margin-bottom: 3rem; }
+        @keyframes auroraMove {
+            0% {
+                transform: translate(-5%, -5%) rotate(0deg);
+            }
 
-        .logo-ring {
-            width: 54px; height: 54px; border-radius: 18px;
-            background: linear-gradient(145deg, #2b7fff, #1d63d8);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(43,127,255,0.35);
+            100% {
+                transform: translate(5%, 5%) rotate(2deg);
+            }
         }
 
-        .logo-ring svg { width: 26px; height: 26px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        @keyframes auroraMove2 {
+            0% {
+                transform: translate(5%, 3%) rotate(0deg);
+            }
 
-        .brand-text h1 { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
-        .brand-text p  { font-size: 0.75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #6b84b0; }
-
-        .greeting     { font-size: 2.6rem; font-weight: 800; line-height: 1.1; color: #111827; margin-bottom: .7rem; }
-        .greeting-sub { font-size: .98rem; line-height: 1.7; color: #64748b; margin-bottom: 2.4rem; }
-
-        .alert-error {
-            padding: 1rem 1.1rem; border-radius: 14px; font-size: .88rem; margin-bottom: 1.5rem;
-            background: #fff1f1; border: 1px solid #ffd5d5; color: #d63031;
+            100% {
+                transform: translate(-3%, -4%) rotate(-3deg);
+            }
         }
 
-        .field { margin-bottom: 1.4rem; }
-
-        label { display: block; font-size: .88rem; font-weight: 700; color: #1e293b; margin-bottom: .7rem; }
-
-        .input-wrap { position: relative; }
-
-        .ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); }
-        .ico svg { width: 19px; height: 19px; stroke: #94a3b8; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-        input[type="email"], input[type="password"], input[type="text"] {
+        /* Bintang (sedikit) */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border: 1.5px solid #e2e8f0;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0.9;
+                transform: scale(1.2);
+            }
+        }
+
+        /* ========= CARD PUTIH (SOLID) ========= */
+        .reset-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 520px;
             background: #ffffff;
-            border-radius: 16px;
-            padding: 1rem 3rem;
-            font-size: .95rem;
-            font-family: inherit;
+            border-radius: 48px;
+            padding: 2.5rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .reset-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #2b7fff, #1d4ed8);
+            border-radius: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 20px rgba(43, 127, 255, 0.3);
+        }
+
+        .logo-icon i {
+            font-size: 34px;
+            color: white;
+        }
+
+        .brand-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-header p {
+            color: #5b6e8c;
+            font-size: 0.85rem;
+        }
+
+        .greeting {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .greeting-sub {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #64748b;
+            margin-bottom: 1.8rem;
+            text-align: center;
+        }
+
+        /* Alert */
+        .alert-error {
+            padding: 0.9rem 1rem;
+            border-radius: 28px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff1f1;
+            border-left: 4px solid #ef4444;
+            color: #b91c1c;
+        }
+
+        .alert-error i {
+            color: #ef4444;
+        }
+
+        /* Form */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
             color: #1e293b;
-            transition: .25s ease;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: #94a3b8;
+            font-size: 1rem;
+            z-index: 2;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #1e293b;
+            transition: all 0.25s;
+        }
+
+        .input-wrapper input:focus {
             outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
-        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 5px rgba(59,130,246,.10); }
-        input::placeholder { color: #94a3b8; }
-        input[readonly] { background: #f8fafc; color: #94a3b8; cursor: default; }
-
-        .toggle-pw {
-            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer;
+        .input-wrapper input::placeholder {
+            color: #94a3b8;
         }
-        .toggle-pw svg { width: 20px; height: 20px; stroke: #94a3b8; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-        .toggle-pw:hover svg { stroke: #3b82f6; }
 
-        /* Strength bar */
-        .strength-bar  { height: 4px; border-radius: 2px; margin-top: 8px; background: #e2e8f0; overflow: hidden; }
-        .strength-fill { height: 100%; border-radius: 2px; width: 0%; transition: width .3s, background .3s; }
-        .strength-label { font-size: 0.78rem; color: #94a3b8; margin-top: 5px; }
+        .input-wrapper input[readonly] {
+            background: #f8fafc;
+            color: #64748b;
+        }
 
-        .field-error { font-size: .82rem; color: #ef4444; margin-top: .5rem; }
-
-        .btn-login {
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            background: none;
             border: none;
-            background: linear-gradient(135deg, #2b7fff, #1d63d8);
-            color: white; border-radius: 16px;
-            padding: 1rem; font-size: .95rem; font-weight: 700; font-family: inherit;
-            cursor: pointer; box-shadow: 0 12px 25px rgba(43,127,255,.25);
-            transition: .25s ease; width: 100%;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            z-index: 2;
         }
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 18px 30px rgba(43,127,255,.35); }
 
+        /* Strength meter */
+        .strength-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 3px;
+        }
+
+        .strength-label {
+            font-size: 0.7rem;
+            margin-top: 6px;
+            color: #64748b;
+        }
+
+        .field-error {
+            font-size: 0.75rem;
+            color: #ef4444;
+            margin-top: 6px;
+        }
+
+        /* Tombol */
+        .btn-submit {
+            background: linear-gradient(135deg, #2b7fff, #1d4ed8);
+            border: none;
+            padding: 1rem;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 10px 18px rgba(43, 127, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 0.8rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 28px rgba(43, 127, 255, 0.4);
+        }
+
+        /* Back link */
         .back-link {
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            font-size: .88rem; color: #64748b; text-decoration: none;
-            margin-top: 1.5rem; transition: color .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #3b82f6;
+            text-decoration: none;
+            margin-top: 1.8rem;
+            transition: color 0.2s;
         }
-        .back-link:hover { color: #2563eb; }
-        .back-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* Visual */
-        .visual-section { flex: 1; position: relative; overflow: hidden; background: linear-gradient(135deg, #f8fbff 0%, #edf4ff 100%); }
-        .visual-section::before { content: ""; position: absolute; width: 550px; height: 550px; border-radius: 50%; background: rgba(59,130,246,.08); filter: blur(30px); top: 50%; right: -180px; transform: translateY(-50%); }
-        .circle { position: absolute; border-radius: 50%; }
-        .circle-1 { width: 950px; height: 950px; background: rgba(191,219,254,.35); top: 50%; right: -540px; transform: translateY(-50%); }
-        .circle-2 { width: 760px; height: 760px; background: rgba(147,197,253,.30); top: 50%; right: -420px; transform: translateY(-50%); }
-        .circle-3 { width: 560px; height: 560px; background: rgba(96,165,250,.24);  top: 50%; right: -290px; transform: translateY(-50%); }
-        .circle-4 { width: 350px; height: 350px; background: linear-gradient(135deg, #60a5fa, #2563eb); top: 50%; right: -140px; transform: translateY(-50%); box-shadow: 0 0 80px rgba(37,99,235,.35); }
+        .back-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
 
-        @media (max-width: 900px) {
-            .visual-section { display: none; }
-            .form-section { width: 100%; padding: 2.5rem; }
-            .auth-container { max-width: 500px; min-height: auto; }
-            .greeting { font-size: 2rem; }
+        @media (max-width: 560px) {
+            .reset-card {
+                padding: 1.5rem;
+            }
+
+            .greeting {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="auth-container">
+    <div class="aurora">
+        <div class="aurora-layer"></div>
+        <div class="aurora-layer2"></div>
+    </div>
 
-    <div class="form-section">
+    <div class="stars" id="starsContainer"></div>
 
+    <div class="reset-card">
         <div class="brand-header">
-            <div class="logo-ring">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.5 2.33 6.48 5.55 7.59L12 22l1.45-5.41C16.67 15.48 19 12.5 19 9c0-3.87-3.13-7-7-7z"/>
-                    <circle cx="12" cy="9" r="2.5"/>
-                </svg>
+            <div class="logo-icon">
+                <i class="fas fa-lock-open"></i>
             </div>
-            <div class="brand-text">
-                <h1>SIMPEL</h1>
-                <p>Sistem Informasi Peduli Lansia</p>
-            </div>
+            <h1>SIMPEL</h1>
+            <p>Sistem Informasi Peduli Lansia</p>
         </div>
 
         <div class="greeting">Buat Password Baru</div>
-        <div class="greeting-sub">Buat password baru yang kuat untuk akun petugas Anda.</div>
+        <div class="greeting-sub">Password baru minimal 6 karakter & kuat untuk akun Anda</div>
 
         @if ($errors->any())
-            <div class="alert-error">{{ $errors->first() }}</div>
+            <div class="alert-error">
+                <i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}
+            </div>
         @endif
 
         <form method="POST" action="{{ route('password.store') }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
 
-            <div class="field">
+            <div class="input-group">
                 <label for="email">Email</label>
-                <div class="input-wrap">
-                    <span class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg></span>
-                    <input type="email" id="email" name="email" value="{{ old('email', $email) }}" required readonly>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" value="{{ old('email', $email) }}" readonly
+                        required>
                 </div>
-                @error('email') <div class="field-error">{{ $message }}</div> @enderror
+                @error('email')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
             </div>
 
-            <div class="field">
+            <div class="input-group">
                 <label for="password">Password Baru</label>
-                <div class="input-wrap">
-                    <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                    <input type="password" id="password" name="password" placeholder="Min. 6 karakter" required oninput="checkStrength(this.value)">
-                    <button type="button" class="toggle-pw" onclick="togglePw('password','e1')">
-                        <svg id="e1" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="password" id="password" name="password" placeholder="Minimal 6 karakter" required
+                        oninput="checkStrength(this.value)">
+                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                        <i class="fas fa-eye-slash" id="passwordEye"></i>
                     </button>
                 </div>
-                <div class="strength-bar"><div class="strength-fill" id="sf"></div></div>
-                <div class="strength-label" id="sl">Masukkan password baru</div>
-                @error('password') <div class="field-error">{{ $message }}</div> @enderror
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-label" id="strengthLabel">Masukkan password baru</div>
+                @error('password')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
             </div>
 
-            <div class="field">
+            <div class="input-group">
                 <label for="password_confirmation">Konfirmasi Password</label>
-                <div class="input-wrap">
-                    <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Ulangi password baru" required>
-                    <button type="button" class="toggle-pw" onclick="togglePw('password_confirmation','e2')">
-                        <svg id="e2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="input-wrapper">
+                    <i class="fas fa-check-circle"></i>
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                        placeholder="Ulangi password baru" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password_confirmation')">
+                        <i class="fas fa-eye-slash" id="confirmEye"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" class="btn-login">Simpan Password Baru</button>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> Simpan Password Baru
+            </button>
         </form>
 
         <a href="{{ route('login') }}" class="back-link">
-            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Kembali ke login
+            <i class="fas fa-arrow-left"></i> Kembali ke login
         </a>
-
     </div>
 
-    <div class="visual-section">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="circle circle-4"></div>
-    </div>
-
-</div>
-
-<script>
-    function togglePw(id, ico) {
-        const inp  = document.getElementById(id);
-        const icon = document.getElementById(ico);
-        if (inp.type === 'password') {
-            inp.type = 'text';
-            icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
-        } else {
-            inp.type = 'password';
-            icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    <script>
+        // ========= BINTANG SEDIKIT =========
+        function generateStars() {
+            const container = document.getElementById('starsContainer');
+            container.innerHTML = '';
+            const starCount = 80;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                star.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(star);
+            }
         }
-    }
+        generateStars();
 
-    function checkStrength(v) {
-        const fill = document.getElementById('sf');
-        const lbl  = document.getElementById('sl');
-        let s = 0;
-        if (v.length >= 6)          s++;
-        if (v.length >= 10)         s++;
-        if (/[A-Z]/.test(v))        s++;
-        if (/[0-9]/.test(v))        s++;
-        if (/[^A-Za-z0-9]/.test(v)) s++;
-        const lvl = [
-            { p: 0,   c: 'transparent', t: 'Masukkan password baru' },
-            { p: 20,  c: '#ef4444',     t: 'Sangat lemah' },
-            { p: 40,  c: '#f97316',     t: 'Lemah' },
-            { p: 60,  c: '#eab308',     t: 'Cukup' },
-            { p: 80,  c: '#22c55e',     t: 'Kuat' },
-            { p: 100, c: '#3b82f6',     t: 'Sangat kuat' },
-        ][s];
-        fill.style.width      = lvl.p + '%';
-        fill.style.background = lvl.c;
-        lbl.textContent       = lvl.t;
-        lbl.style.color       = lvl.c === 'transparent' ? '#94a3b8' : lvl.c;
-    }
-</script>
+        // ========= TOGGLE PASSWORD =========
+        function togglePassword(fieldId) {
+            const input = document.getElementById(fieldId);
+            const eyeIcon = fieldId === 'password' ? document.getElementById('passwordEye') : document.getElementById(
+                'confirmEye');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            }
+        }
+
+        // ========= STRENGTH METER =========
+        function checkStrength(val) {
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const levels = [{
+                    width: 0,
+                    color: 'transparent',
+                    text: 'Masukkan password baru'
+                },
+                {
+                    width: 20,
+                    color: '#ef4444',
+                    text: 'Sangat lemah'
+                },
+                {
+                    width: 40,
+                    color: '#f97316',
+                    text: 'Lemah'
+                },
+                {
+                    width: 60,
+                    color: '#eab308',
+                    text: 'Cukup'
+                },
+                {
+                    width: 80,
+                    color: '#22c55e',
+                    text: 'Kuat'
+                },
+                {
+                    width: 100,
+                    color: '#3b82f6',
+                    text: 'Sangat kuat'
+                }
+            ];
+            const level = levels[score];
+            fill.style.width = level.width + '%';
+            fill.style.backgroundColor = level.color;
+            label.textContent = level.text;
+            label.style.color = level.color === 'transparent' ? '#64748b' : level.color;
+        }
+    </script>
 </body>
+
 </html>

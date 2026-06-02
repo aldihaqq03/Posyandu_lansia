@@ -1,174 +1,255 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi OTP — SIMPEL</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Verifikasi OTP | SIMPEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
+            background: radial-gradient(circle at 10% 20%, #0a0f2e, #030514, #0b0f1c);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #eef4fb 0%, #f6f9fc 100%);
-            overflow: hidden;
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 1180px;
-            min-height: 680px;
+            padding: 1.5rem;
             position: relative;
-            display: flex;
-            border-radius: 36px;
-            overflow: hidden;
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(14px);
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow:
-                0 20px 60px rgba(15,42,110,0.08),
-                0 10px 25px rgba(15,42,110,0.05);
+            overflow-x: hidden;
         }
 
-        /* === FORM SECTION === */
-        .form-section {
-            width: 48%;
-            background: rgba(255,255,255,0.94);
-            padding: 4rem;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        /* Bintang (sedikit) */
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        /* === BRAND === */
+        /* Efek black hole (lingkaran glow oranye-kuning) */
+        .blackhole {
+            position: fixed;
+            bottom: -150px;
+            right: -150px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 140, 0, 0.5), rgba(255, 69, 0, 0.2), transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+            animation: pulseGlow 6s infinite alternate;
+        }
+
+        .blackhole::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ff8c00, #ff4500, #2c0e00);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(30px);
+            opacity: 0.7;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Card utama */
+        .otp-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 540px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            padding: 2.5rem;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .otp-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Header */
         .brand-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 3rem;
-        }
-
-        .logo-ring {
-            width: 54px;
-            height: 54px;
-            border-radius: 18px;
-            background: linear-gradient(145deg, #2b7fff, #1d63d8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 25px rgba(43,127,255,0.35);
-        }
-
-        .logo-ring svg {
-            width: 26px;
-            height: 26px;
-            stroke: white;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .brand-text h1 { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
-        .brand-text p  { font-size: 0.75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #6b84b0; }
-
-        /* === HEADING === */
-        .greeting     { font-size: 2.6rem; font-weight: 800; line-height: 1.1; color: #111827; margin-bottom: .7rem; }
-        .greeting-sub { font-size: .98rem; line-height: 1.7; color: #64748b; margin-bottom: 2.4rem; }
-
-        /* === ALERTS === */
-        .alert-error, .alert-success {
-            padding: 1rem 1.1rem;
-            border-radius: 14px;
-            font-size: .88rem;
+            text-align: center;
             margin-bottom: 1.5rem;
         }
-        .alert-error   { background: #fff1f1; border: 1px solid #ffd5d5; color: #d63031; }
-        .alert-success { background: #effcf5; border: 1px solid #b8ecd1; color: #1f7a4d; }
 
-        /* === FIELDS === */
-        .field { margin-bottom: 1.4rem; }
-
-        label {
-            display: block;
-            font-size: .88rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: .7rem;
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #2b7fff, #1d4ed8);
+            border-radius: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 20px rgba(43, 127, 255, 0.3);
         }
 
-        .input-wrap { position: relative; }
+        .logo-icon i {
+            font-size: 34px;
+            color: white;
+        }
 
-        .ico {
+        .brand-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-header p {
+            color: #5b6e8c;
+            font-size: 0.85rem;
+        }
+
+        .greeting {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .greeting-sub {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* Alert */
+        .alert-error,
+        .alert-success {
+            padding: 0.9rem 1rem;
+            border-radius: 28px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            border-left: 5px solid;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-error {
+            border-left-color: #ef4444;
+            color: #b91c1c;
+        }
+
+        .alert-success {
+            border-left-color: #10b981;
+            color: #0a5c2e;
+        }
+
+        /* Field */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
             position: absolute;
             left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
         }
 
-        .ico svg {
-            width: 19px;
-            height: 19px;
-            stroke: #94a3b8;
-            fill: none;
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        input[type="email"], input[type="text"] {
+        .input-wrapper input {
             width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
             border: 1.5px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
             background: #ffffff;
-            border-radius: 16px;
-            padding: 1rem 1rem 1rem 3rem;
-            font-size: .95rem;
-            font-family: inherit;
-            color: #1e293b;
-            transition: .25s ease;
+        }
+
+        .input-wrapper input:focus {
             outline: none;
-        }
-
-        input:focus {
             border-color: #3b82f6;
-            box-shadow: 0 0 0 5px rgba(59,130,246,.10);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
-        input::placeholder { color: #94a3b8; }
-        input[readonly]    { background: #f8fafc; color: #94a3b8; cursor: default; }
+        input[readonly] {
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: default;
+        }
 
-        /* === OTP GRID === */
+        /* OTP Grid - perbaikan agar teks terlihat */
         .otp-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 0.5rem 0 0.5rem;
         }
 
         .otp-box {
-            aspect-ratio: 1/1;
-            width: 100%;
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 16px;
+            width: 60px;
+            height: 70px;
             text-align: center;
-            font-size: 1.25rem;
-            font-weight: 700;
-            font-family: inherit;
-            color: #1e293b;
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Inter', monospace;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            color: #0f172a;
             outline: none;
-            transition: border-color .2s, box-shadow .2s, background .2s;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
         .otp-box:focus {
             border-color: #3b82f6;
-            box-shadow: 0 0 0 5px rgba(59,130,246,.10);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+            transform: scale(1.02);
         }
 
         .otp-box.filled {
@@ -178,232 +259,283 @@
         }
 
         .otp-hint {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 0.6rem;
-            line-height: 1.5;
+            font-size: 0.75rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 0.5rem;
         }
 
-        /* === BUTTON === */
-        .btn-login {
+        /* Tombol */
+        .btn-submit {
+            background: linear-gradient(135deg, #2b7fff, #1d4ed8);
             border: none;
-            background: linear-gradient(135deg, #2b7fff, #1d63d8);
+            padding: 1rem;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1rem;
             color: white;
-            border-radius: 16px;
-            padding: 1rem 2.4rem;
-            font-size: .95rem;
-            font-weight: 700;
-            font-family: inherit;
             cursor: pointer;
-            box-shadow: 0 12px 25px rgba(43,127,255,.25);
-            transition: .25s ease;
+            transition: 0.25s;
+            box-shadow: 0 10px 18px rgba(43, 127, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
             margin-top: 0.5rem;
         }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 18px 30px rgba(43,127,255,.35);
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px rgba(43, 127, 255, 0.5);
         }
 
-        /* === BACK LINK === */
+        /* Back link */
         .back-link {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            font-size: .88rem;
-            color: #64748b;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #3b82f6;
             text-decoration: none;
-            margin-top: 1.5rem;
-            transition: color .2s;
+            margin-top: 1.8rem;
+            transition: color 0.2s;
         }
 
-        .back-link:hover { color: #2563eb; }
-
-        .back-link svg {
-            width: 15px;
-            height: 15px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+        .back-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
         }
 
-        /* === VISUAL SECTION === */
-        .visual-section {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f8fbff 0%, #edf4ff 100%);
-        }
+        @media (max-width: 560px) {
+            .otp-card {
+                padding: 1.5rem;
+            }
 
-        .visual-section::before {
-            content: "";
-            position: absolute;
-            width: 550px;
-            height: 550px;
-            border-radius: 50%;
-            background: rgba(59,130,246,.08);
-            filter: blur(30px);
-            top: 50%;
-            right: -180px;
-            transform: translateY(-50%);
-        }
+            .otp-box {
+                width: 45px;
+                height: 55px;
+                font-size: 1.4rem;
+            }
 
-        .circle { position: absolute; border-radius: 50%; }
-        .circle-1 { width: 950px; height: 950px; background: rgba(191,219,254,.35); top: 50%; right: -540px; transform: translateY(-50%); }
-        .circle-2 { width: 760px; height: 760px; background: rgba(147,197,253,.30); top: 50%; right: -420px; transform: translateY(-50%); }
-        .circle-3 { width: 560px; height: 560px; background: rgba(96,165,250,.24);  top: 50%; right: -290px; transform: translateY(-50%); }
-        .circle-4 {
-            width: 350px; height: 350px;
-            background: linear-gradient(135deg, #60a5fa, #2563eb);
-            top: 50%; right: -140px;
-            transform: translateY(-50%);
-            box-shadow: 0 0 80px rgba(37,99,235,.35);
-        }
-
-        /* === MOBILE === */
-        @media (max-width: 900px) {
-            .visual-section { display: none; }
-            .form-section { width: 100%; padding: 2.5rem; }
-            .auth-container { max-width: 500px; min-height: auto; }
-            .greeting { font-size: 2rem; }
+            .greeting {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="auth-container">
+    <canvas id="starCanvas"></canvas>
+    <div class="blackhole"></div>
 
-    <div class="form-section">
-
+    <div class="otp-card">
         <div class="brand-header">
-            <div class="logo-ring">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.5 2.33 6.48 5.55 7.59L12 22l1.45-5.41C16.67 15.48 19 12.5 19 9c0-3.87-3.13-7-7-7z"/>
-                    <circle cx="12" cy="9" r="2.5"/>
-                </svg>
+            <div class="logo-icon">
+                <i class="fas fa-shield-alt"></i>
             </div>
-            <div class="brand-text">
-                <h1>SIMPEL</h1>
-                <p>Sistem Informasi Peduli Lansia</p>
-            </div>
+            <h1>SIMPEL</h1>
+            <p>Sistem Informasi Peduli Lansia</p>
         </div>
 
         <div class="greeting">Verifikasi OTP</div>
-        <div class="greeting-sub">Masukkan kode 6 digit yang telah dikirim ke email Anda untuk melanjutkan reset password.</div>
+        <div class="greeting-sub">Kode verifikasi 6 digit telah dikirim ke email Anda.</div>
 
         @if (session('status'))
-            <div class="alert-success">{{ session('status') }}</div>
+            <div class="alert-success">
+                <i class="fas fa-check-circle"></i> {{ session('status') }}
+            </div>
         @endif
 
         @if ($errors->any())
-            <div class="alert-error">{{ $errors->first() }}</div>
+            <div class="alert-error">
+                <i class="fas fa-exclamation-triangle"></i> {{ $errors->first() }}
+            </div>
         @endif
 
-        {{-- Field otp hidden — diisi JS sebelum submit --}}
         <form method="POST" action="{{ route('password.otp.verify') }}" id="otpForm">
             @csrf
 
-            <div class="field">
-                <label for="email">Email</label>
-                <div class="input-wrap">
-                    <span class="ico">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="2" y="4" width="20" height="16" rx="2"/>
-                            <path d="m2 7 10 7 10-7"/>
-                        </svg>
-                    </span>
-                    <input type="email" id="email" name="email" value="{{ old('email', $email) }}" readonly required>
+            <div class="input-group">
+                <label for="email">Alamat Email</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" value="{{ old('email', $email ?? '') }}"
+                        readonly required>
                 </div>
             </div>
 
-            {{-- Hidden field yang dikirim ke controller --}}
             <input type="hidden" name="otp" id="otpHidden">
 
-            <div class="field">
+            <div class="input-group">
                 <label>Kode OTP 6 Digit</label>
                 <div class="otp-grid" id="otpGrid">
-                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit OTP ke-1">
-                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit OTP ke-2">
-                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit OTP ke-3">
-                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit OTP ke-4">
-                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit OTP ke-5">
-                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit OTP ke-6">
+                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off"
+                        aria-label="Digit 1">
+                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off"
+                        aria-label="Digit 2">
+                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off"
+                        aria-label="Digit 3">
+                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off"
+                        aria-label="Digit 4">
+                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off"
+                        aria-label="Digit 5">
+                    <input type="text" class="otp-box" inputmode="numeric" maxlength="1" autocomplete="off"
+                        aria-label="Digit 6">
                 </div>
-                <p class="otp-hint">Kode berlaku 10 menit. Pastikan semua 6 digit terisi sebelum melanjutkan.</p>
+                <p class="otp-hint"><i class="fas fa-clock"></i> Kode berlaku 10 menit. Isi semua 6 digit.</p>
             </div>
 
-            <button type="submit" class="btn-login">Lanjut ke Reset Password</button>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-arrow-right"></i> Lanjut Reset Password
+            </button>
         </form>
 
         <a href="{{ route('password.request') }}" class="back-link">
-            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Kembali ke input email
+            <i class="fas fa-arrow-left"></i> Kembali ke input email
         </a>
-
     </div>
 
-    <div class="visual-section">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="circle circle-4"></div>
-    </div>
+    <script>
+        // Bintang jatuh (sedikit)
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let stars = [];
 
-</div>
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initStars();
+        }
 
-<script>
-    const boxes      = document.querySelectorAll('.otp-box');
-    const otpHidden  = document.getElementById('otpHidden');
-    const form       = document.getElementById('otpForm');
-
-    function syncHidden() {
-        otpHidden.value = [...boxes].map(b => b.value).join('');
-    }
-
-    boxes.forEach((box, i) => {
-        box.addEventListener('input', e => {
-            const v = e.target.value.replace(/\D/g, '');
-            e.target.value = v;
-            v ? e.target.classList.add('filled') : e.target.classList.remove('filled');
-            syncHidden();
-            if (v && i < boxes.length - 1) boxes[i + 1].focus();
-        });
-
-        box.addEventListener('keydown', e => {
-            if (e.key === 'Backspace' && !box.value && i > 0) {
-                boxes[i - 1].focus();
+        function initStars() {
+            stars = [];
+            const starCount = Math.min(100, Math.floor(width * 0.07) + 30);
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2 + 0.6,
+                    alpha: Math.random() * 0.6 + 0.3,
+                    speedY: Math.random() * 0.7 + 0.2,
+                    speedX: (Math.random() - 0.5) * 0.15,
+                    flicker: Math.random() * 0.03
+                });
             }
-            if (e.key === 'ArrowLeft'  && i > 0)              boxes[i - 1].focus();
-            if (e.key === 'ArrowRight' && i < boxes.length - 1) boxes[i + 1].focus();
-        });
+        }
 
-        box.addEventListener('paste', e => {
-            e.preventDefault();
-            const txt = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
-            [...txt].slice(0, 6).forEach((ch, j) => {
-                if (boxes[i + j]) {
-                    boxes[i + j].value = ch;
-                    boxes[i + j].classList.add('filled');
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            for (let star of stars) {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 240, 190, ${star.alpha + Math.sin(Date.now() * star.flicker) * 0.1})`;
+                ctx.fill();
+                ctx.shadowBlur = star.radius * 1.5;
+                ctx.shadowColor = 'rgba(255,220,150,0.5)';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function updateStars() {
+            for (let star of stars) {
+                star.y += star.speedY;
+                star.x += star.speedX;
+                if (star.y > height + 30) {
+                    star.y = -20;
+                    star.x = Math.random() * width;
+                }
+                if (star.x > width + 30) star.x = -30;
+                if (star.x < -30) star.x = width + 30;
+            }
+            drawStars();
+            requestAnimationFrame(updateStars);
+        }
+
+        window.addEventListener('resize', () => resizeCanvas());
+        resizeCanvas();
+        updateStars();
+
+        // ==================== OTP LOGIC (Perbaikan input visibility) ====================
+        const boxes = document.querySelectorAll('.otp-box');
+        const otpHidden = document.getElementById('otpHidden');
+        const formOtp = document.getElementById('otpForm');
+
+        function syncOtp() {
+            const otpValue = Array.from(boxes).map(b => b.value).join('');
+            otpHidden.value = otpValue;
+        }
+
+        boxes.forEach((box, idx) => {
+            // Hanya angka
+            box.addEventListener('input', (e) => {
+                let val = e.target.value;
+                val = val.replace(/\D/g, '');
+                e.target.value = val;
+                if (val) {
+                    box.classList.add('filled');
+                } else {
+                    box.classList.remove('filled');
+                }
+                syncOtp();
+                if (val && idx < boxes.length - 1) {
+                    boxes[idx + 1].focus();
                 }
             });
-            syncHidden();
-            const nxt = i + txt.length;
-            if (boxes[nxt]) boxes[nxt].focus();
-        });
-    });
 
-    // Pastikan hidden field terisi sebelum submit
-    form.addEventListener('submit', e => {
-        syncHidden();
-        if (otpHidden.value.length !== 6) {
-            e.preventDefault();
-            alert('Harap isi semua 6 digit kode OTP.');
-        }
-    });
-</script>
+            // Backspace & panah
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && idx > 0) {
+                    boxes[idx - 1].focus();
+                    boxes[idx - 1].value = '';
+                    boxes[idx - 1].classList.remove('filled');
+                    syncOtp();
+                }
+                if (e.key === 'ArrowLeft' && idx > 0) {
+                    boxes[idx - 1].focus();
+                }
+                if (e.key === 'ArrowRight' && idx < boxes.length - 1) {
+                    boxes[idx + 1].focus();
+                }
+            });
+
+            // Paste handler
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,
+                    '');
+                const digits = pasteData.slice(0, 6).split('');
+                digits.forEach((digit, i) => {
+                    if (boxes[idx + i]) {
+                        boxes[idx + i].value = digit;
+                        boxes[idx + i].classList.add('filled');
+                    }
+                });
+                syncOtp();
+                const nextIndex = idx + digits.length;
+                if (boxes[nextIndex]) boxes[nextIndex].focus();
+            });
+        });
+
+        formOtp.addEventListener('submit', (e) => {
+            syncOtp();
+            if (otpHidden.value.length !== 6) {
+                e.preventDefault();
+                alert('Silakan isi semua 6 digit kode OTP.');
+            }
+        });
+
+        // Fokus ke kotak pertama saat halaman dimuat
+        if (boxes.length) boxes[0].focus();
+    </script>
+
 </body>
+
 </html>

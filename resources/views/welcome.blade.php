@@ -14,7 +14,8 @@
 
     <nav>
         <a href="/" class="logo">
-            <x-logo style="height: 50px; width: 50px; margin-right: 10px; vertical-align: middle; color: currentColor;" />
+            <x-logo
+                style="height: 50px; width: 50px; margin-right: 10px; vertical-align: middle; color: currentColor;" />
             SIM<span>PEL</span>
         </a>
         <div class="nav-links">
@@ -69,7 +70,7 @@
     <script>
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
