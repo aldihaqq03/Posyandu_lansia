@@ -1,7 +1,7 @@
 @extends('layout.sidebar')
 
 @push('styles')
-    @vite(['resources/css/app.css', 'resources/css/cssAdmin/profil_lengkap.css', 'resources/css/cssAdmin/monitoring.css', 'resources/css/cssAdmin/histori_skrining.css'])
+    @vite(['resources/css/app.css', 'resources/css/cssAdmin/profil_lengkap.css'])
         {{-- Jika Anda menaruh CSS modal modern di file terpisah, tambahkan juga --}}
         {{-- <link rel="stylesheet" href="{{ asset('css/modal-modern.css') }}"> --}}
 @endpush
