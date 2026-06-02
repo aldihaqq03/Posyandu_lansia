@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Saran;
-use App\Models\Lansia;
+use App\Models\lansia;
 use Illuminate\Http\Request;
 
 class SaranController extends Controller

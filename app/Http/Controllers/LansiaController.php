@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Lansia;
+use App\Models\lansia;
 use App\Models\Keluarga;
 use App\Models\Skrining;
 use App\Models\SkriningUtama;
