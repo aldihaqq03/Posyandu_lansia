@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
-use App\Models\Lansia;
+use App\Models\lansia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

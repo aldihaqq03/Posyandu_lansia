@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\LansiaController;
+use App\Http\Controllers\lansiaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PetugasController;

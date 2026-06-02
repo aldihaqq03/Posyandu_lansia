@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Models\Lansia;
+use App\Models\lansia;
 use App\Models\EmergencyContact;
 
 class TelegramWebhookController extends Controller

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Lansia;
+use App\Models\lansia;
 use App\Models\Saran;
 use App\Services\HealthRiskAssessor;
 use Illuminate\Support\Facades\Auth;
