@@ -60,19 +60,23 @@
         .brand-header {
             text-align: center;
             margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .logo-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(145deg, #2b7fff, #1d4ed8);
+            width: 500px;
+            height: 500px;
+
             border-radius: 28px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 1rem;
-            box-shadow: 0 12px 20px rgba(43, 127, 255, 0.3);
+
         }
+
 
         .logo-icon i {
             font-size: 34px;
@@ -278,6 +282,29 @@
             gap: 1rem;
         }
 
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* atau cover kalau mau full kotak */
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #fff;
+            border: 3px solid rgba(43, 127, 255, 0.6);
+            box-shadow: 0 12px 20px rgba(43, 127, 255, 0.25);
+
+            overflow: hidden;
+        }
+
         .btn-login {
             background: linear-gradient(135deg, #2b7fff, #1d4ed8);
             border: none;
@@ -379,7 +406,7 @@
     <div class="login-card">
         <div class="brand-header">
             <div class="logo-icon">
-                <i class="fas fa-hand-holding-heart"></i>
+                <img src="{{ asset('assets/img/logo_simpel.png') }}" alt="Logo SIMPEL">
             </div>
             <h1>SIMPEL</h1>
             <p>Sistem Informasi Peduli Lansia</p>
@@ -439,9 +466,7 @@
             </div>
         </form>
 
-        <div class="register-link">
-            Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a>
-        </div>
+
     </div>
 
     <script>
