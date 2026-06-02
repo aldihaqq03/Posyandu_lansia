@@ -132,8 +132,7 @@
 
         .input-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
+
         }
 
         .input-wrapper i:first-child {
@@ -145,14 +144,13 @@
 
         .input-wrapper input {
             width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
+            padding: 0.9rem 3rem 0.9rem 2.8rem;
+            /* kiri icon + kanan space eye */
             border: 1.5px solid #e2e8f0;
             border-radius: 40px;
-            font-size: 1rem;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.25s;
-            background: #ffffff;
+            font-size: 0.95rem;
         }
+
 
         .input-wrapper input:focus {
             outline: none;
@@ -162,12 +160,90 @@
 
         .toggle-password {
             position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            z-index: 2;
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding: 12px 44px 12px 14px;
+            /* kanan buat icon mata */
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            outline: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 3rem;
+            /* kiri icon lock + kanan eye */
+            border: 1.5px solid #e2e8f0;
+            border-radius: 40px;
+            /* SAMAIN dengan email */
+            font-size: 1rem;
+            transition: all 0.25s;
+        }
+
+        .password-wrapper input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .password-wrapper .toggle-password {
+            position: absolute;
             right: 18px;
-            background: none;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
             border: none;
             cursor: pointer;
             color: #94a3b8;
             font-size: 1.2rem;
+            z-index: 5;
+        }
+
+        /* ICON MATA */
+        .password-wrapper .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .password-wrapper .toggle-password:hover {
+            color: #3b82f6;
+        }
+
+        .form-group-modal .password-wrapper {
+            display: block;
         }
 
         /* Checkbox tanpa border */
@@ -254,6 +330,35 @@
             text-decoration: none;
         }
 
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        /* Pastikan input memiliki padding kanan cukup agar teks tidak tertutup ikon */
+        .input-wrapper input {
+            padding-right: 3rem;
+            /* memberi ruang untuk ikon mata */
+        }
+
         /* Responsive */
         @media (max-width: 560px) {
             .login-card {
@@ -306,11 +411,14 @@
 
             <div class="input-group">
                 <label for="password">Kata Sandi</label>
-                <div class="input-wrapper">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword()">
-                        <i class="fas fa-eye-slash" id="eyeIcon"></i>
+
+                <div class="password-wrapper">
+                    <i class="fas fa-lock" style="position:absolute; left:18px; color:#94a3b8;"></i>
+
+                    <input type="password" name="password" id="password" placeholder="Minimal 8 karakter" required>
+
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                        <i class="fa fa-eye-slash" id="togglePasswordIcon"></i>
                     </button>
                 </div>
             </div>

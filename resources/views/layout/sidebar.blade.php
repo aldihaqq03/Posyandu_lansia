@@ -183,7 +183,7 @@
         @if (session('warning')) showToast(@json(session('warning')),'warning'); @endif
         @if (session('info')) showToast(@json(session('info')),'info'); @endif
         @if ($errors->any()) @foreach ($errors->all() as $err) showToast(@json($err),'error'); @endforeach
-               @endif
+                @endif
     });
     function openLogoutModal() { document.getElementById('logoutModal').classList.add('active'); }
     function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('active'); }

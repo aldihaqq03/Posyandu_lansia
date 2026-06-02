@@ -225,42 +225,42 @@
             z-index: 2;
         }
 
+        /* input utama (SEMUA FIELD SAMA STYLE) */
         .input-wrapper input {
             width: 100%;
-            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            padding: 0.9rem 3rem 0.9rem 2.8rem;
             border: 1.5px solid #e2e8f0;
             border-radius: 40px;
             font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
-            background: #ffffff;
-            color: #1e293b;
             transition: all 0.25s;
         }
 
+        /* focus biar konsisten */
         .input-wrapper input:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
-        .input-wrapper input::placeholder {
-            color: #94a3b8;
-        }
-
-        .input-wrapper input[readonly] {
-            background: #f8fafc;
-            color: #64748b;
-        }
-
+        /* tombol mata */
         .toggle-password {
             position: absolute;
             right: 16px;
-            background: none;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
             border: none;
             cursor: pointer;
             color: #94a3b8;
             font-size: 1.1rem;
-            z-index: 2;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-password:hover {
+            color: #3b82f6;
         }
 
         /* Strength meter */
