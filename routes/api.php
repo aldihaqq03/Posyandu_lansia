@@ -29,4 +29,4 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Endpoint untuk Telegram Webhook
-Route::post('/telegram/webhook', [\App\Http\Controllers\API\TelegramWebhookController::class, 'handle']);
+Route::post('/telegram/webhook', [\App\Http\Controllers\Api\TelegramWebhookController::class, 'handle']);
