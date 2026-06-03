@@ -152,7 +152,7 @@
                                                 data-petugas-jabatan="{{ e($p->jabatan) }}"
                                                 data-petugas-no-hp="{{ e($p->no_hp) }}"
                                                 data-petugas-email="{{ e($p->email) }}"
-                                                data-update-url-template="{{ url('/petugas/update/__ID__') }}"
+                                                data-update-url-template="/petugas/update/__ID__"
                                                 style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background: white; color: #0F766E; border: 1px solid #0F766E; cursor: pointer; border-radius: 4px; height: 32px;">
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                                             </button>
@@ -160,7 +160,8 @@
                                                 style="display:inline; margin:0;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button onclick="return confirmAction(this, 'Hapus data petugas?', 'warning', 'Ya, Hapus!', '#ef4444')"
+                                                <button
+                                                    onclick="return confirmAction(this, 'Hapus data petugas?', 'warning', 'Ya, Hapus!', '#ef4444')"
                                                     style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px; height: 32px;">
                                                     <i class="fa-solid fa-trash"></i> Hapus
                                                 </button>
