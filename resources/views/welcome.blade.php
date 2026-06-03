@@ -1830,8 +1830,9 @@
             <div class="dl-icon"><i class="fa-solid fa-mobile-screen"></i></div>
             <h2>Unduh Aplikasi SIMPEL</h2>
             <p>Aplikasi ini hanya ditunjukan untuk Lansia yang terdata dalam kegiatan Posyandu Pegagan </p>
-            <a href="#" class="btn-apk">
-                <i class="fa-solid fa-download" style="font-size:26px;color:var(--blue)"></i>
+            <a href="https://github.com/Jejecan/simpel_mobile/releases/download/SIMPLE_MOBILE/app-release.apk"
+                class="btn-apk" download> <i class="fa-solid fa-download"
+                    style="font-size:26px;color:var(--blue)"></i>
                 <div class="btn-apk-text"><strong>Unduh APK</strong></div>
             </a>
             <div class="dl-phones">

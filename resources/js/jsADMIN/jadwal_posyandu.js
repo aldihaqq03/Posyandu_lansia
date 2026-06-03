@@ -60,6 +60,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnTambah = document.getElementById("btn-tambah-jadwal");
     const btnClose = document.getElementById("btn-close-modal");
     const btnCancel = document.getElementById("btn-cancel-modal");
+    function setMinDateForInput(inputElement, hintElement) {
+        if (!inputElement) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        today.setDate(today.getDate() + 3);
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const minDateStr = `${year}-${month}-${day}`;
+        inputElement.setAttribute('min', minDateStr);
+        inputElement.dataset.minDate = minDateStr;
+        if (hintElement) {
+            hintElement.textContent = `Minimal tanggal: ${formatDateIndo(minDateStr)} (H+3 dari hari ini)`;
+            hintElement.style.display = 'block';
+            hintElement.style.color = 'var(--primary-mid)';
+            hintElement.style.fontSize = '12px';
+            hintElement.style.marginTop = '4px';
+        }
+    }
 
     function openModalTambah() {
         modalTambah.classList.add("open");
@@ -126,25 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     modalDetail?.addEventListener("click", (e) => {
         if (e.target === modalDetail) closeModalDetail();
     });
-    function setMinDateForInput(inputElement, hintElement) {
-        if (!inputElement) return;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        today.setDate(today.getDate() + 3);
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const minDateStr = `${year}-${month}-${day}`;
-        inputElement.setAttribute('min', minDateStr);
-        inputElement.dataset.minDate = minDateStr;
-        if (hintElement) {
-            hintElement.textContent = `Minimal tanggal: ${formatDateIndo(minDateStr)} (H+3 dari hari ini)`;
-            hintElement.style.display = 'block';
-            hintElement.style.color = 'var(--primary-mid)';
-            hintElement.style.fontSize = '12px';
-            hintElement.style.marginTop = '4px';
-        }
-    }
+
     function renderStatusBadge(status) {
         const badge = document.getElementById("detail-status-badge");
         if (!badge) return;
@@ -348,9 +349,9 @@ document.addEventListener("DOMContentLoaded", function () {
         ?.addEventListener("click", function () {
             const inputTanggal = document.getElementById("input-tanggal");
             const tanggal = inputTanggal ? inputTanggal.value : "";
-            const tema = document.getElementById("input-tema").value.trim();
-            const lokasi = document.getElementById("input-lokasi").value.trim();
-            const minDate = inputTanggal ? inputTanggal.dataset.minDate : "";
+            const tema = document.getElementById("input-tema")?.value.trim() ?? "";
+            const lokasi = document.getElementById("input-lokasi")?.value.trim() ?? "";
+            const minDate = inputTanggal?.dataset?.minDate ?? "";
 
             if (!tanggal) {
                 if (window.showToast) {
