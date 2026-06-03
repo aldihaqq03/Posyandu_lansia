@@ -537,19 +537,19 @@
         updateStars();
 
         // Toggle password visibility
-        function togglePassword() {
-            const pw = document.getElementById('password');
-            const eye = document.getElementById('eyeIcon');
-            if (pw.type === 'password') {
-                pw.type = 'text';
-                eye.classList.remove('fa-eye-slash');
-                eye.classList.add('fa-eye');
-            } else {
-                pw.type = 'password';
-                eye.classList.remove('fa-eye');
-                eye.classList.add('fa-eye-slash');
-            }
-        }
+       function togglePasswordVisibility() {
+    const pw = document.getElementById('password');
+    const eye = document.getElementById('togglePasswordIcon');
+    if (pw.type === 'password') {
+        pw.type = 'text';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+    } else {
+        pw.type = 'password';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+    }
+}
     </script>
 
 </body>

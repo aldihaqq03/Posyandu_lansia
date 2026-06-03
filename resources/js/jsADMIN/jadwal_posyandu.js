@@ -231,7 +231,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 openModalDetail();
             })
             .catch(() => {
-                alert("Gagal mengambil detail jadwal!");
+                if (window.showToast) {
+                    window.showToast("Gagal mengambil detail jadwal!", "error");
+                } else {
+                    alert("Gagal mengambil detail jadwal!");
+                }
             });
     }
 
@@ -329,7 +333,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .catch((err) => {
                     console.error(err);
-                    alert("Gagal mengambil data jadwal!");
+                    if (window.showToast) {
+                        window.showToast("Gagal mengambil data jadwal!", "error");
+                    } else {
+                        alert("Gagal mengambil data jadwal!");
+                    }
                 });
         });
     });
@@ -338,21 +346,38 @@ document.addEventListener("DOMContentLoaded", function () {
     document
         .getElementById("btn-simpan-jadwal")
         ?.addEventListener("click", function () {
-            const tanggal = document.getElementById("input-tanggal").value;
+            const inputTanggal = document.getElementById("input-tanggal");
+            const tanggal = inputTanggal ? inputTanggal.value : "";
             const tema = document.getElementById("input-tema").value.trim();
             const lokasi = document.getElementById("input-lokasi").value.trim();
+            const minDate = inputTanggal ? inputTanggal.dataset.minDate : "";
+
             if (!tanggal) {
-                alert("Tanggal wajib diisi!");
+                if (window.showToast) {
+                    window.showToast("Tanggal wajib diisi!", "warning");
+                } else {
+                    alert("Tanggal wajib diisi!");
+                }
                 return;
             }
-            if (tanggal < minDate) {
-                alert(`Tanggal minimal ${formatDateIndo(minDate)} (H+3 dari hari ini)`);
+            if (minDate && tanggal < minDate) {
+                const msg = `Tanggal minimal ${formatDateIndo(minDate)} (H+3 dari hari ini)`;
+                if (window.showToast) {
+                    window.showToast(msg, "warning");
+                } else {
+                    alert(msg);
+                }
                 return;
             }
 
 
             if (!tanggal || !tema || !lokasi) {
-                alert("Tanggal, Tema, dan Lokasi wajib diisi!");
+                const msg = "Tanggal, Tema, dan Lokasi wajib diisi!";
+                if (window.showToast) {
+                    window.showToast(msg, "warning");
+                } else {
+                    alert(msg);
+                }
                 return;
             }
 
@@ -397,9 +422,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     return data;
                 })
                 .then(() => window.location.reload())
-                .catch((err) =>
-                    alert("Gagal menyimpan jadwal: " + err.message),
-                );
+                .catch((err) => {
+                    if (window.showToast) {
+                        window.showToast("Gagal menyimpan jadwal: " + err.message, "error");
+                    } else {
+                        alert("Gagal menyimpan jadwal: " + err.message);
+                    }
+                });
         });
 
     // ===================== UPDATE JADWAL =====================
@@ -413,14 +442,22 @@ document.addEventListener("DOMContentLoaded", function () {
             const minDate =
                 document.getElementById("edit-tanggal").dataset.minDate;
 
-            if (!tanggal || tanggal < minDate) {
-                alert(
-                    `Tanggal minimal ${formatDateIndo(minDate)} (H+3 dari hari ini)`,
-                );
+            if (!tanggal || (minDate && tanggal < minDate)) {
+                const msg = `Tanggal minimal ${formatDateIndo(minDate || "")} (H+3 dari hari ini)`;
+                if (window.showToast) {
+                    window.showToast(msg, "warning");
+                } else {
+                    alert(msg);
+                }
                 return;
             }
             if (!tema || !lokasi) {
-                alert("Tema dan Lokasi wajib diisi!");
+                const msg = "Tema dan Lokasi wajib diisi!";
+                if (window.showToast) {
+                    window.showToast(msg, "warning");
+                } else {
+                    alert(msg);
+                }
                 return;
             }
 
@@ -468,9 +505,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     closeModalEdit();
                     window.location.reload();
                 })
-                .catch((err) =>
-                    alert("Gagal menyimpan perubahan: " + err.message),
-                );
+                .catch((err) => {
+                    if (window.showToast) {
+                        window.showToast("Gagal menyimpan perubahan: " + err.message, "error");
+                    } else {
+                        alert("Gagal menyimpan perubahan: " + err.message);
+                    }
+                });
         });
 
     // ===================== ESC TUTUP MODAL =====================

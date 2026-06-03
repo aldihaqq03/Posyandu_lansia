@@ -248,6 +248,7 @@ class JadwalPosyanduController extends Controller
     private function successResponse(Request $request, string $message)
     {
         if ($request->expectsJson()) {
+            $request->session()->flash('success', $message);
             return response()->json(['success' => true, 'message' => $message]);
         }
 
