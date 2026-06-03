@@ -59,7 +59,7 @@ class FcmService
      */
     private static function getAccessToken()
     {
-        $path = storage_path('app/Services/service-account.json');
+        $path = storage_path('app/service-account.json');
 
         if (! file_exists($path)) {
             Log::error('FCM: File service-account.json tidak ditemukan di storage/app');
