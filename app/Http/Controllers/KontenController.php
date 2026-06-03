@@ -85,6 +85,7 @@ class KontenController extends Controller
 
             foreach ($tokens as $token) {
                 FcmService::sendNotification($token, $title, $body, [
+                    'type' => 'konten_baru',
                     'category' => 'Info',
                     'id' => (string) $konten->id_konten,
                     'action' => 'Buka Konten',

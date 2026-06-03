@@ -59,7 +59,7 @@ class JadwalPosyanduController extends Controller
             return $this->errorResponse($request, 'Jadwal pada tanggal tersebut sudah ada', 422);
         }
 
-        DB::transaction(function () use ($request) {
+        $jadwal = DB::transaction(function () use ($request) {
             $idPetugas = Auth::user()?->petugas?->id_petugas ?? 1;
 
             // 1. Ambil tanggal hari ini versi WIB
@@ -95,6 +95,8 @@ class JadwalPosyanduController extends Controller
             ])->toArray();
 
             DB::table('detail_skrining')->insert($inserts);
+
+            return $jadwal;
         });
 
         // --- Kirim Notifikasi FCM ---
@@ -111,7 +113,7 @@ class JadwalPosyanduController extends Controller
                 foreach ($lansiaTokens as $token) {
                     FcmService::sendNotification($token, $title, $body, [
                         'type' => 'jadwal_baru',
-                        'id' => $request->tanggal_pelaksanaan, // Sebagai referensi
+                        'id' => (string) $jadwal->id_jadwal_posyandu,
                     ]);
                 }
             }
