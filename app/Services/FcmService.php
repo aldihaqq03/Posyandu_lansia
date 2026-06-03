@@ -15,8 +15,9 @@ class FcmService
     {
         $accessToken = self::getAccessToken();
 
-        if (!$accessToken) {
+        if (! $accessToken) {
             Log::error('FCM: Gagal mendapatkan Access Token');
+
             return false;
         }
 
@@ -48,7 +49,8 @@ class FcmService
             return true;
         }
 
-        Log::error('FCM Error: ' . $response->body());
+        Log::error('FCM Error: '.$response->body());
+
         return false;
     }
 
@@ -57,18 +59,20 @@ class FcmService
      */
     private static function getAccessToken()
     {
-        $path = storage_path('app/service-account.json');
-        
-        if (!file_exists($path)) {
+        $path = storage_path('app/Services/service-account.json');
+
+        if (! file_exists($path)) {
             Log::error('FCM: File service-account.json tidak ditemukan di storage/app');
+
             return null;
         }
 
-        $client = new Client();
+        $client = new Client;
         $client->setAuthConfig($path);
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-        
+
         $token = $client->fetchAccessTokenWithAssertion();
+
         return $token['access_token'] ?? null;
     }
 }
