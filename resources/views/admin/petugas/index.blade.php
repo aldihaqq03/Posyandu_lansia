@@ -160,7 +160,7 @@
                                                 style="display:inline; margin:0;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button onclick="return confirm('Hapus data petugas?')"
+                                                <button onclick="return confirmAction(this, 'Hapus data petugas?', 'warning', 'Ya, Hapus!', '#ef4444')"
                                                     style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; background-color: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; cursor: pointer; border-radius: 4px; height: 32px;">
                                                     <i class="fa-solid fa-trash"></i> Hapus
                                                 </button>

@@ -153,7 +153,7 @@
 
                             @if($item->status == 1)
                                 <form method="POST" action="{{ route('jadwal_posyandu.selesai', $item->id_jadwal_posyandu) }}"
-                                    onsubmit="return confirm('Tandai jadwal ini sebagai selesai?')">
+                                    onsubmit="return confirmAction(this, 'Tandai jadwal ini sebagai selesai?', 'question', 'Ya, Selesai', '#10b981')">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="btn-outline btn-sm btn-selesai">

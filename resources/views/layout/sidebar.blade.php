@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>SIMPEL - @yield('title', 'Dashboard')</title>
     @vite('resources/css/sidebar.css')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('styles')
 </head>
 <body>
@@ -164,6 +165,36 @@
 </style>
 
 <script>
+    // SweetAlert2 global confirm helper
+    window.confirmAction = function(element, message = 'Apakah Anda yakin?', type = 'warning', confirmText = 'Ya', confirmColor = '#3b82f6') {
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: message,
+            icon: type,
+            showCancelButton: true,
+            confirmButtonColor: confirmColor,
+            cancelButtonColor: '#64748b',
+            confirmButtonText: confirmText,
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-lg px-4 py-2 font-semibold',
+                cancelButton: 'rounded-lg px-4 py-2 font-semibold'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (element.tagName === 'FORM') {
+                    element.submit();
+                } else {
+                    const form = element.closest('form');
+                    if (form) form.submit();
+                }
+            }
+        });
+        return false;
+    };
+
     window.showToast = function(message, type='info', duration=4500) {
         const icons={success:'<i class="fa-solid fa-circle-check"></i>',error:'<i class="fa-solid fa-circle-exclamation"></i>',warning:'<i class="fa-solid fa-triangle-exclamation"></i>',info:'<i class="fa-solid fa-circle-info"></i>'};
         const titles={success:'Berhasil',error:'Gagal',warning:'Perhatian',info:'Informasi'};
@@ -183,7 +214,7 @@
         @if (session('warning')) showToast(@json(session('warning')),'warning'); @endif
         @if (session('info')) showToast(@json(session('info')),'info'); @endif
         @if ($errors->any()) @foreach ($errors->all() as $err) showToast(@json($err),'error'); @endforeach
-                @endif
+                 @endif
     });
     function openLogoutModal() { document.getElementById('logoutModal').classList.add('active'); }
     function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('active'); }

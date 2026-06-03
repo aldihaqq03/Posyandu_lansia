@@ -90,7 +90,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="obat-btn obat-btn-hapus"
-                                                    onclick="return confirm('Yakin ingin menghapus data obat ini?')">
+                                                    onclick="return confirmAction(this, 'Yakin ingin menghapus data obat ini?', 'warning', 'Ya, Hapus!', '#ef4444')">
                                                     <i class="fa-solid fa-trash"></i> Hapus
                                                 </button>
                                             </form>

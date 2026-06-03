@@ -40,7 +40,7 @@
             <a href="{{ route('konten.edit', $item->id_konten) }}" class="btn-icon btn-edit" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
-            <form action="{{ route('konten.destroy', $item->id_konten) }}" method="POST" onsubmit="return confirm('Yakin hapus konten ini?')" style="margin:0;">
+            <form action="{{ route('konten.destroy', $item->id_konten) }}" method="POST" onsubmit="return confirmAction(this, 'Yakin hapus konten ini?', 'warning', 'Ya, Hapus!', '#ef4444')" style="margin:0;">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-icon btn-delete" title="Hapus">

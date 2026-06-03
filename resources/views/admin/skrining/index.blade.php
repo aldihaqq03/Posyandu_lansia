@@ -1715,17 +1715,41 @@
             async function handleDeleteSaranLama(e) {
                 const id       = e.currentTarget.dataset.id;
                 const idLansia = selectLansia?.value;
-                if (!confirm('Yakin mau hapus saran ini?')) return;
+                
+                const result = await Swal.fire({
+                    title: 'Konfirmasi',
+                    text: 'Yakin mau hapus saran ini?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'rounded-lg px-4 py-2 font-semibold',
+                        cancelButton: 'rounded-lg px-4 py-2 font-semibold'
+                    }
+                });
+
+                if (!result.isConfirmed) return;
+
                 try {
                     const res  = await fetch(`/lansia/${idLansia}/saran/${id}`, {
                         method: 'DELETE',
                         headers: { 'X-CSRF-TOKEN': document.querySelector('[name="_token"]').value }
                     });
                     const json = await res.json();
-                    if (res.ok) selectLansia.dispatchEvent(new Event('change'));
-                    else alert('Error: ' + (json.message || 'Gagal hapus'));
+                    if (res.ok) {
+                        selectLansia.dispatchEvent(new Event('change'));
+                        if (window.showToast) window.showToast('Saran berhasil dihapus', 'success');
+                    }
+                    else {
+                        if (window.showToast) window.showToast('Error: ' + (json.message || 'Gagal hapus'), 'error');
+                    }
                 } catch (err) {
-                    alert('Error: ' + err.message);
+                    if (window.showToast) window.showToast('Error: ' + err.message, 'error');
                 }
             }
 
