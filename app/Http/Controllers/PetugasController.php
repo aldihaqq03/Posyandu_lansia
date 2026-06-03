@@ -22,7 +22,8 @@ class PetugasController extends Controller
 
     private function visiblePetugasQuery()
     {
-        $query = Petugas::query();
+        $query = Petugas::query()
+            ->where('id_user', '!=', auth()->id()); // exclude akun sendiri
 
         if (! $this->isSuperAdmin()) {
             $query->where('jabatan', 'kader');
@@ -162,7 +163,7 @@ class PetugasController extends Controller
             ]);
         }
 
-        return redirect('/data_petugas');
+        return redirect('/data_petugas')->with('success', 'Data petugas berhasil diperbarui');
     }
 
     public function destroy($id)
@@ -176,6 +177,6 @@ class PetugasController extends Controller
             $petugas->delete();
         }
 
-        return redirect('/data_petugas');
+        return redirect('/data_petugas')->with('success', 'Data petugas berhasil dihapus');
     }
 }
