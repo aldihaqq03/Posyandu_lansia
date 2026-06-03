@@ -49,6 +49,7 @@ class KontenController extends Controller
             'gambar.mimes'   => 'Format foto tidak didukung. Gunakan JPEG, PNG, atau GIF.',
             'deskripsi.max'  => 'Deskripsi terlalu panjang. Maksimal 65.000 karakter.',
         ]);
+        
 
         $data = $request->only(['judul', 'tipe_konten', 'kategori_konten', 'deskripsi']);
 
@@ -70,6 +71,11 @@ class KontenController extends Controller
         // tipe 3 (Artikel): tidak ada file, deskripsi sudah terisi dari CKEditor
 
         $konten = Konten::create($data);
+        dd([
+    'hasFile' => $request->hasFile('video'),
+    'file' => $request->file('video'),
+    'error' => $_FILES['video']['error'] ?? null,
+]);
 
         // --- Kirim Notifikasi FCM ---
         try {

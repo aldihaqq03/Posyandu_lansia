@@ -187,8 +187,8 @@
                 </div>{{-- /.lansia-table-scroll --}}
 
                 <div class="pagination-wrapper">
-                    {{ $lansias->links() }}
-                </div>
+    {{ $lansias->links('pagination::bootstrap-4') }}
+</div>
             </section>
 
             {{-- ── DETAIL PANEL (muncul saat baris diklik) ────────────── --}}

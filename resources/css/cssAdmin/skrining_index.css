@@ -1084,3 +1084,21 @@ select.form-control {
     padding: 8px;
     border-radius: 6px;
 }
+/* di skrining_index.css */
+input[name="riwayat_penyakit_keluarga_ppok[]"]:disabled,
+input[name="riwayat_penyakit_sendiri_ppok[]"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Tambah label keterangan di atas checkbox PPOK */
+.ppok-riwayat-info {
+    font-size: 12px;
+    color: #3b82f6;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    display: none; /* tampil hanya jika hasBoth */
+}

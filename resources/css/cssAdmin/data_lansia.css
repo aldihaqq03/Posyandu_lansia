@@ -857,3 +857,45 @@ td.empty-state {
     padding: 0 !important;
     height: auto !important;
 }
+/* Fix pagination Bootstrap */
+.pagination-wrapper .pagination {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+}
+
+.pagination-wrapper .pagination li a,
+.pagination-wrapper .pagination li span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    color: #2563eb;
+    font-size: 14px;
+    text-decoration: none;
+    background: white;
+}
+
+.pagination-wrapper .pagination li.active span {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.pagination-wrapper .pagination li.disabled span {
+    color: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.pagination-wrapper .pagination li a:hover {
+    background: #eff6ff;
+    border-color: #2563eb;
+}

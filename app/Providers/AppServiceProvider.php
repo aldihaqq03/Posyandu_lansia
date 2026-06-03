@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Pagination\Paginator; // ← pastikan baris ini ada
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+         Paginator::useBootstrap();
         Event::listen(Verified::class, function (Verified $event) {
             $event->user?->petugas?->update([
                 'status' => 'aktif',

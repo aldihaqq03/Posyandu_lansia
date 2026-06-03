@@ -607,6 +607,12 @@
                             </div>
                         </div>
 
+                        @if($jadwal && in_array(\App\Models\DetailSkrining::SKRINING_UTAMA, $aktifSkrining))
+                            <div class="ppok-riwayat-info" id="ppok-riwayat-info-keluarga" style="display:block;">
+                                <i class="fa-solid fa-link"></i> 
+                                Otomatis diisi dari Skrining PTM. Input di bagian PTM untuk mengubah.
+                            </div>
+                        @endif
                         <div class="subsection-label">Riwayat Penyakit Keluarga</div>
                         @php
                             $penyakitPpok = [
@@ -1067,8 +1073,20 @@
                 return panels.every(panel => validatePanel(panel, true));
             }
 
-            function enableSyncedFieldsBeforeSubmit() {
-                setRadioGroupDisabled('merokok_ppok', false, false);
+           function enableSyncedFieldsBeforeSubmit() {
+            setRadioGroupDisabled('merokok_ppok', false, false);
+
+            const hasBoth = Boolean(stepUtama && stepPpok);
+            if (hasBoth) {
+                document.querySelectorAll(
+                    'input[name="riwayat_penyakit_keluarga_ppok[]"], input[name="riwayat_penyakit_sendiri_ppok[]"]'
+                ).forEach(cb => {
+                    if (cb.value !== 'gangguan_pendengaran' && cb.value !== 'disabilitas') {
+                        cb.disabled = false;
+                    }
+                });
+            }
+        
             }
 
             // ══════════════════════════════════════════════════════════════
@@ -1571,7 +1589,84 @@
 
                 if (!smoker) { if (pyEl) pyEl.value = '0 pack-years'; }
                 else hitungPackYears();
-            }
+                        }// ══════════════════════════════════════════════════════════════
+            //  SYNC RIWAYAT PENYAKIT PTM → PPOK
+            // ══════════════════════════════════════════════════════════════
+          function syncRiwayatPenyakit() {
+    const hasBoth = Boolean(stepUtama && stepPpok);
+    if (!hasBoth) return;
+
+    // Mapping riwayat keluarga (sama persis, value sama)
+    const mappingKeluarga = [
+        'diabetes', 'hipertensi', 'jantung', 'stroke', 'kanker', 'thalasemia'
+    ];
+    // Khusus keluarga: PTM punya 'talasemia', PPOK punya 'thalasemia'
+    const mappingKeluargaPtmToPpok = {
+        'talasemia': 'thalasemia', // PTM value → PPOK value
+    };
+
+    mappingKeluarga.forEach(ppokVal => {
+        // cari PTM value (mungkin beda nama)
+        const ptmVal = Object.keys(mappingKeluargaPtmToPpok)
+            .find(k => mappingKeluargaPtmToPpok[k] === ppokVal) || ppokVal;
+
+        const ptmChecked = document.querySelector(
+            `input[name="riwayat_penyakit_keluarga[]"][value="${ptmVal}"]:checked`
+        );
+        const ppokEl = document.querySelector(
+            `input[name="riwayat_penyakit_keluarga_ppok[]"][value="${ppokVal}"]`
+        );
+        if (ppokEl) {
+            ppokEl.checked  = Boolean(ptmChecked);
+            ppokEl.disabled = true;
+        }
+    });
+
+    // Mapping riwayat sendiri (PTM value → PPOK value)
+    const mappingSendiri = {
+        'diabetes'             : 'diabetes',
+        'hipertensi'           : 'hipertensi',
+        'jantung'              : 'jantung',
+        'stroke'               : 'stroke',
+        'kanker'               : 'kanker',
+        'asma'                 : 'asma',
+        'kolesterol'           : 'kolesterol_tinggi',  // beda nama
+        'ppok'                 : 'ppok',
+        'talasemia'            : 'thalasemia',         // beda nama
+        'lupus'                : 'lupus',
+        'gangguan_penglihatan' : 'gangguan_penglihatan',
+        // gangguan_pendengaran & disabilitas TIDAK ada di PTM → skip
+    };
+
+    Object.entries(mappingSendiri).forEach(([ptmVal, ppokVal]) => {
+        const ptmChecked = document.querySelector(
+            `input[name="riwayat_penyakit_sendiri[]"][value="${ptmVal}"]:checked`
+        );
+        const ppokEl = document.querySelector(
+            `input[name="riwayat_penyakit_sendiri_ppok[]"][value="${ppokVal}"]`
+        );
+        if (ppokEl) {
+            ppokEl.checked  = Boolean(ptmChecked);
+            ppokEl.disabled = true;
+        }
+    });
+
+    // gangguan_pendengaran & disabilitas tetap bisa diinput bebas
+    ['gangguan_pendengaran', 'disabilitas'].forEach(val => {
+        const el = document.querySelector(
+            `input[name="riwayat_penyakit_sendiri_ppok[]"][value="${val}"]`
+        );
+        if (el) el.disabled = false;
+    });
+}
+
+            // Pasang listener di semua checkbox riwayat PTM
+            document.querySelectorAll(
+                'input[name="riwayat_penyakit_keluarga[]"], input[name="riwayat_penyakit_sendiri[]"]'
+            ).forEach(cb => cb.addEventListener('change', syncRiwayatPenyakit));
+
+            // Jalankan sekali saat load
+            syncRiwayatPenyakit();
 
             // init semua radio enabled
             [
