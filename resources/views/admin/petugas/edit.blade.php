@@ -31,7 +31,8 @@
         </div>
 
         <div class="form-card">
-            <form action="{{ route('petugas.update', ['id' => $petugas->id_petugas]) }}" method="POST">
+            <form action="/petugas/update/{{ $petugas->id_petugas }}" method="POST">
+
                 @csrf
                 @method('PUT')
 
@@ -49,7 +50,7 @@
 
                     <div class="form-group">
                         <label>Jabatan</label>
-                        @if($canChooseRole)
+                        @if ($canChooseRole)
                             <select name="jabatan" required>
                                 <option value="kader" @selected(old('jabatan', $petugas->jabatan) === 'kader')>kader</option>
                                 <option value="kepala_kader" @selected(old('jabatan', $petugas->jabatan) === 'kepala_kader')>kepala_kader</option>
