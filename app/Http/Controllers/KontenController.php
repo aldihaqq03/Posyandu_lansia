@@ -71,11 +71,7 @@ class KontenController extends Controller
         // tipe 3 (Artikel): tidak ada file, deskripsi sudah terisi dari CKEditor
 
         $konten = Konten::create($data);
-        dd([
-    'hasFile' => $request->hasFile('video'),
-    'file' => $request->file('video'),
-    'error' => $_FILES['video']['error'] ?? null,
-]);
+      
 
         // --- Kirim Notifikasi FCM ---
         try {
@@ -97,8 +93,8 @@ class KontenController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
-    dd($e->getMessage(), $e->getFile(), $e->getLine());
-}
+            dd($e->getMessage(), $e->getFile(), $e->getLine());
+            }
 
         return redirect()->route('konten.index')->with('success', 'Konten berhasil ditambahkan!');
     }
