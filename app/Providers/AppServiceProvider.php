@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL; // ← pastikan baris ini ada
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Pagination\Paginator; // ← pastikan baris ini ada
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-         Paginator::useBootstrap();
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+        Paginator::useBootstrap();
         Event::listen(Verified::class, function (Verified $event) {
             $event->user?->petugas?->update([
                 'status' => 'aktif',
