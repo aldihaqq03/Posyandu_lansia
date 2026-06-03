@@ -21,6 +21,7 @@
                 <div class="form-group">
                     <label class="form-label">Tanggal <span class="required">*</span></label>
                     <input type="date" class="form-control" id="input-tanggal" name="tanggal_pelaksanaan">
+                    <small class="form-hint" id="input-tanggal-hint" style="display: none;"></small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Tema <span class="required">*</span></label>

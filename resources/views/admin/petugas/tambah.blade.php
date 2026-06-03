@@ -5,38 +5,6 @@
 @push('styles')
     @vite('resources/css/app.css')
     @vite('resources/css/cssAdmin/tambah_data_petugas.css')
-    <style>
-        /* Style untuk password toggle */
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .password-wrapper input {
-            width: 100%;
-            padding-right: 45px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #94a3b8;
-            font-size: 1.2rem;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .toggle-password:hover {
-            color: #3b82f6;
-        }
-    </style>
 @endpush
 
 @section('content')
@@ -121,12 +89,7 @@
 
                     <div class="form-group full">
                         <label>Kata Sandi</label>
-                        <div class="password-wrapper">
-                            <input type="password" name="password" id="password" placeholder="Minimal 8 karakter" required>
-                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
-                                <i class="fa fa-eye-slash" id="togglePasswordIcon"></i>
-                            </button>
-                        </div>
+                        <input type="password" name="password" placeholder="Minimal 8 karakter" required>
                     </div>
 
                 </div>
@@ -151,19 +114,4 @@
 
 @push('scripts')
     @vite('resources/js/jsADMIN/data_petugas.js')
-    <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const icon = document.getElementById('togglePasswordIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            }
-        }
-    </script>
 @endpush

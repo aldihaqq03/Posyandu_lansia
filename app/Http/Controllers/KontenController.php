@@ -97,8 +97,8 @@ class KontenController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("FCM Konten Store Error: " . $e->getMessage());
-        }
+    dd($e->getMessage(), $e->getFile(), $e->getLine());
+}
 
         return redirect()->route('konten.index')->with('success', 'Konten berhasil ditambahkan!');
     }
