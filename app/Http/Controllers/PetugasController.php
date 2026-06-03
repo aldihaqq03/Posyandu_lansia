@@ -10,7 +10,6 @@ use Illuminate\Validation\Rule;
 
 class PetugasController extends Controller
 {
-
     private function currentRole(): string
     {
         return strtolower(auth()->user()->jabatan ?? '');
@@ -60,12 +59,10 @@ class PetugasController extends Controller
         ));
     }
 
-
     public function tambah()
     {
         return view('admin.petugas.tambah');
     }
-
 
     public function store(Request $request)
     {
@@ -116,9 +113,8 @@ class PetugasController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        return redirect('/data_petugas')->with('success','Data petugas berhasil ditambahkan');
+        return redirect('/data_petugas')->with('success', 'Data petugas berhasil ditambahkan');
     }
-
 
     public function edit($id)
     {
@@ -127,7 +123,6 @@ class PetugasController extends Controller
 
         return view('admin.petugas.edit', compact('petugas'));
     }
-
 
     public function update(Request $request, $id)
     {
@@ -141,10 +136,10 @@ class PetugasController extends Controller
 
         $request->validate([
             'nama' => 'required|string|min:3|max:100',
-            'nik' => 'required|digits:16|unique:petugas,nik,' . $petugas->id_petugas . ',id_petugas',
+            'nik' => 'required|digits:16|unique:petugas,nik,'.$petugas->id_petugas.',id_petugas',
             'jabatan' => ['required', Rule::in($allowedJabatan)],
-            'no_hp' => 'required|regex:/^(\+62|0)[0-9]{9,12}$/|unique:users,whatsapp,' . $petugas->id_user,
-            'email' => 'required|email:rfc|unique:users,email,' . $petugas->id_user,
+            'no_hp' => ['required', 'regex:/^(\+62|0)[0-9]{9,12}$/', Rule::unique('users', 'whatsapp')->ignore($petugas->id_user)],
+            'email' => 'required|email:rfc|unique:users,email,'.$petugas->id_user,
         ], [
             'nik.digits' => 'NIK harus 16 digit angka.',
             'no_hp.regex' => 'Format Nomor WhatsApp tidak valid.',
@@ -160,7 +155,7 @@ class PetugasController extends Controller
             'jabatan' => $jabatan,
         ]);
 
-        if($petugas->user) {
+        if ($petugas->user) {
             $petugas->user->update([
                 'email' => $request->email,
                 'whatsapp' => $request->no_hp,
@@ -170,13 +165,12 @@ class PetugasController extends Controller
         return redirect('/data_petugas');
     }
 
-
     public function destroy($id)
     {
         $petugas = Petugas::findOrFail($id);
         $this->ensureCanManagePetugas($petugas);
-        
-        if($petugas->user) {
+
+        if ($petugas->user) {
             $petugas->user->delete();
         } else {
             $petugas->delete();
@@ -184,5 +178,4 @@ class PetugasController extends Controller
 
         return redirect('/data_petugas');
     }
-
 }
